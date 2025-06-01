@@ -1,0 +1,68 @@
+.dashboard {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    overflow-x: hidden;
+  }
+  
+  .dashboard-header {
+    background: white;
+    padding: 16px 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+  }
+  
+  .header-content {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  .user_role_info{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .dashboard-container {
+   width: 98%;
+   margin: auto;
+    height: 100vh;
+    display: flex;
+  }
+  
+  .sidebarContainer {
+    height: 100vh;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 20%;
+  }
+  
+  .users {
+    /* flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0; 
+    overflow-x: hidden; */
+    height: 100vh;
+    /* overflow-y: scroll; */
+    width: 80%;
+  }
+  

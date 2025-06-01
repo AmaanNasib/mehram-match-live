@@ -1,0 +1,81 @@
+.main_section{
+    height: calc(100% - 60px);
+}
+
+
+.button_base {
+    background: radial-gradient(circle at 50% -90%, #ec4899, #ff85ca);
+    color: white;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    font-size: 12px;
+}
+
+.button_base:hover {
+    opacity: 0.9;
+}
+
+.promotional_button {
+    background: radial-gradient(circle at 50% -90%, #ec4899, #ff85ca);
+    color: white;
+    font-weight: 500;
+    padding: 4px 24px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    font-size: 12px;
+}
+
+.promotional_button:hover {
+    opacity: 0.9;
+}
+
+.profile_btn {
+    background: #FFF1FD;
+    color: white;
+    height: 32px;
+    width: 32px;
+    padding: 4px 4px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    font-size: 12px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile_btn:hover {
+    opacity: 0.9;
+}
+
+input {      
+    accent-color: #ED58AC;
+}
+
+input:focus {      
+    outline-color: gray;
+}
+
+textarea:focus {      
+    outline-color: #ff85ca;
+}
+
+button:disabled{
+    background: gray !important;
+    cursor: not-allowed !important ;
+}
+
+button:disabled:hover{
+    opacity: 1;
+}

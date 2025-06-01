@@ -1,0 +1,79 @@
+.trending-section {
+    background: #F4F5F9;
+    padding:0px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.trending-section h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    padding: 0 5px;
+}
+
+
+.profile-scroll {
+    width: 100%;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #ff4081 #f1f1f1;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+.profile-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  .profile-scroll::-webkit-scrollbar {
+    display: none; /* Hides the scrollbar in Webkit browsers */
+  }
+  
+
+.profile-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.profile-scroll::-webkit-scrollbar-thumb {
+    background: #ff4081;
+    border-radius: 4px;
+}
+
+.profile-cards {
+    display: flex;
+    gap: 20px;
+    min-width: max-content;
+    padding: 10px 5px;
+    flex-wrap: nowrap;
+}
+
+
+
+/* New styles for the button container and button */
+.button-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .top-right-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px 20px;
+    background-color: #ff4081; /* Blue color, change as needed */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .top-right-button:hover {
+    background-color: #ff4081; /* Darker blue on hover */
+  }

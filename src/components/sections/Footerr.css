@@ -1,0 +1,146 @@
+.footer {
+  background: #FED5EC;
+  padding: 40px 0;
+  color: #333; /* Default text color */
+}
+
+.footer-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-logo {
+  width: 100px; /* Adjust the width of the logo as needed */
+}
+
+.footer-text {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+  color: #333;
+}
+
+.footer-section h5 {
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #d63384; /* Keeps headings pink */
+}
+
+.footer-heading {
+  font-size: 20px;
+  font-weight: bold;
+  color: #d63384;
+  margin-bottom: 5px;
+  text-align: left; /* Align text to the left */
+}
+
+.footer-heading-line {
+  width: 100%; /* Full width of its parent container */
+  height: 2px; /* Set height of the line */
+  background-color: #d63384; /* Color of the line */
+  margin: 0 auto 15px auto; /* Keeps the line centered */
+}
+
+.footer-heading-linee {
+  width: 100%; /* Full width of its parent container */
+  height: 1.5px; /* Set height of the line */
+  background-color: #d63384; /* Color of the line */
+  margin: 0 auto 15px auto; /* Keeps the line centered */
+}
+
+.footer-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Spacing between items */
+  padding: 10px 0;
+}
+
+.footer-contact-item {
+  flex: 1;
+  min-width: 250px; /* Ensures responsiveness */
+  color: #333;
+}
+
+.footer-contact-item h6 {
+  margin-bottom: 5px;
+  color: #9e9696; /* Keeps headings pink */
+}
+
+.footer-contact-item p {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  margin: 5px 0; /* Adds spacing between the phone numbers */
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+  cursor: pointer;
+  color: #333; /* Ensures menu links are #333 */
+}
+
+.footer-section ul li:hover {
+  color: #d63384; /* Hover effect */
+}
+
+.footer-bottom {
+  margin-top: 20px; /* Add margin to ensure space above the footer bottom */
+  color: #d63384; /* Keeps headings pink */
+}
+
+.footer-bottom p {
+  font-size: 14px;
+  white-space: nowrap; /* Prevents text from wrapping */
+  text-align: center;
+}
+
+.store-badge {
+  width: 150px;
+  margin: 10px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end; /* Aligns the icons to the right */
+  width: 100%; /* Ensures the social icons are pushed to the far right */
+}
+
+.social-icons .social-icon {
+  font-size: 24px;
+  margin: 0 10px;
+  cursor: pointer;
+  color: #333; /* Default color */
+}
+
+.social-icons .social-icon:hover {
+  color: #d63384; /* Hover effect */
+}
+
+/* Specific colors for each social icon */
+.social-icons .facebook {
+  color: #3b5998; /* Facebook blue */
+}
+
+.social-icons .twitter {
+  color: #00acee; /* Twitter blue */
+}
+
+.social-icons .instagram {
+  color: #e4405f; /* Instagram pink */
+}
+
+.social-icons .youtube {
+  color: #ff0000; /* YouTube red */
+}
+
+.social-icons .linkedin {
+  color: #0077b5; /* LinkedIn blue */
+}

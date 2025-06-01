@@ -1,0 +1,461 @@
+.dashboard-layout {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Header Styles */
+.dashboard-header {
+  background: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  width: 40%;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 32px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  padding: 8px;
+  width: 100%;
+  max-width: 350px;
+}
+
+.search-icon {
+  color: #666;
+  font-size: 16px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.notifications {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #FF1493;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.language-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.language-select img {
+  width: 34px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.arrow {
+  margin-left: auto; /* Push the arrow to the right */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 4px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #ddd;
+}
+
+/* Show dropdown when active */
+.language-select.active .dropdown-content {
+  display: block;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-profile img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%; /* Make the image circular */
+}
+.user-info {
+  display: flex;
+  flex-direction: column; /* Stack text vertically */
+  align-items: flex-start; /* Align text to the left */
+  gap: 1px; /* Add gap between username and user-role */
+}
+.username {
+  font-weight: bold; /* Make the username bold */
+}
+
+.user-role {
+  font-size: 12px; /* Smaller font size for the subtitle */
+  color: #666; /* Subtle color for the subtitle */
+  gap: 4px;
+
+}
+
+.arrow {
+  margin-left: auto; /* Push the arrow to the right */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0; /* Align dropdown to the right */
+  background-color: #fff;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #ddd;
+}
+
+/* Show dropdown when active */
+.user-profile.active .dropdown-content {
+  display: block;
+}
+
+/* Sidebar Styles */
+.dashboard-content {
+  padding-top: 56px; /* Height of header */
+}
+
+.dashboard-sidebar {
+  width: 260px;
+  transition: transform 0.3s ease;
+  background: white;
+  height: calc(100vh - 56px); /* Constrain height to viewport minus header */
+  padding: 24px;
+  border-right: 1px solid #e0e0e0;
+  position: fixed;
+  left: 0;
+  overflow-y: auto; /* Enable vertical scrolling */
+  top: 70px; /* Position below the header */
+  margin-top: 10px;
+}
+
+.dashboard-sidebar.open {
+  transform: translateX(0);
+}
+.dashboard-sidebar:not(.open) {
+  transform: translateX(-250px);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #666;
+  text-decoration: none;
+  margin-bottom: 4px;
+  transition: all 0.2s;
+}
+
+.pagetext {
+  margin-bottom: 12px;
+  margin-top: 20px;
+  padding-top: 12px; /* Add padding to separate the border from the text */
+  border-top: 1px solid #e0e0e0; /* Light gray color */
+  color: #666;
+
+}
+
+.nav-item:hover {
+  background: #f8f9fa;
+  color: #FF1493;
+}
+
+.nav-item.active {
+  background: #FF1493;
+  color: white;
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 240px; /* Width of sidebar */
+  padding: 18px;
+  min-height: calc(100vh - 56px);
+}
+
+.submenu-enter {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.submenu-enter-active {
+  max-height: 300px;
+  /* adjust based on expected content */
+  opacity: 1;
+}
+
+
+
+/* Notification Dropdown Styles */
+.notification-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 350px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.accept-btn {
+  background-color: #4caf50; /* Green */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background-color: #f44336; /* Red */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.accept-btn:hover {
+  background-color: #45a049; /* Darker green */
+}
+
+.reject-btn:hover {
+  background-color: #e53935; /* Darker red */
+}
+
+
+.notification-actions.open {
+  max-height: 60px; /* Adjust based on button height */
+}
+
+.notification-header {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-header span {
+  font-weight: bold;
+}
+
+.notification-settings {
+  cursor: pointer;
+}
+
+.notification-settings svg {
+  width: 16px;
+  height: 16px;
+}
+
+.notification-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+}
+
+.notification-content-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content strong {
+  display: block;
+  font-size: 14px;
+}
+
+.notification-content span {
+  font-size: 12px;
+  color: #666;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #666;
+  margin-left: auto;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px; /* Add space between content and buttons */
+}
+
+.accept-btn {
+  background-color: #FF1493; /* Green */
+  color: white;
+  font-size: 12px;
+
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  border: 1px solid #FF1493; /* Red border */
+  background-color: transparent; /* Transparent background */
+  color: #FF1493; /* Red text color */
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+}
+
+.reject-btn:hover {
+  background-color: #FF1493; /* Red background on hover */
+  color: white; /* White text on hover */
+}
+
+.accept-btn:hover {
+  background-color: #45a049; /* Darker green */
+}
+
+.reject-btn:hover {
+  background-color: #e53935; /* Darker red */
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #666;
+  margin-right: 12px;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content strong {
+  display: block;
+  font-size: 14px;
+}
+
+.notification-content span {
+  font-size: 12px;
+  color: #666;
+}
+
+.notification-footer {
+  padding: 12px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.notification-footer a {
+  color: #FF1493;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.settings-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.settings-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.settings-icon:hover {
+  color: #FF1493; /* Change color on hover */
+}

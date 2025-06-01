@@ -1,0 +1,105 @@
+.terms-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  .terms-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 1.5rem;
+  }
+  
+  .terms-header h1 {
+    font-size: 2.2rem;
+    color: #d63384;
+    margin-bottom: 0.5rem;
+  }
+  
+  .last-updated {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+  }
+  
+  .terms-content {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+  }
+  
+  .term-section {
+    margin-bottom: 2rem;
+  }
+  
+  .term-section h2 {
+    font-size: 1.4rem;
+    color: #d63384;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ecf0f1;
+  }
+  
+  .term-section p {
+    margin-bottom: 1rem;
+  }
+  
+  .term-section ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .term-section li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .prohibited {
+    color: #e74c3c;
+    font-weight: 500;
+  }
+  
+  .term-section a {
+    color: #d63384;
+    text-decoration: none;
+  }
+  
+  .term-section a:hover {
+    text-decoration: underline;
+  }
+  
+  .contact-section {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-top: 2rem;
+  }
+  
+  .blessing {
+    font-style: italic;
+    color: #8e44ad;
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .terms-container {
+      padding: 1rem;
+    }
+    
+    .terms-content {
+      padding: 1rem;
+    }
+    
+    .terms-header h1 {
+      font-size: 1.8rem;
+    }
+    
+    .term-section h2 {
+      font-size: 1.2rem;
+    }
+  }

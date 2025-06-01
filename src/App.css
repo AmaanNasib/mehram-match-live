@@ -1,0 +1,56 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  /* cursor: url('./images/cursor.svg'), auto;  */
+  font-family: 'Poppins', sans-serif; /* Apply Poppins font globally */
+}
+
+/* You can also set specific styles for headings or other elements if needed */
+h1, h2, h3, h4, h5, h6, p {
+  font-family: 'Poppins', sans-serif; /* Ensure Poppins for headings and paragraphs */
+}
+
+::-webkit-scrollbar{
+  display: none;
+}
+.errormessage {
+  padding: 8px 48px;
+  border-radius: 100vw;
+  position: absolute;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap;
+  color: #ff4646;
+  background-color: #FFE8E8;
+  border: 2px solid #FF3636;
+  font-family: intersemibold;
+  display: flex;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10%;
+  z-index: 10000;
+}
+
+.successmessage {
+  padding: 8px 48px;
+  border-radius: 100vw;
+  position: absolute;
+  text-align: center;
+  font-size: 16px;
+  white-space: nowrap;
+  color: #07bb25;
+  background-color: #FFE8E8;
+  border: 2px solid #07bb25;
+  font-family: intersemibold;
+  display: flex;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10%;
+  z-index: 10000;
+}

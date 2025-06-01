@@ -1,0 +1,176 @@
+.trending-section {
+    background: #F4F5F9;
+    padding:0px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    width: 98%;
+    max-width: 98%;
+    overflow: hidden;
+    margin-left: 20px;
+}
+
+.trending-section h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+    padding: 0 5px;
+}
+
+
+.profile-scroll {
+    width: 100%;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #ff4081 #f1f1f1;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+.profile-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  .profile-scroll::-webkit-scrollbar {
+    display: none; /* Hides the scrollbar in Webkit browsers */
+  }
+  
+
+.profile-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.profile-scroll::-webkit-scrollbar-thumb {
+    background: #ff4081;
+    border-radius: 4px;
+}
+
+.profile-cards {
+    display: flex;
+    gap: 20px;
+    min-width: max-content;
+    padding: 10px 5px;
+    flex-wrap: nowrap;
+}
+
+
+
+/* New styles for the button container and button */
+.button-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .top-right-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px 20px;
+    background-color: #ff4081; /* Blue color, change as needed */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .top-right-button:hover {
+    background-color: #ff4081; /* Darker blue on hover */
+  }
+
+  /* Shimmer Effect Styles */
+.shimmer-container {
+  display: flex;
+  gap: 20px;
+  min-width: max-content;
+  padding: 10px 5px;
+}
+
+.secondDetail {
+  width: 280px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.headingSecond {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.shimmer-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0f0f0;
+}
+
+.shimmer-title {
+  width: 180px;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.basic {
+  display: flex;
+  margin: 10px 0;
+}
+
+.basicleft, .basicRight {
+  width: 50%;
+}
+
+.shimmer-info {
+  height: 16px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin: 5px 0;
+}
+
+/* Shimmer Animation */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  animation: shimmer 2s infinite;
+  transform: translateX(-100%);
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+/* Specific shimmer elements */
+.shimmer-text::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0) 100%
+  );
+}
+
+.shimmer-img::after {
+  border-radius: 50%;
+}

@@ -1,0 +1,189 @@
+.FooterContainer {
+    background-color: #FED5EC; 
+      padding: 1vw; /* Removed padding */
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+}
+.inner{
+    width: 90vw;
+}
+
+.FooterLeftUpper img {
+    height: 12%; 
+    width: 12%; 
+    padding-bottom: 3%;
+}
+
+.FooterLeft {
+   width: 50%;
+   align-items: flex-start;
+   display: flex;
+   flex-direction: column;
+    justify-content: flex-start;
+    
+
+}
+
+.FooterRight {
+    width: 50%;
+    display: flex;
+    justify-content: end;
+    gap: 10%;
+
+}
+
+
+.FooterDetails {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+     justify-content: space-around;
+  
+}
+
+
+
+.FooterleftUpper {
+    background-color: aquamarine;
+    width: 10%; /* Relative width */
+    height: 15%; /* Relative height */
+}
+
+.FooterLeft h4 {
+    width: 90%;
+}
+
+.FooterRightOneUpper,
+.FooterRightTwoUpper,
+.FooterRightThreeUpper {
+    color: black;
+    font-weight: 700;
+    font-size: 1rem; /* Scalable font size */
+}
+
+hr {
+    border-color: black;
+}
+
+.belowLine,
+.FooterLower {
+    /* width: 84%; Ensure consistent width */
+    margin: 2rem auto; /* Center both elements */
+}
+
+.FooterLower {
+    display: flex;
+    justify-content: space-between;
+}
+
+.ImgOne,
+.ImgTwo,
+.ImgThree {
+    height: 2.5rem; 
+    width: 2.5rem; 
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+
+}
+.ImgOne img,
+.ImgTwo img,
+.ImgThree img{
+    height: 1.5rem; 
+    width: 1.5rem; 
+   
+}
+.ImgOne:hover,
+.ImgTwo:hover,
+.ImgThree:hover {
+    background-color: #FF5AB6;
+    border: none;
+
+}
+.SocialIcon {
+    display: flex;
+    gap: 2rem; /* Scalable gap */
+}
+
+.Download {
+    display: flex;
+    gap: 5%; 
+}
+
+.Download button {
+    display: flex;
+    background-color: black;
+    color: white;
+    align-items: center;
+    font-size: small;
+    width: 8rem;
+    justify-content: center;
+    padding:0.3rem 0.2rem;
+border-radius: 0.2rem;
+}
+
+.Download button img {
+    height: 2rem; /* Scalable height */
+    width: 2rem; /* Scalable width */
+}
+.copy{
+    font-size: small;
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+}
+.FooterRightTwo, .FooterRightThree, .FooterRightOne{
+    display: flex;
+    flex-direction: column;
+    gap:0.2rem;
+    font-size: medium;
+}
+
+/* Media Queries */
+@media (max-width: 1280px) {
+    .FooterLeft,
+    .FooterRight {
+        width: 40%; /* Adjust width for smaller desktops */
+    }
+
+    .FooterDetails {
+        gap: 10%; /* Reduce gap */
+    }
+
+    .belowLine,
+    .FooterLower {
+        width: 90%; /* Wider for smaller screens */
+    }
+
+    .Download {
+        flex-direction: column; /* Stack items for smaller screens */
+        width: 50%; /* Reduce width */
+    }
+}
+
+@media (max-width: 1024px) {
+    .FooterContainer {
+        padding: 0; /* Removed padding */
+    }
+
+    .FooterLeft,
+    .FooterRight {
+        width: 45%; /* Adjust width */
+    }
+
+    .FooterDetails {
+        flex-direction: column; /* Stack items vertically */
+        gap: 5%; /* Reduce gap */
+    }
+
+    .SocialIcon {
+        gap: 1rem; /* Reduce gap */
+    }
+}

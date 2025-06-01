@@ -1,0 +1,50 @@
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+  }
+  
+  .shimmer {
+    background: linear-gradient(90deg, #f6f7f8 25%, #e8e8e8 50%, #f6f7f8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+  }
+  
+  .shimmer-img {
+    width: 33vh;
+    height: 33vh;
+    border-radius: 50%;
+    margin: auto;
+    border: 8px solid pink;
+  }
+  
+  .shimmer-text {
+    height: 20px;
+    width: 80%;
+    margin: 10px auto;
+  }
+  
+  .shimmer-title {
+    height: 30px;
+    width: 50%;
+  }
+  
+  .shimmer-paragraph {
+    height: 60px;
+    width: 90%;
+  }
+  
+  .shimmer-info {
+    height: 15px;
+    width: 70%;
+    margin: 5px 0;
+  }
+  
+  .profile-picture {
+    height: 33vh;
+    width: 33vh;
+    border-radius: 50%;
+    margin: auto;
+    border: 8px solid pink;
+  }
+  

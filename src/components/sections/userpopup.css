@@ -1,0 +1,147 @@
+/* Backdrop */
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  /* Main Modal */
+  .main {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+    animation: slideIn 0.3s ease-in-out;
+    width: 90%;
+    max-width: 400px;
+    padding: 1.5rem;
+  }
+  
+  /* Parent Container */
+  .Parent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  /* Top Profile Section */
+  .TopProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .TopProfile h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #333;
+  }
+  
+  .TopProfile h4 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #555;
+  }
+  
+  .TopProfile .Paragraph {
+    font-size: 0.9rem;
+    color: #777;
+    line-height: 1.4;
+    margin: 0;
+  }
+  
+  /* User Logo */
+  .img1 {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  
+  .img1 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Close Button */
+  .cross {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .cross:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Bottom Profile Section */
+  .BottomProfile {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .BottomProfileLeft {
+    cursor: pointer;
+    color: #666;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+  
+  .BottomProfileLeft:hover {
+    color: #333;
+  }
+  
+  .BottomProfileRight button {
+    padding: 0.5rem 1.5rem;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .BottomProfileRight button:hover {
+    background-color: #ff4c4c;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translate(-50%, -60%);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
