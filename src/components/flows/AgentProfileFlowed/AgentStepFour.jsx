@@ -360,7 +360,7 @@ const AgentStepFour = () => {
                 step 4/6
               </p>
               <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-              Verification
+                Verification
               </h4>
               <p
                 style={{
@@ -370,9 +370,13 @@ const AgentStepFour = () => {
                   padding: "0",
                 }}
               >
-                At MehramMatch, we respect your privacy and allow you to control the information you share with potential partners. Select your privacy
-                preferences below to ensure that your details are only visible to the right people. You can choose to keep certain information private or make it
-                visible according to your comfort level. Your privacy settings can be updated at any time to suit your needs.
+                At MehramMatch, we respect your privacy and allow you to control
+                the information you share with potential partners. Select your
+                privacy preferences below to ensure that your details are only
+                visible to the right people. You can choose to keep certain
+                information private or make it visible according to your comfort
+                level. Your privacy settings can be updated at any time to suit
+                your needs.
               </p>
               <div
                 style={{
@@ -395,7 +399,9 @@ const AgentStepFour = () => {
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
                       style={{
-                        border: isDragging ? "2px dashed #000" : "2px dashed #ccc",
+                        border: isDragging
+                          ? "2px dashed #000"
+                          : "2px dashed #ccc",
                         borderRadius: "4px",
                         padding: "20px",
                         textAlign: "center",
@@ -439,11 +445,11 @@ const AgentStepFour = () => {
               </div>
 
               <div style={{ display: "flex", gap: "2rem" }}>
-                {apiData.gender == "female" &&
-                  <div className="w-[50%] relative">
+                {apiData.gender == "female" && (
+                  <div className="w-[50%] relative flex flex-col gap-[10px]">
                     <label
                       htmlFor="photo_privacy"
-                      className="block text-sm font-medium text-[#000000]"
+                      className="block text-sm font-medium text-[#000000] mb-0"
                     >
                       Photo Privacy Option{" "}
                       <span style={{ color: "red" }}>*</span>{" "}
@@ -454,9 +460,13 @@ const AgentStepFour = () => {
                         name="photo_privacy"
                         value={profileData?.photo_upload_privacy_option}
                         required
-                        className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                        className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                         onChange={(e) =>
-                          updateField("photo_upload_privacy_option", e.target.value)
+                          updateField(
+                            "photo_upload_privacy_option",
+                            e.target.value
+                          )
                         }
                       >
                         <option value="">Select Visibility</option>
@@ -481,7 +491,8 @@ const AgentStepFour = () => {
                         </svg>
                         {/* Tooltip text */}
                         <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                          This is additional information about the Photo Privacy Option field.
+                          This is additional information about the Photo Privacy
+                          Option field.
                         </div>
                       </div>
                     </div>
@@ -490,13 +501,16 @@ const AgentStepFour = () => {
                         {errors.photo_upload_privacy_option}
                       </p>
                     )}
-                  </div>}
-                  <div className="w-[50%] relative">
+                  </div>
+                )}
+
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="expyears"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
-                    Experience in Business  <span style={{ color: "red" }}>*</span>
+                    Experience in Business{" "}
+                    <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -505,19 +519,21 @@ const AgentStepFour = () => {
                       name="expyears"
                       required
                       value={profileData?.expierience_in_business || ""}
-                      className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.expierience_in_business ?
-                          "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
+                        errors.expierience_in_business
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2`
-                      }
+                      } focus:outline-none focus:ring-2`}
                       onChange={(e) =>
                         updateField("expierience_in_business", e.target.value)
                       }
                     />
-                      
+
                     {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group" style={{ zIndex: "1000" }}>
+                    <div
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 group"
+                      style={{ zIndex: "1000" }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4 text-red-500 cursor-pointer"
@@ -534,19 +550,27 @@ const AgentStepFour = () => {
                       </svg>
                       {/* Tooltip text */}
                       <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Last Name field.
+                        This is additional information about the Last Name
+                        field.
                       </div>
                     </div>
                   </div>
-                  {errors.expierience_in_business && <p className="text-red-500 text-sm mt-1">{errors.expierience_in_business}</p>}
+                  {errors.expierience_in_business && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.expierience_in_business}
+                    </p>
+                  )}
                 </div>
+              </div>
 
-                <div className="w-[50%] relative">
+              <div style={{ display: "flex", gap: "2rem" }}>
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="marfixed"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
-                    Marriages Fixed in the Past   <span style={{ color: "red" }}>*</span>
+                    Marriages Fixed in the Past{" "}
+                    <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -555,18 +579,20 @@ const AgentStepFour = () => {
                       name="marfixed"
                       required
                       value={profileData?.marraige_fixed_in_pass || ""}
-                      className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.mar_fixed ?
-                          "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
+                        errors.mar_fixed
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2`
-                      }
+                      } focus:outline-none focus:ring-2`}
                       onChange={(e) =>
                         updateField("marraige_fixed_in_pass", e.target.value)
                       }
                     />
                     {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group" style={{ zIndex: "1000" }}>
+                    <div
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 group"
+                      style={{ zIndex: "1000" }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4 text-red-500 cursor-pointer"
@@ -583,81 +609,98 @@ const AgentStepFour = () => {
                       </svg>
                       {/* Tooltip text */}
                       <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Last Name field.
+                        This is additional information about the Last Name
+                        field.
                       </div>
                     </div>
                   </div>
-                  {errors.marraige_fixed_in_pass && <p className="text-red-500 text-sm mt-1">{errors.marraige_fixed_in_pass}</p>}
+                  {errors.marraige_fixed_in_pass && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.marraige_fixed_in_pass}
+                    </p>
+                  )}
                 </div>
 
-
-
-                <div className="w-[50%] relative">
-                  <div className="relative">
-                  <label className="block text-sm font-medium text-[#000000]">
-                  Full-time Marriage Agent<span style={{ color: "red" }}>*</span>
-                  </label>
+                <div className="w-[50%] relative ">
+                  <div className="relative flex flex-col gap-[20px]">
+                    <label className="block text-sm font-medium text-[#000000] mb-0">
+                      Full-time Marriage Agent
+                      <span style={{ color: "red" }}>*</span>
+                    </label>
                     {/* Information icon positioned at right corner of input */}
-    <div className="absolute left-60 top-1/2 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Belives in Dargah/Fatiha/Niyah field.
-      </div>
-    </div>
-    </div>
+                    <div className="absolute left-60 top-3 transform -translate-y-1/2 group z-20">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-red-500 cursor-pointer"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {/* Tooltip text */}
+                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                        This is additional information about the Belives in
+                        Dargah/Fatiha/Niyah field.
+                      </div>
+                    </div>
                   
-
 
                   <div className="flex items-center space-x-4">
                     <button
-                      onClick={(e) => updateField("full_time_marraige_agent", "yes")}
+                      onClick={(e) =>
+                        updateField("full_time_marraige_agent", "yes")
+                      }
                       type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData?.full_time_marraige_agent === "yes" ? "bg-green-500" : "bg-gray-300"
-                        }`}
+                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
+                        profileData?.full_time_marraige_agent === "yes"
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      }`}
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData?.full_time_marraige_agent === "yes" ? "translate-x-6" : "translate-x-0"
-                          }`}
+                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                          profileData?.full_time_marraige_agent === "yes"
+                            ? "translate-x-6"
+                            : "translate-x-0"
+                        }`}
                       ></div>
                     </button>
-                    <span className="text-gray-700">Yes</span>
+                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
 
                     <button
-                      onClick={(e) => updateField("full_time_marraige_agent", "no")}
-                           type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData?.full_time_marraige_agent === "no" ? "bg-green-500" : "bg-gray-300"
-                        }`}
+                      onClick={(e) =>
+                        updateField("full_time_marraige_agent", "no")
+                      }
+                      type="button"
+                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
+                        profileData?.full_time_marraige_agent === "no"
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      }`}
                     >
                       <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData?.full_time_marraige_agent === "no" ? "translate-x-6" : "translate-x-0"
-                          }`}
+                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                          profileData?.full_time_marraige_agent === "no"
+                            ? "translate-x-6"
+                            : "translate-x-0"
+                        }`}
                       ></div>
                     </button>
-                    <span className="text-gray-700">No</span>
-                  
+                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
                   </div>
                   {errors.full_time_marraige_agent && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.full_time_marraige_agent}
                     </p>
                   )}
+                  </div>
                 </div>
-
-               
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <button

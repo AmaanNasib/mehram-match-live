@@ -46,7 +46,7 @@ const [userId] = useState(localStorage.getItem("userId"));
 
   return (
     <div className="sidebar">
-      <h2>ADVANCED SEARCH</h2>
+      <h2>Advanced Search</h2>
       <div className="search-form">
         <div className="form-group">
           <RangeSlider rangeText={rangeText} setRangeText={setRangeText}/>

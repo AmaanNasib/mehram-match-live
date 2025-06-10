@@ -422,10 +422,10 @@ const MemStepFive = () => {
 
               <div style={{ display: "flex", gap: "2rem" }}>
                 {apiData.gender == "female" &&
-                  <div className="w-[50%] relative">
+                  <div className="w-[50%] relative flex flex-col gap-[10px]">
                     <label
                       htmlFor="photo_privacy"
-                      className="block text-sm font-medium text-[#000000]"
+                      className="block text-sm font-medium text-[#000000] mb-0"
                     >
                       Photo Privacy Option{" "}
                       <span style={{ color: "red" }}>*</span>{" "}
@@ -436,7 +436,8 @@ const MemStepFive = () => {
                         name="photo_privacy"
                         value={profileData.photo_upload_privacy_option}
                         required
-                        className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                        className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                         onChange={(e) =>
                           updateField("photo_upload_privacy_option", e.target.value)
                         }
@@ -473,10 +474,10 @@ const MemStepFive = () => {
                       </p>
                     )}
                   </div>}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="profile_visible"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Profile Visibility{" "}
                     <span style={{ color: "red" }}>*</span>{" "}
@@ -487,7 +488,8 @@ const MemStepFive = () => {
                       name="profile_visible"
                       value={profileData.profile_visible}
                       required
-                      className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                      className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                       onChange={(e) =>
                         updateField("profile_visible", e.target.value)
                       }

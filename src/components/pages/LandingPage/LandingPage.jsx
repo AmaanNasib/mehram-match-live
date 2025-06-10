@@ -368,7 +368,7 @@ const LandingPage = () => {
 
   useEffect(() => {
     const parameter = {
-      url: "/api/get-captcha/",
+      url: `/api/get-captcha/`,
       setterFunction: setCaptchaImage,
       setErrors: setErrors,
     };
@@ -383,14 +383,14 @@ const LandingPage = () => {
   useEffect(() => {
 
     const parameter1 = {
-      url: "/api/user/latest_profile/",
+      url: `/api/user/latest_profile/`,
       setterFunction: setApiData,
       setErrors: setErrors,
     };
 
     fetchDataV2(parameter1);
     const parameter2 = {
-      url: "/api/analytics/",
+      url: `/api/analytics/`,
       setterFunction: setApiData1,
       setErrors: setErrors,
     };

@@ -233,8 +233,8 @@ const MemStepThree = () => {
 
               {/* Father's Name and Occupation */}
               <div style={{ display: "flex", gap: "2rem" }}>
-              <div className="w-[50%] relative">
-                  <label htmlFor="edulevel" className="block text-sm font-medium text-[#000000]">
+              <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label htmlFor="edulevel" className="block text-sm font-medium text-[#000000] mb-0">
                   Education Level  <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
@@ -245,7 +245,8 @@ const MemStepThree = () => {
                       value={profileData.education_level || ''}
                       required
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.education_level ?
+                        ` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${errors.education_level ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2`
@@ -258,7 +259,7 @@ const MemStepThree = () => {
                       <option value="3">Other (Specify) </option>
                     </select>
                     {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 mt-1 transform -translate-y-1/2 group z-20">
+                    <div className="absolute right-4 top-1/2  transform -translate-y-1/2 group z-20">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4 text-red-500 cursor-pointer"
@@ -285,8 +286,8 @@ const MemStepThree = () => {
                     </p>
                   )}
                 </div>
-                <div className="w-[50%] relative">
-                  <label htmlFor="profession" className="block text-sm font-medium text-[#000000]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label htmlFor="profession" className="block text-sm font-medium text-[#000000] mb-0">
                   Profession  <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
@@ -297,7 +298,8 @@ const MemStepThree = () => {
                       value={profileData.profession || ''}
                       required
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.profession ?
+                        ` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${errors.profession ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2`

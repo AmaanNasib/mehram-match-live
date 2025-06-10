@@ -1,6 +1,11 @@
 .dashboard-layout {
-  min-height: 100vh;
+  height: 100%;
+  width:100%;
   background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+ gap:10px;
+ overflow:hidden;
 }
 
 /* Header Styles */
@@ -11,11 +16,11 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e0e0e0;
-  position: fixed;
+  /* position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1000; */
 }
 
 .header-left {
@@ -178,29 +183,29 @@
 
 /* Sidebar Styles */
 .dashboard-content {
-  padding-top: 56px; /* Height of header */
+  height: 100vh;
+  display: flex;
+  justify-content: space-between;
+  gap:10px;
 }
 
 .dashboard-sidebar {
-  width: 260px;
-  transition: transform 0.3s ease;
   background: white;
-  height: calc(100vh - 56px); /* Constrain height to viewport minus header */
-  padding: 24px;
+  height: 100%;
+  padding: 12px 24px;
   border-right: 1px solid #e0e0e0;
-  position: fixed;
-  left: 0;
-  overflow-y: auto; /* Enable vertical scrolling */
-  top: 70px; /* Position below the header */
-  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap:10px;
 }
 
 .dashboard-sidebar.open {
   transform: translateX(0);
 }
-.dashboard-sidebar:not(.open) {
+/* .dashboard-sidebar:not(.open) {
   transform: translateX(-250px);
-}
+} */
 
 .nav-item {
   display: flex;
@@ -212,6 +217,7 @@
   text-decoration: none;
   margin-bottom: 4px;
   transition: all 0.2s;
+  width:100%;
 }
 
 .pagetext {
@@ -220,7 +226,7 @@
   padding-top: 12px; /* Add padding to separate the border from the text */
   border-top: 1px solid #e0e0e0; /* Light gray color */
   color: #666;
-
+ width: 100%;
 }
 
 .nav-item:hover {
@@ -241,9 +247,7 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 240px; /* Width of sidebar */
-  padding: 18px;
-  min-height: calc(100vh - 56px);
+  overflow-y: scroll;
 }
 
 .submenu-enter {

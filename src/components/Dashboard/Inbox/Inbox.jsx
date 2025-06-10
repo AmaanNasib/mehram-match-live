@@ -141,7 +141,15 @@ const Inbox = () => {
       )}
 
       <DashboardLayout>
-        <h2 className="text-lg mt-4 ml-2 font-semibold">Inbox</h2>
+        <div className="inbox_container p-[20px]">
+        <h1
+          style={{
+            fontWeight: "700",
+            fontSize: "24px",
+            textAlign: "left",
+            marginBottom: "20px",
+          }}
+        >Inbox</h1>
         <div className="flex h-[80vh] bg-gray-100">
           {/* Sidebar */}
           <div className="w-1/5 m-2 bg-white p-4 shadow-lg rounded-lg">
@@ -347,6 +355,7 @@ const Inbox = () => {
               </button>
             </div>
           </div>
+        </div>
         </div>
       </DashboardLayout>
     </>

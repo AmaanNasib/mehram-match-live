@@ -1,5 +1,5 @@
 import React, { useState , useEffect} from "react";
-import "./StepTracker.css";
+import "./StepTrackerAgent.css";
 import { useLocation } from 'react-router-dom';
 
 
@@ -43,11 +43,11 @@ const AgentStepTracker = ({ percentage }) => {
 
   return (
     !isTrue ? (
-       <div className="step-tracker">
-      <div className="tracker-line" style={{height:"0"}}>
+       <div className="step_tracker_agent">
+      <div className="tracker_line_agent" style={{height:"0"}}>
         {/* Progress Line */}
         <div
-          className="progress-line"
+          className="progress_line_agent"
           style={{
             width: `${progressWidth}%`,
           }}
@@ -57,22 +57,22 @@ const AgentStepTracker = ({ percentage }) => {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
+            className={`step ${step <= completedSteps ? "completed_agent" : ""}`}
             style={{
               left: `${(step - 1) * stepSpacing}%`,
             }}
           >
             {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
+            {step <= completedSteps && <div className="inner_circle_agent"></div>}
           </div>
         ))}
 
         
       </div>
 
-      <div className="tracker-line">
+      <div className="tracker_line_agent">
         <div
-          className="progress-line"
+          className="progress_line_agent"
           style={{
             width: `${progressWidth}%`,
           }}
@@ -81,15 +81,15 @@ const AgentStepTracker = ({ percentage }) => {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step1 ${step <= completedSteps ? "completed" : ""}`}
+            className={`step1 ${step <= completedSteps ? "completed_agent" : ""}`}
             style={{
               left: `${(step - 1) * stepSpacing}%`,
             }}
           >
-            {step <= completedSteps && <div className="inner-circle1">
+            {step <= completedSteps && <div className="inner_circle1_agent">
             </div>}
-            <span className="step-label">{stepLabels[index]?.text}</span>
-            <span className="step-label2">{stepLabels[index]?.text1}</span>
+            <span className="step_label_agent">{stepLabels[index]?.text}</span>
+            <span className="step_label2_agent">{stepLabels[index]?.text1}</span>
 
 
           </div>
@@ -101,11 +101,11 @@ const AgentStepTracker = ({ percentage }) => {
     )
      :
      (
-      <div className="step-tracker">
-      <div className="tracker-line" style={{height:"0"}}>
+      <div className="step_tracker_agent">
+      <div className="tracker_line_agent" style={{height:"0"}}>
         {/* Progress Line */}
         <div
-          className="progress-line"
+          className="progress_line_agent"
           style={{
             width: `${progressWidth}%`,
           }}
@@ -115,23 +115,23 @@ const AgentStepTracker = ({ percentage }) => {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
+            className={`step ${step <= completedSteps ? "completed_agent" : ""}`}
             style={{
               left: `${(step - 1) * stepSpacing}%`,
             }}
           >
             {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
+            {step <= completedSteps && <div className="inner_circle_agent"></div>}
           </div>
         ))}
 
         
       </div>
 
-      <div className="tracker-line">
+      <div className="tracker_line_agent">
         {/* Progress Line */}
         <div
-          className="progress-line"
+          className="progress_line_agent"
           style={{
             width: `${progressWidth}%`,
           }}
@@ -141,14 +141,14 @@ const AgentStepTracker = ({ percentage }) => {
         {steps.map((step, index) => (
           <div
             key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
+            className={`step ${step <= completedSteps ? "completed_agent" : ""}`}
             style={{
               left: `${(step - 1) * stepSpacing}%`,
             }}
           >
             {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
-            <span className="step-label1">{stepLabels[index]}</span>
+            {step <= completedSteps && <div className="inner_circle_agent"></div>}
+            <span className="step_label1_agent">{stepLabels[index]}</span>
 
           </div>
         ))}

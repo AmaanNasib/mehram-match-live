@@ -318,10 +318,10 @@ const AgentStepSix = () => {
 
 <div style={{ display: "flex", gap: "2rem" }}>
   {/* Payment Method */}
-  <div className="w-[50%] relative">
+  <div className="w-[50%] relative flex flex-col gap-[10px]">
     <label
       htmlFor="paymentmethod"
-      className="block text-sm font-medium text-[#000000]"
+      className="block text-sm font-medium text-[#000000] mb-0"
     >
       Payment Method {" "}
       <span style={{ color: "red" }}>*</span>
@@ -333,7 +333,8 @@ const AgentStepSix = () => {
         value={profileData.paymentmethod || null}
         required
         className={
-          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.paymentmethod ?
+          ` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${errors.paymentmethod ?
             "border-red-500 focus:border-red-500 focus:ring-red-500"
             : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
           } focus:outline-none focus:ring-2`
@@ -349,7 +350,7 @@ const AgentStepSix = () => {
         <option value="Others">UPI </option>
       </select>
       {/* Information icon positioned at right corner of input */}
-      <div className="absolute right-4 top-1/2 mt-1 transform -translate-y-1/2 group z-20" style={{ zIndex: "1000" }}>
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20" style={{ zIndex: "1000" }}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-4 w-4 text-red-500 cursor-pointer"
@@ -378,10 +379,10 @@ const AgentStepSix = () => {
   </div>
 
   {/* Billing Details */}
-  <div className="w-[50%] relative">
+  <div className="w-[50%] relative flex flex-col gap-[10px]">
     <label
       htmlFor="billingdetails"
-      className="block text-sm font-medium text-[#000000]"
+      className="block text-sm font-medium text-[#000000] mb-0"
     >
       Billing Details 
     </label>
@@ -391,14 +392,14 @@ const AgentStepSix = () => {
         id="billingdetails"
         name="billingdetails"
         value={profileData.billingdetails || ''}
-        className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+        className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
         onChange={(e) =>
           updateField("billingdetails", e.target.value)
         }
       />
     </div>
     {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-2 top-1/2 mt-2.5 transform -translate-y-1/2 group z-20">
+    <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4 text-red-500 cursor-pointer"

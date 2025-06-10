@@ -155,7 +155,7 @@ const AgentStepOne = () => {
         name={name}
         value={value || ''}
         onChange={onChange}
-        className="mt-1 px-[12px] text-[12px] h-[38px] w-[100%] border rounded-[10px] border-[#ccc] focus:ring-[gray] focus:border-[gray]"
+        className="text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] h-full w-full border-none border-[#ccc] rounded-lg border-1 focus:outline-none focus:ring-0 focus:border-none"
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -240,10 +240,10 @@ const AgentStepOne = () => {
               <div style={{ height: "0.7px", width: "100%", backgroundColor: "#ccc", }}></div>
               <div style={{ display: "flex", gap: "2rem" }}>
                 {/* First Name */}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     First Name <span style={{ color: "red" }}>*</span>
                   </label>
@@ -255,7 +255,7 @@ const AgentStepOne = () => {
                       required
                       value={profileData.first_name || ""}
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${formErrors.first_name ?
+                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${formErrors.first_name ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2 pr-8`  // Added pr-8 for icon space
@@ -290,10 +290,10 @@ const AgentStepOne = () => {
                 </div>
 
                 {/* Last Name */}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Last Name <span style={{ color: "red" }}>*</span>
                   </label>
@@ -305,7 +305,7 @@ const AgentStepOne = () => {
                       required
                       value={profileData.last_name || ""}
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${formErrors.last_name ?
+                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${formErrors.last_name ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2`
@@ -339,13 +339,13 @@ const AgentStepOne = () => {
               </div>
 
               <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative">
-                  <label htmlFor="gender" className="block text-sm font-medium text-[#000000]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label htmlFor="gender" className="block text-sm font-medium text-[#000000] mb-0">
                     Gender <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
                     <div className={
-                      `mt-2 rounded-lg border-1 ${formErrors.gender ?
+                      ` h-10 w-[100%]  text-[#6D6E6F] font-semibold placeholder-[#898B92] rounded-lg border-1 border-[#898B92] ${formErrors.gender ?
                         "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
                         : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
                       } focus-within:outline-none focus-within:ring-2`
@@ -355,7 +355,7 @@ const AgentStepOne = () => {
                         name="gender"
                         value={profileData.gender}
                         onChange={(e) => handleFieldChange('gender', e.target.value)}
-                        className="h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
+                        className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
                       />
                     </div>
                     {/* Information icon positioned at right corner of input */}
@@ -384,10 +384,10 @@ const AgentStepOne = () => {
                 </div>
 
                 {/* Last Name */}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="phonenumber"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Phone Number <span style={{ color: "red" }}>*</span>
                   </label>
@@ -399,7 +399,7 @@ const AgentStepOne = () => {
                       required
                       value={profileData.contact_number || ""}
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${formErrors.contact_number ?
+                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${formErrors.contact_number ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2`
@@ -434,10 +434,10 @@ const AgentStepOne = () => {
 
 
               <div style={{ display: "flex", gap: "2rem" }}>
-              <div className="w-[50%] relative">
+              <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Email <span style={{ color: "red" }}>*</span>
                   </label>
@@ -449,7 +449,7 @@ const AgentStepOne = () => {
                       required
                       value={profileData.email || ""}
                       className={
-                        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${formErrors.email ?
+                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${formErrors.email ?
                           "border-red-500 focus:border-red-500 focus:ring-red-500"
                           : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                         } focus:outline-none focus:ring-2`
@@ -480,6 +480,8 @@ const AgentStepOne = () => {
                   </div>
                   {formErrors.email && <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>}
                 </div>
+
+                <div className="w-[50%] relative flex flex-col gap-[10px]"></div>
               </div>
 
               <div style={{ display: "flex", gap: "2rem" }}></div>

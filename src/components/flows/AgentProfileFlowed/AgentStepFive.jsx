@@ -323,13 +323,13 @@ const MemStepFive = () => {
                   backgroundColor: "#ccc",
                 }}
               ></div>
-              <div className="w-[50%] relative">
-                  <div className="relative">
-                  <label className="block text-sm font-medium text-[#000000]">
+              <div className="w-[50%] relative flex flex-col gap-[20px]">
+                  <div className="relative ">
+                  <label className="block text-sm font-medium text-[#000000] mb-0">
                   Plan Options<span style={{ color: "red" }}>*</span>
                   </label>
                     {/* Information icon positioned at right corner of input */}
-    <div className="absolute left-60 top-1/2 transform -translate-y-1/2 group z-20">
+    <div className="absolute left-60 top-3 transform -translate-y-1/2 group z-20">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4 text-red-500 cursor-pointer"
@@ -365,7 +365,7 @@ const MemStepFive = () => {
                           }`}
                       ></div>
                     </button>
-                    <span className="text-gray-700">Yes</span>
+                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
 
                     <button
                       onClick={(e) => updateField("full_time_agent", "no")}
@@ -378,7 +378,7 @@ const MemStepFive = () => {
                           }`}
                       ></div>
                     </button>
-                    <span className="text-gray-700">No</span>
+                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
                   
                   </div>
                   {errors.full_time_agent && (

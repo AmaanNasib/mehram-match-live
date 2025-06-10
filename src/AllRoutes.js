@@ -50,6 +50,7 @@ import MyInterest from "./components/Dashboard/dashboardCard/MyInterest/Myintere
 import MyShortlist from "./components/Dashboard/dashboardCard/MyShortList/MyShortlist";
 import TotalShortlistAgent from "./components/Dashboard/Totalshortlist/Totalshortlist-agent.jsx";
 import ChangePassword from "./components/Dashboard/UserDashboard/ChangePassword.jsx";
+import GuidancePage from "./components/Guidance/GuidancePage.jsx";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -234,6 +235,15 @@ const AllRoutes = () => {
             <PrivateRoute>
               {" "}
               <PremiumPlans />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/guidance"
+          element={
+            <PrivateRoute>
+              {" "}
+              <GuidancePage />{" "}
             </PrivateRoute>
           }
         />

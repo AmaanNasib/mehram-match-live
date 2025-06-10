@@ -138,7 +138,6 @@
 //               </svg>
 //             </div>
 
-
 //             <div
 //               style={{
 //                 display: "flex",
@@ -452,7 +451,7 @@ const MemStepTwo = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { useracreate, age,member_id } = location.state || {};
+  const { useracreate, age, member_id } = location.state || {};
   const [profileData, setProfileData] = useState({
     sect_school_info: "",
     islamic_practicing_level: "",
@@ -463,32 +462,31 @@ const MemStepTwo = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [error, setError] = useState('');
-  userId =  localStorage.getItem("member_id")||userId
-  let mem= {
-    state: { username: '', age: 30 }
-  }
- 
+  const [error, setError] = useState("");
+  userId = localStorage.getItem("member_id") || userId;
+  let mem = {
+    state: { username: "", age: 30 },
+  };
+
   useEffect(() => {
     if (userId) {
-    
       const parameter = {
-        url: `/api/user/${ localStorage.getItem("member_id")||userId}/`,
+        url: `/api/user/${localStorage.getItem("member_id") || userId}/`,
         setterFunction: setApiData,
         setLoading: setLoading,
         setErrors: setError,
       };
       fetchDataObjectV2(parameter);
     }
-  }, [userId,useracreate]);
- 
+  }, [userId, useracreate]);
 
   useEffect(() => {
     if (apiData) {
       setProfileData({
         percentage: apiData.profile_percentage || null,
         gender: apiData.gender || null,
-        believe_in_dargah_fatiha_niyah: apiData.believe_in_dargah_fatiha_niyah || null,
+        believe_in_dargah_fatiha_niyah:
+          apiData.believe_in_dargah_fatiha_niyah || null,
         sect_school_info: apiData.sect_school_info || null,
         islamic_practicing_level: apiData.islamic_practicing_level || null,
         hijab_niqab_prefer: apiData.hijab_niqab_prefer || null,
@@ -527,7 +525,8 @@ const MemStepTwo = () => {
         payload: {
           sect_school_info: profileData.sect_school_info,
           islamic_practicing_level: profileData.islamic_practicing_level,
-          believe_in_dargah_fatiha_niyah: profileData.believe_in_dargah_fatiha_niyah,
+          believe_in_dargah_fatiha_niyah:
+            profileData.believe_in_dargah_fatiha_niyah,
           hijab_niqab_prefer: profileData.hijab_niqab_prefer,
         },
         navigate: navigate,
@@ -651,58 +650,60 @@ const MemStepTwo = () => {
 
               {/* Sect / School of Thought */}
               <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="sect"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Sect / School of Thought{" "}
                     <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
-                  <select
-                    id="sect"
-                    name="sect"
-                    value={profileData.sect_school_info || null}
-                    required
-                    className={
-                      `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                        errors.sect_school_info ? 
-                          "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`
-                    }                    
-                    onChange={(e) =>
-                      updateField("sect_school_info", e.target.value)
-                    }
-                  >
-                    <option value="">Select Sect</option>
-                    <option value="Sunni">Sunni</option>
-                    <option value="Shia">Shia</option>
-                    <option value="Others">Others</option>
-                  </select>
+                    <select
+                      id="sect"
+                      name="sect"
+                      value={profileData.sect_school_info || null}
+                      required
+                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
+                            errors.sect_school_info
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                          } focus:outline-none focus:ring-2`}
+                      onChange={(e) =>
+                        updateField("sect_school_info", e.target.value)
+                      }
+                    >
+                      <option value="">Select Sect</option>
+                      <option value="Sunni">Sunni</option>
+                      <option value="Shia">Shia</option>
+                      <option value="Others">Others</option>
+                    </select>
                     {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-4 top-1/2 mt-1 transform -translate-y-1/2 group z-20" style={{ zIndex: "1000" }}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Sect field.
-      </div>
-    </div>
-    </div>
+                    <div
+                      className="absolute right-4 bottom-1 transform -translate-y-1/2 group z-20"
+                      style={{ zIndex: "1000" }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-red-500 cursor-pointer"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {/* Tooltip text */}
+                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                        This is additional information about the Sect field.
+                      </div>
+                    </div>
+                  </div>
                   {errors.sect_school_info && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.sect_school_info}
@@ -711,81 +712,82 @@ const MemStepTwo = () => {
                 </div>
 
                 {/* Islam Practicing Level */}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="islamPracticingLevel"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Islam Practicing Level
                   </label>
                   <div className="relative">
-                  <input
-                    type="text"
-                    id="islamPracticingLevel"
-                    name="islamPracticingLevel"
-                    value={profileData.islamic_practicing_level || ''}
-                    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                    onChange={(e) =>
-                      updateField("islamic_practicing_level", e.target.value)
-                    }
-                  />
-                </div>
+                    <input
+                      type="text"
+                      id="islamPracticingLevel"
+                      name="islamPracticingLevel"
+                      value={profileData.islamic_practicing_level || ""}
+                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
+                      onChange={(e) =>
+                        updateField("islamic_practicing_level", e.target.value)
+                      }
+                    />
+                  </div>
                   {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-2 top-1/2 mt-2.5 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Islam Practicing Level field.
-      </div>
-    </div>
-    </div>
+                  <div className="absolute right-2 bottom-1 mt-2.5 transform -translate-y-1/2 group z-20">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-red-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {/* Tooltip text */}
+                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                      This is additional information about the Islam Practicing
+                      Level field.
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Believe in Dargah/Fatiha/Niyah */}
               <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative">
-                <div className="relative">
-
-                  <label className="block text-sm font-medium text-[#000000]">
-                    Believe in Dargah/Fatiha/Niyah?{" "}
-                    <span style={{ color: "red" }}>*</span>
-                  </label>
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-[#000000] mb-0">
+                      Believe in Dargah/Fatiha/Niyah?{" "}
+                      <span style={{ color: "red" }}>*</span>
+                    </label>
                     {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Believe in Dargah/Fatiha/Niyah field.
-      </div>
-    </div>
-    </div>
-                  <div className="mt-1 flex space-x-4">
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-red-500 cursor-pointer"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {/* Tooltip text */}
+                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                        This is additional information about the Believe in
+                        Dargah/Fatiha/Niyah field.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-4">
                     <div className="flex items-center">
                       <input
                         type="radio"
@@ -793,7 +795,9 @@ const MemStepTwo = () => {
                         name="believeInDargah"
                         value="Yes"
                         required
-                        checked={profileData.believe_in_dargah_fatiha_niyah === "Yes"}
+                        checked={
+                          profileData.believe_in_dargah_fatiha_niyah === "Yes"
+                        }
                         className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                         onChange={(e) =>
                           updateField(
@@ -804,7 +808,7 @@ const MemStepTwo = () => {
                       />
                       <label
                         htmlFor="believeYes"
-                        className="ml-2 text-sm text-[#000000]"
+                        className="ml-2 text-sm text-[#6d6e6f] font-medium"
                       >
                         Yes
                       </label>
@@ -815,9 +819,11 @@ const MemStepTwo = () => {
                         id="believeNo"
                         name="believeInDargah"
                         value="No"
-                        checked={profileData.believe_in_dargah_fatiha_niyah === "No"}
+                        checked={
+                          profileData.believe_in_dargah_fatiha_niyah === "No"
+                        }
                         required
-                        className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                        className="h-4 w-4 text-[#6d6e6f] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                         onChange={(e) =>
                           updateField(
                             "believe_in_dargah_fatiha_niyah",
@@ -827,13 +833,13 @@ const MemStepTwo = () => {
                       />
                       <label
                         htmlFor="believeNo"
-                        className="ml-2 text-sm text-[#000000]"
+                        className="ml-2 text-sm text-[#000000] font-medium"
                       >
                         No
                       </label>
                     </div>
                   </div>
-                  
+
                   {errors.believe_in_dargah_fatiha_niyah && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.believe_in_dargah_fatiha_niyah}
@@ -844,34 +850,34 @@ const MemStepTwo = () => {
                 {/* Hijab/Niqab Preference */}
                 {profileData.gender === "female" && (
                   <div className="w-[50%] relative">
-                                      <div className="relative">
-
-                    <label className="block text-sm font-medium text-[#000000]">
-                      Hijab/Niqab Preference?{" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </label>
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-[#000000]">
+                        Hijab/Niqab Preference?{" "}
+                        <span style={{ color: "red" }}>*</span>
+                      </label>
                       {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Hijab/Niqab Preference field.
-      </div>
-    </div>
-    </div>
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 text-red-500 cursor-pointer"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {/* Tooltip text */}
+                        <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                          This is additional information about the Hijab/Niqab
+                          Preference field.
+                        </div>
+                      </div>
+                    </div>
                     <div className="mt-1 flex space-x-4">
                       <div className="flex items-center">
                         <input
@@ -899,7 +905,7 @@ const MemStepTwo = () => {
                           id="hijabNiqabNo"
                           name="hijab_niqab_prefer"
                           value="No"
-                        checked={profileData.hijab_niqab_prefer == "No"}
+                          checked={profileData.hijab_niqab_prefer == "No"}
                           required
                           className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                           onChange={(e) =>
@@ -926,10 +932,22 @@ const MemStepTwo = () => {
               {/* Buttons */}
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <button
-                  onClick={() => navigate("/memstepone",member_id? {
-          state: { username: 'memberCreation', age: 30,member_id }}:{
-            state: { username: '', age: 30 }
-        })}
+                  onClick={() =>
+                    navigate(
+                      "/memstepone",
+                      member_id
+                        ? {
+                            state: {
+                              username: "memberCreation",
+                              age: 30,
+                              member_id,
+                            },
+                          }
+                        : {
+                            state: { username: "", age: 30 },
+                          }
+                    )
+                  }
                   className="text-[black] bg-[white] mt-[24px] h-[40px] w-[150px]"
                   style={{
                     borderRadius: "5vh",

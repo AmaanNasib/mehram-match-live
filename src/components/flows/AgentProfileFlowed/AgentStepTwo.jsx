@@ -304,10 +304,10 @@ const MemStepTwo = () => {
               {/* Sect / School of Thought */}
               <div style={{ display: "flex", gap: "2rem" }}>
                 {/* Islam Practicing Level */}
-                <div className="w-[50%] relative">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="town"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Town
                   </label>
@@ -317,7 +317,7 @@ const MemStepTwo = () => {
                       id="town"
                       name="town"
                       value={profileData.town || ''}
-                      className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                       onChange={(e) =>
                         updateField("town", e.target.value)
                       }
@@ -330,7 +330,7 @@ const MemStepTwo = () => {
                   </div>
                   
                   {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 top-1/2 mt-2.5 transform -translate-y-1/2 group z-20">
+                  <div className="absolute right-2 bottom-1  transform -translate-y-1/2 group z-20">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-red-500 cursor-pointer"
@@ -355,8 +355,8 @@ const MemStepTwo = () => {
 
 
                  {/* Islam Practicing Level */}
-                 <div className="w-[50%] relative">
-  <label htmlFor="city" className="block text-sm font-medium text-[#000000]">
+                 <div className="w-[50%] relative flex flex-col gap-[10px]">
+  <label htmlFor="city" className="block text-sm font-medium text-[#000000] mb-0">
     City
   </label>
   <select
@@ -364,7 +364,8 @@ const MemStepTwo = () => {
     name="city"
     value={profileData.city || ''}
     onChange={(e) => updateField("city", e.target.value)}
-    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
   >
     <option value="">Select City</option>
     {citys.map((city) => (
@@ -379,8 +380,8 @@ const MemStepTwo = () => {
 </div>
 
 
-                <div className="w-[50%] relative">
-  <label htmlFor="state" className="block text-sm font-medium text-[#000000]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+  <label htmlFor="state" className="block text-sm font-medium text-[#000000] mb-0">
     State
   </label>
   <select
@@ -388,7 +389,8 @@ const MemStepTwo = () => {
     name="state"
     value={profileData.state || ''}
     onChange={(e) => updateField("state", e.target.value)}
-    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
   >
     <option value="">Select State</option>
     {statues.map((state) => (
@@ -407,8 +409,8 @@ const MemStepTwo = () => {
               {/* Sect / School of Thought */}
               <div style={{ display: "flex", gap: "2rem" }}>
                 {/* Islam Practicing Level */}
-                <div className="w-[50%] relative">
-  <label htmlFor="country" className="block text-sm font-medium text-[#000000]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+  <label htmlFor="country" className="block text-sm font-medium text-[#000000] mb-0">
     Country
   </label>
   <select
@@ -416,7 +418,8 @@ const MemStepTwo = () => {
     name="country"
     value={profileData.country || ''}
     onChange={(e) => updateField("country", e.target.value)}
-    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
   >
     <option value="">Select Country</option>
     {countries.map((country) => (
@@ -434,10 +437,10 @@ const MemStepTwo = () => {
 
 
                  {/* Islam Practicing Level */}
-                 <div className="w-[50%] relative">
+                 <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="pincode"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Pin Code
                   </label>
@@ -447,7 +450,7 @@ const MemStepTwo = () => {
                       id="pincode"
                       name="pincode"
                       value={profileData.pin_code || ''}
-                      className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                       onChange={(e) =>
                         updateField("pin_code", e.target.value)
                       }
@@ -459,7 +462,7 @@ const MemStepTwo = () => {
                   )}
                   </div>
                   {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 top-1/2 mt-2.5 transform -translate-y-1/2 group z-20">
+                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-red-500 cursor-pointer"
@@ -481,10 +484,11 @@ const MemStepTwo = () => {
                   </div>
                 </div>
 
-                <div className="w-[50%] relative">
+              </div>
+                <div className="w-[100%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="fulladdress"
-                    className="block text-sm font-medium text-[#000000]"
+                    className="block text-sm font-medium text-[#000000] mb-0"
                   >
                     Full Address 
                   </label>
@@ -494,7 +498,7 @@ const MemStepTwo = () => {
                       id="fulladdress"
                       name="fulladdress"
                       value={profileData.address || ''}
-                      className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
                       onChange={(e) =>
                         updateField("address", e.target.value)
                       }
@@ -506,7 +510,7 @@ const MemStepTwo = () => {
                   )}
                   </div>
                   {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 top-1/2 mt-2.5 transform -translate-y-1/2 group z-20">
+                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4 text-red-500 cursor-pointer"
@@ -527,7 +531,6 @@ const MemStepTwo = () => {
                     </div>
                   </div>
                 </div>
-              </div>
 
               {/* Buttons */}
               <div style={{ display: "flex", justifyContent: "space-between" }}>

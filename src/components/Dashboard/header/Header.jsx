@@ -163,7 +163,7 @@ const NotificationDropdown = () => {
 
 const Header = ({ subNavActive, apiData, members }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true); // State to control sidebar visibility
+  const [showSidebar, setShowSidebar] = useState(true);
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
   const [isMemberDropdownOpen, setIsMemberDropdownOpen] = useState(false);
   const notificationsRef = useRef(null);
@@ -362,8 +362,8 @@ const Header = ({ subNavActive, apiData, members }) => {
                 )}
                 <img
                   src={
-                    apiData.profile_photo
-                      ? apiData.profile_photo.upload_photo
+                    apiData?.profile_photo
+                      ? apiData?.profile_photo.upload_photo
                       : `data:image/svg+xml;utf8,${encodeURIComponent(
                           apiData?.gender === "male"
                             ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

@@ -1498,11 +1498,11 @@ const deleteDataV2 = (parameter) => {
 };
 
 const fetchDataV2 = (parameter) => {
-  if (!token) return;
+  // if (!token) return;
   axios
     .get(`${process.env.REACT_APP_API_URL}${parameter?.url}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       },
     })
     .then((response) => {

@@ -9,7 +9,7 @@ import {
 } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2, fetchDataV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, fetchDataV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { format } from "date-fns";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
@@ -934,7 +934,7 @@ const MyMembers = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
 
   const [file, setFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); 
 
   const [openMenuId, setOpenMenuId] = useState(null);
 const memberRef = useRef(null);
@@ -958,49 +958,6 @@ useEffect(() => {
 }, []);
 
 
-const handleExcelUpload = async (e) => {
-  e.preventDefault();
-
-  if (!file) {
-    alert("Please select an Excel file.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    setIsUploading(true);
-
-    const token = localStorage.getItem("token"); // or wherever you store your auth token
-
-    const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/user/user-create-from-excel/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      }
-    );
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(errorText || "Upload failed");
-    }
-
-    alert("Users uploaded successfully!");
-    setShowBulkMemberPopup(false);
-  } catch (error) {
-    console.error("Upload error:", error);
-    alert("Upload failed. Please try again.");
-  } finally {
-    setIsUploading(false);
-  }
-};
-
-
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [allMembers, setAllMembers] = useState([]);
 
@@ -1012,13 +969,13 @@ const handleExcelUpload = async (e) => {
       },
       setErrors: setErrors,
     };
-    fetchDataV2(parameter);
+    fetchDataWithTokenV2(parameter);
   }, [userId]);
 
 
   const loginAsUser = async (userId) => {
   try {
-    const response = await fetch(`api/access-agent-as-user/${userId}/`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/access-agent-as-user/${userId}/`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -1040,146 +997,11 @@ const handleExcelUpload = async (e) => {
 
   return (
     <>
-      {showAllMembers && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-4 rounded-xl w-full max-w-4xl mx-4 max-h-[80vh] overflow-y-auto relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-black"
-              onClick={() => setShowAllMembers(false)}
-            >
-              ✖
-            </button>
-            <h2 className="text-xl font-semibold mb-4">All Members</h2>
-
-            {Array.isArray(allMembers) && allMembers.length > 0 ? (
-              <div className="overflow-auto">
-                <table className="min-w-full border border-gray-200">
-                  <thead className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
-                    <tr>
-                      <th className="p-3 border-b">Photo</th>
-                      <th className="p-3 border-b">Name</th>
-                      <th className="p-3 border-b">Profession</th>
-                      <th className="p-3 border-b">Gender</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allMembers.map((member) => (
-                      <tr key={member.id} className="hover:bg-gray-50">
-                        <td className="p-3 border-b">
-                          <img
-                            src={
-                              member.profile_photo
-                                ? member.profile_photo.upload_photo
-                                : `data:image/svg+xml;utf8,${encodeURIComponent(
-                                    member?.gender === "male"
-                                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
-                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
-              </svg>`
-                                      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
-                                  )}`
-                            }
-                            alt={member.name}
-                            className="w-10 h-10 rounded-full object-cover bg-gray-200"
-                          />
-                        </td>
-                        <td className="p-3 border-b font-medium">
-                          {member.name}
-                        </td>
-                        <td className="p-3 border-b text-sm text-gray-600">
-                          {member.profession || "No profession listed"}
-                        </td>
-                        <td className="p-3 border-b capitalize text-sm text-gray-500">
-                          {member.gender}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p>No members found.</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showBulkMemberPopup && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-md w-96">
-            <h2 className="text-lg font-semibold mb-4">Add Bulk Members</h2>
-
-            <form onSubmit={handleExcelUpload}>
-              <div className="relative mb-4">
-                {/* Hidden file input */}
-                <input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  id="file-upload"
-                  onChange={(e) => setFile(e.target.files[0])}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  required
-                />
-
-                {/* File name display */}
-                <input
-                  type="text"
-                  value={file ? file.name : ""}
-                  placeholder="Choose Excel file"
-                  disabled
-                  className="w-full px-3 py-2 border rounded text-sm pr-20"
-                />
-
-                {/* Overlapping 'Add' button */}
-                <label
-                  htmlFor="file-upload"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 text-white text-xs px-3 py-1 rounded cursor-pointer"
-                  style={{
-                    backgroundColor: "#FF1493",
-                    hover: { backgroundColor: "#e01384" },
-                  }}
-                >
-                  Add
-                </label>
-              </div>
-
-              <div className="flex justify-start gap-2">
-                <button
-                  type="submit"
-                  disabled={isUploading}
-                  className={`text-white px-4 py-2 rounded ${
-                    isUploading ? "bg-gray-400" : ""
-                  }`}
-                  style={{
-                    backgroundColor: isUploading ? "#d1d5db" : "#FF1493",
-                    cursor: isUploading ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {isUploading ? "Uploading..." : "Upload"}
-                </button>
-
-                <button
-                  type="button"
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                  onClick={() => setShowBulkMemberPopup(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+     
 
       <DashboardLayout
         onAddMember={() => setHighlightAddButton(true)}
-        onAddBulkMember={() => setShowBulkMemberPopup(true)}
         onToggleSidebar={setSidebarVisible}
-        onViewAllMembers={() => setShowAllMembers(true)}
       >
         <div className="flex-col p-[24px] w-[100%]">
           <h1 className="page-title">My Members</h1>

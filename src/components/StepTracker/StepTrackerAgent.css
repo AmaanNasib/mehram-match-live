@@ -1,0 +1,353 @@
+/* Container for the step tracker */
+.step_tracker_agent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 35rem;
+    left: 3rem;
+    top:23rem;
+    position: absolute;
+    rotate: calc(90deg);
+    height: 10rem;
+    gap: 1rem;
+z-index: 1;
+  }
+  
+  
+  /* Line connecting the steps */
+  .tracker_line_agent {
+    position: relative;
+    width: 100%;
+    height: 0.5px;
+    background-color: #ccc;
+    border-radius: 2px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Progress bar indicating completed_agent steps */
+  .progress_line_agent {
+    position: absolute;
+    height: 0.5px; /* Same height as the tracker_line_agent */
+    background-color: #f10a8d;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+  }
+  
+  /* Each step (outer circle with border) */
+  .step {
+    position: absolute;
+    width: 25px; /* Outer circle width */
+    height: 25px; /* Outer circle height */
+    border: 2px solid #ccc; /* Red border for the outer circle */
+    border-radius: 50%;
+    background-color: white; /* White gap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    z-index: 1;
+    
+  }
+
+  .step1 {
+    position: absolute;
+    width: 50px; /* Outer circle width */
+    height: 50px; /* Outer circle height */
+    border-radius: 50%;
+    background-color: white; /* White gap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    z-index: 1;
+    background-image: url("../../images/tr1.svg");
+    
+  }
+
+  
+  .step1:nth-child(2)  {
+    background-image: url("../../images/tr1.svg");
+
+  }
+
+  .step1:nth-child(4)  {
+    background-image: url("../../images/trmV2.svg");
+
+  }
+  .step1:nth-child(3) {
+    background-image: url("../../images/tr2.svg");
+
+
+  }
+  .step1:nth-child(5)  {
+    background-image: url("../../images/tr4v2.svg");
+
+  }
+  .step1:nth-child(6) {
+    background-image: url("../../images/tr5v2.svg");
+
+
+  }
+  .step1:nth-child(7)  {
+    background-image: url("../../images/tr6v2.svg");
+
+  }
+
+
+  
+  
+  /* Inner circle for completed_agent steps */
+  .step .inner_circle_agent {
+    width: 15px; /* Inner green circle width */
+    height: 15px; /* Inner green circle height */
+    background-color: #f10a8d; /* Green color for completed_agent steps */
+    border-radius: 50%;
+    
+  }
+
+  
+  
+  /* completed_agent step styling */
+  .step.completed_agent {
+    background-color: white; /* Ensure the gap is white */
+  }
+  
+
+
+
+
+  
+  
+  .step_label_agent {
+    position: absolute;
+    top: 5.5rem; /* Adjust the distance below the pointer */
+    left: -2rem;
+    transform: translate(-18%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+    rotate: calc(270deg);
+    font-weight: bold;
+  }
+
+  .step_label2_agent {
+    position: absolute;
+    top: 5.5rem; /* Adjust the distance below the pointer */
+    left: 0.5rem;
+    transform: translate(-18%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+    rotate: calc(270deg);
+  }
+
+  .step1:nth-child(2) .step_label_agent {
+    position: absolute;
+    top: 6rem; /* Adjust the distance below the pointer */
+    left: -1.9rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(3) .step_label_agent {
+    position: absolute;
+    top: 6rem; /* Adjust the distance below the pointer */
+    left: -1.8rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(4) .step_label_agent {
+    position: absolute;
+    top: 7rem; /* Adjust the distance below the pointer */
+    left: -3rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+ 
+  .step1:nth-child(5) .step_label_agent {
+    position: absolute;
+    top: 5.3rem; /* Adjust the distance below the pointer */
+    left: -0.8rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(6) .step_label_agent {
+    position: absolute;
+    top: 5.5rem; /* Adjust the distance below the pointer */
+    left: -0.3rem;
+    transform: translate(-10%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(7) .step_label_agent {
+    position: absolute;
+    top: 6.5rem; /* Adjust the distance below the pointer */
+    left: -2.2rem;
+    transform: translate(-13%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+
+
+ 
+
+  .step1:nth-child(2) .step_label2_agent {
+    position: absolute;
+    top: 6.7rem; /* Adjust the distance below the pointer */
+    left: -1.7rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+
+  .step1:nth-child(3) .step_label2_agent {
+    position: absolute;
+    top: 6.7rem; /* Adjust the distance below the pointer */
+    left: -1.8rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(4) .step_label2_agent {
+    position: absolute;
+    top: 7.7rem; /* Adjust the distance below the pointer */
+    left: -2.8rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+ 
+  .step1:nth-child(5) .step_label2_agent {
+    position: absolute;
+    top: 6.1rem; /* Adjust the distance below the pointer */
+    left: -0.6rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(6) .step_label2_agent {
+    position: absolute;
+    top: 6.6rem; /* Adjust the distance below the pointer */
+    left: -0.9rem;
+    transform: translate(-10%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step1:nth-child(7) .step_label2_agent {
+    position: absolute;
+    top: 7.8rem; /* Adjust the distance below the pointer */
+    left: -2.7rem;
+    transform: translate(-13%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+
+
+
+
+  
+  .step_label1_agent {
+    position: absolute;
+    top: 2.5rem; /* Adjust the distance below the pointer */
+    left: -1rem;
+    transform: translate(-18%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+    rotate: calc(270deg);
+  }
+
+  .step:nth-child(2) .step_label1_agent {
+    position: absolute;
+    top: 4.2rem; /* Adjust the distance below the pointer */
+    left: -2.2rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+
+  .step:nth-child(4) .step_label1_agent {
+    position: absolute;
+    top: 4.2rem; /* Adjust the distance below the pointer */
+    left: -3rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step:nth-child(3) .step_label1_agent {
+    position: absolute;
+    top: 4.5rem; /* Adjust the distance below the pointer */
+    left: -3.2rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step:nth-child(5) .step_label1_agent {
+    position: absolute;
+    top: 4.4rem; /* Adjust the distance below the pointer */
+    left: -3.2rem;
+    transform: translate(-12%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step:nth-child(6) .step_label1_agent {
+    position: absolute;
+    top: 5.5rem; /* Adjust the distance below the pointer */
+    left: -4.5rem;
+    transform: translate(-10%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  .step:nth-child(7) .step_label1_agent {
+    position: absolute;
+    top: 4rem; /* Adjust the distance below the pointer */
+    left: -2.5rem;
+    transform: translate(-13%, 0);
+    font-size: 12px; /* Adjust font size */
+    text-align: center;
+    white-space: nowrap;
+
+  }
+  

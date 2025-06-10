@@ -265,9 +265,18 @@ const UserDashboard = () => {
   ];
 
   return (
-    <DashboardLayout >
-      <div className="flex-col p-[24px] w-[100%]">
-      <h3>Dashboard</h3>
+    <DashboardLayout>
+      <div className="flex flex-col p-[24px] w-[100%]">
+        <h1
+          style={{
+            fontWeight: "700",
+            fontSize: "24px",
+            textAlign: "left",
+            marginBottom: "20px",
+          }}
+        >
+          Dashboard
+        </h1>
         <div className="stats-container">
           {/* Stats Section */}
           <div className="stat-card">
@@ -330,7 +339,11 @@ const UserDashboard = () => {
                     </defs>
                   </svg>
                 </div>
-                <div className="stat-number">{apiData1?.total_interest_count ? apiData1?.total_interest_count : 0}</div>
+                <div className="stat-number">
+                  {apiData1?.total_interest_count
+                    ? apiData1?.total_interest_count
+                    : 0}
+                </div>
                 <div className="stat-details">
                   <div className="stat-row">
                     <span className="stat-label">
@@ -376,12 +389,12 @@ const UserDashboard = () => {
                       Received
                     </span>
                     <span className="stat-value">
-                      {apiData1?.interest_received ? apiData1?.interest_received :0}
+                      {apiData1?.interest_received
+                        ? apiData1?.interest_received
+                        : 0}
                     </span>
                   </div>
                 </div>
-
-                
               </div>
             </div>
           </div>
@@ -420,7 +433,9 @@ const UserDashboard = () => {
                     />
                   </svg>
                 </div>
-                <div className="stat-number">{apiData?.total_request_count}</div>
+                <div className="stat-number">
+                  {apiData?.total_request_count}
+                </div>
                 <div className="stat-details">
                   <div className="stat-row">
                     <span className="stat-label">
@@ -438,9 +453,7 @@ const UserDashboard = () => {
                       </svg>
                       Sent
                     </span>
-                    <span className="stat-value">
-                      {apiData.request_sent}
-                    </span>
+                    <span className="stat-value">{apiData.request_sent}</span>
                   </div>
                   <div className="stat-row">
                     <span className="stat-label">
@@ -532,7 +545,7 @@ const UserDashboard = () => {
                           fill="#FED2E2"
                         />
                       </svg>
-                      {apiData?.received_request_accepted ||0}
+                      {apiData?.received_request_accepted || 0}
                     </span>
                     <span className="accepted">
                       <svg
@@ -552,7 +565,7 @@ const UserDashboard = () => {
                           fill="#FF0000"
                         />
                       </svg>
-                      {apiData?.received_request_rejected	 ||0}
+                      {apiData?.received_request_rejected || 0}
                     </span>
                   </div>
                 </div>
@@ -794,8 +807,11 @@ const UserDashboard = () => {
                     </defs>
                   </svg>
                 </div>
-                <div className="stat-number">{apiData2?.total_shortlisted_count ? apiData2.total_shortlisted_count : 0}</div>
-               
+                <div className="stat-number">
+                  {apiData2?.total_shortlisted_count
+                    ? apiData2.total_shortlisted_count
+                    : 0}
+                </div>
               </div>
             </div>
           </div>
@@ -819,8 +835,11 @@ const UserDashboard = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="stat-number">{apiData3?.total_blocked_count ? apiData3?.total_blocked_count :0}</div>
-                
+                <div className="stat-number">
+                  {apiData3?.total_blocked_count
+                    ? apiData3?.total_blocked_count
+                    : 0}
+                </div>
               </div>
             </div>
           </div>
@@ -847,62 +866,76 @@ const UserDashboard = () => {
           <div className="section-header">
             <h2>Match Details</h2>
           </div>
-        
-        {role!="agent" &&<div className="match-details-table">
-            <table>
-              <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Location</th>
-                  <th>Age</th>
-                  <th>Sect</th>
-                  <th>Profession</th>
-                  <th>Status</th>
-                  <th>Match Per(%)</th>
-                </tr>
-              </thead>
-          
-              <tbody>
-                {apiData6.map((match, index) => (
-                  <tr key={index}>
-                    <td>
-                      <div className="name-cell">
-                        <img src={match?.profile_photo ? `${'https://mehram-match.onrender.com'}${match?.profile_photo}` : men1} alt={match.name} />
-                        {match.name||"Not Mentioned"}
-                      </div>
-                    </td>
-                    <td>{match.city||"Not Mentioned"}</td>
-                    <td>{match.age||"Not Mentioned"}</td>
-                
-                 
-                    {/* <td>{match.match_percentage}%</td> */}
-                    <td>{match.sect_school_info|| "Not Mentioned"}</td>
-                    <td>{match.profession||"Not Mentioned"}</td>
-                    <td>
-                      <span className="status-badge never-married">
-                        {match.marital_status||"Not Mentioned"}
-                      </span>
-                    </td>
-                    <td>
-                  <div className="progress-bar-container">
-                    <div
-                      className="progress-bar"
-                      style={{
-                        width: `${match.martial_status}%`,
-                        backgroundColor: getProgressBarColor(match.martial_status),
-                      }}
-                    ></div>
-                    <span className="progress-text">{match.match_percentage}%</span>
-                  </div>
-                </td>
+
+          {role != "agent" && (
+            <div className="match-details-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Age</th>
+                    <th>Sect</th>
+                    <th>Profession</th>
+                    <th>Status</th>
+                    <th>Match Per(%)</th>
                   </tr>
-                ))}
-              </tbody>
-           
-            </table>
-          </div>
-}
-{role=='agent'&&<MatchDetailsComponents apiData6={apiData6?.members||[]}/>}
+                </thead>
+
+                <tbody>
+                  {apiData6.map((match, index) => (
+                    <tr key={index}>
+                      <td>
+                        <div className="name-cell">
+                          <img
+                            src={
+                              match?.profile_photo
+                                ? `${"https://mehram-match.onrender.com"}${
+                                    match?.profile_photo
+                                  }`
+                                : men1
+                            }
+                            alt={match.name}
+                          />
+                          {match.name || "Not Mentioned"}
+                        </div>
+                      </td>
+                      <td>{match.city || "Not Mentioned"}</td>
+                      <td>{match.age || "Not Mentioned"}</td>
+
+                      {/* <td>{match.match_percentage}%</td> */}
+                      <td>{match.sect_school_info || "Not Mentioned"}</td>
+                      <td>{match.profession || "Not Mentioned"}</td>
+                      <td>
+                        <span className="status-badge never-married">
+                          {match.marital_status || "Not Mentioned"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="progress-bar-container">
+                          <div
+                            className="progress-bar"
+                            style={{
+                              width: `${match.martial_status}%`,
+                              backgroundColor: getProgressBarColor(
+                                match.martial_status
+                              ),
+                            }}
+                          ></div>
+                          <span className="progress-text">
+                            {match.match_percentage}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {role == "agent" && (
+            <MatchDetailsComponents apiData6={apiData6?.members || []} />
+          )}
         </div>
       </div>
 
