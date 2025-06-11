@@ -863,7 +863,7 @@ const DashboardLayout = ({
                   </div>
                 </>
               )}
-
+{/* 
               {role === "individual" && (
                 <Link
                   to="/total-interaction"
@@ -886,7 +886,7 @@ const DashboardLayout = ({
                   </svg>
                   {showSidebar && "Total Interaction"}
                 </Link>
-              )}
+              )} */}
 
               {role === "individual" && (
                 <Link
