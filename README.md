@@ -70,7 +70,7 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 📄 License
 
-[MIT](LICENSE)
+[MIT](https://github.com/Python-genius900/MehramMatch_Final/blob/bd07bcac7b11c4e166f38bd5a109a12310bef902/LICENSE)
 
 ---
 
