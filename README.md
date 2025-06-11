@@ -16,13 +16,13 @@ Make sure the following are installed on your system:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/Python-genius900/MehramMatch_Final.git
 ````
 
 ### 2. Navigate to the Project Directory
 
 ```bash
-cd your-repo-name
+cd MehramMatch_Final
 ```
 
 ### 3. Install Dependencies
