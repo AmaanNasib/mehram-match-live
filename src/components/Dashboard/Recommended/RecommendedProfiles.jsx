@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboadrCard from '../dashboardCard/DashboardCard';
 import './recommendedProfiles.css';
+import { useNavigate } from 'react-router-dom';
 
 const RecommendedProfiles = ({ profiles, setApiData, url }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,12 +14,14 @@ const RecommendedProfiles = ({ profiles, setApiData, url }) => {
     return () => clearTimeout(timer);
   }, []);
 
+    const navigate =useNavigate();
+
   return (
     <section className="recommended-section" style={{margin:"0"}}>
       <div className="narrow-gap">
         <div className="button-container">
           <h1>Recommended Profiles</h1>
-          <button className="top-right-button">View All</button>
+          <button className="top-right-button" onClick={()=>navigate(`/viewallrecommendedprofiles`)}>View All</button>
         </div>
         <p>The profile creation process leads you to better search results and recommended profiles.</p>
       </div>

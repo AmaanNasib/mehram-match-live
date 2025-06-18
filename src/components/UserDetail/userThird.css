@@ -1,6 +1,4 @@
-.thirdSection {
-    margin-top: 5vh;
-}
+
 
 .trending {
     width: 100%;
@@ -24,16 +22,13 @@
 }
 
 .tCard {
-    height: 44.5vh;
     width: 12vw; /* Set a fixed width for horizontal scrolling */
-    background-color: rgb(224, 233, 245);
     flex-shrink: 0; /* Prevent shrinking of cards */
     border-radius: 2vh;
 }
 .tImg{
     height: 20vh;
     width: 100%;
-    background-color: blue;
     border-radius: 2vh 2vh 0 0;
 }
 .tDetails{

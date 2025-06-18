@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchDataObjectV2, fetchDataV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { format } from "date-fns";
-import { HiOutlineDotsVertical } from "react-icons/hi";
+import { HiOutlineDotsHorizontal  } from "react-icons/hi";
 
 // Add this new component for the marital status dropdown
 const MaritalStatusDropdown = ({ value, onChange }) => {
@@ -1204,7 +1204,7 @@ useEffect(() => {
                   </td>
                   <td>{member?.notifications || "0"}</td>
                   <td style={{ position: "relative" }}>
-                    <HiOutlineDotsVertical
+                    <HiOutlineDotsHorizontal 
                       className="cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent row click
@@ -1214,7 +1214,7 @@ useEffect(() => {
                     {openMenuId === member.id && (
                       <div
                         ref={menuRef}
-                        className="absolute right-0 mt-2 w-40 bg-white shadow-md border rounded z-10"
+                        className="absolute right-0 mt-2 w-40 bg-white shadow-md border rounded z-100001"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div

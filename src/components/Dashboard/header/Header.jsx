@@ -611,9 +611,9 @@ const Header = ({ subNavActive, apiData, members }) => {
               <a href="/newdashboard" className="active">
                 HOME
               </a>
-              <a href="#">MEMBERS</a>
+              <a href="/my-memberss" style={{display:role === "individual"? "none ":""}}>MEMBERS</a>
               {/* <a href="#">PREMIUM PLANS</a> */}
-              <a href="#">GUIDANCE</a>
+              <a href="/guidance">GUIDANCE</a>
               <a href="#">CONTACT US</a>
             </div>
           </nav>

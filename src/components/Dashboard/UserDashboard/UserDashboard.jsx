@@ -626,7 +626,7 @@ const UserDashboard = () => {
                       Sent
                     </span>
                     <span className="stat-value">
-                      {stats.totalInterests.sent}
+                      {apiData7.sent_interactions}
                     </span>
                   </div>
                   <div className="stat-row">
@@ -653,7 +653,7 @@ const UserDashboard = () => {
                       Received
                     </span>
                     <span className="stat-value">
-                      {stats.totalInterests.received}
+                      {apiData7.received_interactions}
                     </span>
                   </div>
                 </div>{" "}

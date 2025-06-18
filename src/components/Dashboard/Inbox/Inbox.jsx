@@ -223,11 +223,20 @@ const Inbox = () => {
                       <td className="p-2">
                         <div className="flex items-center space-x-2">
                           <img
-                            src={
-                              user.profile_photo
-                                ? `${process.env.REACT_APP_API_URL}${user.profile_photo}`
-                                : "/default-avatar.png" // Replace with your placeholder image path
-                            }
+                            src={user.profile_photo
+                          ? user.profile_photo.upload_photo
+                          : `data:image/svg+xml;utf8,${encodeURIComponent(
+                              user?.gender === "male"
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+              </svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+              </svg>`
+                            )}`}
                             alt={user.name}
                             className="w-8 h-8 rounded-full object-cover"
                           />

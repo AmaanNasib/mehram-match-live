@@ -24,12 +24,15 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "start:home": "REACT_APP_API_URL=http://192.168.81.66:8000 react-scripts start",
     "start:yusuf": "REACT_APP_API_URL=http://192.168.1.223:8000 react-scripts start",
+    "start:extra": "REACT_APP_API_URL=http://192.168.194.66:8000 react-scripts start",
+
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

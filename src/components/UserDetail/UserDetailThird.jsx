@@ -82,18 +82,30 @@ const UserDetailThird = () => {
                 ))
               : apiData?.map((profile) => (
                   <div key={profile?.user?.id} className="tCard">
-                    <div className="tImg">
+                    
                       <img
-                        src={men}
+                        src={
+                    profile.profile_photo
+                      ? profile.profile_photo.upload_photo
+                      : `data:image/svg+xml;utf8,${encodeURIComponent(
+                          profile?.gender === "male"
+                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+              </svg>`
+                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+              </svg>`
+                        )}`
+                  }
                         alt=""
                         style={{
-                          height: "100%",
-                          width: "100%",
-                          objectFit: "cover",
-                          borderRadius: "2vh 2vh 0 0",
-                        }}
+                    objectFit: "cover",
+                  }}
                       />
-                    </div>
+                    
                     <div className="tDetails">
                       <div className="tHeading">
                         <div className="tLeft">

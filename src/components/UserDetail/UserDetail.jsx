@@ -209,37 +209,41 @@ const UserDetail = () => {
       setMessage(false);
     }, 5000);
   }, [successMessage]);
+
   return (
-    <div>
+    <div className="h-full w-full flex flex-col justify-between gap-[20px] bg-[#f5f5f5]">
       <Header />
       <div className="section-container">
-        <UserSetionOne apiData={apiData} />
+        <UserSetionOne
+          apiData={apiData}
+          setApiData={setApiData}
+          setMessage={setMessage}
+          setErrors={setErrors}
+        />
         <div className="secondSection">
           <div className="extra">
             <UserDetailSecond apiData={apiData} />
             <UserDetailThird />
-
           </div>
+
           <div className="gallert">
             <div className="secondDetail5">
               <div className="headingSecond1">
-                <h1> Photo Gallery 6</h1>
+                <h1> Photo Gallery</h1>
                 <h3>All photos</h3>
-
               </div>
               <div className="basic">
-              
-              {
-            apiData1?.map( (profile)=>{ return  <div className="img1">
-                  <img src={profile?.upload_photo} alt="photo" />
-                 
-                  
-                </div>} )}
+                {apiData1?.map((profile) => {
+                  return (
+                    <div className="img1">
+                      <img src={profile?.upload_photo} alt="photo" />
+                    </div>
+                  );
+                })}
                 <div className="img1">
-                  <img src="https://i.pinimg.com/564x/d3/43/80/d34380c5ffa97a612ed177e8434b84fe.jpg" alt="" />
+                  {/* <img src="https://i.pinimg.com/564x/d3/43/80/d34380c5ffa97a612ed177e8434b84fe.jpg" alt="" /> */}
                 </div>
               </div>
-
             </div>
           </div>
         </div>

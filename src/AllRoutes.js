@@ -51,6 +51,9 @@ import MyShortlist from "./components/Dashboard/dashboardCard/MyShortList/MyShor
 import TotalShortlistAgent from "./components/Dashboard/Totalshortlist/Totalshortlist-agent.jsx";
 import ChangePassword from "./components/Dashboard/UserDashboard/ChangePassword.jsx";
 import GuidancePage from "./components/Guidance/GuidancePage.jsx";
+import ViewAllTrendingProfiles from "./components/Dashboard/ViewAll/ViewAllTrendingProfiles.jsx";
+import ViewAllRecommendedProfiles from "./components/Dashboard/ViewAll/ViewAllRecommendedProfiles.jsx";
+import ViewAllUser from "./components/Dashboard/ViewAll/ViewAllUser.jsx";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -89,6 +92,33 @@ const AllRoutes = () => {
             <PrivateRoute>
               {" "}
               <NewDashboard />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/viewalltrendingprofiles"
+          element={
+            <PrivateRoute>
+              {" "}
+              <ViewAllTrendingProfiles />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/viewallrecommendedprofiles"
+          element={
+            <PrivateRoute>
+              {" "}
+              <ViewAllRecommendedProfiles />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/viewalluser"
+          element={
+            <PrivateRoute>
+              {" "}
+              <ViewAllUser />{" "}
             </PrivateRoute>
           }
         />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboadrCard from '../dashboardCard/DashboardCard';
 import './alluser.css';
+import { useNavigate } from 'react-router-dom';
 
 const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,12 +14,14 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
     return () => clearTimeout(timer);
   }, []);
 
+    const navigate =useNavigate();
+
   return (
     <section className="trending-section" style={{margin:"0"}}>
       <div className="narrow-gap">
         <div className="button-container">
           <h1>All Profiles</h1>
-          <button className="top-right-button">View All</button>
+          <button className="top-right-button" onClick={()=>navigate(`/viewalluser`)}>View All</button>
         </div>
         <p>To achieve more personalized suggestion complete your profile.</p>
       </div>

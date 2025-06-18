@@ -499,30 +499,23 @@ const postDataWithFetchV2 = (parameter) => {
       }
     )
     .then((response) => {
-      console.log(parameter?.payload);
-      
       const successMessageColor = "#4285F4";
       const { status } = response;
       if (parameter?.tofetch) {
         if (status === 201 || status === 200) {
           parameter?.tofetch?.setSuccessMessage(true);
-          const timeoutId = setTimeout(() => {
-            parameter?.tofetch?.setSuccessMessage(false);
-          }, 5000);
+         
           if (
             parameter?.tofetch?.items &&
             Array.isArray(parameter?.tofetch.items)
           ) {
             parameter?.tofetch.items.forEach((item) => {
-              console.log("i a jj")
               if (item.fetchurl && item.dataset) {
                 const parameter = {
                   url: item.fetchurl,
                   setterFunction: item.dataset,
-                  setSuccessMessage: item.setSuccessMessage,
-                  setErrors:item.setErrors,
                 };
-                fetchDataWithTokenV2(parameter);
+                fetchDataV2(parameter);
               }
             });
           }

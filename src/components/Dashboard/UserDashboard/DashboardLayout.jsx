@@ -248,8 +248,8 @@ const DashboardLayout = ({
 
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
-  const toggleSettingsDropdown = (event) => {
-    event.stopPropagation();
+  const toggleSettingsDropdown = () => {
+    
     setIsSettingsDropdownOpen((prev) => !prev);
   };
 
@@ -271,6 +271,7 @@ const DashboardLayout = ({
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
+            if (role === "individual") return; 
     const parameter = {
       url: `/api/agent/user_agent/?agent_id=${userId}`,
       setterFunction: (data) => {
@@ -1094,8 +1095,9 @@ const DashboardLayout = ({
                   flexDirection: showSidebar ? "row" : "column",
                   alignItems: "center",
                   border: "none",
+                  width:showSidebar?"100%":"auto"
                 }}
-                onClick={()=>toggleSettingsDropdown()}
+                onClick={(e) => toggleSettingsDropdown(e)}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
