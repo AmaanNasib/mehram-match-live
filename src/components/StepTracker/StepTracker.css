@@ -1,353 +1,513 @@
-/* Container for the step tracker */
-.step-tracker {
+/* Modern Professional Step Tracker Styles - Clean & Professional */
+.modern-step-tracker {
+  position: fixed;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  max-width: 320px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+/* Desktop Sidebar Layout */
+.step-tracker-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 35rem;
-    left: 3rem;
-    top:23rem;
+  gap: 2.5rem;
+  position: relative;
+}
+
+/* Vertical connecting line with gradient */
+.step-tracker-container::before {
+  content: '';
     position: absolute;
-    rotate: calc(90deg);
-    height: 10rem;
-    gap: 1rem;
+  left: 30px;
+  top: 70px;
+  bottom: 70px;
+  width: 3px;
+  background: linear-gradient(180deg, #e5e7eb 0%, #ec4899 50%, #e5e7eb 100%);
+  border-radius: 2px;
 z-index: 1;
   }
   
-  
-  /* Line connecting the steps */
-  .tracker-line {
+.step-item {
     position: relative;
-    width: 100%;
-    height: 0.5px;
-    background-color: #ccc;
-    border-radius: 2px;
-    margin: 20px 0;
     display: flex;
-    align-items: center;
-  }
-  
-  /* Progress bar indicating completed steps */
-  .progress-line {
-    position: absolute;
-    height: 0.5px; /* Same height as the tracker-line */
-    background-color: #f10a8d;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-  }
-  
-  /* Each step (outer circle with border) */
-  .step {
-    position: absolute;
-    width: 25px; /* Outer circle width */
-    height: 25px; /* Outer circle height */
-    border: 2px solid #ccc; /* Red border for the outer circle */
+  align-items: flex-start;
+  gap: 1.5rem;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.step-item:hover {
+  transform: translateX(5px);
+}
+
+/* Step Icon Container - Clean Design */
+.step-icon-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.step-icon {
+  width: 60px;
+  height: 60px;
     border-radius: 50%;
-    background-color: white; /* White gap */
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: translateX(-50%);
+  border: 3px solid #e5e7eb;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.step-icon.completed {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  border-color: #ec4899;
+  box-shadow: 
+    0 10px 15px -3px rgba(236, 72, 153, 0.3),
+    0 4px 6px -2px rgba(236, 72, 153, 0.2);
+  transform: scale(1.05);
+}
+
+.step-icon.current {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-color: #ec4899;
+  box-shadow: 
+    0 0 0 4px rgba(236, 72, 153, 0.1),
+    0 10px 15px -3px rgba(236, 72, 153, 0.2),
+    0 4px 6px -2px rgba(236, 72, 153, 0.1);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px rgba(236, 72, 153, 0.1),
+      0 10px 15px -3px rgba(236, 72, 153, 0.2),
+      0 4px 6px -2px rgba(236, 72, 153, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 6px rgba(236, 72, 153, 0.15),
+      0 15px 25px -3px rgba(236, 72, 153, 0.3),
+      0 8px 12px -2px rgba(236, 72, 153, 0.2);
+  }
+}
+
+/* Professional SVG Icons */
+.icon-svg {
+  width: 24px;
+  height: 24px;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.step-icon.completed .icon-svg {
+  color: white;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.step-icon.current .icon-svg {
+  color: #ec4899;
+  filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.3));
+}
+
+/* Check Icon - Clean Design */
+.check-icon {
+  width: 28px;
+  height: 28px;
+  color: white;
+  stroke-width: 3;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Status Indicator - Removed Redundant Design */
+.status-indicator {
+  display: none; /* Remove redundant status indicators */
+}
+
+.current-indicator {
+  display: none; /* Remove redundant current indicators */
+}
+
+/* Step Content - Clean Typography */
+.step-content {
+  flex: 1;
+  padding-top: 0.75rem;
+}
+
+.step-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  transition: color 0.3s ease;
+}
+
+.step-description {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.step-item:hover .step-title {
+  color: #ec4899;
+}
+
+.step-item:hover .step-description {
+  color: #9ca3af;
+}
+
+/* Connecting Line - Clean Design */
+.connecting-line {
+  position: absolute;
+  left: 59px;
+  top: 60px;
+  width: 3px;
+  height: 2.5rem;
+  background: #e5e7eb;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+}
+
+.connecting-line.completed {
+  background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+  box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+}
+
+/* Progress indicator with gradient */
+.step-tracker-container::after {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 70px;
+  width: 3px;
+  background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+  z-index: 1;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  height: calc(var(--progress-height, 0%) - 140px);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+}
+
+/* Enhanced hover effects */
+.step-item:hover .step-icon {
+  transform: scale(1.08);
+}
+
+.step-item:hover .step-icon.completed {
+  transform: scale(1.1);
+}
+
+/* Animation for step completion */
+.step-icon.completed {
+  animation: completeStep 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes completeStep {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+/* Active step highlighting */
+.step-item.current .step-content {
+  transform: translateX(8px);
+  transition: transform 0.3s ease;
+}
+
+/* Custom scrollbar for step tracker */
+.modern-step-tracker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modern-step-tracker::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.modern-step-tracker::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+  border-radius: 3px;
+}
+
+.modern-step-tracker::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #be185d 0%, #9d174d 100%);
+}
+
+/* Glass morphism effect */
+.modern-step-tracker::before {
+  content: '';
+    position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== HORIZONTAL LAYOUT FOR MOBILE/TABLET ===== */
+@media (max-width: 1024px) {
+  .modern-step-tracker {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    margin: 0 auto 2rem auto !important;
+    max-width: 100% !important;
+    padding: 2rem 1.5rem !important;
+    border-radius: 16px !important;
+    order: -1 !important;
+  }
+  
+  .step-tracker-container {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 2rem !important;
+    overflow-x: auto !important;
+    padding-bottom: 1rem !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #ec4899 #f1f5f9 !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    position: relative !important;
+  }
+  
+  .step-tracker-container::before {
+    content: '';
+    position: absolute;
+    left: 60px;
+    right: 60px;
+    top: 30px;
+    height: 3px;
+    background: linear-gradient(90deg, #e5e7eb 0%, #ec4899 50%, #e5e7eb 100%);
+    border-radius: 2px;
     z-index: 1;
-    
   }
-
-  .step1 {
+  
+  .step-tracker-container::after {
+    content: '';
     position: absolute;
-    width: 50px; /* Outer circle width */
-    height: 50px; /* Outer circle height */
-    border-radius: 50%;
-    background-color: white; /* White gap */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: translateX(-50%);
+    left: 60px;
+    top: 30px;
+    height: 3px;
+    background: linear-gradient(90deg, #ec4899 0%, #be185d 100%);
     z-index: 1;
-    background-image: url("../../images/tr1.svg");
-    
-  }
-
-  
-  .step1:nth-child(2)  {
-    background-image: url("../../images/tr1.svg");
-
-  }
-
-  .step1:nth-child(4)  {
-    background-image: url("../../images/trmV2.svg");
-
-  }
-  .step1:nth-child(3) {
-    background-image: url("../../images/tr2.svg");
-
-
-  }
-  .step1:nth-child(5)  {
-    background-image: url("../../images/tr4v2.svg");
-
-  }
-  .step1:nth-child(6) {
-    background-image: url("../../images/tr5v2.svg");
-
-
-  }
-  .step1:nth-child(7)  {
-    background-image: url("../../images/tr6v2.svg");
-
-  }
-
-
-  
-  
-  /* Inner circle for completed steps */
-  .step .inner-circle {
-    width: 15px; /* Inner green circle width */
-    height: 15px; /* Inner green circle height */
-    background-color: #f10a8d; /* Green color for completed steps */
-    border-radius: 50%;
-    
-  }
-
-  
-  
-  /* Completed step styling */
-  .step.completed {
-    background-color: white; /* Ensure the gap is white */
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: calc(var(--progress-width, 0%) - 120px);
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
   }
   
-
-
-
-
-  
-  
-  .step-label {
-    position: absolute;
-    top: 5.5rem; /* Adjust the distance below the pointer */
-    left: -2rem;
-    transform: translate(-18%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-    rotate: calc(270deg);
-    font-weight: bold;
-  }
-
-  .step-label2 {
-    position: absolute;
-    top: 5.5rem; /* Adjust the distance below the pointer */
-    left: 0.5rem;
-    transform: translate(-18%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-    rotate: calc(270deg);
-  }
-
-  .step1:nth-child(2) .step-label {
-    position: absolute;
-    top: 6rem; /* Adjust the distance below the pointer */
-    left: -1.9rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(3) .step-label {
-    position: absolute;
-    top: 6rem; /* Adjust the distance below the pointer */
-    left: -1.8rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(4) .step-label {
-    position: absolute;
-    top: 6rem; /* Adjust the distance below the pointer */
-    left: -1.5rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
- 
-  .step1:nth-child(5) .step-label {
-    position: absolute;
-    top: 6.9rem; /* Adjust the distance below the pointer */
-    left: -2.8rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(6) .step-label {
-    position: absolute;
-    top: 6.5rem; /* Adjust the distance below the pointer */
-    left: -2.1rem;
-    transform: translate(-10%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(7) .step-label {
-    position: absolute;
-    top: 6.5rem; /* Adjust the distance below the pointer */
-    left: -2.2rem;
-    transform: translate(-13%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-
-
- 
-
-  .step1:nth-child(2) .step-label2 {
-    position: absolute;
-    top: 6.1rem; /* Adjust the distance below the pointer */
-    left: -0.7rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-
-  .step1:nth-child(3) .step-label2 {
-    position: absolute;
-    top: 7.2rem; /* Adjust the distance below the pointer */
-    left: -2.2rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(4) .step-label2 {
-    position: absolute;
-    top: 7.2rem; /* Adjust the distance below the pointer */
-    left: -1.8rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
- 
-  .step1:nth-child(5) .step-label2 {
-    position: absolute;
-    top: 9.1rem; /* Adjust the distance below the pointer */
-    left: -4.3rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(6) .step-label2 {
-    position: absolute;
-    top: 6.6rem; /* Adjust the distance below the pointer */
-    left: -0.9rem;
-    transform: translate(-10%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step1:nth-child(7) .step-label2 {
-    position: absolute;
-    top: 7.8rem; /* Adjust the distance below the pointer */
-    left: -2.7rem;
-    transform: translate(-13%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-
-
-
-
-  
-  .step-label1 {
-    position: absolute;
-    top: 2.5rem; /* Adjust the distance below the pointer */
-    left: -1rem;
-    transform: translate(-18%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-    rotate: calc(270deg);
-  }
-
-  .step:nth-child(2) .step-label1 {
-    position: absolute;
-    top: 4.2rem; /* Adjust the distance below the pointer */
-    left: -2.2rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-
-  .step:nth-child(4) .step-label1 {
-    position: absolute;
-    top: 4.2rem; /* Adjust the distance below the pointer */
-    left: -3rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step:nth-child(3) .step-label1 {
-    position: absolute;
-    top: 4.5rem; /* Adjust the distance below the pointer */
-    left: -3.2rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step:nth-child(5) .step-label1 {
-    position: absolute;
-    top: 4.4rem; /* Adjust the distance below the pointer */
-    left: -3.2rem;
-    transform: translate(-12%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step:nth-child(6) .step-label1 {
-    position: absolute;
-    top: 5.5rem; /* Adjust the distance below the pointer */
-    left: -4.5rem;
-    transform: translate(-10%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
-  }
-  .step:nth-child(7) .step-label1 {
-    position: absolute;
-    top: 4rem; /* Adjust the distance below the pointer */
-    left: -2.5rem;
-    transform: translate(-13%, 0);
-    font-size: 12px; /* Adjust font size */
-    text-align: center;
-    white-space: nowrap;
-
+  .step-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    min-width: 160px !important;
+    text-align: center !important;
+    position: relative !important;
+    z-index: 2 !important;
+    flex-shrink: 0 !important;
   }
   
+  .step-item:hover {
+    transform: translateY(-5px) !important;
+  }
+  
+  .step-icon {
+    width: 60px !important;
+    height: 60px !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .step-content {
+    padding-top: 0 !important;
+    text-align: center !important;
+  }
+  
+  .step-title {
+    font-size: 14px !important;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .step-description {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+  }
+  
+  .connecting-line {
+    position: absolute;
+    left: 50%;
+    top: 30px;
+    width: 3px;
+    height: 1.5rem;
+    background: #e5e7eb;
+    transform: translateX(-50%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+  }
+  
+  .connecting-line.completed {
+    background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+    box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+  }
+  
+  /* Enhanced scrollbar styling */
+  .step-tracker-container::-webkit-scrollbar {
+    height: 8px !important;
+  }
+  
+  .step-tracker-container::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 4px !important;
+  }
+  
+  .step-tracker-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #ec4899 0%, #be185d 100%) !important;
+    border-radius: 4px !important;
+    border: 1px solid #f1f5f9 !important;
+  }
+  
+  .step-tracker-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #be185d 0%, #9d174d 100%) !important;
+  }
+}
+
+/* Extra Small Devices */
+@media (max-width: 640px) {
+  .modern-step-tracker {
+    padding: 1.5rem 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .step-tracker-container {
+    gap: 1.5rem !important;
+    justify-content: flex-start !important;
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .step-item {
+    min-width: 120px !important;
+  }
+  
+  .step-icon {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  
+  .icon-svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  
+  .step-title {
+    font-size: 12px !important;
+  }
+  
+  .step-description {
+    font-size: 9px !important;
+  }
+  
+  .step-tracker-container::before {
+    left: 45px !important;
+    right: 45px !important;
+    top: 22px !important;
+  }
+  
+  .step-tracker-container::after {
+    left: 45px !important;
+    width: calc(var(--progress-width, 0%) - 90px) !important;
+  }
+}
+
+/* Responsive adjustments for medium devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .modern-step-tracker {
+    padding: 2rem !important;
+  }
+  
+  .step-tracker-container {
+    gap: 2.5rem !important;
+    justify-content: flex-start !important;
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .step-item {
+    min-width: 160px !important;
+  }
+  
+  .step-icon {
+    width: 55px !important;
+    height: 55px !important;
+  }
+  
+  .icon-svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+  
+  .step-title {
+    font-size: 15px !important;
+  }
+  
+  .step-description {
+    font-size: 12px !important;
+  }
+}
+
+/* Scroll indicator styling */
+.scroll-indicator {
+    text-align: center;
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+.scroll-text {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  animation: scroll-pulse 2s infinite;
+}
+
+@keyframes scroll-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}  

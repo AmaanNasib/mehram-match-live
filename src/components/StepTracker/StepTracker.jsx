@@ -1,163 +1,220 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import "./StepTracker.css";
 import { useLocation } from 'react-router-dom';
 
-
 const StepTracker = ({ percentage }) => {
-
   const location = useLocation();
-  const pathname = location.pathname; // "/agnsteptwo/2"
-  const segments = pathname.split('/'); // ["", "agnsteptwo", "2"]
-  const targetSegment = segments[1]; // "agnsteptwo"
+  const pathname = location.pathname;
+  const segments = pathname.split('/');
+  const targetSegment = segments[1];
   const prefix = targetSegment.substring(0, 3);
-    const [isTrue , setIsTrue] =useState(prefix !== "agn"? false : false)
+  const [isTrue, setIsTrue] = useState(prefix !== "agn" ? false : false);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Check if device is mobile/tablet
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth <= 1024);
+    };
+    
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
 
-  const totalSteps = prefix === "agn"? 5 : 6; 
+  const totalSteps = prefix === "agn" ? 5 : 6;
+  const completedSteps = Math.floor((percentage / 100) * totalSteps);
+  const currentStep = Math.ceil((percentage / 100) * totalSteps);
 
-  
-  const completedSteps = Math.floor((percentage / 100) * totalSteps); // Calculate completed steps
-  
-  const steps = Array.from({ length: totalSteps }, (_, index) => index + 1);
+  // Calculate progress for horizontal layout
+  const progressWidth = isMobile ? `${(completedSteps / totalSteps) * 100}%` : '0%';
 
-  // Define labels for each step
-  const stepLabels =  prefix === "agn"?  [
-    "Personal Details",
-    "Residence Details",
-    "Eduction and Profession",
-    "Verification",
-    "Payment",
-  ]: [
-    {text : "Personal Details", text1 : "Enter your details"},
-    {text : "Religious Details", text1 : "Enter your religious details"},
-    {text : "Family Details", text1 : "Enter your family details"},
-    {text : "Partner Expectations", text1 : "Enter your partner expectation details"},
-    {text : "Privacy Selection", text1 : "Select your privacy"},
-    {text : "Review & Confirm", text1 : "Review & Confirm the details"},
+  // Professional SVG Icons
+  const getStepIcon = (stepId, isCompleted, isCurrent) => {
+    if (isCompleted) {
+      return (
+        <svg className="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      );
+    }
 
-  ]  ;
-  
-  const stepSpacing = 100 / (totalSteps - 1);
-  const progressWidth = stepSpacing * (completedSteps - 1);
+    const iconProps = {
+      className: "icon-svg",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24"
+    };
+
+    switch (stepId) {
+      case 1:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        );
+      case 2:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        );
+      case 3:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        );
+      case 4:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        );
+      case 5:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        );
+      case 6:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg {...iconProps}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+    }
+  };
+
+  // Define steps with professional titles and descriptions
+  const steps = prefix === "agn" ? [
+    {
+      id: 1,
+      title: "Personal Details",
+      description: "Enter your basic information",
+      completed: 1 <= completedSteps,
+      current: 1 === currentStep
+    },
+    {
+      id: 2,
+      title: "Residence Details", 
+      description: "Add your address information",
+      completed: 2 <= completedSteps,
+      current: 2 === currentStep
+    },
+    {
+      id: 3,
+      title: "Education & Profession",
+      description: "Share your background",
+      completed: 3 <= completedSteps,
+      current: 3 === currentStep
+    },
+    {
+      id: 4,
+      title: "Verification",
+      description: "Verify your details",
+      completed: 4 <= completedSteps,
+      current: 4 === currentStep
+    },
+    {
+      id: 5,
+      title: "Payment",
+      description: "Complete payment",
+      completed: 5 <= completedSteps,
+      current: 5 === currentStep
+    }
+  ] : [
+    {
+      id: 1,
+      title: "Personal Details",
+      description: "Enter your basic information",
+      completed: 1 <= completedSteps,
+      current: 1 === currentStep
+    },
+    {
+      id: 2,
+      title: "Religious Details",
+      description: "Share your religious background", 
+      completed: 2 <= completedSteps,
+      current: 2 === currentStep
+    },
+    {
+      id: 3,
+      title: "Family Details",
+      description: "Add family information",
+      completed: 3 <= completedSteps,
+      current: 3 === currentStep
+    },
+    {
+      id: 4,
+      title: "Partner Expectations",
+      description: "Define your preferences",
+      completed: 4 <= completedSteps,
+      current: 4 === currentStep
+    },
+    {
+      id: 5,
+      title: "Privacy Selection",
+      description: "Set your privacy settings",
+      completed: 5 <= completedSteps,
+      current: 5 === currentStep
+    },
+    {
+      id: 6,
+      title: "Review & Confirm",
+      description: "Review and submit",
+      completed: 6 <= completedSteps,
+      current: 6 === currentStep
+    }
+  ];
 
   return (
-    !isTrue ? (
-       <div className="step-tracker">
-      <div className="tracker-line" style={{height:"0"}}>
-        {/* Progress Line */}
         <div
-          className="progress-line"
+      className="modern-step-tracker"
           style={{
-            width: `${progressWidth}%`,
-          }}
-        ></div>
-
-        {/* Render Steps */}
+        '--progress-width': progressWidth,
+        '--progress-height': `${percentage}%`
+      }}
+    >
+      <div className="step-tracker-container">
         {steps.map((step, index) => (
-          <div
-            key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
-            style={{
-              left: `${(step - 1) * stepSpacing}%`,
-            }}
-          >
-            {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
-          </div>
-        ))}
-
-        
-      </div>
-
-      <div className="tracker-line">
-        <div
-          className="progress-line"
-          style={{
-            width: `${progressWidth}%`,
-          }}
-        ></div>
-
-        {steps.map((step, index) => (
-          <div
-            key={step}
-            className={`step1 ${step <= completedSteps ? "completed" : ""}`}
-            style={{
-              left: `${(step - 1) * stepSpacing}%`,
-            }}
-          >
-            {step <= completedSteps && <div className="inner-circle1">
-            </div>}
-            <span className="step-label">{stepLabels[index]?.text}</span>
-            <span className="step-label2">{stepLabels[index]?.text1}</span>
-
-
-          </div>
-        ))}
-
-        
+          <div key={step.id} className="step-item">
+            {/* Step Icon and Status */}
+            <div className={`step-icon-container ${step.completed ? 'completed' : ''} ${step.current ? 'current' : ''}`}>
+              <div className="step-icon">
+                {getStepIcon(step.id, step.completed, step.current)}
       </div>
     </div>
-    )
-     :
-     (
-      <div className="step-tracker">
-      <div className="tracker-line" style={{height:"0"}}>
-        {/* Progress Line */}
-        <div
-          className="progress-line"
-          style={{
-            width: `${progressWidth}%`,
-          }}
-        ></div>
 
-        {/* Render Steps */}
-        {steps.map((step, index) => (
-          <div
-            key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
-            style={{
-              left: `${(step - 1) * stepSpacing}%`,
-            }}
-          >
-            {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
-          </div>
-        ))}
-
-        
+            {/* Step Content */}
+            <div className="step-content">
+              <h4 className="step-title">{step.title}</h4>
+              <p className="step-description">{step.description}</p>
       </div>
 
-      <div className="tracker-line">
-        {/* Progress Line */}
-        <div
-          className="progress-line"
-          style={{
-            width: `${progressWidth}%`,
-          }}
-        ></div>
-
-        {/* Render Steps */}
-        {steps.map((step, index) => (
-          <div
-            key={step}
-            className={`step ${step <= completedSteps ? "completed" : ""}`}
-            style={{
-              left: `${(step - 1) * stepSpacing}%`,
-            }}
-          >
-            {/* Render inner circle only for completed steps */}
-            {step <= completedSteps && <div className="inner-circle"></div>}
-            <span className="step-label1">{stepLabels[index]}</span>
-
+            {/* Connecting Line */}
+            {index < steps.length - 1 && (
+              <div className={`connecting-line ${step.completed ? 'completed' : ''}`}></div>
+            )}
           </div>
         ))}
-
-        
       </div>
+
+      {/* Scroll indicator for mobile */}
+      {isMobile && (
+        <div className="scroll-indicator">
+          <div className="scroll-text">← Scroll to see all steps →</div>
+      </div>
+      )}
     </div>
-    )
   );
-  
 };
 
 export default StepTracker;

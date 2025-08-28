@@ -9,6 +9,7 @@ import { fetchDataObjectV2 } from "../../../apiUtils";
 import StepTracker from "../../StepTracker/StepTracker";
 import findUser from "../../../images/findUser.svg";
 import { useLocation } from "react-router-dom";
+
 const MemStepOne = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
@@ -22,6 +23,7 @@ const MemStepOne = () => {
   console.log(username, ">>>>>>>");
   userId =
     username == "memberCreation" ? localStorage.getItem("member_id") : userId;
+
   useEffect(() => {
     if (userId) {
       const parameter = {
@@ -152,7 +154,6 @@ const MemStepOne = () => {
     const nameRegex = /^[A-Za-z]+$/;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
     const numberRegex = /^\d+$/; // Only numbers
-    // const heightWeightRegex = /^\d{2,3}$/; // 2-3 digits for height/weight
     const heightWeightRegex = /^\d{1,3}(\.\d{1,3})?$/; // limit 3
 
     // Validate First Name
@@ -252,22 +253,6 @@ const MemStepOne = () => {
     if (!profileData.about_you?.trim()) {
       newErrors.about_you = "Personal Values/About You is required";
     }
-
-    // Validate Height
-    console.log(profileData.hieght);
-
-    // if (!profileData.hieght) {
-    //   newErrors.height = 'Height is required';
-    // } else if (!heightWeightRegex.test(profileData.hieght)) {
-    //   newErrors.height = 'Any number upto 3 digit ';
-    // }
-
-    // Validate Weight
-    // if (!profileData.weight) {
-    //   newErrors.weight = 'Weight is required';
-    // } else if (!heightWeightRegex.test(profileData.weight)) {
-    //   newErrors.weight = 'Weight should be a number (2-3 digits)';
-    // }
 
     console.log("newErrors", newErrors);
 
@@ -396,7 +381,7 @@ const MemStepOne = () => {
         name={name}
         value={value || ""}
         onChange={onChange}
-        className="text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] h-full w-full border-none border-[#ccc] rounded-lg border-1 focus:outline-none focus:ring-0 focus:border-none"
+        className="w-full h-12 px-4 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium"
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -408,1038 +393,691 @@ const MemStepOne = () => {
     );
   };
 
+  const [showTooltip, setShowTooltip] = useState(null);
+
+  const handleTooltipClick = (field) => {
+    setShowTooltip(field);
+  };
+
+  const handleTooltipLeave = () => {
+    setShowTooltip(null);
+  };
+
   return (
-    <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        <h3
-          style={{
-            fontSize: "1.8rem",
-            padding: "3vh 0 0 10vh",
-            fontWeight: "400",
-            color: "#ec4899",
-          }}
-        >
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
           Create Your Mehram Match Profile
-        </h3>
-        <h5
-          style={{
-            fontSize: "1rem",
-            padding: "0 1vh 3vh 10vh",
-            fontWeight: "100",
-          }}
-        >
-          Follow these 6 simple step to complete your profile and find the
-          perfect match
-        </h5>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Follow these 6 simple steps to complete your profile and find the perfect match
+          </p>
+        </div>
 
-        <div
-          style={{
-            height: "1px",
-            width: "91.5%",
-            backgroundColor: "#ccc",
-            marginLeft: "10vh",
-          }}
-        ></div>
-
-        <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
-          <div
-            style={{
-              width: "33.8%",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
+        {/* Main Content Container */}
+        <div className="flex flex-col gap-6">
+          {/* Mobile Step Tracker - Separate container above form */}
+          <div className="lg:hidden block">
             <StepTracker percentage={25} />
           </div>
 
-          <div style={{ width: "86.1%", marginLeft: "19.5%" }}>
-            <form
-              style={{
-                borderLeft: "0.5px solid #ccc",
-                padding: "1rem",
-                width: "70%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "20px",
-                padding: "1% 4%",
-                margin: "auto",
-                height: "auto",
-                position: "absolute",
-                left: "24.2rem",
-                zIndex: "0",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  margin: "0",
-                  padding: "0",
-                }}
-              >
-                step 1/6
-              </p>
-              <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-                Let's start with your personal details
-              </h4>
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  marginBottom: "1vh",
-                  padding: "0",
-                }}
-              >
-                Please fill information below to create your Mehram Match
-                Profile
-              </p>
-              <div
-                style={{
-                  height: "0.7px",
-                  width: "100%",
-                  backgroundColor: "#ccc",
-                }}
-              ></div>
-              <div style={{ display: "flex", gap: "2rem" }}>
+          {/* Desktop and Form Container */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Step Tracker - Professional sidebar layout */}
+            <div className="lg:block hidden">
+            <StepTracker percentage={25} />
+          </div>
+
+            {/* Main Form Container */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
+            {/* Form Header */}
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
+                    Step 1 of 6
+                  </p>
+                  <h2 className="text-2xl font-bold text-white mt-1">
+                    Personal Details
+                  </h2>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-8">
+              <form className="space-y-8">
+                {/* Basic Information Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                      Basic Information
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* First Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="firstName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    First Name <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>First Name <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('first_name');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'first_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Enter your first name as it appears on official documents
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <input
                       type="text"
-                      id="firstName"
-                      name="firstName"
-                      required
                       value={profileData.first_name || ""}
-                      className={
-                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
+                          onChange={(e) => handleFieldChange("first_name", e.target.value)}
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                           formErrors.first_name
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2 pr-8` // Added pr-8 for icon space
-                      }
-                      onChange={(e) =>
-                        handleFieldChange("first_name", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          }`}
+                          placeholder="Enter your first name"
                         />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the First Name
-                        field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.first_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.first_name}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.first_name}</p>
                   )}
                 </div>
 
                 {/* Last Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Last Name <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Last Name <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('last_name');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'last_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Enter your last name as it appears on official documents
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <input
                       type="text"
-                      id="lastName"
-                      name="lastName"
-                      required
                       value={profileData.last_name || ""}
-                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
+                          onChange={(e) => handleFieldChange("last_name", e.target.value)}
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.last_name
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        handleFieldChange("last_name", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          }`}
+                          placeholder="Enter your last name"
                         />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Last Name
-                        field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.last_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.last_name}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.last_name}</p>
                   )}
-                </div>
               </div>
 
-              <div style={{ display: "flex", gap: "2rem" }}>
                 {/* Date of Birth */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="dob"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Date of Birth <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Date of Birth <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('dob');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'dob' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your date of birth (DD-MM-YYYY format)
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <input
                       type="date"
-                      id="dob"
-                      name="dob"
-                      required
                       value={profileData.dob || ""}
-                      className={`h-10 pl-[12px] pr-[24px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        formErrors.dob
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
                       onChange={(e) => handleFieldChange("dob", e.target.value)}
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                            formErrors.dob
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          }`}
                         />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Date of Birth
-                        field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.dob && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.dob}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.dob}</p>
                   )}
                 </div>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Gender <span style={{ color: "red" }}>*</span>
-                  </label>
 
-<div className="relative">
-                  <div
-                    className={`h-10 w-[100%]  text-[#6D6E6F] font-semibold placeholder-[#898B92] rounded-lg border-1 border-[#898B92] ${
-                      formErrors.gender
-                        ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                        : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                    } focus-within:outline-none focus-within:ring-2`}
-                  >
+                    {/* Gender */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Gender <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('gender');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'gender' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your gender from the dropdown
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <Dropdown
                       options={genders}
                       name="gender"
                       value={profileData.gender}
-                      onChange={(e) =>
-                        handleFieldChange("gender", e.target.value)
-                      }
-                      className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                    />
-                  </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-4 bottom-1 transform -translate-y-1/2 group">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        onChange={(e) => handleFieldChange("gender", e.target.value)}
                       />
-                    </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                      This is additional information about the Gender field.
-                    </div>
-                  </div>
-</div>
                   {formErrors.gender && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.gender}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.gender}</p>
                   )}
-                </div>
               </div>
 
-              <div style={{ display: "flex", gap: "2rem" }}>
-                {/* First Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Marital Status <span style={{ color: "red" }}>*</span>
-                  </label>
-
-                  <div
-                    className={`relative h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] ${
-                      formErrors.marital_status
-                        ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                        : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                    } focus-within:outline-none focus-within:ring-2`}
-                  >
+                    {/* Marital Status */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Marital Status <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('marital_status');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'marital_status' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current marital status
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <Dropdown
                       options={marital_statuses}
                       name="marital_status"
                       value={profileData.marital_status}
-                      onChange={(e) =>
-                        handleFieldChange("marital_status", e.target.value)
-                      }
-                      className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
+                        onChange={(e) => handleFieldChange("marital_status", e.target.value)}
                     />
+                      {formErrors.marital_status && (
+                        <p className="text-red-500 text-sm">{formErrors.marital_status}</p>
+                      )}
                   </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div
-                    className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                    style={{ zIndex: "1000" }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                      This is additional information about the Marital Status
-                      field.
                     </div>
                   </div>
 
-                  {formErrors.marital_status && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.marital_status}
-                    </p>
-                  )}
+                {/* Address Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                      Current Address
+                    </h3>
                 </div>
 
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Current Address <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div style={{ display: "flex", width: "100%", gap: "1%" }}>
-                    {/* City Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.city
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={citys}
-                          name="city"
-                          value={profileData.city}
-                          onChange={(e) =>
-                            handleFieldChange("city", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* City */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>City <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('city');
+                            }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your current city of residence.
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current city of residence
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
-                      </div>
-
+                      </label>
+                      <Dropdown
+                        options={citys}
+                        name="city"
+                        value={profileData.city}
+                        onChange={(e) => handleFieldChange("city", e.target.value)}
+                      />
                       {formErrors.city && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.city}
-                        </p>
+                        <p className="text-red-500 text-sm">{formErrors.city}</p>
                       )}
                     </div>
 
-                    {/* State Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.state
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={statues}
-                          name="state"
-                          value={profileData.state}
-                          onChange={(e) =>
-                            handleFieldChange("state", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
+                    {/* State */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>State <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('state');
+                            }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your current state.
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'state' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current state/province
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
-                      </div>
-
-                      {formErrors.state && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.state}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Country Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.country
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={countries}
-                          name="country"
-                          value={profileData.country}
-                          onChange={(e) =>
-                            handleFieldChange("country", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your country.
-                          </div>
-                        </div>
-                      </div>
-
-                      {formErrors.country && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.country}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Native Place <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div style={{ display: "flex", width: "100%", gap: "1%" }}>
-                    {/* Native City Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.native_city
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={citys}
-                          name="native_city"
-                          value={profileData.native_city}
-                          onChange={(e) =>
-                            handleFieldChange("native_city", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your native city.
-                          </div>
-                        </div>
-                      </div>
-
-                      {formErrors.native_city && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.native_city}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Native State Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.native_state
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={statues}
-                          name="native_state"
-                          value={profileData.native_state}
-                          onChange={(e) =>
-                            handleFieldChange("native_state", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your native state.
-                          </div>
-                        </div>
-                      </div>
-
-                      {formErrors.native_state && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.native_state}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Native Country Dropdown with Tooltip */}
-                    <div className="w-1/2 relative">
-                      <div
-                        className={`relative h-10 w-[100%]  placeholder-[#898B92] text-[#6D6E6F] rounded-lg border-1 border-[#898B92] ${
-                          formErrors.native_country
-                            ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                            : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                        } focus-within:outline-none focus-within:ring-2`}
-                      >
-                        <Dropdown
-                          options={countries}
-                          name="native_country"
-                          value={profileData.native_country}
-                          onChange={(e) =>
-                            handleFieldChange("native_country", e.target.value)
-                          }
-                          className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                        />
-                        {/* Tooltip inside dropdown */}
-                        <div
-                          className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            Please select your native country.
-                          </div>
-                        </div>
-                      </div>
-
-                      {formErrors.native_country && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.native_country}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Last Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Education
-                  </label>
-
-                  <div
-                    className={`relative h-10 w-[100%]  text-[#6D6E6F] font-semibold placeholder-[#898B92] rounded-lg border-1 border-[#898B92] ${
-                      formErrors.Education
-                        ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                        : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                    } focus-within:outline-none focus-within:ring-2`}
-                  >
-                    <Dropdown
-                      options={educationLevels}
-                      name="Education"
-                      value={profileData.Education}
-                      onChange={(e) =>
-                        handleFieldChange("Education", e.target.value)
-                      }
-                      className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                    />
-                  </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div
-                    className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                    style={{ zIndex: "1000" }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      </label>
+                      <Dropdown
+                        options={statues}
+                        name="state"
+                        value={profileData.state}
+                        onChange={(e) => handleFieldChange("state", e.target.value)}
                       />
-                    </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                      This is additional information about the Education field.
+                      {formErrors.state && (
+                        <p className="text-red-500 text-sm">{formErrors.state}</p>
+                      )}
+                    </div>
+
+                    {/* Country */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Country <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('country');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current country of residence
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={countries}
+                        name="country"
+                        value={profileData.country}
+                        onChange={(e) => handleFieldChange("country", e.target.value)}
+                      />
+                      {formErrors.country && (
+                        <p className="text-red-500 text-sm">{formErrors.country}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Native Place Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                      Native Place
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Native City */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native City <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('native_city');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your native/original city
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={citys}
+                        name="native_city"
+                        value={profileData.native_city}
+                        onChange={(e) => handleFieldChange("native_city", e.target.value)}
+                      />
+                      {formErrors.native_city && (
+                        <p className="text-red-500 text-sm">{formErrors.native_city}</p>
+                      )}
+                    </div>
+
+                    {/* Native State */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native State <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('native_state');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_state' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your native/original state
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={statues}
+                        name="native_state"
+                        value={profileData.native_state}
+                        onChange={(e) => handleFieldChange("native_state", e.target.value)}
+                      />
+                      {formErrors.native_state && (
+                        <p className="text-red-500 text-sm">{formErrors.native_state}</p>
+                      )}
+                    </div>
+
+                    {/* Native Country */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native Country <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('native_country');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your native/original country
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={countries}
+                        name="native_country"
+                        value={profileData.native_country}
+                        onChange={(e) => handleFieldChange("native_country", e.target.value)}
+                      />
+                      {formErrors.native_country && (
+                        <p className="text-red-500 text-sm">{formErrors.native_country}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Education & Profession Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                      Education & Profession
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Education */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Education <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('education');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'education' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your highest education level
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={educationLevels}
+                        name="Education"
+                        value={profileData.Education}
+                        onChange={(e) => handleFieldChange("Education", e.target.value)}
+                      />
+                      {formErrors.Education && (
+                        <p className="text-red-500 text-sm">{formErrors.Education}</p>
+                      )}
+                    </div>
+
+                    {/* Profession */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Profession <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('profession');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'profession' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current profession or occupation
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <Dropdown
+                        options={Professions}
+                        name="profession"
+                        value={profileData.profession}
+                        onChange={(e) => handleFieldChange("profession", e.target.value)}
+                      />
+                      {formErrors.profession && (
+                        <p className="text-red-500 text-sm">{formErrors.profession}</p>
+                      )}
                     </div>
                   </div>
 
-                  {formErrors.Education && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.Education}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                {/* Profession */}
-
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="profession"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Profession
-                  </label>
-
-                  <div
-                    className={`relative h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] ${
-                      formErrors.city
-                        ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500"
-                        : "border-[#898B92] focus-within:border-[#898B92] focus-within:ring-[#898B92]"
-                    } focus-within:outline-none focus-within:ring-2`}
-                  >
-                    <Dropdown
-                      options={Professions}
-                      name="profession"
-                      value={profileData.profession}
-                      onChange={(e) =>
-                        handleFieldChange("profession", e.target.value)
-                      }
-                      className="h-10 text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full bg-transparent outline-none"
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4  bottom-1 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Profession
-                        field.
+                  {/* Job Description */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <span>Please describe your job/business <span className="text-red-500">*</span></span>
+                      <div className="group relative tooltip-container">
+                        <svg 
+                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipClick('describe_job_business');
+                          }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'describe_job_business' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                          Provide a detailed description of your job role or business activities
+                          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {formErrors.profession && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.profession}
-                    </p>
-                  )}
-                </div>
-
-                {/* About You */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="describe_job_business"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Please describe your job/business
-                  </label>
-                  <div className="relative">
+                    </label>
                     <textarea
-                      id="describe_job_business"
-                      name="describe_job_business"
                       value={profileData.describe_job_business || ""}
-                      className={`h-[100px] py-[8px] px-[12px] resize-none text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
+                      onChange={(e) => handleFieldChange("describe_job_business", e.target.value)}
+                      className={`w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium resize-none ${
                         formErrors.describe_job_business
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        handleFieldChange(
-                          "describe_job_business",
-                          e.target.value
-                        )
-                      }
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      placeholder="Describe your job or business in detail..."
                     />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 top-5 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the job/business
-                        field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.describe_job_business && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.describe_job_business}
-                    </p>
+                      <p className="text-red-500 text-sm">{formErrors.describe_job_business}</p>
                   )}
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "2rem" }}>
-                {/* Disability */}
+                {/* Personal Details Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                      Personal Details
+                    </h3>
+                  </div>
 
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="disability"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Disability (if any?)
-                  </label>
-                  <div className="relative">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Disability */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Disability (if any?) <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('disability');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'disability' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select whether you have any disability or not
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <select
-                      id="disability"
-                      name="disability"
                       value={profileData.disability || ""}
-                      className={`relative h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
+                        onChange={(e) => handleFieldChange("disability", e.target.value)}
+                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                             formErrors.disability
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        handleFieldChange("disability", e.target.value)
-                      }
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        }`}
                     >
                       <option value="">Select Disability Status</option>
                       <option value="yes">Yes</option>
                       <option value="no">No</option>
                     </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Disability
-                        Status field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.disability && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.disability}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.disability}</p>
                   )}
                 </div>
 
-                {/* Disability Type */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                {profileData.disability == "yes" && (
-                  <>
-                    <label
-                      htmlFor="disability_type"
-                      className="block text-sm font-medium text-[#000000] mb-0"
-                    >
-                      What type of disability?
-                    </label>
-                    <div className="relative">
-                      <textarea
-                        id="disability_type"
-                        name="disability_type"
-                        value={profileData.type_of_disability || ""}
-                        className={`h-[100px] py-[8px] px-[12px] resize-none text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                          formErrors.type_of_disability
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2`}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "type_of_disability",
-                            e.target.value
-                          )
-                        }
-                      />
-                      {/* Information icon positioned at right corner of input */}
-                      <div
-                        className="absolute right-4 top-5 transform -translate-y-1/2 group"
-                        style={{ zIndex: "1000" }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {/* Tooltip text */}
-                        <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                          This is additional information about the disability
-                          field.
-                        </div>
-                      </div>
-                    </div>
-                    {formErrors.type_of_disability && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formErrors.type_of_disability}
-                      </p>
-                    )}
-                  
-                  </>
-                )}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
                 {/* Income Range */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="incomeRange"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Income Range
-                  </label>
-                  <div className="relative">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Income Range <span className="text-red-500">*</span></span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('incomeRange');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'incomeRange' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your monthly/annual income range
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
                     <select
-                      id="incomeRange"
-                      name="incomeRange"
                       value={profileData.incomeRange || ""}
-                      className={` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
+                        onChange={(e) => handleFieldChange("incomeRange", e.target.value)}
+                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                             formErrors.incomeRange
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        handleFieldChange("incomeRange", e.target.value)
-                      }
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        }`}
                     >
                       <option value="">Select Income Range</option>
                       <option value="below_10k">Below 10,000</option>
@@ -1447,404 +1085,311 @@ const MemStepOne = () => {
                       <option value="50k_to_1lac">50,000 - 1,00,000</option>
                       <option value="above_1lac">Above 1,00,000</option>
                     </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 bottom-1 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Income Range
-                        field.
-                      </div>
-                    </div>
-                  </div>
                   {formErrors.incomeRange && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.incomeRange}
-                    </p>
+                        <p className="text-red-500 text-sm">{formErrors.incomeRange}</p>
                   )}
                 </div>
 
-                {/* Cultural Background */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="about_you"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Personal Values/About You
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      id="about_you"
-                      name="about_you"
-                      value={profileData.about_you || ""}
-                      className={`h-[100px] py-[8px] px-[12px] resize-none text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        formErrors.about_you
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        handleFieldChange("about_you", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 top-5 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Personal
-                        Values/About You field.
-                      </div>
-                    </div>
-                  </div>
-                  {formErrors.about_you && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.about_you}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                {/* First Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="height"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Height(M)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="height"
-                      name="height"
-                      required
-                      value={profileData?.hieght || ""}
-                      className={
-                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                          formErrors.hieght
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2 pr-8` // Added pr-8 for icon space
-                      }
-                      onChange={(e) =>
-                        handleFieldChange("hieght", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Height field.
-                      </div>
-                    </div>
-                  </div>
-                  {formErrors.height && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.height}
-                    </p>
-                  )}
-                </div>
-
-                {/* Last Name */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="weight"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Weight(Kg)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="weight"
-                      name="weight"
-                      required
-                      value={profileData?.weight || ""}
-                      className={
-                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                          formErrors.weight
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2 pr-8` // Added pr-8 for icon space
-                      }
-                      onChange={(e) =>
-                        handleFieldChange("weight", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 group"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                        This is additional information about the Weight field.
-                      </div>
-                    </div>
-                  </div>
-                  {formErrors.weight && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.weight}
-                    </p>
-                  )}
-                </div>
-
-                {username == "memberCreation" && (
-                  <>
-                    <div className="w-[50%] relative flex flex-col gap-[10px]">
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-[#000000] mb-0"
-                      >
-                        Password
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id="password"
-                          name="password"
-                          required
-                          value={profileData?.password || ""}
-                          className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
-                          onChange={(e) =>
-                            handleFieldChange("password", e.target.value)
-                          }
-                        />
-                        {/* Information icon positioned at right corner of input */}
-                        <div
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
+                    {/* Height */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        Height (M)
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('hieght');
+                            }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            This is additional information about the password
-                            field.
+                          <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'hieght' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Enter your height in meters (e.g., 1.75)
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
-                      </div>
-                      {formErrors.password && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.password}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="w-[50%] relative flex flex-col gap-[10px]">
-                      <label
-                        htmlFor="confirm_password"
-                        className="block text-sm font-medium text-[#000000] mb-0"
-                      >
-                        Confirm Password
                       </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id="confirm_password"
-                          name="confirm_password"
-                          required
-                          value={profileData?.confirm_password || ""}
-                          className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
-                          onChange={(e) =>
-                            handleFieldChange(
-                              "confirm_password",
-                              e.target.value
-                            )
-                          }
-                        />
-                        {/* Information icon positioned at right corner of input */}
-                        <div
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 group"
-                          style={{ zIndex: "1000" }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                            This is additional information about the
-                            confirm_password field.
-                          </div>
-                        </div>
-                      </div>
-                      {formErrors.confirm_password && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formErrors.confirm_password}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-              {username == "memberCreation" && (
-                <>
-                  {" "}
-                  <div className="w-[50%] relative flex flex-col gap-[10px]">
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-[#000000] mb-0"
-                    >
-                      Email
-                    </label>
-                    <div className="relative">
                       <input
                         type="text"
-                        id="email"
-                        name="email"
-                        required
-                        value={profileData?.email || ""}
-                        className={
-                        `h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                          formErrors.email
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2 pr-8` // Added pr-8 for icon space
-                      }
-                        onChange={(e) =>
-                          handleFieldChange("email", e.target.value)
-                        }
+                        value={profileData?.hieght || ""}
+                        onChange={(e) => handleFieldChange("hieght", e.target.value)}
+                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                          formErrors.hieght
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        }`}
+                        placeholder="Enter height in meters"
                       />
-                      {/* Information icon positioned at right corner of input */}
-                      <div
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 group"
-                        style={{ zIndex: "1000" }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          fill="none"
+                      {formErrors.height && (
+                        <p className="text-red-500 text-sm">{formErrors.height}</p>
+                      )}
+                    </div>
+
+                    {/* Weight */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        Weight (Kg)
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('weight');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'weight' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Enter your weight in kilograms (e.g., 70)
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <input
+                        type="text"
+                        value={profileData?.weight || ""}
+                        onChange={(e) => handleFieldChange("weight", e.target.value)}
+                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                          formErrors.weight
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        }`}
+                        placeholder="Enter weight in kg"
+                      />
+                      {formErrors.weight && (
+                        <p className="text-red-500 text-sm">{formErrors.weight}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Disability Type */}
+                  {profileData.disability === "yes" && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        What type of disability? <span className="text-red-500">*</span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('type_of_disability');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'type_of_disability' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Please describe the type and nature of your disability
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <textarea
+                        value={profileData.type_of_disability || ""}
+                        onChange={(e) => handleFieldChange("type_of_disability", e.target.value)}
+                        className={`w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium resize-none ${
+                          formErrors.type_of_disability
+                            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                            : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        }`}
+                        placeholder="Please describe the type of disability..."
+                      />
+                      {formErrors.type_of_disability && (
+                        <p className="text-red-500 text-sm">{formErrors.type_of_disability}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* About You */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      Personal Values/About You <span className="text-red-500">*</span>
+                      <div className="group relative tooltip-container">
+                        <svg 
+                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none" 
+                          stroke="currentColor" 
                           viewBox="0 0 24 24"
-                          stroke="currentColor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipClick('about_you');
+                          }}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {/* Tooltip text */}
-                        <div className="absolute z-1000 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-1 top-full">
-                          This is additional information about the email field.
+                        <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'about_you' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                          Share your values, interests, and what you're looking for
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                         </div>
                       </div>
-                    </div>
-                    {formErrors.email && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formErrors.email}
-                      </p>
+                    </label>
+                    <textarea
+                      value={profileData.about_you || ""}
+                      onChange={(e) => handleFieldChange("about_you", e.target.value)}
+                      className={`w-full h-32 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium resize-none ${
+                        formErrors.about_you
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      placeholder="Tell us about yourself, your values, and what you're looking for..."
+                    />
+                    {formErrors.about_you && (
+                      <p className="text-red-500 text-sm">{formErrors.about_you}</p>
                     )}
                   </div>
-                </>
-              )}
-              <div style={{ display: "flex", gap: "2rem" }}></div>
-              <div style={{ display: "flex", gap: "2rem" }}></div>
-              <div style={{ display: "flex", justifyContent: "end" }}>
+                </div>
+
+                {/* Member Creation Fields */}
+                {username === "memberCreation" && (
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">6</span>
+                        Account Details
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Email */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          Email <span className="text-red-500">*</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('email');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'email' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Enter a valid email address for account creation
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="email"
+                          value={profileData?.email || ""}
+                          onChange={(e) => handleFieldChange("email", e.target.value)}
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                            formErrors.email
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          }`}
+                          placeholder="Enter your email address"
+                        />
+                        {formErrors.email && (
+                          <p className="text-red-500 text-sm">{formErrors.email}</p>
+                        )}
+                      </div>
+
+                      {/* Password */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          Password <span className="text-red-500">*</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('password');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Create a strong password (min 8 characters)
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="password"
+                          value={profileData?.password || ""}
+                          onChange={(e) => handleFieldChange("password", e.target.value)}
+                          className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                          placeholder="Enter your password"
+                        />
+                        {formErrors.password && (
+                          <p className="text-red-500 text-sm">{formErrors.password}</p>
+                        )}
+                      </div>
+
+                      {/* Confirm Password */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          Confirm Password <span className="text-red-500">*</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('confirm_password');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'confirm_password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Re-enter your password to confirm
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="password"
+                          value={profileData?.confirm_password || ""}
+                          onChange={(e) => handleFieldChange("confirm_password", e.target.value)}
+                          className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                          placeholder="Confirm your password"
+                        />
+                        {formErrors.confirm_password && (
+                          <p className="text-red-500 text-sm">{formErrors.confirm_password}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="flex justify-end pt-8 border-t border-gray-200">
                 <button
                   onClick={naviagteNextStep}
                   type="button"
-                  className="text-[white] bg-[#0fd357] mt-[24px] h-[40px] w-[150px]  "
-                  style={{
-                    borderRadius: "5vh",
-                    Color: "#fff !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Next Step
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                  >
+                    <span>Next Step</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
                 </button>
               </div>
             </form>
           </div>
         </div>
-      </main>
+        </div>
+      </div>
+    </div>
     </div>
   );
 };

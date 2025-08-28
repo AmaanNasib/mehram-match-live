@@ -122,7 +122,7 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
 
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-100">
-                <NavLink
+                {/* <NavLink
                   to="/agent"
                   onClick={()=>{closeDropdown("agent")}}
                   className={({ isActive }) =>
@@ -134,7 +134,7 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
                   }
                 >
                   Agent
-                </NavLink>
+                </NavLink> */}
                 <NavLink
                   to="/individual"
                   onClick={()=>{closeDropdown("member")}}
