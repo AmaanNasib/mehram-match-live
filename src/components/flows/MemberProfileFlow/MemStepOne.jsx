@@ -998,12 +998,36 @@ const MemStepOne = () => {
   const [showTooltip, setShowTooltip] = useState(null);
 
   const handleTooltipClick = (field) => {
-    setShowTooltip(field);
+    setShowTooltip(showTooltip === field ? null : field);
   };
 
   const handleTooltipLeave = () => {
     setShowTooltip(null);
   };
+
+  // Close tooltip when clicking outside or pressing escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showTooltip && !event.target.closest('.tooltip-container')) {
+        setShowTooltip(null);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showTooltip) {
+        setShowTooltip(null);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
+      };
+    }
+  }, [showTooltip]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">

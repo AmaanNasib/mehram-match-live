@@ -1,443 +1,3 @@
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// import { useState, useEffect } from "react";
-// import { updateDataV2 } from "../../../apiUtils";
-// import { useParams } from "react-router-dom";
-// import TopBar from "../../sections/TopBar";
-// import Sidebar from "../../sections/Sidebar";
-// import ProfileSection from "../../sections/ProfileSection";
-// import StepTracker from "../../StepTracker/StepTracker";
-// import findUser from "../../../images/findUser.svg";
-// import { fetchDataObjectV2 } from "../../../apiUtils";
-
-// const MemStepTwo = () => {
-//   const [userId] = useState(localStorage.getItem('userId'));
-//   const [apiData, setApiData] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [message, setMessage] = useState("");
-//   const navigate = useNavigate();
-
-//   const [profileData, setProfileData] = useState({
-//     sect_school_info: "",
-//     islamic_practicing_level: null,
-//     believe_in_dargah_fatiha_niyah: "",
-//     hijab_niqab_prefer: "",
-//     percentage: "",
-//     gender: "",
-//   });
-
-//   useEffect(() => {
-//     if (userId) {
-//       const parameter = {
-//         url: `/api/user/${userId}/`,
-//         setterFunction: setApiData,
-//         setErrors: setErrors,
-//         setLoading: setLoading,
-//       };
-//       fetchDataObjectV2(parameter);
-//     }
-//   }, [userId]);
-
-//   useEffect(() => {
-//     if (apiData) {
-//       setProfileData({
-//         percentage: apiData.profile_percentage || null,
-//         gender: apiData.gender || null,
-//       });
-//     }
-//   }, [apiData]);
-
-//   const [errors, setErrors] = useState();
-
-//   const naviagteNextStep = () => {
-//     const parameters = {
-//       url: `/api/user/${userId}`,
-//       payload: {
-//         sect_school_info: profileData.sect_school_info,
-//         islamic_practicing_level: profileData.islamic_practicing_level,
-//         believe_in_dargah_fatiha_niyah:
-//           profileData.believe_in_dargah_fatiha_niyah,
-//         hijab_niqab_prefer: profileData.hijab_niqab_prefer,
-//       },
-//       navigate: navigate,
-//       navUrl: `/memstepthree/${userId}`,
-//       setErrors: setErrors,
-//     };
-//     if (
-//       profileData.gender === "femail"
-//         ? profileData.sect_school_info &&
-//         profileData.believe_in_dargah_fatiha_niyah &&
-//         profileData.hijab_niqab_prefer
-//         : profileData.sect_school_info &&
-//         profileData.believe_in_dargah_fatiha_niyah
-//     ) {
-//       updateDataV2(parameters);
-//     } else {
-//       setErrors(true);
-//       console.log(JSON.stringify(parameters.payload));
-//       setMessage("Plese fill all the required fields");
-//     }
-//   };
-
-//   const updateField = (field, value) => {
-//     setProfileData((prevState) => ({
-//       ...prevState,
-//       [field]: value,
-//     }));
-//   };
-
-//   const skip = () => {
-//     if (
-//       profileData.gender === "femail"
-//         ? profileData.sect_school_info &&
-//         profileData.believe_in_dargah_fatiha_niyah &&
-//         profileData.hijab_niqab_prefer
-//         : profileData.sect_school_info &&
-//         profileData.believe_in_dargah_fatiha_niyah
-//     ) {
-//       navigate(`/memstepthree/${userId}`);
-//     } else {
-//       setErrors(true);
-//       setMessage("Plese fill all the required fields");
-//     }
-//   };
-
-//   useEffect(() => {
-//     setTimeout(() => {
-//       setErrors(null);
-//     }, 5000);
-//   }, [errors]);
-
-//   return (
-//     <div className="flex h-screen">
-//       <main className="flex-1 bg-white">
-//         {errors && (
-//           <div
-//             style={{
-//               zIndex: "10000",
-//               height: "17vh",
-//               width: "33vw",
-//               backgroundColor: "#F8BF00",
-//               display: "flex",
-//               flexDirection: "row",
-//               // alignItems: "center",
-//               padding: "2vh 3vh",
-//               gap: "10px",
-//               position: "absolute",
-//               left: "35%",
-//               borderRadius: "1vh",
-//               cursor: "pointer"
-
-//             }}
-//           >
-//             <div>
-//               <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-//                 <path fill-rule="evenodd" clip-rule="evenodd" d="M8.77348 1.90259C9.14789 1.69179 9.57031 1.58105 9.99998 1.58105C10.4296 1.58105 10.8521 1.69179 11.2265 1.90259C11.6009 2.11338 11.9146 2.41712 12.1375 2.78448L12.1399 2.78844L19.1982 14.5718L19.205 14.5833C19.4233 14.9613 19.5388 15.3899 19.54 15.8264C19.5412 16.263 19.4281 16.6922 19.2119 17.0714C18.9958 17.4507 18.6841 17.7667 18.3078 17.9881C17.9316 18.2095 17.504 18.3285 17.0675 18.3333L17.0583 18.3334L2.93248 18.3333C2.49598 18.3285 2.06834 18.2095 1.69212 17.9881C1.31589 17.7667 1.00419 17.4507 0.788018 17.0714C0.571848 16.6922 0.458748 16.263 0.459971 15.8264C0.461193 15.3899 0.576695 14.9613 0.794985 14.5833L0.801754 14.5718L7.86247 2.78448C8.0853 2.41711 8.39908 2.11338 8.77348 1.90259ZM9.99998 3.24772C9.85675 3.24772 9.71595 3.28463 9.59115 3.3549C9.46691 3.42485 9.3627 3.52549 9.28849 3.64721L2.23555 15.4215C2.16457 15.5464 2.12703 15.6874 2.12663 15.8311C2.12622 15.9766 2.16392 16.1197 2.23598 16.2461C2.30804 16.3725 2.41194 16.4779 2.53735 16.5517C2.66166 16.6248 2.80281 16.6644 2.94697 16.6667H17.053C17.1971 16.6644 17.3383 16.6248 17.4626 16.5517C17.588 16.4779 17.6919 16.3725 17.764 16.2461C17.836 16.1197 17.8737 15.9766 17.8733 15.8311C17.8729 15.6875 17.8354 15.5464 17.7644 15.4216L10.7125 3.64886C10.7121 3.64831 10.7118 3.64776 10.7115 3.64721C10.6373 3.52549 10.533 3.42485 10.4088 3.3549C10.284 3.28463 10.1432 3.24772 9.99998 3.24772Z" fill="white" />
-//                 <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0001 6.6665C10.4603 6.6665 10.8334 7.0396 10.8334 7.49984V10.8332C10.8334 11.2934 10.4603 11.6665 10.0001 11.6665C9.53984 11.6665 9.16675 11.2934 9.16675 10.8332V7.49984C9.16675 7.0396 9.53984 6.6665 10.0001 6.6665Z" fill="white" />
-//                 <path fill-rule="evenodd" clip-rule="evenodd" d="M9.16675 14.1668C9.16675 13.7066 9.53984 13.3335 10.0001 13.3335H10.0084C10.4687 13.3335 10.8417 13.7066 10.8417 14.1668C10.8417 14.6271 10.4687 15.0002 10.0084 15.0002H10.0001C9.53984 15.0002 9.16675 14.6271 9.16675 14.1668Z" fill="white" />
-//               </svg>
-//             </div>
-
-//             <div
-//               style={{
-//                 display: "flex",
-//                 flexDirection: "column",
-//                 color: "white",
-//                 width: "100%",
-//                 paddingLeft: "5%"
-//               }}
-//             >
-//               <h2 style={{ margin: 0, fontSize: "3vh", fontWeight: "500" }}>
-//                 Missing Information
-//               </h2>
-//               <p style={{ margin: 0, width: "100%", fontSize: "2.2vh" }}>
-//                 Please fill out all required fields to proceed to the next step
-//               </p>
-//             </div>
-//             <div onClick={() => setErrors(!errors)}>
-//               <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-//                 <path fill-rule="evenodd" clip-rule="evenodd" d="M15.5893 4.41058C15.9148 4.73602 15.9148 5.26366 15.5893 5.58909L5.58934 15.5891C5.2639 15.9145 4.73626 15.9145 4.41083 15.5891C4.08539 15.2637 4.08539 14.736 4.41083 14.4106L14.4108 4.41058C14.7363 4.08514 15.2639 4.08514 15.5893 4.41058Z" fill="white" />
-//                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.41083 4.41058C4.73626 4.08514 5.2639 4.08514 5.58934 4.41058L15.5893 14.4106C15.9148 14.736 15.9148 15.2637 15.5893 15.5891C15.2639 15.9145 14.7363 15.9145 14.4108 15.5891L4.41083 5.58909C4.08539 5.26366 4.08539 4.73602 4.41083 4.41058Z" fill="white" />
-//               </svg>
-//             </div>
-//           </div>
-//         )}
-//         <h3
-//           style={{
-//             fontSize: "1.8rem",
-//             padding: "3vh 0 0 10vh",
-//             fontWeight: "400",
-//             color: "#ec4899",
-//           }}
-//         >
-//           Create Your Mehram Match Profile
-//         </h3>
-//         <h5
-//           style={{
-//             fontSize: "1rem",
-//             padding: "0 1vh 3vh 10vh",
-//             fontWeight: "100",
-//           }}
-//         >
-//           Follow these 6 simple step to complete your profile and find the
-//           perfect match
-//         </h5>
-
-//         <div
-//           style={{
-//             height: "1px",
-//             width: "91.5%",
-//             backgroundColor: "#ccc",
-//             marginLeft: "10vh",
-//           }}
-//         ></div>
-
-//         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
-//           <div
-//             style={{
-//               width: "33.8%",
-//               display: "flex",
-//               justifyContent: "flex-end",
-//               alignItems: "center",
-//             }}
-//           >
-//             <StepTracker percentage={45} />
-//           </div>
-
-//           <div style={{ width: "86.1%", marginLeft: "19.5%" }}>
-//             <form
-//               style={{
-//                 borderLeft: "0.5px solid #ccc",
-//                 padding: "1rem",
-//                 width: "70%",
-//                 display: "flex",
-//                 flexDirection: "column",
-//                 gap: "1rem",
-//                 padding: "1% 4%",
-//                 margin: "auto",
-//                 height: "auto",
-//                 position: "absolute",
-//                 left: "24.2rem",
-//                 zIndex: "0"
-//               }}
-//             >
-//               <p
-//                 style={{
-//                   fontSize: "small",
-//                   color: "gray",
-//                   margin: "0",
-//                   padding: "0",
-//                 }}
-//               >
-//                 step 2/6
-//               </p>
-//               <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-//                 Religious Information
-//               </h4>
-//               <p
-//                 style={{
-//                   fontSize: "small",
-//                   color: "gray",
-//                   marginBottom: "1vh",
-//                   padding: "0",
-//                 }}
-//               >
-//                 Please provide your religious details to help us create a
-//                 profile that aligns with your values and preferences
-//               </p>
-//               <div
-//                 style={{
-//                   height: "0.7px",
-//                   width: "100%",
-//                   backgroundColor: "#ccc",
-//                 }}
-//               ></div>
-//               <div style={{ display: "flex", gap: "2rem" }}>
-//                 {/* First Name */}
-//                 <div className="w-[50%]">
-//                   <label
-//                     htmlFor="firstName"
-//                     className="block text-sm font-medium text-[#000000]"
-//                   >
-//                     Sect / School of Thought{" "}
-//                     <span style={{ color: "red" }}>*</span>
-//                   </label>
-//                   <select
-//                     id="sect"
-//                     name="sect"
-//                     required
-//                     className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                     onChange={(e) =>
-//                       updateField("sect_school_info", e.target.value)
-//                     }
-//                   >
-//                     <option value="">Select Sect</option>
-//                     <option value="Sunni">Sunni</option>
-//                     <option value="Shia">Shia</option>
-//                     <option value="Others">Others</option>
-//                   </select>
-//                 </div>
-
-//                 {/* Last Name */}
-//                 <div className="w-[50%]">
-//                   <label
-//                     htmlFor="lastName"
-//                     className="block text-sm font-medium text-[#000000]"
-//                   >
-//                     Islam Practicing Level
-//                   </label>
-//                   <input
-//                     type="text"
-//                     id="islamPracticingLevel"
-//                     name="islamPracticingLevel"
-//                     className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                     onChange={(e) =>
-//                       updateField("islamic_practicing_level", e.target.value)
-//                     }
-//                   />
-//                 </div>
-//               </div>
-
-//               <div style={{ display: "flex", gap: "2rem" }}>
-//                 <div className="w-[50%]  ">
-//                   <label className="block text-sm font-medium text-[#000000]">
-//                     Believe in Dargah/Fatiha/Niyah?{" "}
-//                     <span style={{ color: "red" }}>*</span>
-//                   </label>
-//                   <div className="mt-1 flex space-x-4">
-//                     <div className="flex items-center ">
-//                       <input
-//                         type="radio"
-//                         id="believeYes"
-//                         name="believeInDargah"
-//                         value="Yes"
-//                         required
-//                         className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                         onChange={(e) =>
-//                           updateField(
-//                             "believe_in_dargah_fatiha_niyah",
-//                             e.target.value
-//                           )
-//                         }
-//                       />
-//                       <label
-//                         htmlFor="male"
-//                         className="ml-2 text-sm text-[#000000]"
-//                       >
-//                         Yes
-//                       </label>
-//                     </div>
-//                     <div className="flex items-center ">
-//                       <input
-//                         type="radio"
-//                         id="believeNo"
-//                         name="believeInDargah"
-//                         value="No"
-//                         required
-//                         className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                         onChange={(e) =>
-//                           updateField(
-//                             "believe_in_dargah_fatiha_niyah",
-//                             e.target.value
-//                           )
-//                         }
-//                       />
-//                       <label
-//                         htmlFor="male"
-//                         className="ml-2 text-sm text-[#000000]"
-//                       >
-//                         No
-//                       </label>
-//                     </div>
-//                   </div>
-//                 </div>
-//                 <div className="w-[50%]">
-//                   <label className="block text-sm font-medium text-[#000000]">
-//                     Hijab/Niqab Preference?{" "}
-//                     <span style={{ color: "#ED58AC" }}>*</span>
-//                   </label>
-//                   <div className="mt-1 flex space-x-4">
-//                     {/* Yes Option */}
-//                     <div className="flex items-center">
-//                       <input
-//                         type="radio"
-//                         id="hijabNiqabYes"
-//                         name="hijab_niqab_prefer"
-//                         value="Yes"
-//                         required
-//                         className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                         onChange={(e) =>
-//                           updateField("hijab_niqab_prefer", e.target.value)
-//                         }
-//                       />
-//                       <label
-//                         htmlFor="hijabNiqabYes"
-//                         className="ml-2 text-sm text-[#000000]"
-//                       >
-//                         Yes
-//                       </label>
-//                     </div>
-//                     {/* No Option */}
-//                     <div className="flex items-center">
-//                       <input
-//                         type="radio"
-//                         id="hijabNiqabNo"
-//                         name="hijab_niqab_prefer"
-//                         value="No"
-//                         required
-//                         className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-//                         onChange={(e) =>
-//                           updateField("hijab_niqab_prefer", e.target.value)
-//                         }
-//                       />
-//                       <label
-//                         htmlFor="hijabNiqabNo"
-//                         className="ml-2 text-sm text-[#000000]"
-//                       >
-//                         No
-//                       </label>
-//                     </div>
-//                   </div>
-//                 </div>
-
-//               </div>
-//               <div style={{ display: "flex", justifyContent: "space-between" }}>
-//                 <button
-//                   onClick={() => {
-//                     navigate(-1);
-//                   }}
-//                   className="text-[black] bg-[white] mt-[24px] h-[40px] w-[150px]   "
-//                   style={{
-//                     borderRadius: "5vh",
-//                     Color: "#fff !important",
-//                     fontWeight: "400",
-//                     border: "1px solid black",
-//                   }}
-//                 >
-//                   Back
-//                 </button>
-//                 <button
-//                   type="button"
-//                   onClick={naviagteNextStep}
-//                   className="text-[white] bg-[#0fd357] mt-[24px] h-[40px] w-[150px]  "
-//                   style={{
-//                     borderRadius: "5vh",
-//                     Color: "#fff !important",
-//                     fontWeight: "400",
-//                   }}
-//                 >
-//                   Next Step
-//                 </button>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default MemStepTwo;
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -452,21 +12,21 @@ const MemStepTwo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { useracreate, age, member_id } = location.state || {};
+  
   const [profileData, setProfileData] = useState({
     sect_school_info: "",
     islamic_practicing_level: "",
-    believe_in_dargah_fatiha_niyah: "",
+    believe_in_dargah_fatiha_niyah: [],
     hijab_niqab_prefer: "",
     percentage: "",
     gender: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [showTooltip, setShowTooltip] = useState(null);
   const [error, setError] = useState("");
+  
   userId = localStorage.getItem("member_id") || userId;
-  let mem = {
-    state: { username: "", age: 30 },
-  };
 
   useEffect(() => {
     if (userId) {
@@ -485,8 +45,10 @@ const MemStepTwo = () => {
       setProfileData({
         percentage: apiData.profile_percentage || null,
         gender: apiData.gender || null,
-        believe_in_dargah_fatiha_niyah:
-          apiData.believe_in_dargah_fatiha_niyah || null,
+        believe_in_dargah_fatiha_niyah: apiData.believe_in_dargah_fatiha_niyah ? 
+          (Array.isArray(apiData.believe_in_dargah_fatiha_niyah) ? 
+            apiData.believe_in_dargah_fatiha_niyah : 
+            [apiData.believe_in_dargah_fatiha_niyah]) : [],
         sect_school_info: apiData.sect_school_info || null,
         islamic_practicing_level: apiData.islamic_practicing_level || null,
         hijab_niqab_prefer: apiData.hijab_niqab_prefer || null,
@@ -494,8 +56,94 @@ const MemStepTwo = () => {
     }
   }, [apiData]);
 
+  const handleFieldChange = (field, value) => {
+    setProfileData((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+
+    // Clear the error for the field when it is updated
+    if (formErrors[field]) {
+      setFormErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleMultiSelectChange = (field, value) => {
+    setProfileData((prevState) => {
+      const currentValues = prevState[field] || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(item => item !== value)
+        : [...currentValues, value];
+      
+      return {
+        ...prevState,
+        [field]: newValues,
+      };
+    });
+
+    // Clear the error for the field when it is updated
+    if (formErrors[field]) {
+      setFormErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleTooltipClick = (field) => {
+    setShowTooltip(showTooltip === field ? null : field);
+  };
+
+  const handleTooltipLeave = () => {
+    setShowTooltip(null);
+  };
+
+  // Close tooltip when clicking outside or pressing escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showTooltip && !event.target.closest('.tooltip-container')) {
+        setShowTooltip(null);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showTooltip) {
+        setShowTooltip(null);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
+      };
+    }
+  }, [showTooltip]);
+
+  // Responsive tooltip component
+  const ResponsiveTooltip = ({ field, text }) => {
+    return (
+      <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ${showTooltip === field ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+        {text}
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+      </div>
+    );
+  };
+
   const validateForm = () => {
     const newErrors = {};
+
+    // Field order for scrolling (top to bottom)
+    const fieldOrder = [
+      'sect_school_info', 'believe_in_dargah_fatiha_niyah', 'hijab_niqab_prefer'
+    ];
 
     // Validate Sect / School of Thought
     if (!profileData.sect_school_info?.trim()) {
@@ -503,19 +151,39 @@ const MemStepTwo = () => {
     }
 
     // Validate Believe in Dargah/Fatiha/Niyah
-    if (!profileData.believe_in_dargah_fatiha_niyah) {
-      newErrors.believe_in_dargah_fatiha_niyah =
-        "Please select an option for Dargah/Fatiha/Niyah";
+    if (!profileData.believe_in_dargah_fatiha_niyah || profileData.believe_in_dargah_fatiha_niyah.length === 0) {
+      newErrors.believe_in_dargah_fatiha_niyah = "Please select at least one option for Dargah/Fatiha/Niyah";
     }
 
     // Validate Hijab/Niqab Preference (only for females)
     if (profileData.gender === "female" && !profileData.hijab_niqab_prefer) {
-      newErrors.hijab_niqab_prefer =
-        "Hijab/Niqab Preference is required for females";
+      newErrors.hijab_niqab_prefer = "Hijab/Niqab Preference is required for females";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    setFormErrors(newErrors);
+
+    // If there are errors, scroll to the first error field
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = fieldOrder.find(field => newErrors[field]);
+      if (firstErrorField) {
+        setTimeout(() => {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
+                         document.querySelector(`input[name="${firstErrorField}"]`) ||
+                         document.querySelector(`select[name="${firstErrorField}"]`) ||
+                         document.querySelector(`textarea[name="${firstErrorField}"]`);
+          
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+            element.focus();
+          }
+        }, 100);
+      }
+    }
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const naviagteNextStep = () => {
@@ -525,8 +193,7 @@ const MemStepTwo = () => {
         payload: {
           sect_school_info: profileData.sect_school_info,
           islamic_practicing_level: profileData.islamic_practicing_level,
-          believe_in_dargah_fatiha_niyah:
-            profileData.believe_in_dargah_fatiha_niyah,
+          believe_in_dargah_fatiha_niyah: profileData.believe_in_dargah_fatiha_niyah,
           hijab_niqab_prefer: profileData.hijab_niqab_prefer,
         },
         navigate: navigate,
@@ -538,441 +205,458 @@ const MemStepTwo = () => {
     }
   };
 
-  const updateField = (field, value) => {
-    setProfileData((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-
-    // Clear the error for the field when it is updated
-    if (errors[field]) {
-      setErrors((prevErrors) => {
-        const newErrors = { ...prevErrors };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+  // Dropdown component
+  const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
+    return (
+      <select
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        disabled={disabled}
+        className={`w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium ${
+          disabled 
+            ? "bg-gray-100 cursor-not-allowed" 
+            : "bg-white"
+        }`}
+      >
+        <option value="">Select an option</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
   };
 
-  return (
-    <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        <h3
-          style={{
-            fontSize: "1.8rem",
-            padding: "3vh 0 0 10vh",
-            fontWeight: "400",
-            color: "#ec4899",
-          }}
-        >
-          Create Your Mehram Match Profile
-        </h3>
-        <h5
-          style={{
-            fontSize: "1rem",
-            padding: "0 1vh 3vh 10vh",
-            fontWeight: "100",
-          }}
-        >
-          Follow these 6 simple steps to complete your profile and find the
-          perfect match
-        </h5>
-
-        <div
-          style={{
-            height: "1px",
-            width: "91.5%",
-            backgroundColor: "#ccc",
-            marginLeft: "10vh",
-          }}
-        ></div>
-
-        <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw]">
-          <div
-            style={{
-              width: "33.8%",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
-            <StepTracker percentage={45} />
-          </div>
-
-          <div style={{ width: "86.1%", marginLeft: "19.5%" }}>
-            <form
-              style={{
-                borderLeft: "0.5px solid #ccc",
-                padding: "1rem",
-                width: "70%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                padding: "1% 4%",
-                margin: "auto",
-                height: "auto",
-                position: "absolute",
-                left: "24.2rem",
-                zIndex: "0",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  margin: "0",
-                  padding: "0",
-                }}
+  // Enhanced Multi-select pills component
+  const MultiSelectPills = ({ name, values, onChange, options, error }) => {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {options.map((option) => {
+            const isSelected = values.includes(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange(name, option.value)}
+                className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-500 shadow-lg shadow-pink-200'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 shadow-sm hover:shadow-md'
+                }`}
               >
-                step 2/6
-              </p>
-              <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-                Religious Information
-              </h4>
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  marginBottom: "1vh",
-                  padding: "0",
-                }}
-              >
-                Please provide your religious details to help us create a
-                profile that aligns with your values and preferences
-              </p>
-              <div
-                style={{
-                  height: "0.7px",
-                  width: "100%",
-                  backgroundColor: "#ccc",
-                }}
-              ></div>
-
-              {/* Sect / School of Thought */}
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="sect"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Sect / School of Thought{" "}
-                    <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="sect"
-                      name="sect"
-                      value={profileData.sect_school_info || null}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                            errors.sect_school_info
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("sect_school_info", e.target.value)
-                      }
-                    >
-                      <option value="">Select Sect</option>
-                      <option value="Sunni">Sunni</option>
-                      <option value="Shia">Shia</option>
-                      <option value="Others">Others</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div
-                      className="absolute right-4 bottom-1 transform -translate-y-1/2 group z-20"
-                      style={{ zIndex: "1000" }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Sect field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.sect_school_info && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.sect_school_info}
-                    </p>
-                  )}
-                </div>
-
-                {/* Islam Practicing Level */}
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="islamPracticingLevel"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Islam Practicing Level
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="islamPracticingLevel"
-                      name="islamPracticingLevel"
-                      value={profileData.islamic_practicing_level || ""}
-                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
-                      onChange={(e) =>
-                        updateField("islamic_practicing_level", e.target.value)
-                      }
-                    />
-                  </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 bottom-1 mt-2.5 transform -translate-y-1/2 group z-20">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-center leading-tight">{option.label}</span>
+                  {isSelected && (
+                    <svg 
+                      className="w-4 h-4 text-white animate-pulse" 
+                      fill="none" 
+                      stroke="currentColor" 
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M5 13l4 4L19 7" 
                       />
                     </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                      This is additional information about the Islam Practicing
-                      Level field.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Believe in Dargah/Fatiha/Niyah */}
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-[#000000] mb-0">
-                      Believe in Dargah/Fatiha/Niyah?{" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </label>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Believe in
-                        Dargah/Fatiha/Niyah field.
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex space-x-4">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="believeYes"
-                        name="believeInDargah"
-                        value="Yes"
-                        required
-                        checked={
-                          profileData.believe_in_dargah_fatiha_niyah === "Yes"
-                        }
-                        className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                        onChange={(e) =>
-                          updateField(
-                            "believe_in_dargah_fatiha_niyah",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <label
-                        htmlFor="believeYes"
-                        className="ml-2 text-sm text-[#6d6e6f] font-medium"
-                      >
-                        Yes
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="believeNo"
-                        name="believeInDargah"
-                        value="No"
-                        checked={
-                          profileData.believe_in_dargah_fatiha_niyah === "No"
-                        }
-                        required
-                        className="h-4 w-4 text-[#6d6e6f] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                        onChange={(e) =>
-                          updateField(
-                            "believe_in_dargah_fatiha_niyah",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <label
-                        htmlFor="believeNo"
-                        className="ml-2 text-sm text-[#000000] font-medium"
-                      >
-                        No
-                      </label>
-                    </div>
-                  </div>
-
-                  {errors.believe_in_dargah_fatiha_niyah && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.believe_in_dargah_fatiha_niyah}
-                    </p>
                   )}
                 </div>
+                
+                {/* Hover effect overlay */}
+                <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
+                  isSelected 
+                    ? 'bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-20' 
+                    : 'bg-gradient-to-r from-pink-100 to-purple-100 opacity-0 group-hover:opacity-100'
+                }`}></div>
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Selected count indicator */}
+        {values.length > 0 && (
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+            <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{values.length} option{values.length !== 1 ? 's' : ''} selected</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className="flex items-center space-x-2 text-red-500 text-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
 
-                {/* Hijab/Niqab Preference */}
-                {profileData.gender === "female" && (
-                  <div className="w-[50%] relative">
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-[#000000]">
-                        Hijab/Niqab Preference?{" "}
-                        <span style={{ color: "red" }}>*</span>
-                      </label>
-                      {/* Information icon positioned at right corner of input */}
-                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {/* Tooltip text */}
-                        <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                          This is additional information about the Hijab/Niqab
-                          Preference field.
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-1 flex space-x-4">
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          id="hijabNiqabYes"
-                          name="hijab_niqab_prefer"
-                          value="Yes"
-                          checked={profileData.hijab_niqab_prefer == "Yes"}
-                          required
-                          className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("hijab_niqab_prefer", e.target.value)
-                          }
-                        />
-                        <label
-                          htmlFor="hijabNiqabYes"
-                          className="ml-2 text-sm text-[#000000]"
-                        >
-                          Yes
-                        </label>
-                      </div>
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          id="hijabNiqabNo"
-                          name="hijab_niqab_prefer"
-                          value="No"
-                          checked={profileData.hijab_niqab_prefer == "No"}
-                          required
-                          className="h-4 w-4 text-[#000000] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("hijab_niqab_prefer", e.target.value)
-                          }
-                        />
-                        <label
-                          htmlFor="hijabNiqabNo"
-                          className="ml-2 text-sm text-[#000000]"
-                        >
-                          No
-                        </label>
-                      </div>
-                    </div>
-                    {errors.hijab_niqab_prefer && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.hijab_niqab_prefer}
-                      </p>
-                    )}
+  // Radio button component
+  const RadioGroup = ({ name, value, onChange, options, error }) => {
+    return (
+      <div className="space-y-2">
+        <div className="flex space-x-6">
+          {options.map((option) => (
+            <div key={option.value} className="flex items-center">
+              <input
+                type="radio"
+                id={`${name}_${option.value}`}
+                name={name}
+                value={option.value}
+                checked={value === option.value}
+                onChange={onChange}
+                className="h-4 w-4 text-pink-600 focus:ring-pink-500 focus:border-pink-500"
+              />
+              <label
+                htmlFor={`${name}_${option.value}`}
+                className="ml-2 text-sm font-medium text-gray-700"
+              >
+                {option.label}
+              </label>
+            </div>
+          ))}
+        </div>
+        {error && (
+          <p className="text-red-500 text-sm">{error}</p>
+        )}
+      </div>
+    );
+  };
+
+  // Sect options
+  const sectOptions = [
+    { value: "ahle_quran", label: "Ahle Qur'an" },
+    { value: "ahmadi", label: "Ahamadi" },
+    { value: "barelvi", label: "Barelvi" },
+    { value: "bohra", label: "Bohra" },
+    { value: "deobandi", label: "Deobandi" },
+    { value: "hanabali", label: "Hanabali" },
+    { value: "hanafi", label: "Hanafi" },
+    { value: "ibadi", label: "Ibadi" },
+    { value: "ismaili", label: "Ismaili" },
+    { value: "jamat_e_islami", label: "Jamat e Islami" },
+    { value: "maliki", label: "Maliki" },
+    { value: "pathan", label: "Pathan" },
+    { value: "salafi", label: "Salafi" },
+    { value: "salafi_ahle_hadees", label: "Salafi/Ahle Hadees" },
+    { value: "sayyid", label: "Sayyid" },
+    { value: "shafi", label: "Shafi" },
+    { value: "shia", label: "Shia" },
+    { value: "sunni", label: "Sunni" },
+    { value: "sufism", label: "Sufism" },
+    { value: "tableeghi_jamaat", label: "Tableeghi Jama'at" },
+    { value: "zahiri", label: "Zahiri" },
+    { value: "muslim", label: "Muslim" },
+    { value: "other", label: "Other" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
+  ];
+
+  // Islamic practicing level options
+  const practicingLevelOptions = [
+    { value: "devout", label: "Devout" },
+    { value: "very_religious", label: "Very Religious" },
+    { value: "religious", label: "Religious" },
+    { value: "moderately_religious", label: "Moderately Religious" },
+    { value: "occasionally_religious", label: "Occasionally Religious" },
+    { value: "cultural_but_non_practicing", label: "Cultural but non-practicing" },
+    { value: "spiritual_but_not_religious", label: "Spiritual but not religious" },
+    { value: "religious_but_not_practicing", label: "Religious but not practicing" },
+    { value: "open_to_exploring_religion", label: "Open to exploring religion" },
+    { value: "agnostic", label: "Agnostic" },
+    { value: "atheist", label: "Atheist" },
+    { value: "secular", label: "Secular" },
+    { value: "open_to_all_beliefs", label: "Open to all beliefs" },
+    { value: "not_religious", label: "Not religious" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
+  ];
+
+  // Dargah/Fatiha/Niyaz options
+  const dargahOptions = [
+    { value: "dargah_fatiha_niyaz", label: "Yes (Dargah, Fatiha, and Niyaz)" },
+    { value: "dargah_fatiha", label: "Yes (Dargah and Fatiha)" },
+    { value: "dargah_niyaz", label: "Yes (Dargah and Niyaz)" },
+    { value: "fatiha_niyaz", label: "Yes (Fatiha and Niyaz)" },
+    { value: "only_dargah", label: "Yes (Only Dargah)" },
+    { value: "only_fatiha", label: "Yes (Only Fatiha)" },
+    { value: "only_niyaz", label: "Yes (Only Niyaz)" },
+    { value: "no_all", label: "No (No Dargah, No Fatiha, No Niyaz)" },
+    { value: "sometimes", label: "Sometimes" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
+  ];
+
+  // Yes/No options
+  const yesNoOptions = [
+    { value: "yes", label: "Yes" },
+    { value: "no", label: "No" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          Create Your Mehram Match Profile
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Follow these 6 simple steps to complete your profile and find the perfect match
+          </p>
+        </div>
+
+        {/* Main Content Container */}
+        <div className="flex flex-col gap-6">
+          {/* Mobile Step Tracker - Separate container above form */}
+          <div className="lg:hidden block">
+            <StepTracker percentage={33} />
+          </div>
+
+          {/* Desktop and Form Container */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Step Tracker - Professional sidebar layout */}
+            <div className="lg:block hidden">
+              <StepTracker percentage={33} />
+            </div>
+
+            {/* Main Form Container */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
+              {/* Form Header */}
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
+                      Step 2 of 6
+                    </p>
+                    <h2 className="text-2xl font-bold text-white mt-1">
+                      Religious Information
+                    </h2>
                   </div>
-                )}
+                  <div className="bg-white/20 rounded-full p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
-              {/* Buttons */}
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <button
-                  onClick={() =>
-                    navigate(
-                      "/memstepone",
-                      member_id
-                        ? {
-                            state: {
-                              username: "memberCreation",
-                              age: 30,
-                              member_id,
-                            },
-                          }
-                        : {
-                            state: { username: "", age: 30 },
-                          }
-                    )
-                  }
-                  className="text-[black] bg-[white] mt-[24px] h-[40px] w-[150px]"
-                  style={{
-                    borderRadius: "5vh",
-                    fontWeight: "400",
-                    border: "1px solid black",
-                  }}
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={naviagteNextStep}
-                  className="text-[white] bg-[#0fd357] mt-[24px] h-[40px] w-[150px]"
-                  style={{
-                    borderRadius: "5vh",
-                    fontWeight: "400",
-                  }}
-                >
-                  Next Step
-                </button>
+              {/* Form Content */}
+              <div className="p-8">
+                <form className="space-y-8">
+                  {/* Religious Information Section */}
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                        Religious Background
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Please provide your religious details to help us create a profile that aligns with your values and preferences
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Sect / School of Thought */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Sect / School of Thought <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('sect_school_info');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <ResponsiveTooltip 
+                              field="sect_school_info" 
+                              text="Select your Islamic sect or school of thought"
+                            />
+                          </div>
+                    </label>
+                        <Dropdown
+                          options={sectOptions}
+                          name="sect_school_info"
+                          value={profileData.sect_school_info}
+                          onChange={(e) => handleFieldChange("sect_school_info", e.target.value)}
+                        />
+                        {formErrors.sect_school_info && (
+                          <p className="text-red-500 text-sm">{formErrors.sect_school_info}</p>
+                        )}
+                      </div>
+
+                      {/* Islamic Practicing Level */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Islamic Practicing Level</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none"
+                              stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('islamic_practicing_level');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <ResponsiveTooltip 
+                              field="islamic_practicing_level" 
+                              text="Select your level of Islamic practice and observance"
+                            />
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={practicingLevelOptions}
+                          name="islamic_practicing_level"
+                          value={profileData.islamic_practicing_level}
+                          onChange={(e) => handleFieldChange("islamic_practicing_level", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Religious Beliefs Section */}
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                        Religious Beliefs & Practices
+                      </h3>
+                  </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Believe in Dargah/Fatiha/Niyah */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Believe in Dargah/Fatiha/Niyah? <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none"
+                              stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('believe_in_dargah_fatiha_niyah');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <ResponsiveTooltip 
+                              field="believe_in_dargah_fatiha_niyah" 
+                              text="Do you believe in visiting dargahs, offering fatiha, or making niyah?"
+                            />
+                    </div>
+                        </label>
+                        <MultiSelectPills
+                          name="believe_in_dargah_fatiha_niyah"
+                          values={profileData.believe_in_dargah_fatiha_niyah || []}
+                          onChange={handleMultiSelectChange}
+                          options={dargahOptions}
+                          error={formErrors.believe_in_dargah_fatiha_niyah}
+                        />
+                      </div>
+
+                      {/* Hijab/Niqab Preference (only for females) */}
+                      {profileData.gender === "female" && (
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <span>Hijab/Niqab Preference? <span className="text-red-500">*</span></span>
+                            <div className="group relative tooltip-container">
+                              <svg 
+                                className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTooltipClick('hijab_niqab_prefer');
+                                }}
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <ResponsiveTooltip 
+                                field="hijab_niqab_prefer" 
+                                text="Do you prefer to wear hijab or niqab?"
+                              />
+                            </div>
+                          </label>
+                          <RadioGroup
+                            name="hijab_niqab_prefer"
+                            value={profileData.hijab_niqab_prefer}
+                            onChange={(e) => handleFieldChange("hijab_niqab_prefer", e.target.value)}
+                            options={yesNoOptions}
+                            error={formErrors.hijab_niqab_prefer}
+                          />
+                        </div>
+                      )}
+                    </div>
               </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">
+                    {/* Back Button */}
+                    <button
+                      onClick={() =>
+                        navigate(
+                          "/memstepone",
+                          member_id
+                            ? {
+                                state: {
+                                  username: "memberCreation",
+                                  age: 30,
+                                  member_id,
+                                },
+                              }
+                            : {
+                                state: { username: "", age: 30 },
+                              }
+                        )
+                      }
+                      type="button"
+                      className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      <span className="text-sm sm:text-base">Back</span>
+                    </button>
+                    
+                    {/* Next Step Button */}
+                    <button
+                      onClick={naviagteNextStep}
+                      type="button"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                    >
+                      {/* Gradient overlay for hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      
+                      <span className="relative text-sm sm:text-base font-medium">Next Step</span>
+                      <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                  </div>
             </form>
           </div>
         </div>
-      </main>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
