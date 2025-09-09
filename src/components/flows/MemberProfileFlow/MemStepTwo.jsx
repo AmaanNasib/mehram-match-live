@@ -127,15 +127,6 @@ const MemStepTwo = () => {
     }
   }, [showTooltip]);
 
-  // Responsive tooltip component
-  const ResponsiveTooltip = ({ field, text }) => {
-    return (
-      <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ${showTooltip === field ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-        {text}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-      </div>
-    );
-  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -479,12 +470,12 @@ const MemStepTwo = () => {
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <ResponsiveTooltip 
-                              field="sect_school_info" 
-                              text="Select your Islamic sect or school of thought"
-                            />
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'sect_school_info' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your Islamic sect or school of thought
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
                           </div>
-                    </label>
+                        </label>
                         <Dropdown
                           options={sectOptions}
                           name="sect_school_info"
@@ -503,9 +494,9 @@ const MemStepTwo = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                        fill="none"
+                              fill="none" 
                               stroke="currentColor" 
-                        viewBox="0 0 24 24"
+                              viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleTooltipClick('islamic_practicing_level');
@@ -513,10 +504,10 @@ const MemStepTwo = () => {
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <ResponsiveTooltip 
-                              field="islamic_practicing_level" 
-                              text="Select your level of Islamic practice and observance"
-                            />
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'islamic_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your level of Islamic practice and observance
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
                           </div>
                         </label>
                         <Dropdown
@@ -546,9 +537,9 @@ const MemStepTwo = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                          fill="none"
+                              fill="none" 
                               stroke="currentColor" 
-                          viewBox="0 0 24 24"
+                              viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleTooltipClick('believe_in_dargah_fatiha_niyah');
@@ -556,11 +547,11 @@ const MemStepTwo = () => {
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <ResponsiveTooltip 
-                              field="believe_in_dargah_fatiha_niyah" 
-                              text="Do you believe in visiting dargahs, offering fatiha, or making niyah?"
-                            />
-                    </div>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'believe_in_dargah_fatiha_niyah' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Do you believe in visiting dargahs, offering fatiha, or making niyah?
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
                         </label>
                         <MultiSelectPills
                           name="believe_in_dargah_fatiha_niyah"
@@ -589,10 +580,10 @@ const MemStepTwo = () => {
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
-                              <ResponsiveTooltip 
-                                field="hijab_niqab_prefer" 
-                                text="Do you prefer to wear hijab or niqab?"
-                              />
+                              <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'hijab_niqab_prefer' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                Do you prefer to wear hijab or niqab?
+                                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                              </div>
                             </div>
                           </label>
                           <RadioGroup
