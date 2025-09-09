@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { updateDataV2 } from "../../../apiUtils";
 import { useParams } from "react-router-dom";
-import Sidebar from "../../sections/Sidebar";
-import TopBar from "../../sections/TopBar";
-import ProfileSection from "../../sections/ProfileSection";
 import StepTracker from "../../StepTracker/StepTracker";
-import findUser from "../../../images/findUser.svg";
 import { fetchDataObjectV2 } from "../../../apiUtils";
 
 const MemStepThree = () => {
@@ -16,8 +12,30 @@ const MemStepThree = () => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [errors, setErrors] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
+  const [showTooltip, setShowTooltip] = useState(null);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState("");
   const [flag, setflag] = useState(false);
+
+  // Parent Occupations dropdown options
+  const ParentOccupations = [
+    { value: "businessman", label: "Businessman" },
+    { value: "businesswoman", label: "Businesswoman" },
+    { value: "engineer", label: "Engineer" },
+    { value: "doctor", label: "Doctor" },
+    { value: "teacher", label: "Teacher" },
+    { value: "lawyer", label: "Lawyer" },
+    { value: "government_employee", label: "Government Employee" },
+    { value: "private_employee", label: "Private Employee" },
+    { value: "farmer", label: "Farmer" },
+    { value: "shopkeeper", label: "Shopkeeper" },
+    { value: "driver", label: "Driver" },
+    { value: "homemaker", label: "Homemaker" },
+    { value: "retired", label: "Retired" },
+    { value: "not_working", label: "Not Working" },
+    { value: "other", label: "Other" }
+  ];
   userId = localStorage.getItem("member_id") || userId;
   const [profileData, setProfileData] = useState({
     father_name: "",
@@ -60,6 +78,30 @@ const MemStepThree = () => {
     }
   }, [userId]);
 
+  // Tooltip click outside and escape key handling
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showTooltip && !event.target.closest('.tooltip-container')) {
+        setShowTooltip(null);
+      }
+    };
+    
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showTooltip) {
+        setShowTooltip(null);
+      }
+    };
+    
+    if (showTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
+      };
+    }
+  }, [showTooltip]);
+
   useEffect(() => {
     if (apiData) {
       setProfileData({
@@ -88,62 +130,138 @@ const MemStepThree = () => {
       });
     }
   }, [apiData]);
+  const handleTooltipClick = (field) => {
+    setShowTooltip(showTooltip === field ? null : field);
+  };
+
+  const handleTooltipLeave = () => {
+    setShowTooltip(null);
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate Sect / School of Thought
+    // Validate required fields
     if (!profileData.father_name?.trim()) {
-      newErrors.father_name = "Father's name required";
+      newErrors.father_name = "Father's name is required";
+    }
+    if (!profileData.mother_name?.trim()) {
+      newErrors.mother_name = "Mother's name is required";
     }
     if (!profileData.family_type) {
-      newErrors.family_type = "Family type required";
-    }
-    // Validate Believe in Dargah/Fatiha/Niyah
-    if (!profileData.mother_name) {
-      newErrors.mother_name = "Mother's name required";
+      newErrors.family_type = "Family type is required";
     }
     if (!profileData.family_practicing_level) {
-      newErrors.family_practicing_level = "Family Practicing Level required";
+      newErrors.family_practicing_level = "Family practicing level is required";
     }
-    // if (!profileData.number_of_brothers) {
-    //   newErrors.mother_name =
-    //     "Mother's name required";
-    // }
     if (!profileData.number_of_siblings) {
-      newErrors.number_of_siblings = "Number of Siblings required";
-    } else if (profileData.number_of_siblings) {
-      let sibcon =
-        Number(profileData.number_of_siblings) ==
-        Number(profileData.number_of_brothers) +
-          Number(profileData.number_of_sisters);
-      if (!sibcon) {
-        newErrors.number_of_siblings = "Number of Siblings doesn't match";
+      newErrors.number_of_siblings = "Number of siblings is required";
+    } else if (profileData.number_of_siblings > 0) {
+      const totalSiblings = Number(profileData.number_of_brothers || 0) + Number(profileData.number_of_sisters || 0);
+      if (totalSiblings !== Number(profileData.number_of_siblings)) {
+        newErrors.number_of_siblings = "Number of siblings doesn't match brothers + sisters";
       }
     }
-    if (profileData.number_of_children) {
-      let chicon =
-        Number(profileData.number_of_children) ==
-        Number(profileData.number_of_son) +
-          Number(profileData.number_of_daughter);
-      if (!chicon) {
-        newErrors.number_of_children = "Number of Children doesn't match";
+    
+    if (profileData.number_of_children > 0) {
+      const totalChildren = Number(profileData.number_of_son || 0) + Number(profileData.number_of_daughter || 0);
+      if (totalChildren !== Number(profileData.number_of_children)) {
+        newErrors.number_of_children = "Number of children doesn't match sons + daughters";
       }
     }
 
-    if (profileData.gender === "female" && !profileData.wali_blood_relation) {
-      newErrors.wali_blood_relation = "Blood Relation is required";
-    }
-    if (profileData.gender === "female" && !profileData.wali_name) {
-      newErrors.wali_name = "Wali Name is required";
-    }
-    if (profileData.gender === "female" && !profileData.wali_contact_number) {
-      newErrors.wali_contact_number = "Wali Phone Number is required";
+    // Wali validation for females
+    if (profileData.gender === "female") {
+      if (!profileData.wali_name?.trim()) {
+        newErrors.wali_name = "Wali name is required";
+      }
+      if (!profileData.wali_contact_number?.trim()) {
+        newErrors.wali_contact_number = "Wali contact number is required";
+      }
+      if (!profileData.wali_blood_relation) {
+        newErrors.wali_blood_relation = "Blood relation is required";
+      }
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+  const handleValidForm = () => {
+    const newErrors = {};
+
+    // Validate required fields
+    if (!profileData.father_name?.trim()) {
+      newErrors.father_name = "Father's name is required";
+    }
+    if (!profileData.mother_name?.trim()) {
+      newErrors.mother_name = "Mother's name is required";
+    }
+    if (!profileData.family_type) {
+      newErrors.family_type = "Family type is required";
+    }
+    if (!profileData.family_practicing_level) {
+      newErrors.family_practicing_level = "Family practicing level is required";
+    }
+    if (!profileData.number_of_siblings) {
+      newErrors.number_of_siblings = "Number of siblings is required";
+    } else if (profileData.number_of_siblings > 0) {
+      const totalSiblings = Number(profileData.number_of_brothers || 0) + Number(profileData.number_of_sisters || 0);
+      if (totalSiblings !== Number(profileData.number_of_siblings)) {
+        newErrors.number_of_siblings = "Number of siblings doesn't match brothers + sisters";
+      }
+    }
+    
+    if (profileData.number_of_children > 0) {
+      const totalChildren = Number(profileData.number_of_son || 0) + Number(profileData.number_of_daughter || 0);
+      if (totalChildren !== Number(profileData.number_of_children)) {
+        newErrors.number_of_children = "Number of children doesn't match sons + daughters";
+      }
+    }
+
+    // Wali validation for females
+    if (profileData.gender === "female") {
+      if (!profileData.wali_name?.trim()) {
+        newErrors.wali_name = "Wali name is required";
+      }
+      if (!profileData.wali_contact_number?.trim()) {
+        newErrors.wali_contact_number = "Wali contact number is required";
+      }
+      if (!profileData.wali_blood_relation) {
+        newErrors.wali_blood_relation = "Blood relation is required";
+      }
+    }
+
+    setFormErrors(newErrors);
+    
+    // Auto-scroll to first error field
+    if (Object.keys(newErrors).length > 0) {
+      const fieldOrder = [
+        'father_name', 'mother_name', 'family_type', 'family_practicing_level',
+        'number_of_siblings', 'number_of_brothers', 'number_of_sisters',
+        'number_of_children', 'number_of_son', 'number_of_daughter',
+        'wali_name', 'wali_contact_number', 'wali_blood_relation'
+      ];
+      
+      const firstErrorField = fieldOrder.find(field => newErrors[field]);
+      if (firstErrorField) {
+        setTimeout(() => {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
+                         document.querySelector(`input[name="${firstErrorField}"]`) ||
+                         document.querySelector(`select[name="${firstErrorField}"]`) ||
+                         document.querySelector(`textarea[name="${firstErrorField}"]`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus();
+          }
+        }, 100);
+      }
+    }
+    
+    return Object.keys(newErrors).length === 0;
+  };
+
   const naviagteNextStep = () => {
+    if (handleValidForm()) {
     const parameters = {
       url: `/api/user/${userId}`,
       payload: {
@@ -171,48 +289,9 @@ const MemStepThree = () => {
       navUrl: `/memstepfour`,
       setErrors: setErrors,
     };
-
-    // if (
-    //   profileData.father_name &&
-    //   profileData.mother_name &&
-    //   profileData.number_of_siblings &&
-    //   profileData.family_type &&
-    //   profileData.family_practicing_level
-    // ) {
-    //   const hasSiblings =
-    //     profileData.number_of_siblings > 0 &&
-    //     profileData.number_of_brother &&
-    //     profileData.number_of_sister;
-
-    //   const isFemaleWithWali =
-    //     profileData.gender === "femail" &&
-    //     profileData.wali_name &&
-    //     profileData.wali_contact_number &&
-    //     profileData.wali_blood_relation;
-
-    //   const isMaritalStatusValid =
-    //     ["Divocer", "Widowed"].includes(profileData.martial_status) ||
-    //     profileData.number_of_children > 0;
-
-    //   const hasChildren =
-    //     profileData.number_of_son && profileData.number_of_daughter;
-    //     console.log(hasSiblings,hasChildren,isMaritalStatusValid);
-    //   if (hasSiblings) {
-    //     updateDataV2(parameters);
-    //   } else if (isFemaleWithWali) {
-    //     updateDataV2(parameters);
-    //   } else if (isMaritalStatusValid && hasChildren) {
-    //     updateDataV2(parameters);
-    //   } else {
-    //     setErrors(true);
-    //     setMessage("Please Fill the required Field");
-    //   }
-    // } else {
-    //   setErrors(true);
-    //   setMessage("Please Fill the required Field");
-    // }
-    if (validateForm()) {
       updateDataV2(parameters);
+    } else {
+      console.log("Form has errors. Please fix them.");
     }
   };
 
@@ -221,8 +300,8 @@ const MemStepThree = () => {
       ...prevState,
       [field]: value,
     }));
-    if (errors[field]) {
-      setErrors((prevErrors) => {
+    if (formErrors[field]) {
+      setFormErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
         delete newErrors[field];
         return newErrors;
@@ -280,350 +359,229 @@ const MemStepThree = () => {
   // }, [errors]);
 
   return (
-    <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        {/* {errors && (
-          <div
-            style={{
-              zIndex: "10000",
-              height: "17vh",
-              width: "33vw",
-              backgroundColor: "#F8BF00",
-              display: "flex",
-              flexDirection: "row",
-              // alignItems: "center",
-              padding: "2vh 3vh",
-              gap: "10px",
-              position: "absolute",
-              left: "35%",
-              borderRadius: "1vh",
-              cursor: "pointer"
-
-            }}
-          >
-            <div>
-              <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.77348 1.90259C9.14789 1.69179 9.57031 1.58105 9.99998 1.58105C10.4296 1.58105 10.8521 1.69179 11.2265 1.90259C11.6009 2.11338 11.9146 2.41712 12.1375 2.78448L12.1399 2.78844L19.1982 14.5718L19.205 14.5833C19.4233 14.9613 19.5388 15.3899 19.54 15.8264C19.5412 16.263 19.4281 16.6922 19.2119 17.0714C18.9958 17.4507 18.6841 17.7667 18.3078 17.9881C17.9316 18.2095 17.504 18.3285 17.0675 18.3333L17.0583 18.3334L2.93248 18.3333C2.49598 18.3285 2.06834 18.2095 1.69212 17.9881C1.31589 17.7667 1.00419 17.4507 0.788018 17.0714C0.571848 16.6922 0.458748 16.263 0.459971 15.8264C0.461193 15.3899 0.576695 14.9613 0.794985 14.5833L0.801754 14.5718L7.86247 2.78448C8.0853 2.41711 8.39908 2.11338 8.77348 1.90259ZM9.99998 3.24772C9.85675 3.24772 9.71595 3.28463 9.59115 3.3549C9.46691 3.42485 9.3627 3.52549 9.28849 3.64721L2.23555 15.4215C2.16457 15.5464 2.12703 15.6874 2.12663 15.8311C2.12622 15.9766 2.16392 16.1197 2.23598 16.2461C2.30804 16.3725 2.41194 16.4779 2.53735 16.5517C2.66166 16.6248 2.80281 16.6644 2.94697 16.6667H17.053C17.1971 16.6644 17.3383 16.6248 17.4626 16.5517C17.588 16.4779 17.6919 16.3725 17.764 16.2461C17.836 16.1197 17.8737 15.9766 17.8733 15.8311C17.8729 15.6875 17.8354 15.5464 17.7644 15.4216L10.7125 3.64886C10.7121 3.64831 10.7118 3.64776 10.7115 3.64721C10.6373 3.52549 10.533 3.42485 10.4088 3.3549C10.284 3.28463 10.1432 3.24772 9.99998 3.24772Z" fill="white" />
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0001 6.6665C10.4603 6.6665 10.8334 7.0396 10.8334 7.49984V10.8332C10.8334 11.2934 10.4603 11.6665 10.0001 11.6665C9.53984 11.6665 9.16675 11.2934 9.16675 10.8332V7.49984C9.16675 7.0396 9.53984 6.6665 10.0001 6.6665Z" fill="white" />
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.16675 14.1668C9.16675 13.7066 9.53984 13.3335 10.0001 13.3335H10.0084C10.4687 13.3335 10.8417 13.7066 10.8417 14.1668C10.8417 14.6271 10.4687 15.0002 10.0084 15.0002H10.0001C9.53984 15.0002 9.16675 14.6271 9.16675 14.1668Z" fill="white" />
-              </svg>
-            </div>
-
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                color: "white",
-                width: "100%",
-                paddingLeft: "5%"
-              }}
-            >
-              <h2 style={{ margin: 0, fontSize: "3vh", fontWeight: "500" }}>
-                Missing Information
-              </h2>
-              <p style={{ margin: 0, width: "100%", fontSize: "2.2vh" }}>
-                Please fill out all required fields to proceed to the next step
-              </p>
-            </div>
-            <div onClick={() => setErrors(!errors)}>
-              <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.5893 4.41058C15.9148 4.73602 15.9148 5.26366 15.5893 5.58909L5.58934 15.5891C5.2639 15.9145 4.73626 15.9145 4.41083 15.5891C4.08539 15.2637 4.08539 14.736 4.41083 14.4106L14.4108 4.41058C14.7363 4.08514 15.2639 4.08514 15.5893 4.41058Z" fill="white" />
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.41083 4.41058C4.73626 4.08514 5.2639 4.08514 5.58934 4.41058L15.5893 14.4106C15.9148 14.736 15.9148 15.2637 15.5893 15.5891C15.2639 15.9145 14.7363 15.9145 14.4108 15.5891L4.41083 5.58909C4.08539 5.26366 4.08539 4.73602 4.41083 4.41058Z" fill="white" />
-              </svg>
-            </div>
-          </div>
-        )} */}
-        <h3
-          style={{
-            fontSize: "1.8rem",
-            padding: "3vh 0 0 10vh",
-            fontWeight: "400",
-            color: "#ec4899",
-          }}
-        >
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
           Create Your Mehram Match Profile
-        </h3>
-        <h5
-          style={{
-            fontSize: "1rem",
-            padding: "0 1vh 3vh 10vh",
-            fontWeight: "100",
-          }}
-        >
-          Follow these 6 simple step to complete your profile and find the
-          perfect match
-        </h5>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Follow these 6 simple steps to complete your profile and find the perfect match
+          </p>
+        </div>
 
-        <div
-          style={{
-            height: "1px",
-            width: "91.5%",
-            backgroundColor: "#ccc",
-            marginLeft: "10vh",
-          }}
-        ></div>
+        {/* Main Content Container */}
+        <div className="flex flex-col gap-6">
+          {/* Mobile Step Tracker - Separate container above form */}
+          <div className="lg:hidden block">
+            <StepTracker percentage={55} />
+            </div>
 
-        <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
-          <div
-            style={{
-              width: "33.8%",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
+          {/* Desktop and Form Container */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Step Tracker - Professional sidebar layout */}
+            <div className="lg:block hidden">
             <StepTracker percentage={55} />
           </div>
 
-          <div style={{ width: "86.1%", marginLeft: "19.5%" }}>
-            <form
-              style={{
-                borderLeft: "0.5px solid #ccc",
-                padding: "1rem",
-                width: "70%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                padding: "1% 4%",
-                margin: "auto",
-                height: "auto",
-                position: "absolute",
-                left: "24.2rem",
-                zIndex: "0",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  margin: "0",
-                  padding: "0",
-                }}
-              >
-                step 3/6
-              </p>
-              <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-                Family Background
-              </h4>
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  marginBottom: "1vh",
-                  padding: "0",
-                }}
-              >
-                Share details about your family to help us better understand
-                your background and preferences
-              </p>
-              <div
-                style={{
-                  height: "0.7px",
-                  width: "100%",
-                  backgroundColor: "#ccc",
-                }}
-              ></div>
+            {/* Main Form Container */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
+            {/* Form Header */}
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
+                    Step 3 of 6
+                  </p>
+                  <h2 className="text-2xl font-bold text-white mt-1">
+                    Family Background
+                  </h2>
+            </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+          </div>
+          </div>
 
-              {/* Father's Name and Occupation */}
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="fatherName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Father’s Name <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="fatherName"
-                      name="fatherName"
-                      required
-                      value={profileData.father_name || ""}
-                      placeholder="Enter full name"
-                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        errors.father_name
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("father_name", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 bottom-1 mt-1 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Father’s Name
-                        field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.father_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.father_name}
+            {/* Form Content */}
+            <div className="p-8">
+              <form className="space-y-8">
+                {/* Family Information Section */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                      Family Information
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Share details about your family to help us better understand your background and preferences
                     </p>
-                  )}
-                </div>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="fatherOccupation"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Father’s Occupation
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="fatherOccupation"
-                      name="fatherOccupation"
-                      value={profileData.father_occupation || ""}
-                      placeholder="Enter occupation"
-                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
-                      onChange={(e) =>
-                        updateField("father_occupation", e.target.value)
-                      }
-                    />
                   </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
+
+            {/* Father's Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Father's Name <span className="text-red-500">*</span></span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('father_name');
+                      }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                      This is additional information about the Father’s
-                      Occupation field.
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'father_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Enter your father's full name as it appears on official documents
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
-                </div>
+                </label>
+                <input
+                  type="text"
+                  id="father_name"
+                  name="father_name"
+                  value={profileData.father_name || ""}
+                  placeholder="Enter father's full name"
+                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                    formErrors.father_name
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                  }`}
+                  onChange={(e) => updateField("father_name", e.target.value)}
+                />
+                {formErrors.father_name && (
+                  <p className="text-red-500 text-sm">{formErrors.father_name}</p>
+                )}
               </div>
 
-              {/* Mother's Name and Occupation */}
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="motherName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Mother’s Name <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="motherName"
-                      name="motherName"
-                      value={profileData.mother_name || ""}
-                      required
-                      placeholder="Enter full name"
-                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        errors.mother_name
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("mother_name", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2  transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Mother’s Name
-                        field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.mother_name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.mother_name}
-                    </p>
-                  )}
-                </div>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="motherOccupation"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Mother’s Occupation
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="motherOccupation"
-                      name="motherOccupation"
-                      value={profileData.mother_occupation || ""}
-                      placeholder="Enter occupation"
-                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92]"
-                      onChange={(e) =>
-                        updateField("mother_occupation", e.target.value)
-                      }
-                    />
-                  </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Father's Occupation</span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
                       viewBox="0 0 24 24"
-                      stroke="currentColor"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('father_occupation');
+                      }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                      This is additional information about the Mother’s
-                      Occupation field.
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'father_occupation' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Enter your father's current profession or job title
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
-                </div>
+                </label>
+                <select
+                  id="father_occupation"
+                  name="father_occupation"
+                  value={profileData.father_occupation || ""}
+                  className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                  onChange={(e) => updateField("father_occupation", e.target.value)}
+                >
+                  <option value="">Select Father's Occupation</option>
+                  {ParentOccupations.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
+              </div>
+
+            {/* Mother's Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Mother's Name <span className="text-red-500">*</span></span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('mother_name');
+                      }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'mother_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Enter your mother's full name as it appears on official documents
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </label>
+                <input
+                  type="text"
+                  id="mother_name"
+                  name="mother_name"
+                  value={profileData.mother_name || ""}
+                  placeholder="Enter mother's full name"
+                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                    formErrors.mother_name
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                  }`}
+                  onChange={(e) => updateField("mother_name", e.target.value)}
+                />
+                {formErrors.mother_name && (
+                  <p className="text-red-500 text-sm">{formErrors.mother_name}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Mother's Occupation</span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('mother_occupation');
+                      }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'mother_occupation' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Enter your mother's current profession or job title
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </label>
+                <select
+                  id="mother_occupation"
+                  name="mother_occupation"
+                  value={profileData.mother_occupation || ""}
+                  className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                  onChange={(e) => updateField("mother_occupation", e.target.value)}
+                >
+                  <option value="">Select Mother's Occupation</option>
+                  {ParentOccupations.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
               {/* Is Father Alive and Is Mother Alive */}
               {/* <div style={{ display: "flex", gap: "2rem" }}>
@@ -701,642 +659,547 @@ const MemStepThree = () => {
                 </div>
               </div> */}
 
-              {/* Number of Siblings and Family Type */}
-              <div
-                style={{ display: "flex", gap: "2rem", alignItems: "center" }}
-              >
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="numSiblings"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Number of Siblings <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="numSiblings"
-                      name="numSiblings"
-                      value={profileData.number_of_siblings || ""}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.number_of_siblings
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("number_of_siblings", e.target.value)
-                      }
+            {/* Family Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Number of Siblings <span className="text-red-500">*</span></span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('number_of_siblings');
+                      }}
                     >
-                      <option value="">Select Number</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4+</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Number of
-                        Siblings field.
-                      </div>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_siblings' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Total number of brothers and sisters you have
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
-                  {errors.number_of_siblings && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.number_of_siblings}
-                    </p>
-                  )}
-                </div>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="familyType"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Family Type <span style={{ color: "#ED58AC" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="familyType"
-                      name="familyType"
-                      value={profileData.family_type || ""}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.family_type
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("family_type", e.target.value)
-                      }
-                    >
-                      <option value="">Select Family Type</option>
-                      <option value="Nuclear">Nuclear</option>
-                      <option value="Joint">Joint</option>
-                      <option value="Extended">Extended</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Family Type
-                        field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.family_type && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.family_type}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Conditional Fields for Siblings */}
-              {profileData.number_of_siblings > 0 && (
-                <div
-                  style={{ display: "flex", gap: "2rem", alignItems: "center" }}
+                </label>
+                <select
+                  id="number_of_siblings"
+                  name="number_of_siblings"
+                  value={profileData.number_of_siblings || ""}
+                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                    formErrors.number_of_siblings
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                  }`}
+                  onChange={(e) => updateField("number_of_siblings", e.target.value)}
                 >
-                  <div className="w-[50%] relative flex flex-col gap-[10px]">
-                    <label
-                      htmlFor="numBrothers"
-                      className="block text-sm font-medium text-[#000000] mb-0"
-                    >
-                      Number of Brothers{" "}
-                      <span style={{ color: "#ED58AC" }}>*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="numBrothers"
-                        name="numBrothers"
-                        value={profileData.number_of_brothers || ""}
-                        required
-                        className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                          errors.number_of_brothers
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2`}
-                        onChange={(e) =>
-                          updateField("number_of_brothers", e.target.value)
-                        }
-                      >
-                        <option value="">Select Number</option>
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4+</option>
-                      </select>
-                      {/* Information icon positioned at right corner of input */}
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {/* Tooltip text */}
-                        <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                          This is additional information about the Number of
-                          Brothers field.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-[50%] relative flex flex-col gap-[10px]">
-                    <label
-                      htmlFor="numSisters"
-                      className="block text-sm font-medium text-[#000000] mb-0"
-                    >
-                      Number of Sisters <span style={{ color: "red" }}>*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="numSisters"
-                        name="numSisters"
-                        value={profileData.number_of_sisters || ""}
-                        required
-                        className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                          errors.number_of_sisters
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                        } focus:outline-none focus:ring-2`}
-                        onChange={(e) =>
-                          updateField("number_of_sisters", e.target.value)
-                        }
-                      >
-                        <option value="">Select Number</option>
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4+</option>
-                      </select>
-                      {/* Information icon positioned at right corner of input */}
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {/* Tooltip text */}
-                        <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                          This is additional information about the Number of
-                          Sisters field.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  <option value="">Select Number</option>
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4+</option>
+                </select>
+                {formErrors.number_of_siblings && (
+                  <p className="text-red-500 text-sm">{formErrors.number_of_siblings}</p>
+                )}
+              </div>
 
-              {/* Family Practicing Level and Number of Children */}
-              <div
-                style={{ display: "flex", gap: "2rem", alignItems: "center" }}
-              >
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="familyPracticingLevel"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Family Practicing Level{" "}
-                    <span style={{ color: "#ED58AC" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="familyPracticingLevel"
-                      name="familyPracticingLevel"
-                      value={profileData.family_practicing_level || ""}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.family_practicing_level
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("family_practicing_level", e.target.value)
-                      }
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Family Type <span className="text-red-500">*</span></span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('family_type');
+                      }}
                     >
-                      <option value="">Select Practicing Level</option>
-                      <option value="High">High</option>
-                      <option value="Moderate">Moderate</option>
-                      <option value="Low">Low</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Family
-                        Practicing Level field.
-                      </div>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'family_type' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      Nuclear: Parents and children only. Joint: Multiple generations living together. Extended: Includes relatives
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
-                  {errors.family_practicing_level && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.family_practicing_level}
-                    </p>
+                </label>
+                <select
+                  id="family_type"
+                  name="family_type"
+                  value={profileData.family_type || ""}
+                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                    formErrors.family_type
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                  }`}
+                  onChange={(e) => updateField("family_type", e.target.value)}
+                >
+                  <option value="">Select Family Type</option>
+                  <option value="Nuclear">Nuclear</option>
+                  <option value="Joint">Joint</option>
+                  <option value="Extended">Extended</option>
+                </select>
+                {formErrors.family_type && (
+                  <p className="text-red-500 text-sm">{formErrors.family_type}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Conditional Siblings Details */}
+            {profileData.number_of_siblings > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Number of Brothers <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('number_of_brothers');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_brothers' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Number of brothers you have
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <select
+                    id="number_of_brothers"
+                    name="number_of_brothers"
+                    value={profileData.number_of_brothers || ""}
+                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                      formErrors.number_of_brothers
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("number_of_brothers", e.target.value)}
+                  >
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4+</option>
+                  </select>
+                  {formErrors.number_of_brothers && (
+                    <p className="text-red-500 text-sm">{formErrors.number_of_brothers}</p>
                   )}
                 </div>
 
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                {(profileData.martial_status === "Divorced" ||
-                  profileData.martial_status === "Widowed") && (
-                    <>
-                      <label
-                        htmlFor="numChildren"
-                        className="block text-sm font-medium text-[#000000] mb-0"
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Number of Sisters <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('number_of_sisters');
+                        }}
                       >
-                        Number of Children{" "}
-                        <span style={{ color: "#ED58AC" }}>*</span>
-                      </label>
-                      <div className="relative">
-                        <select
-                          id="numChildren"
-                          name="numChildren"
-                          value={profileData.number_of_children || ""}
-                          className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("number_of_children", e.target.value)
-                          }
-                        >
-                          <option value="">Select Number</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4+</option>
-                        </select>
-                        {/* Information icon positioned at right corner of input */}
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                            This is additional information about the Number of
-                            Children field.
-                          </div>
-                        </div>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_sisters' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Number of sisters you have
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                       </div>
+                    </div>
+                  </label>
+                  <select
+                    id="number_of_sisters"
+                    name="number_of_sisters"
+                    value={profileData.number_of_sisters || ""}
+                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                      formErrors.number_of_sisters
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("number_of_sisters", e.target.value)}
+                  >
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4+</option>
+                  </select>
+                  {formErrors.number_of_sisters && (
+                    <p className="text-red-500 text-sm">{formErrors.number_of_sisters}</p>
+                  )}
+                </div>
+              </div>
+            )}
 
-                    {errors.number_of_children && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.number_of_children}
-                      </p>
-                    )}
-                    </>
-                )}
+            {/* Family Practicing Level */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <span>Family Practicing Level <span className="text-red-500">*</span></span>
+                  <div className="group relative tooltip-container">
+                    <svg 
+                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTooltipClick('family_practicing_level');
+                      }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'family_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                      How religiously observant is your family? High: Very observant, Moderate: Somewhat observant, Low: Not very observant
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
                   </div>
+                </label>
+                <select
+                  id="family_practicing_level"
+                  name="family_practicing_level"
+                  value={profileData.family_practicing_level || ""}
+                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                    formErrors.family_practicing_level
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                  }`}
+                  onChange={(e) => updateField("family_practicing_level", e.target.value)}
+                >
+                  <option value="">Select Practicing Level</option>
+                  <option value="High">High</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Low">Low</option>
+                </select>
+                {formErrors.family_practicing_level && (
+                  <p className="text-red-500 text-sm">{formErrors.family_practicing_level}</p>
+                )}
               </div>
 
-              {/* Conditional Fields for Children */}
-              {(profileData.martial_status === "Divorced" ||
-                profileData.martial_status === "Widowed") &&
-                profileData.number_of_children > 0 && (
-                  <div style={{ display: "flex", gap: "2rem" }}>
-                    <div className="w-[50%] relative flex flex-col gap-[10px]">
-                      <label
-                        htmlFor="numSons"
-                        className="block text-sm font-medium text-[#000000] mb-0"
+              {/* Conditional Children Field */}
+              {(profileData.martial_status === "Divorced" || profileData.martial_status === "Widowed") && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Number of Children <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('number_of_children');
+                        }}
                       >
-                        Number of Sons{" "}
-                        <span style={{ color: "#ED58AC" }}>*</span>
-                      </label>
-                      <select
-                        id="numSons"
-                        name="numSons"
-                        value={profileData.number_of_son || ""}
-                        className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                        onChange={(e) =>
-                          updateField("number_of_son", e.target.value)
-                        }
-                      >
-                        <option value="">Select Number</option>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4+</option>
-                      </select>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_children' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Total number of children from previous marriage
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                    <div className="w-[50%] relative flex flex-col gap-[10px]">
-                      <label
-                        htmlFor="numDaughters"
-                        className="block text-sm font-medium text-[#000000] mb-0"
-                      >
-                        Number of Daughters{" "}
-                        <span style={{ color: "#ED58AC" }}>*</span>
-                      </label>
-                      <select
-                        id="numDaughters"
-                        name="numDaughters"
-                        value={profileData.number_of_daughter || ""}
-                        className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                        onChange={(e) =>
-                          updateField("number_of_daughter", e.target.value)
-                        }
-                      >
-                        <option value="">Select Number</option>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4+</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-              {/* Wali Information (for females) */}
-              {profileData.gender === "female" && (
-                <>
-                  <h4
-                    className="col-span-3 mb-4"
-                    style={{ fontWeight: "bold" }}
+                  </label>
+                  <select
+                    id="number_of_children"
+                    name="number_of_children"
+                    value={profileData.number_of_children || ""}
+                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                      formErrors.number_of_children
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("number_of_children", e.target.value)}
                   >
-                    Wali Information
-                  </h4>
-                  <div style={{ display: "flex", gap: "2rem" }}>
-                    <div className="w-[50%] relative flex flex-col gap-[10px] ">
-                      <label
-                        htmlFor="waliName"
-                        className="block text-sm font-medium text-[#000000] mb-0"
-                      >
-                        Wali Name <span style={{ color: "red" }}>*</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id="waliName"
-                          name="waliName"
-                          value={profileData.wali_name || ""}
-                          placeholder="Enter full name"
-                          required
-                          className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                            errors.wali_name
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                          onChange={(e) =>
-                            updateField("wali_name", e.target.value)
-                          }
-                        />
-                        {/* Information icon positioned at right corner of input */}
-                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                            This is additional information about the Wali Name
-                            field.
-                          </div>
-                        </div>
-                      </div>
-                      {errors.wali_name && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.wali_name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-[50%] relative">
-                      <label
-                        htmlFor="waliPhone"
-                        className="block text-sm font-medium text-[#000000]"
-                      >
-                        Wali Phone Number{" "}
-                        <span style={{ color: "red" }}>*</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="tel"
-                          id="waliPhone"
-                          name="waliPhone"
-                          value={profileData.wali_contact_number || ""}
-                          placeholder="Enter phone number"
-                          required
-                          className={`h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.wali_contact_number
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                          onChange={(e) =>
-                            updateField("wali_contact_number", e.target.value)
-                          }
-                        />
-                        {/* Information icon positioned at right corner of input */}
-                        <div className="absolute right-2 mt-1 top-1/2 transform -translate-y-1/2 group z-20">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                            This is additional information about the Wali Phone
-                            Number field.
-                          </div>
-                        </div>
-                      </div>
-                      {errors.wali_contact_number && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.wali_contact_number}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: "2rem" }}>
-                    <div className="w-[50%] relative">
-                      <label
-                        htmlFor="waliRelation"
-                        className="block text-sm font-medium text-[#000000]"
-                      >
-                        Blood Relation <span style={{ color: "red" }}>*</span>
-                      </label>
-                      <div className="relative">
-                        <select
-                          id="waliRelation"
-                          name="waliRelation"
-                          value={profileData.wali_blood_relation || ""}
-                          required
-                          className={`h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.wali_blood_relation
-                              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                          } focus:outline-none focus:ring-2`}
-                          onChange={(e) =>
-                            updateField("wali_blood_relation", e.target.value)
-                          }
-                        >
-                          <option value="">Select Relation</option>
-                          <option value="Father">Father</option>
-                          <option value="Brother">Brother</option>
-                          <option value="Uncle">Uncle</option>
-                        </select>
-                        {/* Information icon positioned at right corner of input */}
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {/* Tooltip text */}
-                          <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                            This is additional information about the Blood
-                            Relation field.
-                          </div>
-                        </div>
-                      </div>
-                      {errors.wali_blood_relation && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.wali_blood_relation}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-[50%]"></div>
-                  </div>
-                </>
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4+</option>
+                  </select>
+                  {formErrors.number_of_children && (
+                    <p className="text-red-500 text-sm">{formErrors.number_of_children}</p>
+                  )}
+                </div>
               )}
+            </div>
+
+            {/* Conditional Children Details */}
+            {(profileData.martial_status === "Divorced" || profileData.martial_status === "Widowed") && 
+                profileData.number_of_children > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Number of Sons <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('number_of_son');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_son' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Number of sons from previous marriage
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <select
+                    id="number_of_son"
+                    name="number_of_son"
+                    value={profileData.number_of_son || ""}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                    onChange={(e) => updateField("number_of_son", e.target.value)}
+                  >
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4+</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Number of Daughters <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('number_of_daughter');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_daughter' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Number of daughters from previous marriage
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <select
+                    id="number_of_daughter"
+                    name="number_of_daughter"
+                    value={profileData.number_of_daughter || ""}
+                    className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
+                    onChange={(e) => updateField("number_of_daughter", e.target.value)}
+                  >
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4+</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Wali Information (for females) */}
+            {profileData.gender === "female" && (
+              <div className="mb-6">
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Wali Information</h3>
+                  <p className="text-sm text-gray-600">Please provide your Wali's details for marriage purposes</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <span>Wali Name <span className="text-red-500">*</span></span>
+                      <div className="group relative tooltip-container">
+                        <svg 
+                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipClick('wali_name');
+                          }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'wali_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                          Enter your Wali's full name (guardian for marriage)
+                          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    </label>
+                    <input
+                      type="text"
+                      id="wali_name"
+                      name="wali_name"
+                      value={profileData.wali_name || ""}
+                      placeholder="Enter wali's full name"
+                      className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                        formErrors.wali_name
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("wali_name", e.target.value)}
+                    />
+                    {formErrors.wali_name && (
+                      <p className="text-red-500 text-sm">{formErrors.wali_name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <span>Wali Contact Number <span className="text-red-500">*</span></span>
+                      <div className="group relative tooltip-container">
+                        <svg 
+                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipClick('wali_contact_number');
+                          }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'wali_contact_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                          Enter your Wali's contact number
+                          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    </label>
+                    <input
+                      type="tel"
+                      id="wali_contact_number"
+                      name="wali_contact_number"
+                      value={profileData.wali_contact_number || ""}
+                      placeholder="Enter wali's phone number"
+                      className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                        formErrors.wali_contact_number
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("wali_contact_number", e.target.value)}
+                    />
+                    {formErrors.wali_contact_number && (
+                      <p className="text-red-500 text-sm">{formErrors.wali_contact_number}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <span>Blood Relation <span className="text-red-500">*</span></span>
+                      <div className="group relative tooltip-container">
+                        <svg 
+                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipClick('wali_blood_relation');
+                          }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'wali_blood_relation' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                          Select your relationship with the Wali
+                          <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    </label>
+                    <select
+                      id="wali_blood_relation"
+                      name="wali_blood_relation"
+                      value={profileData.wali_blood_relation || ""}
+                      className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                        formErrors.wali_blood_relation
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("wali_blood_relation", e.target.value)}
+                    >
+                      <option value="">Select Relation</option>
+                      <option value="Father">Father</option>
+                      <option value="Brother">Brother</option>
+                      <option value="Uncle">Uncle</option>
+                      <option value="Grandfather">Grandfather</option>
+                      <option value="Cousin">Cousin</option>
+                    </select>
+                    {formErrors.wali_blood_relation && (
+                      <p className="text-red-500 text-sm">{formErrors.wali_blood_relation}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
               {/* Navigation Buttons */}
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className="pt-8 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <button
                   onClick={() => navigate("/memsteptwo")}
-                  className="text-[black] bg-[white] mt-[24px] h-[40px] w-[150px]"
-                  style={{
-                    borderRadius: "5vh",
-                    fontWeight: "400",
-                    border: "1px solid black",
-                  }}
+                  className="w-full sm:w-auto px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2 group"
                 >
+                  <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
                   Back
                 </button>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span className="text-pink-600 font-semibold">3</span>
+                  </div>
+                  <span>of 6 steps</span>
+                </div>
+                
                 <button
                   type="button"
                   onClick={naviagteNextStep}
-                  className="text-[white] bg-[#0fd357] mt-[24px] h-[40px] w-[150px]"
-                  style={{
-                    borderRadius: "5vh",
-                    fontWeight: "400",
-                  }}
+                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl"
                 >
                   Next Step
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
+            </div>
+            </div>
             </form>
           </div>
         </div>
-      </main>
+      </div>
     </div>
+  </div>
+  </div>
   );
 };
 

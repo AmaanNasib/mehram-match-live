@@ -25,6 +25,7 @@ const MemStepTwo = () => {
   const [formErrors, setFormErrors] = useState({});
   const [showTooltip, setShowTooltip] = useState(null);
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState("");
   
   userId = localStorage.getItem("member_id") || userId;
 
@@ -34,7 +35,7 @@ const MemStepTwo = () => {
         url: `/api/user/${localStorage.getItem("member_id") || userId}/`,
         setterFunction: setApiData,
         setLoading: setLoading,
-        setErrors: setError,
+        setErrors: setErrors,
       };
       fetchDataObjectV2(parameter);
     }
@@ -48,6 +49,8 @@ const MemStepTwo = () => {
         believe_in_dargah_fatiha_niyah: apiData.believe_in_dargah_fatiha_niyah ? 
           (Array.isArray(apiData.believe_in_dargah_fatiha_niyah) ? 
             apiData.believe_in_dargah_fatiha_niyah : 
+            (typeof apiData.believe_in_dargah_fatiha_niyah === 'string' && apiData.believe_in_dargah_fatiha_niyah.includes(',')) ?
+            apiData.believe_in_dargah_fatiha_niyah.split(',') :
             [apiData.believe_in_dargah_fatiha_niyah]) : [],
         sect_school_info: apiData.sect_school_info || null,
         islamic_practicing_level: apiData.islamic_practicing_level || null,
@@ -184,7 +187,9 @@ const MemStepTwo = () => {
         payload: {
           sect_school_info: profileData.sect_school_info,
           islamic_practicing_level: profileData.islamic_practicing_level,
-          believe_in_dargah_fatiha_niyah: profileData.believe_in_dargah_fatiha_niyah,
+          believe_in_dargah_fatiha_niyah: Array.isArray(profileData.believe_in_dargah_fatiha_niyah) 
+            ? profileData.believe_in_dargah_fatiha_niyah.join(',') 
+            : profileData.believe_in_dargah_fatiha_niyah,
           hijab_niqab_prefer: profileData.hijab_niqab_prefer,
         },
         navigate: navigate,
@@ -227,7 +232,7 @@ const MemStepTwo = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {options.map((option) => {
             const isSelected = values.includes(option.value);
-            return (
+  return (
               <button
                 key={option.value}
                 type="button"
@@ -246,17 +251,17 @@ const MemStepTwo = () => {
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
                         d="M5 13l4 4L19 7" 
-                      />
-                    </svg>
+                        />
+                      </svg>
                   )}
                 </div>
-                
+
                 {/* Hover effect overlay */}
                 <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
                   isSelected 
@@ -306,12 +311,12 @@ const MemStepTwo = () => {
                 onChange={onChange}
                 className="h-4 w-4 text-pink-600 focus:ring-pink-500 focus:border-pink-500"
               />
-              <label
+                  <label
                 htmlFor={`${name}_${option.value}`}
                 className="ml-2 text-sm font-medium text-gray-700"
-              >
+                  >
                 {option.label}
-              </label>
+                  </label>
             </div>
           ))}
         </div>
@@ -460,9 +465,9 @@ const MemStepTwo = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                              fill="none" 
+                        fill="none"
                               stroke="currentColor" 
-                              viewBox="0 0 24 24"
+                        viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleTooltipClick('sect_school_info');
@@ -507,8 +512,8 @@ const MemStepTwo = () => {
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'islamic_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your level of Islamic practice and observance
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                    </div>
+                  </div>
                         </label>
                         <Dropdown
                           options={practicingLevelOptions}
@@ -516,7 +521,7 @@ const MemStepTwo = () => {
                           value={profileData.islamic_practicing_level}
                           onChange={(e) => handleFieldChange("islamic_practicing_level", e.target.value)}
                         />
-                      </div>
+                    </div>
                     </div>
                   </div>
 
@@ -527,7 +532,7 @@ const MemStepTwo = () => {
                         <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
                         Religious Beliefs & Practices
                       </h3>
-                  </div>
+                </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Believe in Dargah/Fatiha/Niyah */}
@@ -537,21 +542,21 @@ const MemStepTwo = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                              fill="none" 
+                          fill="none"
                               stroke="currentColor" 
-                              viewBox="0 0 24 24"
+                          viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleTooltipClick('believe_in_dargah_fatiha_niyah');
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'believe_in_dargah_fatiha_niyah' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Do you believe in visiting dargahs, offering fatiha, or making niyah?
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <MultiSelectPills
                           name="believe_in_dargah_fatiha_niyah"
@@ -601,23 +606,23 @@ const MemStepTwo = () => {
                   {/* Navigation Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">
                     {/* Back Button */}
-                    <button
-                      onClick={() =>
-                        navigate(
-                          "/memstepone",
-                          member_id
-                            ? {
-                                state: {
-                                  username: "memberCreation",
-                                  age: 30,
-                                  member_id,
-                                },
-                              }
-                            : {
-                                state: { username: "", age: 30 },
-                              }
-                        )
-                      }
+                <button
+                  onClick={() =>
+                    navigate(
+                      "/memstepone",
+                      member_id
+                        ? {
+                            state: {
+                              username: "memberCreation",
+                              age: 30,
+                              member_id,
+                            },
+                          }
+                        : {
+                            state: { username: "", age: 30 },
+                          }
+                    )
+                  }
                       type="button"
                       className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
                     >
@@ -625,12 +630,12 @@ const MemStepTwo = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                       <span className="text-sm sm:text-base">Back</span>
-                    </button>
+                </button>
                     
                     {/* Next Step Button */}
-                    <button
+                <button
                       onClick={naviagteNextStep}
-                      type="button"
+                  type="button"
                       className="group w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
                     >
                       {/* Gradient overlay for hover effect */}
@@ -640,8 +645,8 @@ const MemStepTwo = () => {
                       <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
-                    </button>
-                  </div>
+                </button>
+              </div>
             </form>
           </div>
         </div>
