@@ -133,10 +133,40 @@ const MemStepOne = () => {
   const handleFieldChange = (field, value) => {
     console.log(field, value, ">>>>>");
 
-    setProfileData((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
+    setProfileData((prevState) => {
+      const newState = {
+        ...prevState,
+        [field]: value,
+      };
+
+      // Handle cascading dropdown logic for current address
+      if (field === 'country') {
+        // Reset state and city when country changes
+        newState.state = '';
+        newState.city = '';
+      } else if (field === 'state') {
+        // Reset city when state changes
+        newState.city = '';
+      }
+
+      // Handle cascading dropdown logic for native place
+      if (field === 'native_country') {
+        // Reset native state and city when native country changes
+        newState.native_state = '';
+        newState.native_city = '';
+      } else if (field === 'native_state') {
+        // Reset native city when native state changes
+        newState.native_city = '';
+      }
+
+      // Handle gender-based marital status logic
+      if (field === 'gender') {
+        // Reset marital status when gender changes to ensure valid options
+        newState.marital_status = '';
+      }
+
+      return newState;
+    });
 
     if (formErrors[field]) {
       setFormErrors((prevErrors) => {
@@ -155,6 +185,14 @@ const MemStepOne = () => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
     const numberRegex = /^\d+$/; // Only numbers
     const heightWeightRegex = /^\d{1,3}(\.\d{1,3})?$/; // limit 3
+
+    // Field order for scrolling (top to bottom)
+    const fieldOrder = [
+      'first_name', 'last_name', 'dob', 'gender', 'marital_status',
+      'country', 'state', 'city', 'native_country', 'native_state', 'native_city',
+      'Education', 'profession', 'describe_job_business',
+      'disability', 'type_of_disability', 'incomeRange', 'about_you'
+    ];
 
     // Validate First Name
     if (!profileData.first_name?.trim()) {
@@ -257,6 +295,28 @@ const MemStepOne = () => {
     console.log("newErrors", newErrors);
 
     setFormErrors(newErrors);
+
+    // If there are errors, scroll to the first error field
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = fieldOrder.find(field => newErrors[field]);
+      if (firstErrorField) {
+        setTimeout(() => {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
+                         document.querySelector(`input[name="${firstErrorField}"]`) ||
+                         document.querySelector(`select[name="${firstErrorField}"]`) ||
+                         document.querySelector(`textarea[name="${firstErrorField}"]`);
+          
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+            element.focus();
+          }
+        }, 100);
+      }
+    }
+
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
@@ -283,105 +343,647 @@ const MemStepOne = () => {
     weight: "",
   });
 
-  const marital_statuses = [
-    { value: "Unmarried", label: "Unmarried" },
-    { value: "Married", label: "Married" },
-    { value: "Divorced", label: "Divorced" },
-    { value: "Widowed", label: "Widowed" },
-  ];
+  // Function to get marital status options based on gender
+  const getMaritalStatusOptions = (gender) => {
+    const baseOptions = [
+      { value: "single", label: "Single" },
+      { value: "divorced", label: "Divorced" },
+      { value: "khula", label: "Khula" },
+      { value: "widowed", label: "Widowed" },
+    ];
+
+    // If gender is Male, insert 'Married' at position 1 (after Single)
+    if (gender === 'male') {
+      baseOptions.splice(1, 0, { value: "married", label: "Married" });
+    }
+
+    return baseOptions;
+  };
 
   const genders = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
-    { value: "other", label: "Other" },
+    // { value: "other", label: "Other" },
   ];
 
-  const countries = [
-    { value: "india", label: "India" },
-    { value: "usa", label: "USA" },
-    { value: "canada", label: "Canada" },
-    { value: "australia", label: "Australia" },
-    { value: "uk", label: "UK" },
-    { value: "china", label: "China" },
-    { value: "japan", label: "Japan" },
-    { value: "germany", label: "Germany" },
-    { value: "france", label: "France" },
-    { value: "italy", label: "Italy" },
-    { value: "brazil", label: "Brazil" },
-    { value: "south_africa", label: "South Africa" },
-    { value: "russia", label: "Russia" },
-    { value: "mexico", label: "Mexico" },
-    { value: "new_zealand", label: "New Zealand" },
-  ];
+  // Comprehensive country-state-city data structure
+  const locationData = {
+  india: {
+    label: "India",
+    states: {
+      andhra_pradesh: {
+        label: "Andhra Pradesh",
+        cities: [
+          { value: "visakhapatnam", label: "Visakhapatnam" },
+          { value: "vijayawada", label: "Vijayawada" },
+          { value: "tirupati", label: "Tirupati" },
+          { value: "guntur", label: "Guntur" },
+          { value: "nellore", label: "Nellore" }
+        ]
+      },
+      arunachal_pradesh: {
+        label: "Arunachal Pradesh",
+        cities: [
+          { value: "itanagar", label: "Itanagar" },
+          { value: "pasighat", label: "Pasighat" },
+          { value: "ziro", label: "Ziro" }
+        ]
+      },
+      assam: {
+        label: "Assam",
+        cities: [
+          { value: "guwahati", label: "Guwahati" },
+          { value: "silchar", label: "Silchar" },
+          { value: "dibrugarh", label: "Dibrugarh" },
+          { value: "jorhat", label: "Jorhat" }
+        ]
+      },
+      bihar: {
+        label: "Bihar",
+        cities: [
+          { value: "patna", label: "Patna" },
+          { value: "gaya", label: "Gaya" },
+          { value: "bhagalpur", label: "Bhagalpur" },
+          { value: "muzaffarpur", label: "Muzaffarpur" }
+        ]
+      },
+      chhattisgarh: {
+        label: "Chhattisgarh",
+        cities: [
+          { value: "raipur", label: "Raipur" },
+          { value: "bilaspur", label: "Bilaspur" },
+          { value: "durg", label: "Durg" }
+        ]
+      },
+      goa: {
+        label: "Goa",
+        cities: [
+          { value: "panaji", label: "Panaji" },
+          { value: "margao", label: "Margao" },
+          { value: "vasco_da_gama", label: "Vasco da Gama" }
+        ]
+      },
+      gujarat: {
+        label: "Gujarat",
+        cities: [
+          { value: "ahmedabad", label: "Ahmedabad" },
+          { value: "surat", label: "Surat" },
+          { value: "vadodara", label: "Vadodara" },
+          { value: "rajkot", label: "Rajkot" },
+          { value: "bhavnagar", label: "Bhavnagar" }
+        ]
+      },
+      haryana: {
+        label: "Haryana",
+        cities: [
+          { value: "gurgaon", label: "Gurgaon" },
+          { value: "faridabad", label: "Faridabad" },
+          { value: "panipat", label: "Panipat" },
+          { value: "ambala", label: "Ambala" }
+        ]
+      },
+      himachal_pradesh: {
+        label: "Himachal Pradesh",
+        cities: [
+          { value: "shimla", label: "Shimla" },
+          { value: "dharamshala", label: "Dharamshala" },
+          { value: "manali", label: "Manali" }
+        ]
+      },
+      jharkhand: {
+        label: "Jharkhand",
+        cities: [
+          { value: "ranchi", label: "Ranchi" },
+          { value: "jamshedpur", label: "Jamshedpur" },
+          { value: "dhanbad", label: "Dhanbad" }
+        ]
+      },
+      karnataka: {
+        label: "Karnataka",
+        cities: [
+          { value: "bangalore", label: "Bangalore" },
+          { value: "mysore", label: "Mysore" },
+          { value: "hubli", label: "Hubli" },
+          { value: "mangalore", label: "Mangalore" }
+        ]
+      },
+      kerala: {
+        label: "Kerala",
+        cities: [
+          { value: "thiruvananthapuram", label: "Thiruvananthapuram" },
+          { value: "kochi", label: "Kochi" },
+          { value: "kozhikode", label: "Kozhikode" },
+          { value: "thrissur", label: "Thrissur" }
+        ]
+      },
+      madhya_pradesh: {
+        label: "Madhya Pradesh",
+        cities: [
+          { value: "bhopal", label: "Bhopal" },
+          { value: "indore", label: "Indore" },
+          { value: "gwalior", label: "Gwalior" },
+          { value: "jabalpur", label: "Jabalpur" }
+        ]
+      },
+      maharashtra: {
+        label: "Maharashtra",
+        cities: [
+          { value: "mumbai", label: "Mumbai" },
+          { value: "pune", label: "Pune" },
+          { value: "nagpur", label: "Nagpur" },
+          { value: "nashik", label: "Nashik" },
+          { value: "aurangabad", label: "Aurangabad" }
+        ]
+      },
+      manipur: {
+        label: "Manipur",
+        cities: [
+          { value: "imphal", label: "Imphal" },
+          { value: "thoubal", label: "Thoubal" }
+        ]
+      },
+      meghalaya: {
+        label: "Meghalaya",
+        cities: [
+          { value: "shillong", label: "Shillong" },
+          { value: "tura", label: "Tura" }
+        ]
+      },
+      mizoram: {
+        label: "Mizoram",
+        cities: [
+          { value: "aizawl", label: "Aizawl" },
+          { value: "lunglei", label: "Lunglei" }
+        ]
+      },
+      nagaland: {
+        label: "Nagaland",
+        cities: [
+          { value: "kohima", label: "Kohima" },
+          { value: "dimapur", label: "Dimapur" }
+        ]
+      },
+      odisha: {
+        label: "Odisha",
+        cities: [
+          { value: "bhubaneswar", label: "Bhubaneswar" },
+          { value: "cuttack", label: "Cuttack" },
+          { value: "rourkela", label: "Rourkela" }
+        ]
+      },
+      punjab: {
+        label: "Punjab",
+        cities: [
+          { value: "ludhiana", label: "Ludhiana" },
+          { value: "amritsar", label: "Amritsar" },
+          { value: "jalandhar", label: "Jalandhar" },
+          { value: "patiala", label: "Patiala" }
+        ]
+      },
+      rajasthan: {
+        label: "Rajasthan",
+        cities: [
+          { value: "jaipur", label: "Jaipur" },
+          { value: "jodhpur", label: "Jodhpur" },
+          { value: "udaipur", label: "Udaipur" },
+          { value: "kota", label: "Kota" },
+          { value: "bikaner", label: "Bikaner" }
+        ]
+      },
+      sikkim: {
+        label: "Sikkim",
+        cities: [
+          { value: "gangtok", label: "Gangtok" },
+          { value: "namchi", label: "Namchi" }
+        ]
+      },
+      tamil_nadu: {
+        label: "Tamil Nadu",
+        cities: [
+          { value: "chennai", label: "Chennai" },
+          { value: "coimbatore", label: "Coimbatore" },
+          { value: "madurai", label: "Madurai" },
+          { value: "tiruchirappalli", label: "Tiruchirappalli" }
+        ]
+      },
+      telangana: {
+        label: "Telangana",
+        cities: [
+          { value: "hyderabad", label: "Hyderabad" },
+          { value: "warangal", label: "Warangal" },
+          { value: "nizamabad", label: "Nizamabad" },
+          { value: "khammam", label: "Khammam" }
+        ]
+      },
+      tripura: {
+        label: "Tripura",
+        cities: [
+          { value: "agartala", label: "Agartala" },
+          { value: "dharamnagar", label: "Dharamnagar" }
+        ]
+      },
+      uttar_pradesh: {
+        label: "Uttar Pradesh",
+        cities: [
+          { value: "lucknow", label: "Lucknow" },
+          { value: "kanpur", label: "Kanpur" },
+          { value: "agra", label: "Agra" },
+          { value: "varanasi", label: "Varanasi" },
+          { value: "meerut", label: "Meerut" },
+          { value: "prayagraj", label: "Prayagraj" }
+        ]
+      },
+      uttarakhand: {
+        label: "Uttarakhand",
+        cities: [
+          { value: "dehradun", label: "Dehradun" },
+          { value: "haridwar", label: "Haridwar" },
+          { value: "roorkee", label: "Roorkee" },
+          { value: "nainital", label: "Nainital" }
+        ]
+      },
+      west_bengal: {
+        label: "West Bengal",
+        cities: [
+          { value: "kolkata", label: "Kolkata" },
+          { value: "asansol", label: "Asansol" },
+          { value: "siliguri", label: "Siliguri" },
+          { value: "durgapur", label: "Durgapur" },
+          { value: "howrah", label: "Howrah" }
+        ]
+      }
+    }
+  },
 
-  const citys = [
-    { value: "mumbai", label: "Mumbai" },
-    { value: "delhi", label: "Delhi" },
-    { value: "bangalore", label: "Bangalore" },
-    { value: "hyderabad", label: "Hyderabad" },
-    { value: "chennai", label: "Chennai" },
-    { value: "kolkata", label: "Kolkata" },
-    { value: "pune", label: "Pune" },
-    { value: "ahmedabad", label: "Ahmedabad" },
-    { value: "jaipur", label: "Jaipur" },
-    { value: "lucknow", label: "Lucknow" },
-  ];
+    usa: {
+      label: "USA",
+      states: {
+        california: {
+          label: "California",
+          cities: [
+            { value: "los_angeles", label: "Los Angeles" },
+            { value: "san_francisco", label: "San Francisco" },
+            { value: "san_diego", label: "San Diego" },
+            { value: "sacramento", label: "Sacramento" }
+          ]
+        },
+        new_york: {
+          label: "New York",
+          cities: [
+            { value: "new_york_city", label: "New York City" },
+            { value: "buffalo", label: "Buffalo" },
+            { value: "rochester", label: "Rochester" }
+          ]
+        },
+        texas: {
+          label: "Texas",
+          cities: [
+            { value: "houston", label: "Houston" },
+            { value: "dallas", label: "Dallas" },
+            { value: "austin", label: "Austin" }
+          ]
+        },
+        florida: {
+          label: "Florida",
+          cities: [
+            { value: "miami", label: "Miami" },
+            { value: "orlando", label: "Orlando" },
+            { value: "tampa", label: "Tampa" }
+          ]
+        }
+      }
+    },
+    canada: {
+      label: "Canada",
+      states: {
+        ontario: {
+          label: "Ontario",
+          cities: [
+            { value: "toronto", label: "Toronto" },
+            { value: "ottawa", label: "Ottawa" },
+            { value: "hamilton", label: "Hamilton" }
+          ]
+        },
+        quebec: {
+          label: "Quebec",
+          cities: [
+            { value: "montreal", label: "Montreal" },
+            { value: "quebec_city", label: "Quebec City" }
+          ]
+        },
+        british_columbia: {
+          label: "British Columbia",
+          cities: [
+            { value: "vancouver", label: "Vancouver" },
+            { value: "victoria", label: "Victoria" }
+          ]
+        }
+      }
+    },
+    australia: {
+      label: "Australia",
+      states: {
+        new_south_wales: {
+          label: "New South Wales",
+          cities: [
+            { value: "sydney", label: "Sydney" },
+            { value: "newcastle", label: "Newcastle" }
+          ]
+        },
+        victoria: {
+          label: "Victoria",
+          cities: [
+            { value: "melbourne", label: "Melbourne" },
+            { value: "geelong", label: "Geelong" }
+          ]
+        },
+        queensland: {
+          label: "Queensland",
+          cities: [
+            { value: "brisbane", label: "Brisbane" },
+            { value: "gold_coast", label: "Gold Coast" }
+          ]
+        }
+      }
+    },
+    uk: {
+      label: "UK",
+      states: {
+        england: {
+          label: "England",
+          cities: [
+            { value: "london", label: "London" },
+            { value: "manchester", label: "Manchester" },
+            { value: "birmingham", label: "Birmingham" }
+          ]
+        },
+        scotland: {
+          label: "Scotland",
+          cities: [
+            { value: "edinburgh", label: "Edinburgh" },
+            { value: "glasgow", label: "Glasgow" }
+          ]
+        },
+        wales: {
+          label: "Wales",
+          cities: [
+            { value: "cardiff", label: "Cardiff" },
+            { value: "swansea", label: "Swansea" }
+          ]
+        }
+      }
+    }
+  };
 
-  const statues = [
-    { value: "andhra_pradesh", label: "Andhra Pradesh" },
-    { value: "arunachal_pradesh", label: "Arunachal Pradesh" },
-    { value: "assam", label: "Assam" },
-    { value: "bihar", label: "Bihar" },
-    { value: "chhattisgarh", label: "Chhattisgarh" },
-    { value: "goa", label: "Goa" },
-    { value: "gujarat", label: "Gujarat" },
-    { value: "haryana", label: "Haryana" },
-    { value: "himachal_pradesh", label: "Himachal Pradesh" },
-    { value: "jharkhand", label: "Jharkhand" },
-    { value: "karnataka", label: "Karnataka" },
-    { value: "kerala", label: "Kerala" },
-    { value: "madhya_pradesh", label: "Madhya Pradesh" },
-    { value: "maharashtra", label: "Maharashtra" },
-    { value: "manipur", label: "Manipur" },
-    { value: "meghalaya", label: "Meghalaya" },
-    { value: "mizoram", label: "Mizoram" },
-    { value: "nagaland", label: "Nagaland" },
-    { value: "odisha", label: "Odisha" },
-    { value: "punjab", label: "Punjab" },
-    { value: "rajasthan", label: "Rajasthan" },
-    { value: "sikkim", label: "Sikkim" },
-    { value: "tamil_nadu", label: "Tamil Nadu" },
-    { value: "telangana", label: "Telangana" },
-    { value: "tripura", label: "Tripura" },
-    { value: "uttar_pradesh", label: "Uttar Pradesh" },
-    { value: "uttarakhand", label: "Uttarakhand" },
-    { value: "west_bengal", label: "West Bengal" },
-  ];
+  // Helper functions to get countries, states, and cities
+  const getCountries = () => {
+    return Object.keys(locationData).map(key => ({
+      value: key,
+      label: locationData[key].label
+    }));
+  };
+
+  const getStates = (country) => {
+    if (!country || !locationData[country]) return [];
+    return Object.keys(locationData[country].states).map(key => ({
+      value: key,
+      label: locationData[country].states[key].label
+    }));
+  };
+
+  const getCities = (country, state) => {
+    if (!country || !state || !locationData[country] || !locationData[country].states[state]) return [];
+    return locationData[country].states[state].cities;
+  };
 
   const Professions = [
-    { value: "engineer", label: "Engineer" },
-    { value: "doctor", label: "Doctor" },
-    { value: "teacher", label: "Teacher" },
-    { value: "lawyer", label: "Lawyer" },
+    { value: "accountant", label: "Accountant" },
+    { value: "acting_professional", label: "Acting Professional" },
+    { value: "actor", label: "Actor" },
+    { value: "administrator", label: "Administrator" },
+    { value: "advertising_professional", label: "Advertising Professional" },
+    { value: "air_hostess", label: "Air Hostess" },
+    { value: "airline_professional", label: "Airline Professional" },
+    { value: "airforce", label: "Airforce" },
+    { value: "architect", label: "Architect" },
     { value: "artist", label: "Artist" },
+    { value: "assistant_professor", label: "Assistant Professor" },
+    { value: "audiologist", label: "Audiologist" },
+    { value: "auditor", label: "Auditor" },
+    { value: "bank_officer", label: "Bank Officer" },
+    { value: "bank_staff", label: "Bank Staff" },
+    { value: "beautician", label: "Beautician" },
+    { value: "biologist_botanist", label: "Biologist / Botanist" },
+    { value: "business_person", label: "Business Person" },
+    { value: "captain", label: "Captain" },
+    { value: "ceo_cto_president", label: "CEO / CTO / President" },
+    { value: "chemist", label: "Chemist" },
+    { value: "civil_engineer", label: "Civil Engineer" },
+    { value: "clerical_official", label: "Clerical Official" },
+    { value: "clinical_pharmacist", label: "Clinical Pharmacist" },
+    { value: "company_secretary", label: "Company Secretary" },
+    { value: "computer_engineer", label: "Computer Engineer" },
+    { value: "computer_programmer", label: "Computer Programmer" },
+    { value: "consultant", label: "Consultant" },
+    { value: "contractor", label: "Contractor" },
+    { value: "content_creator", label: "Content Creator" },
+    { value: "counsellor", label: "Counsellor" },
+    { value: "creative_person", label: "Creative Person" },
+    { value: "customer_support_professional", label: "Customer Support Professional" },
+    { value: "data_analyst", label: "Data Analyst" },
+    { value: "defence_employee", label: "Defence Employee" },
+    { value: "dentist", label: "Dentist" },
+    { value: "designer", label: "Designer" },
+    { value: "director_chairman", label: "Director / Chairman" },
+    { value: "doctor", label: "Doctor" },
+    { value: "economist", label: "Economist" },
+    { value: "electrical_engineer", label: "Electrical Engineer" },
+    { value: "engineer", label: "Engineer" },
+    { value: "entertainment_professional", label: "Entertainment Professional" },
+    { value: "event_manager", label: "Event Manager" },
+    { value: "executive", label: "Executive" },
+    { value: "factory_worker", label: "Factory Worker" },
+    { value: "farmer", label: "Farmer" },
+    { value: "fashion_designer", label: "Fashion Designer" },
+    { value: "finance_professional", label: "Finance Professional" },
+    { value: "food_technologist", label: "Food Technologist" },
+    { value: "government_employee", label: "Government Employee" },
+    { value: "graphic_designer", label: "Graphic Designer" },
+    { value: "hair_dresser", label: "Hair Dresser" },
+    { value: "health_care_professional", label: "Health Care Professional" },
+    { value: "hospitality_professional", label: "Hospitality Professional" },
+    { value: "hotel_restaurant_professional", label: "Hotel & Restaurant Professional" },
+    { value: "human_resource_professional", label: "Human Resource Professional" },
+    { value: "hse_officer", label: "HSE Officer" },
+    { value: "influencer", label: "Influencer" },
+    { value: "insurance_advisor", label: "Insurance Advisor" },
+    { value: "insurance_agent", label: "Insurance Agent" },
+    { value: "interior_designer", label: "Interior Designer" },
+    { value: "investment_professional", label: "Investment Professional" },
+    { value: "it_telecom_professional", label: "IT / Telecom Professional" },
+    { value: "islamic_scholar", label: "Islamic Scholar" },
+    { value: "islamic_teacher", label: "Islamic Teacher" },
+    { value: "journalist", label: "Journalist" },
+    { value: "lawyer", label: "Lawyer" },
+    { value: "lecturer", label: "Lecturer" },
+    { value: "legal_professional", label: "Legal Professional" },
+    { value: "librarian", label: "Librarian" },
+    { value: "logistics_professional", label: "Logistics Professional" },
+    { value: "manager", label: "Manager" },
+    { value: "marketing_professional", label: "Marketing Professional" },
+    { value: "mechanical_engineer", label: "Mechanical Engineer" },
+    { value: "medical_representative", label: "Medical Representative" },
+    { value: "medical_transcriptionist", label: "Medical Transcriptionist" },
+    { value: "merchant_naval_officer", label: "Merchant Naval Officer" },
+    { value: "microbiologist", label: "Microbiologist" },
+    { value: "military", label: "Military" },
+    { value: "nanny_child_care_worker", label: "Nanny / Child Care Worker" },
+    { value: "navy_officer", label: "Navy Officer" },
+    { value: "nurse", label: "Nurse" },
+    { value: "occupational_therapist", label: "Occupational Therapist" },
+    { value: "office_staff", label: "Office Staff" },
+    { value: "optician", label: "Optician" },
+    { value: "optometrist", label: "Optometrist" },
+    { value: "pharmacist", label: "Pharmacist" },
+    { value: "physician", label: "Physician" },
+    { value: "physician_assistant", label: "Physician Assistant" },
+    { value: "pilot", label: "Pilot" },
+    { value: "police_officer", label: "Police Officer" },
+    { value: "priest", label: "Priest" },
+    { value: "product_manager_professional", label: "Product Manager / Professional" },
+    { value: "professor", label: "Professor" },
+    { value: "project_manager", label: "Project Manager" },
+    { value: "public_relations_professional", label: "Public Relations Professional" },
+    { value: "real_estate_professional", label: "Real Estate Professional" },
+    { value: "research_scholar", label: "Research Scholar" },
+    { value: "retail_professional", label: "Retail Professional" },
+    { value: "sales_professional", label: "Sales Professional" },
+    { value: "scientist", label: "Scientist" },
+    { value: "self_employed", label: "Self-Employed" },
+    { value: "social_worker", label: "Social Worker" },
+    { value: "software_consultant", label: "Software Consultant" },
+    { value: "software_developer", label: "Software Developer" },
+    { value: "speech_therapist", label: "Speech Therapist" },
+    { value: "sportsman", label: "Sportsman" },
+    { value: "supervisor", label: "Supervisor" },
+    { value: "teacher", label: "Teacher" },
+    { value: "technician", label: "Technician" },
+    { value: "tour_guide", label: "Tour Guide" },
+    { value: "trainer", label: "Trainer" },
+    { value: "transportation_professional", label: "Transportation Professional" },
+    { value: "tutor", label: "Tutor" },
+    { value: "veterinary_doctor", label: "Veterinary Doctor" },
+    { value: "videographer", label: "Videographer" },
+    { value: "web_designer", label: "Web Designer" },
+    { value: "web_developer", label: "Web Developer" },
+    { value: "wholesale_businessman", label: "Wholesale Businessman" },
+    { value: "writer", label: "Writer" },
+    { value: "zoologist", label: "Zoologist" },
   ];
 
   const educationLevels = [
-    { value: "primary", label: "Primary" },
-    { value: "secondary", label: "Secondary" },
-    { value: "highschool", label: "High School" },
-    { value: "undergraduate", label: "Undergraduate" },
-    { value: "postgraduate", label: "Postgraduate" },
-    { value: "doctorate", label: "Doctorate" },
+    { value: "secondary_school_10th", label: "Secondary School (10th)" },
+    { value: "higher_secondary_12th", label: "Higher Secondary School (12th)" },
+    { value: "iti_trade_school", label: "ITI (Industrial Training Institute) / Trade School" },
+    { value: "diploma_general", label: "Diploma (General)" },
+    { value: "diploma_engineering", label: "Diploma in Engineering (Polytechnic)" },
+    { value: "diploma_computer_applications", label: "Diploma in Computer Applications (DCA)" },
+    { value: "diploma_pharmacy", label: "D.Pharm (Diploma in Pharmacy)" },
+    { value: "diploma_education", label: "D.Ed (Diploma in Education)" },
+    { value: "diploma_nursing", label: "Diploma in Nursing" },
+    { value: "diploma_hotel_management", label: "Diploma in Hotel Management" },
+    { value: "diploma_fashion_design", label: "Diploma in Fashion Design" },
+    { value: "diploma_interior_design", label: "Diploma in Interior Design" },
+    { value: "diploma_multimedia_animation", label: "Diploma in Multimedia/Animation/Design" },
+    { value: "diploma_early_childhood_education", label: "Diploma in Early Childhood Education" },
+    { value: "diploma_special_education", label: "Diploma in Special Education" },
+    { value: "diploma_culinary_arts", label: "Culinary Arts (Diploma/Degree)" },
+    { value: "diploma_event_management", label: "Event Management (Diploma/MBA Specialization)" },
+    { value: "diploma_digital_marketing", label: "Digital Marketing (PG Diploma/Certification)" },
+    { value: "diploma_cybersecurity", label: "Cybersecurity (Degree/Certification)" },
+    { value: "diploma_data_science", label: "Data Science (Degree/Certification)" },
+    { value: "diploma_artificial_intelligence", label: "Artificial Intelligence (Degree/Certification)" },
+    { value: "diploma_animation", label: "Animation (Degree/Certification)" },
+    { value: "diploma_game_development", label: "Game Development (Degree/Certification)" },
+    { value: "diploma_graphic_design", label: "Graphic Design (Degree/Certification)" },
+    { value: "diploma_robotics", label: "Robotics (Degree/Certification)" },
+    { value: "diploma_interior_design_degree", label: "Interior Design (Degree/Certification)" },
+    { value: "nursery_primary_education", label: "Nursery/Primary Education" },
+    { value: "islamic_education", label: "Islamic Education (Diploma/Degree)" },
+    { value: "aalim_aalimah", label: "Aalim / Aalimah" },
+    { value: "hafiz_hafizah", label: "Hafiz / Hafizah" },
+    { value: "ba", label: "BA (Bachelor of Arts)" },
+    { value: "bsc", label: "BSc (Bachelor of Science)" },
+    { value: "bcom", label: "BCom (Bachelor of Commerce)" },
+    { value: "bba", label: "BBA (Bachelor of Business Administration)" },
+    { value: "bca", label: "BCA (Bachelor of Computer Applications)" },
+    { value: "btech_be", label: "BTech / BE (Bachelor of Technology / Engineering)" },
+    { value: "software_engineering", label: "Software Engineering (B.Tech/BE)" },
+    { value: "electronics_communication_engineering", label: "Electronics & Communication Engineering (B.Tech/BE)" },
+    { value: "environmental_engineering", label: "Environmental Engineering (B.Tech/BE)" },
+    { value: "robotics_engineering", label: "Robotics Engineering (B.Tech/BE)" },
+    { value: "barch", label: "B.Arch (Bachelor of Architecture)" },
+    { value: "bds", label: "BDS (Bachelor of Dental Surgery)" },
+    { value: "bed", label: "BEd (Bachelor of Education)" },
+    { value: "bfa", label: "BFA (Bachelor of Fine Arts)" },
+    { value: "bhm", label: "BHM (Bachelor of Hotel Management)" },
+    { value: "bl_llb", label: "BL / LLB (Bachelor of Law)" },
+    { value: "bot", label: "BOT (Bachelor of Occupational Therapy)" },
+    { value: "boa", label: "BOA (Bachelor of Optometry & Ophthalmic Technology)" },
+    { value: "bpharm", label: "BPharm (Bachelor of Pharmacy)" },
+    { value: "bpt", label: "BPT (Bachelor of Physiotherapy)" },
+    { value: "bsw", label: "BSW (Bachelor of Social Work)" },
+    { value: "bttm", label: "BTTM (Bachelor of Travel & Tourism Management)" },
+    { value: "bvsc", label: "BVSc (Bachelor of Veterinary Science)" },
+    { value: "hospitality_management", label: "Hospitality Management (BHM/MHM)" },
+    { value: "journalism", label: "Journalism (BA/MA Journalism & Mass Comm.)" },
+    { value: "film_studies", label: "Film Studies (BA/MA)" },
+    { value: "sports_management", label: "Sports Management (BBA/MBA Specialization)" },
+    { value: "ca", label: "CA (Chartered Accountancy)" },
+    { value: "cfa", label: "CFA (Chartered Financial Analyst)" },
+    { value: "cma_icwa", label: "CMA / ICWA (Cost & Management Accounting)" },
+    { value: "company_secretary", label: "Company Secretary (CS)" },
+    { value: "actuarial_science", label: "Actuarial Science (Professional Certification)" },
+    { value: "ma", label: "MA (Master of Arts)" },
+    { value: "msc", label: "MSc (Master of Science)" },
+    { value: "mcom", label: "MCom (Master of Commerce)" },
+    { value: "mba", label: "MBA (Master of Business Administration)" },
+    { value: "mca", label: "MCA (Master of Computer Applications)" },
+    { value: "march", label: "M.Arch (Master of Architecture)" },
+    { value: "mds", label: "MDS (Master of Dental Surgery)" },
+    { value: "med", label: "MEd (Master of Education)" },
+    { value: "mfa", label: "MFA (Master of Fine Arts)" },
+    { value: "mhm", label: "MHM (Master of Hotel Management)" },
+    { value: "llm", label: "LLM (Master of Laws)" },
+    { value: "mot", label: "MOT (Master of Occupational Therapy)" },
+    { value: "mpharm", label: "MPharm (Master of Pharmacy)" },
+    { value: "mpt", label: "MPT (Master of Physiotherapy)" },
+    { value: "msc_nursing", label: "MSc Nursing" },
+    { value: "msw", label: "MSW (Master of Social Work)" },
+    { value: "mtm", label: "MTM (Master of Tourism Management)" },
+    { value: "mvsc", label: "MVSc (Master of Veterinary Science)" },
+    { value: "mphil", label: "MPhil (Master of Philosophy)" },
+    { value: "md_ms", label: "MD/MS (Doctor of Medicine / Master of Surgery)" },
+    { value: "mch", label: "MCh (Master of Chirurgiae – Super Specialty Surgery)" },
+    { value: "dm", label: "DM (Doctorate of Medicine – Super Specialty)" },
+    { value: "phd", label: "PhD (Doctor of Philosophy – All Subjects)" },
+    { value: "phd_islamic_studies", label: "PhD in Islamic Studies / Theology" },
+    { value: "pharm_d", label: "Pharm.D (Doctor of Pharmacy)" },
+    { value: "ed_d", label: "Ed.D (Doctor of Education)" },
   ];
 
-  const Dropdown = ({ options, name, value, onChange }) => {
+  const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
     return (
       <select
         name={name}
         value={value || ""}
         onChange={onChange}
-        className="w-full h-12 px-4 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium"
+        disabled={disabled}
+        className={`w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium ${
+          disabled 
+            ? "bg-gray-100 cursor-not-allowed" 
+            : "bg-white"
+        }`}
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -491,12 +1093,14 @@ const MemStepOne = () => {
                       type="text"
                       value={profileData.first_name || ""}
                           onChange={(e) => handleFieldChange("first_name", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
                           formErrors.first_name
                               ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                               : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                           }`}
                           placeholder="Enter your first name"
+                          disabled
+                          readOnly
                         />
                   {formErrors.first_name && (
                         <p className="text-red-500 text-sm">{formErrors.first_name}</p>
@@ -530,12 +1134,14 @@ const MemStepOne = () => {
                       type="text"
                       value={profileData.last_name || ""}
                           onChange={(e) => handleFieldChange("last_name", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
                         formErrors.last_name
                               ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                               : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                           }`}
                           placeholder="Enter your last name"
+                          disabled
+                          readOnly
                         />
                   {formErrors.last_name && (
                         <p className="text-red-500 text-sm">{formErrors.last_name}</p>
@@ -569,11 +1175,13 @@ const MemStepOne = () => {
                       type="date"
                       value={profileData.dob || ""}
                       onChange={(e) => handleFieldChange("dob", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
                             formErrors.dob
                               ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                               : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                           }`}
+                          disabled
+                          readOnly
                         />
                   {formErrors.dob && (
                         <p className="text-red-500 text-sm">{formErrors.dob}</p>
@@ -608,6 +1216,7 @@ const MemStepOne = () => {
                       name="gender"
                       value={profileData.gender}
                         onChange={(e) => handleFieldChange("gender", e.target.value)}
+                        disabled={true}
                       />
                   {formErrors.gender && (
                         <p className="text-red-500 text-sm">{formErrors.gender}</p>
@@ -638,7 +1247,7 @@ const MemStepOne = () => {
                         </div>
                       </label>
                     <Dropdown
-                      options={marital_statuses}
+                      options={getMaritalStatusOptions(profileData.gender)}
                       name="marital_status"
                       value={profileData.marital_status}
                         onChange={(e) => handleFieldChange("marital_status", e.target.value)}
@@ -660,10 +1269,10 @@ const MemStepOne = () => {
                 </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* City */}
+                    {/* Country */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span>City <span className="text-red-500">*</span></span>
+                        <span>Country <span className="text-red-500">*</span></span>
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
@@ -672,25 +1281,25 @@ const MemStepOne = () => {
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleTooltipClick('city');
+                              handleTooltipClick('country');
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Select your current city of residence
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current country of residence
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
                       <Dropdown
-                        options={citys}
-                        name="city"
-                        value={profileData.city}
-                        onChange={(e) => handleFieldChange("city", e.target.value)}
+                        options={getCountries()}
+                        name="country"
+                        value={profileData.country}
+                        onChange={(e) => handleFieldChange("country", e.target.value)}
                       />
-                      {formErrors.city && (
-                        <p className="text-red-500 text-sm">{formErrors.city}</p>
+                      {formErrors.country && (
+                        <p className="text-red-500 text-sm">{formErrors.country}</p>
                       )}
                     </div>
 
@@ -718,7 +1327,7 @@ const MemStepOne = () => {
                         </div>
                       </label>
                       <Dropdown
-                        options={statues}
+                        options={getStates(profileData.country)}
                         name="state"
                         value={profileData.state}
                         onChange={(e) => handleFieldChange("state", e.target.value)}
@@ -728,10 +1337,10 @@ const MemStepOne = () => {
                       )}
                     </div>
 
-                    {/* Country */}
+                    {/* City */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span>Country <span className="text-red-500">*</span></span>
+                        <span>City <span className="text-red-500">*</span></span>
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
@@ -740,25 +1349,25 @@ const MemStepOne = () => {
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleTooltipClick('country');
+                              handleTooltipClick('city');
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Select your current country of residence
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your current city of residence
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
                       <Dropdown
-                        options={countries}
-                        name="country"
-                        value={profileData.country}
-                        onChange={(e) => handleFieldChange("country", e.target.value)}
+                        options={getCities(profileData.country, profileData.state)}
+                        name="city"
+                        value={profileData.city}
+                        onChange={(e) => handleFieldChange("city", e.target.value)}
                       />
-                      {formErrors.country && (
-                        <p className="text-red-500 text-sm">{formErrors.country}</p>
+                      {formErrors.city && (
+                        <p className="text-red-500 text-sm">{formErrors.city}</p>
                       )}
                     </div>
                   </div>
@@ -774,10 +1383,10 @@ const MemStepOne = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Native City */}
+                    {/* Native Country */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span>Native City <span className="text-red-500">*</span></span>
+                        <span>Native Country <span className="text-red-500">*</span></span>
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
@@ -786,25 +1395,25 @@ const MemStepOne = () => {
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleTooltipClick('native_city');
+                              handleTooltipClick('native_country');
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Select your native/original city
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your native/original country
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
                       <Dropdown
-                        options={citys}
-                        name="native_city"
-                        value={profileData.native_city}
-                        onChange={(e) => handleFieldChange("native_city", e.target.value)}
+                        options={getCountries()}
+                        name="native_country"
+                        value={profileData.native_country}
+                        onChange={(e) => handleFieldChange("native_country", e.target.value)}
                       />
-                      {formErrors.native_city && (
-                        <p className="text-red-500 text-sm">{formErrors.native_city}</p>
+                      {formErrors.native_country && (
+                        <p className="text-red-500 text-sm">{formErrors.native_country}</p>
                       )}
                     </div>
 
@@ -832,7 +1441,7 @@ const MemStepOne = () => {
                         </div>
                       </label>
                       <Dropdown
-                        options={statues}
+                        options={getStates(profileData.native_country)}
                         name="native_state"
                         value={profileData.native_state}
                         onChange={(e) => handleFieldChange("native_state", e.target.value)}
@@ -842,10 +1451,10 @@ const MemStepOne = () => {
                       )}
                     </div>
 
-                    {/* Native Country */}
+                    {/* Native City */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span>Native Country <span className="text-red-500">*</span></span>
+                        <span>Native City <span className="text-red-500">*</span></span>
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
@@ -854,25 +1463,25 @@ const MemStepOne = () => {
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleTooltipClick('native_country');
+                              handleTooltipClick('native_city');
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Select your native/original country
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'native_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your native/original city
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
                       <Dropdown
-                        options={countries}
-                        name="native_country"
-                        value={profileData.native_country}
-                        onChange={(e) => handleFieldChange("native_country", e.target.value)}
+                        options={getCities(profileData.native_country, profileData.native_state)}
+                        name="native_city"
+                        value={profileData.native_city}
+                        onChange={(e) => handleFieldChange("native_city", e.target.value)}
                       />
-                      {formErrors.native_country && (
-                        <p className="text-red-500 text-sm">{formErrors.native_country}</p>
+                      {formErrors.native_city && (
+                        <p className="text-red-500 text-sm">{formErrors.native_city}</p>
                       )}
                     </div>
                   </div>
@@ -1080,10 +1689,14 @@ const MemStepOne = () => {
                         }`}
                     >
                       <option value="">Select Income Range</option>
-                      <option value="below_10k">Below 10,000</option>
-                      <option value="10k_to_50k">10,000 - 50,000</option>
-                      <option value="50k_to_1lac">50,000 - 1,00,000</option>
-                      <option value="above_1lac">Above 1,00,000</option>
+                      <option value="below_2lac">Below ₹2,00,000</option>
+                      <option value="2lac_to_5lac">₹2,00,000 - ₹5,00,000</option>
+                      <option value="5lac_to_10lac">₹5,00,000 - ₹10,00,000</option>
+                      <option value="10lac_to_20lac">₹10,00,000 - ₹20,00,000</option>
+                      <option value="20lac_to_50lac">₹20,00,000 - ₹50,00,000</option>
+                      <option value="above_50lac">Above ₹50,00,000</option>
+                      <option value="no_preference">No preference</option>
+                      <option value="prefer_not_to_say">Prefer not to say</option>
                     </select>
                   {formErrors.incomeRange && (
                         <p className="text-red-500 text-sm">{formErrors.incomeRange}</p>
