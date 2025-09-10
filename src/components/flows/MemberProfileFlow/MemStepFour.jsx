@@ -17,7 +17,7 @@ const MemStepFour = () => {
   userId = localStorage.getItem("member_id") || userId;
   const [profileData, setProfileData] = useState({
     preferred_surname: "",
-    preferred_dargah_fatiha_niyah: "",
+    preferred_dargah_fatiha_niyah: [],
     preferred_sect: "",
     desired_practicing_level: "",
     preferred_city_state: "",
@@ -50,7 +50,12 @@ const MemStepFour = () => {
     if (apiData) {
       setProfileData({
         preferred_surname: apiData.preferred_surname,
-        preferred_dargah_fatiha_niyah: apiData.preferred_dargah_fatiha_niyah,
+        preferred_dargah_fatiha_niyah: apiData.preferred_dargah_fatiha_niyah ? 
+          (Array.isArray(apiData.preferred_dargah_fatiha_niyah) ? 
+            apiData.preferred_dargah_fatiha_niyah : 
+            (typeof apiData.preferred_dargah_fatiha_niyah === 'string' && apiData.preferred_dargah_fatiha_niyah.includes(',')) ?
+            apiData.preferred_dargah_fatiha_niyah.split(',') :
+            [apiData.preferred_dargah_fatiha_niyah]) : [],
         preferred_sect: apiData.preferred_sect,
         desired_practicing_level: apiData.desired_practicing_level,
         preferred_city_state: apiData.preferred_city_state,
@@ -113,8 +118,8 @@ const MemStepFour = () => {
     }
 
     // Validate Dargah/Fatiha/Niyah
-    if (!profileData.preferred_dargah_fatiha_niyah) {
-      newErrors.preferred_dargah_fatiha_niyah = "Please select an option for Dargah/Fatiha/Niyah";
+    if (!profileData.preferred_dargah_fatiha_niyah || profileData.preferred_dargah_fatiha_niyah.length === 0) {
+      newErrors.preferred_dargah_fatiha_niyah = "Please select at least one option for Dargah/Fatiha/Niyah";
     }
 
     // Validate Desired Practicing Level
@@ -172,8 +177,9 @@ const MemStepFour = () => {
       url: `/api/user/${userId}`,
       payload: {
         preferred_surname: profileData.preferred_surname,
-        preferred_dargah_fatiha_niyah:
-          profileData.preferred_dargah_fatiha_niyah,
+        preferred_dargah_fatiha_niyah: Array.isArray(profileData.preferred_dargah_fatiha_niyah) 
+          ? profileData.preferred_dargah_fatiha_niyah.join(',') 
+          : profileData.preferred_dargah_fatiha_niyah,
         preferred_sect: profileData.preferred_sect,
         desired_practicing_level: profileData.desired_practicing_level,
         preferred_city_state: profileData.preferred_city_state,
@@ -216,6 +222,29 @@ const MemStepFour = () => {
       }
 
       return newState;
+    });
+
+    // Clear the error for the field when it is updated
+    if (formErrors[field]) {
+      setFormErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleMultiSelectChange = (field, value) => {
+    setProfileData((prevState) => {
+      const currentValues = prevState[field] || [];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(item => item !== value)
+        : [...currentValues, value];
+      
+      return {
+        ...prevState,
+        [field]: newValues,
+      };
     });
 
     // Clear the error for the field when it is updated
@@ -304,6 +333,39 @@ const MemStepFour = () => {
     );
   };
 
+  // Enhanced Multi-select pills component
+  const MultiSelectPills = ({ name, values, onChange, options, error }) => {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {options.map((option) => {
+            const isSelected = values.includes(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange(name, option.value)}
+                className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-500 shadow-lg shadow-pink-200'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 shadow-sm hover:shadow-md'
+                }`}
+              >
+                <span className="relative z-10">{option.label}</span>
+                {isSelected && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl opacity-90"></div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {error && (
+          <p className="text-red-500 text-sm mt-2">{error}</p>
+        )}
+      </div>
+    );
+  };
+
   // Sect options
   const sectOptions = [
     { value: "ahle_quran", label: "Ahle Qur'an" },
@@ -376,6 +438,20 @@ const MemStepFour = () => {
   const yesNoOptions = [
     { value: "yes", label: "Yes" },
     { value: "no", label: "No" },
+  ];
+
+  // Dargah/Fatiha/Niyaz options
+  const dargahOptions = [
+    { value: "dargah_fatiha_niyaz", label: "Yes (Dargah, Fatiha, and Niyaz)" },
+    { value: "dargah_fatiha", label: "Yes (Dargah and Fatiha)" },
+    { value: "dargah_niyaz", label: "Yes (Dargah and Niyaz)" },
+    { value: "fatiha_niyaz", label: "Yes (Fatiha and Niyaz)" },
+    { value: "only_dargah", label: "Yes (Only Dargah)" },
+    { value: "only_fatiha", label: "Yes (Only Fatiha)" },
+    { value: "only_niyaz", label: "Yes (Only Niyaz)" },
+    { value: "no_all", label: "No (No Dargah, No Fatiha, No Niyaz)" },
+    { value: "sometimes", label: "Sometimes" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
   ];
 
   // Comprehensive country-state-city data structure
@@ -918,16 +994,16 @@ const MemStepFour = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_dargah_fatiha_niyah' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Do you prefer a partner who believes in visiting dargahs, offering fatiha, or making niyah?
+                              Do you believe in visiting dargahs, offering fatiha, or making niyah?
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
                           </div>
                         </label>
-                        <RadioGroup
+                        <MultiSelectPills
                           name="preferred_dargah_fatiha_niyah"
-                          value={profileData.preferred_dargah_fatiha_niyah}
-                          onChange={(e) => updateField("preferred_dargah_fatiha_niyah", e.target.value)}
-                          options={yesNoOptions}
+                          values={profileData.preferred_dargah_fatiha_niyah || []}
+                          onChange={handleMultiSelectChange}
+                          options={dargahOptions}
                           error={formErrors.preferred_dargah_fatiha_niyah}
                         />
                       </div>
