@@ -30,19 +30,30 @@ const MemStepFive = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    console.log("Validating form with profileData:", profileData);
+    console.log("User gender:", apiData.gender);
+
     // Validate required fields
-    if (!profileData.photo_upload_privacy_option) {
+    // Photo Privacy Option is only required for females
+    if (apiData.gender === "female" && !profileData.photo_upload_privacy_option) {
       newErrors.photo_upload_privacy_option = "Photo Privacy Option is required";
+      console.log("Photo Privacy Option is missing (female user)");
     }
+    
+    // Profile Visibility is required for all users
     if (!profileData.profile_visible) {
       newErrors.profile_visible = "Profile Visibility is required";
+      console.log("Profile Visibility is missing");
     }
 
+    console.log("Validation errors:", newErrors);
     setFormErrors(newErrors);
 
     // Auto-scroll to first error field
     if (Object.keys(newErrors).length > 0) {
-      const fieldOrder = ['photo_upload_privacy_option', 'profile_visible'];
+      const fieldOrder = apiData.gender === "female" 
+        ? ['photo_upload_privacy_option', 'profile_visible']
+        : ['profile_visible'];
       const firstErrorField = fieldOrder.find(field => newErrors[field]);
       if (firstErrorField) {
         setTimeout(() => {
@@ -56,7 +67,9 @@ const MemStepFive = () => {
       }
     }
 
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log("Form is valid:", isValid);
+    return isValid;
   };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -202,20 +215,44 @@ const MemStepFive = () => {
   }, [imagedata]);
 
   const naviagteNextStep = () => {
+    console.log("naviagteNextStep called");
+    console.log("profileData:", profileData);
+    console.log("image:", image);
+    console.log("userId:", userId);
+    console.log("member_id from localStorage:", localStorage.getItem("member_id"));
+    console.log("userId from localStorage:", localStorage.getItem("userId"));
+    
     if (validateForm()) {
+      console.log("Form validation passed");
+      
+      // Update the profile data and navigate
+      const payload = {
+        profile_visible: profileData.profile_visible,
+      };
+      
+      // Only include photo_upload_privacy_option for females
+      if (apiData.gender === "female") {
+        payload.photo_upload_privacy_option = profileData.photo_upload_privacy_option;
+      }
+      
       const parameters = {
         url: `/api/user/${userId}`,
-        payload: {
-          profile_visible: profileData.profile_visible,
-          photo_upload_privacy_option: profileData.photo_upload_privacy_option,
-        },
+        payload: payload,
         navigate: navigate,
         navUrl: `/memstepsix/${userId}`,
-        setErrors: setError,
+        setErrors: setFormErrors,
       };
 
+      console.log("Calling updateDataV2 with parameters:", parameters);
         updateDataV2(parameters);
-      handleSave();
+      
+      // Save photo separately (don't block navigation)
+      if (image) {
+        console.log("Saving photo");
+        handleSave();
+      }
+      } else {
+      console.log("Form validation failed");
       }
   };
 
@@ -468,7 +505,7 @@ const MemStepFive = () => {
                 {/* Navigation Buttons */}
                 <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-4 pt-8 border-t border-gray-200">
                 <button
-                      onClick={() => navigate("/memstepthree")}
+                      onClick={() => navigate("/memstepfour")}
                       type="button"
                       className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
                     >

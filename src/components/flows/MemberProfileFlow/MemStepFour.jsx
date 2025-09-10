@@ -264,7 +264,7 @@ const MemStepFour = () => {
       profileData.desired_practicing_level &&
       profileData.preferred_family_type
     ) {
-      navigate(`/memstepfive/${userId}`);
+      navigate(`/memstepfive/`);
     } else {
       setErrors("Please fill all the required fields");
     }
