@@ -23,9 +23,6 @@ const StepTracker = ({ percentage }) => {
     return () => window.removeEventListener('resize', checkDevice);
   }, []);
 
-  const totalSteps = prefix === "agn" ? 5 : 6;
-  const completedSteps = Math.floor((percentage / 100) * totalSteps);
-  
   // Determine current step based on URL path
   const getCurrentStepFromPath = () => {
     if (prefix === "agn") {
@@ -47,9 +44,120 @@ const StepTracker = ({ percentage }) => {
   };
   
   const currentStep = getCurrentStepFromPath();
+  const totalSteps = prefix === "agn" ? 5 : 6;
+  const completedSteps = currentStep - 1; // Use actual current step instead of percentage
 
-  // Calculate progress for horizontal layout
+  // Auto-scroll to current step on mobile
+  useEffect(() => {
+    if (isMobile) {
+      const scrollToCurrentStep = (attempt = 1) => {
+        const currentStepElement = document.querySelector(`.step-item.current`);
+        const stepTrackerContainer = document.querySelector('.step-tracker-container');
+        
+        if (currentStepElement && stepTrackerContainer) {
+          // Get the position of the current step element
+          const containerRect = stepTrackerContainer.getBoundingClientRect();
+          const elementRect = currentStepElement.getBoundingClientRect();
+          
+          // Calculate the scroll position to center the current step
+          const scrollLeft = currentStepElement.offsetLeft - (containerRect.width / 2) + (elementRect.width / 2);
+          
+          console.log('Scrolling to step:', currentStep, 'scrollLeft:', scrollLeft);
+          
+          // Force immediate scroll without smooth behavior first
+          stepTrackerContainer.scrollLeft = Math.max(0, scrollLeft);
+          
+          // Try different scroll methods
+          setTimeout(() => {
+            // Method 1: scrollTo
+            stepTrackerContainer.scrollTo({
+              left: Math.max(0, scrollLeft),
+              behavior: 'smooth'
+            });
+            
+            // Method 2: scrollIntoView
+            currentStepElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'center'
+            });
+            
+            // Method 3: Direct scrollLeft assignment
+            stepTrackerContainer.scrollLeft = Math.max(0, scrollLeft);
+          }, 100);
+        } else if (attempt < 5) {
+          // Retry if elements not found
+          setTimeout(() => scrollToCurrentStep(attempt + 1), 200);
+        }
+      };
+
+      // Multiple attempts with increasing delays
+      const timer1 = setTimeout(() => scrollToCurrentStep(), 100);
+      const timer2 = setTimeout(() => scrollToCurrentStep(), 500);
+      const timer3 = setTimeout(() => scrollToCurrentStep(), 1000);
+      
+      // Use requestAnimationFrame for better timing
+      const rafTimer = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          scrollToCurrentStep();
+        });
+      });
+      
+      // Use MutationObserver to detect when DOM is ready
+      const observer = new MutationObserver(() => {
+        scrollToCurrentStep();
+      });
+      
+      const stepTrackerContainer = document.querySelector('.step-tracker-container');
+      if (stepTrackerContainer) {
+        observer.observe(stepTrackerContainer, {
+          childList: true,
+          subtree: true
+        });
+      }
+      
+      // Also scroll on window resize
+      const handleResize = () => {
+        setTimeout(() => scrollToCurrentStep(), 100);
+      };
+      
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        cancelAnimationFrame(rafTimer);
+        window.removeEventListener('resize', handleResize);
+        observer.disconnect();
+      };
+    }
+  }, [currentStep, isMobile]);
+
+  // Calculate progress for horizontal layout based on actual steps
   const progressWidth = isMobile ? `${(completedSteps / totalSteps) * 100}%` : '0%';
+  const progressHeight = `${(completedSteps / totalSteps) * 100}%`;
+  
+  // Calculate progress based on actual current step position
+  const getProgressWidth = () => {
+    if (!isMobile) return '0px';
+    
+    // Calculate based on actual step positions
+    const stepWidth = 160; // Base step width
+    const stepGap = 24; // Gap between steps (1.5rem = 24px)
+    const iconSize = 60; // Icon size
+    const iconOffset = 30; // Icon offset from left
+    
+    // Calculate total width up to current step (not completed steps)
+    let totalWidth = iconOffset; // Start from icon offset
+    
+    // Line should extend up to current step, not completed steps
+    for (let i = 0; i < currentStep - 1; i++) {
+      totalWidth += stepWidth + stepGap;
+    }
+    
+    return `${totalWidth}px`;
+  };
 
   // Professional SVG Icons
   const getStepIcon = (stepId, isCompleted, isCurrent) => {
@@ -201,7 +309,8 @@ const StepTracker = ({ percentage }) => {
       className="modern-step-tracker"
           style={{
         '--progress-width': progressWidth,
-        '--progress-height': `${percentage}%`
+        '--progress-height': progressHeight,
+        '--progress-width-px': getProgressWidth()
       }}
     >
       <div className="step-tracker-container">

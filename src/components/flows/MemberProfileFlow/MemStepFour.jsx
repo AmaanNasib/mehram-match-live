@@ -207,8 +207,8 @@ const MemStepFour = () => {
   const updateField = (field, value) => {
     setProfileData((prevState) => {
       const newState = {
-        ...prevState,
-        [field]: value,
+      ...prevState,
+      [field]: value,
       };
 
       // Handle cascading dropdown logic for preferred location
@@ -272,7 +272,7 @@ const MemStepFour = () => {
 
   // Dropdown component
   const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
-    return (
+  return (
       <div className="relative">
         <select
           name={name}
@@ -295,8 +295,8 @@ const MemStepFour = () => {
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+</svg>
+</div>
       </div>
     );
   };
@@ -325,11 +325,11 @@ const MemStepFour = () => {
               </label>
             </div>
           ))}
-        </div>
+</div>
         {error && (
           <p className="text-red-500 text-sm">{error}</p>
         )}
-      </div>
+          </div>
     );
   };
 
@@ -1058,7 +1058,7 @@ const MemStepFour = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent">
-            Create Your Mehram Match Profile
+          Create Your Mehram Match Profile
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Follow these 6 simple steps to complete your profile and find the perfect match
@@ -1076,8 +1076,8 @@ const MemStepFour = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Step Tracker - Professional sidebar layout */}
             <div className="lg:block hidden">
-              <StepTracker percentage={75} />
-            </div>
+            <StepTracker percentage={75} />
+          </div>
 
             {/* Main Form Container */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
@@ -1089,7 +1089,7 @@ const MemStepFour = () => {
                       Step 4 of 6
                     </p>
                     <h2 className="text-2xl font-bold text-white mt-1">
-                      Partner Expectations
+                Partner Expectations
                     </h2>
                   </div>
                   <div className="bg-white/20 rounded-full p-3">
@@ -1122,8 +1122,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1131,12 +1131,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_surname' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Enter your preferred surname for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <input
                           type="text"
@@ -1146,7 +1146,7 @@ const MemStepFour = () => {
                           className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium"
                           onChange={(e) => updateField("preferred_surname", e.target.value)}
                         />
-                      </div>
+                </div>
 
                       {/* Preferred Sect */}
                       <div className="space-y-2">
@@ -1155,8 +1155,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1164,12 +1164,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_sect' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred Islamic sect for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <Dropdown
                           options={sectOptions}
@@ -1179,9 +1179,9 @@ const MemStepFour = () => {
                         />
                         {formErrors.preferred_sect && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_sect}</p>
-                        )}
-                      </div>
-                    </div>
+                  )}
+                </div>
+              </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Believe in Dargah/Fatiha/Niyah */}
@@ -1191,8 +1191,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1200,12 +1200,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_dargah_fatiha_niyah' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Do you believe in visiting dargahs, offering fatiha, or making niyah?
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <MultiSelectPills
                           name="preferred_dargah_fatiha_niyah"
@@ -1214,7 +1214,7 @@ const MemStepFour = () => {
                           options={dargahOptions}
                           error={formErrors.preferred_dargah_fatiha_niyah}
                         />
-                      </div>
+                  </div>
 
                       {/* Desired Practicing Level */}
                       <div className="space-y-2">
@@ -1223,8 +1223,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1232,12 +1232,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'desired_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your desired level of Islamic practice for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <Dropdown
                           options={practicingLevelOptions}
@@ -1247,9 +1247,9 @@ const MemStepFour = () => {
                         />
                         {formErrors.desired_practicing_level && (
                           <p className="text-red-500 text-sm">{formErrors.desired_practicing_level}</p>
-                        )}
-                      </div>
-                    </div>
+                  )}
+                </div>
+              </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Preferred Family Type */}
@@ -1259,8 +1259,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1268,12 +1268,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_family_type' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred family structure for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <Dropdown
                           options={familyTypeOptions}
@@ -1283,8 +1283,8 @@ const MemStepFour = () => {
                         />
                         {formErrors.preferred_family_type && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_family_type}</p>
-                        )}
-                      </div>
+                  )}
+                </div>
 
                       {/* Education Level */}
                       <div className="space-y-2">
@@ -1293,8 +1293,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1302,12 +1302,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_education' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred education level for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
+                      </div>
+                    </div>
                         </label>
                         <Dropdown
                           options={educationOptions}
@@ -1315,8 +1315,8 @@ const MemStepFour = () => {
                           value={profileData.preferred_education}
                           onChange={(e) => updateField("preferred_education", e.target.value)}
                         />
-                      </div>
-                    </div>
+                </div>
+              </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Profession / Occupation */}
@@ -1326,8 +1326,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none"
-                              stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1335,11 +1335,11 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                      </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_occupation_profession' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred profession or occupation for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
+                      </div>
                           </div>
                         </label>
                         <Dropdown
@@ -1348,16 +1348,16 @@ const MemStepFour = () => {
                           value={profileData.preferred_occupation_profession}
                           onChange={(e) => updateField("preferred_occupation_profession", e.target.value)}
                         />
-                      </div>
                     </div>
                   </div>
+                </div>
 
                   {/* Preferred Location Section */}
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                         <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
-                        Preferred Location
+                    Preferred Location
                       </h3>
                     </div>
 
@@ -1369,8 +1369,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1378,12 +1378,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                          </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred country for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
                           </div>
+                        </div>
                         </label>
                         <Dropdown
                           options={getCountries()}
@@ -1394,7 +1394,7 @@ const MemStepFour = () => {
                         {formErrors.preferred_country && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_country}</p>
                         )}
-                      </div>
+                    </div>
 
                       {/* State */}
                       <div className="space-y-2">
@@ -1403,8 +1403,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1412,12 +1412,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                          </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_state' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred state/province for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
                           </div>
+                        </div>
                         </label>
                         <Dropdown
                           options={getStates(profileData.preferred_country)}
@@ -1428,7 +1428,7 @@ const MemStepFour = () => {
                         {formErrors.preferred_state && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_state}</p>
                         )}
-                      </div>
+                    </div>
 
                       {/* City */}
                       <div className="space-y-2">
@@ -1437,8 +1437,8 @@ const MemStepFour = () => {
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                               viewBox="0 0 24 24"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1446,12 +1446,12 @@ const MemStepFour = () => {
                               }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                          </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               Select your preferred city for your partner
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
                           </div>
+                        </div>
                         </label>
                         <Dropdown
                           options={getCities(profileData.preferred_country, profileData.preferred_state)}
@@ -1462,9 +1462,9 @@ const MemStepFour = () => {
                         {formErrors.preferred_city && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_city}</p>
                         )}
-                      </div>
                     </div>
                   </div>
+                </div>
 
                   {/* Partner's Family Background Section */}
                   <div className="space-y-6">
@@ -1473,7 +1473,7 @@ const MemStepFour = () => {
                         <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</span>
                         Additional Preferences
                       </h3>
-                    </div>
+              </div>
 
                     {/* Partner's Family Background */}
                     <div className="space-y-2">
@@ -1482,8 +1482,8 @@ const MemStepFour = () => {
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                            fill="none"
-                            stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1491,12 +1491,12 @@ const MemStepFour = () => {
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                      </svg>
                           <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_family_background' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                             Describe your preferred family background for your partner
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                          </div>
-                        </div>
+                      </div>
+                    </div>
                       </label>
                       <textarea
                         name="preferred_family_background"
@@ -1506,12 +1506,12 @@ const MemStepFour = () => {
                         className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
                         onChange={(e) => updateField("preferred_family_background", e.target.value)}
                       />
-                    </div>
                   </div>
+                </div>
                   {/* Navigation Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">
                     {/* Back Button */}
-                    <button
+                <button
                       onClick={() => navigate("/memstepthree")}
                       type="button"
                       className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
@@ -1520,11 +1520,11 @@ const MemStepFour = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                       <span className="text-sm sm:text-base">Back</span>
-                    </button>
+                </button>
                     
                     {/* Next Step Button */}
-                    <button
-                      onClick={naviagteNextStep}
+                <button
+                  onClick={naviagteNextStep}
                       type="button"
                       className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
                     >
@@ -1535,11 +1535,11 @@ const MemStepFour = () => {
                       <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
-                    </button>
-                  </div>
-                </form>
+                </button>
               </div>
-            </div>
+            </form>
+          </div>
+        </div>
           </div>
         </div>
       </div>

@@ -292,8 +292,9 @@ z-index: 1;
   .step-tracker-container {
     display: flex !important;
     flex-direction: row !important;
-    gap: 2rem !important;
+    gap: 1.5rem !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
     padding-bottom: 1rem !important;
     scrollbar-width: thin !important;
     scrollbar-color: #ec4899 #f1f5f9 !important;
@@ -303,6 +304,9 @@ z-index: 1;
     align-items: center !important;
     white-space: nowrap !important;
     position: relative !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    scroll-snap-type: x mandatory !important;
   }
   
   .step-tracker-container::before {
@@ -326,7 +330,7 @@ z-index: 1;
     background: linear-gradient(90deg, #ec4899 0%, #be185d 100%);
     z-index: 1;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    width: calc(var(--progress-width, 0%) - 120px);
+    width: var(--progress-width-px, 0px);
     border-radius: 2px;
     box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
   }
@@ -341,6 +345,49 @@ z-index: 1;
     position: relative !important;
     z-index: 2 !important;
     flex-shrink: 0 !important;
+    transition: all 0.3s ease !important;
+    scroll-snap-align: center !important;
+  }
+  
+  .step-item.current {
+    min-width: 180px !important;
+    transform: scale(1.1) !important;
+    z-index: 10 !important;
+  }
+  
+  .step-item.current .step-icon {
+    box-shadow: 
+      0 0 0 4px rgba(236, 72, 153, 0.2),
+      0 10px 25px -3px rgba(236, 72, 153, 0.3),
+      0 4px 6px -2px rgba(236, 72, 153, 0.2) !important;
+    animation: mobile-pulse 2s infinite !important;
+  }
+  
+  .step-item.current .step-title {
+    color: #ec4899 !important;
+    font-weight: 800 !important;
+    font-size: 16px !important;
+  }
+  
+  .step-item.current .step-description {
+    color: #ec4899 !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+  }
+  
+  @keyframes mobile-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 0 4px rgba(236, 72, 153, 0.2),
+        0 10px 25px -3px rgba(236, 72, 153, 0.3),
+        0 4px 6px -2px rgba(236, 72, 153, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 0 6px rgba(236, 72, 153, 0.3),
+        0 15px 35px -3px rgba(236, 72, 153, 0.4),
+        0 8px 12px -2px rgba(236, 72, 153, 0.3);
+    }
   }
   
   .step-item:hover {
@@ -424,6 +471,47 @@ z-index: 1;
     min-width: 120px !important;
   }
   
+  .step-item.current {
+    min-width: 140px !important;
+    transform: scale(1.15) !important;
+    z-index: 10 !important;
+  }
+  
+  .step-item.current .step-icon {
+    box-shadow: 
+      0 0 0 3px rgba(236, 72, 153, 0.3),
+      0 8px 20px -3px rgba(236, 72, 153, 0.4),
+      0 4px 6px -2px rgba(236, 72, 153, 0.3) !important;
+    animation: mobile-pulse-small 2s infinite !important;
+  }
+  
+  .step-item.current .step-title {
+    color: #ec4899 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+  }
+  
+  .step-item.current .step-description {
+    color: #ec4899 !important;
+    font-weight: 600 !important;
+    font-size: 10px !important;
+  }
+  
+  @keyframes mobile-pulse-small {
+    0%, 100% {
+      box-shadow: 
+        0 0 0 3px rgba(236, 72, 153, 0.3),
+        0 8px 20px -3px rgba(236, 72, 153, 0.4),
+        0 4px 6px -2px rgba(236, 72, 153, 0.3);
+    }
+    50% {
+      box-shadow: 
+        0 0 0 5px rgba(236, 72, 153, 0.4),
+        0 12px 30px -3px rgba(236, 72, 153, 0.5),
+        0 6px 10px -2px rgba(236, 72, 153, 0.4);
+    }
+  }
+  
   .step-icon {
     width: 45px !important;
     height: 45px !important;
@@ -450,7 +538,7 @@ z-index: 1;
   
   .step-tracker-container::after {
     left: 45px !important;
-    width: calc(var(--progress-width, 0%) - 90px) !important;
+    width: var(--progress-width-px, 0px) !important;
   }
 }
 

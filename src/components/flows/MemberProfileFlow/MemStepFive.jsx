@@ -214,9 +214,9 @@ const MemStepFive = () => {
         setErrors: setError,
       };
 
-      updateDataV2(parameters);
+        updateDataV2(parameters);
       handleSave();
-    }
+      }
   };
 
   const updateField = (field, value) => {
@@ -257,21 +257,21 @@ const MemStepFive = () => {
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Follow these 6 simple steps to complete your profile and find the perfect match
-          </p>
-        </div>
+              </p>
+            </div>
         {/* Main Content Container */}
         <div className="flex flex-col gap-6">
           {/* Mobile Step Tracker - Separate container above form */}
           <div className="lg:hidden block">
             <StepTracker percentage={85} />
-          </div>
+            </div>
 
           {/* Desktop and Form Container */}
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Step Tracker - Professional sidebar layout */}
             <div className="lg:block hidden">
-              <StepTracker percentage={85} />
-            </div>
+            <StepTracker percentage={85} />
+          </div>
 
             {/* Main Form Container */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
@@ -283,7 +283,7 @@ const MemStepFive = () => {
                       Step 5 of 6
                     </p>
                     <h2 className="text-2xl font-bold text-white mt-1">
-                      Privacy Selection
+                Privacy Selection
                     </h2>
                   </div>
                 </div>
@@ -307,10 +307,10 @@ const MemStepFive = () => {
                   <div className="text-center">
                     <h3 className="text-lg font-semibold text-gray-700 mb-4">Profile Photo Upload</h3>
                     <div className="max-w-md mx-auto">
-                      <div
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
                         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
                           isDragging 
                             ? "border-[#CB3B8B] bg-[#FFC0E3]" 
@@ -320,42 +320,42 @@ const MemStepFive = () => {
                         <div className="space-y-2">
                           <p className="text-gray-600 font-medium">Drag and drop your photo here</p>
                           <p className="text-sm text-gray-500">or</p>
-                          <input
-                            type="file"
-                            accept="image/jpeg, image/png, image/jpg"
-                            onChange={handleImageChange}
+                      <input
+                        type="file"
+                        accept="image/jpeg, image/png, image/jpg"
+                        onChange={handleImageChange}
                             className="hidden"
-                            id="fileInput"
-                          />
-                          <label
-                            htmlFor="fileInput"
+                        id="fileInput"
+                      />
+                      <label
+                        htmlFor="fileInput"
                             className="inline-block px-4 py-2 bg-[#FF59B6] text-white rounded-lg hover:bg-[#F971BC] cursor-pointer transition-colors"
                           >
                             Choose File
-                          </label>
+                      </label>
                           <div className="text-xs text-gray-400 space-y-1">
                             <p>Supported formats: JPG, PNG, JPEG</p>
                             <p>Maximum file size: 5MB</p>
-                          </div>
+                    </div>
                         </div>
                       </div>
                       
-                      {error && (
+                    {error && (
                         <p className="text-red-500 text-sm mt-2">{error}</p>
-                      )}
+                    )}
                       
-                      {preview && (
+                    {preview && (
                         <div className="mt-6">
-                          <img
-                            src={preview}
-                            alt="Preview"
+                      <img
+                        src={preview}
+                        alt="Preview"
                             className="w-32 h-32 object-cover border-2 border-gray-200 rounded-lg mx-auto"
-                          />
+                      />
                         </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
+              </div>
 
                 {/* Privacy Options Section */}
                 <div className="space-y-6">
@@ -385,23 +385,23 @@ const MemStepFive = () => {
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
                           </div>
-                        </label>
-                        <div className="relative">
-                          <select
+                    </label>
+                    <div className="relative">
+                      <select
                             id="photo_upload_privacy_option"
                             name="photo_upload_privacy_option"
-                            value={profileData.photo_upload_privacy_option}
+                        value={profileData.photo_upload_privacy_option}
                             className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                               formErrors.photo_upload_privacy_option
                                 ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                                 : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                             }`}
                             onChange={(e) => updateField("photo_upload_privacy_option", e.target.value)}
-                          >
-                            <option value="">Select Visibility</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                          </select>
+                      >
+                        <option value="">Select Visibility</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -421,8 +421,8 @@ const MemStepFive = () => {
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          fill="none"
+                          stroke="currentColor"
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -430,62 +430,71 @@ const MemStepFive = () => {
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                        </svg>
                           <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'profile_visible' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                             Choose whether your profile should be visible to other users
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                          </div>
                         </div>
-                      </label>
-                      <div className="relative">
-                        <select
-                          id="profile_visible"
-                          name="profile_visible"
-                          value={profileData.profile_visible}
+                      </div>
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="profile_visible"
+                      name="profile_visible"
+                      value={profileData.profile_visible}
                           className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                             formErrors.profile_visible
                               ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                               : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                           }`}
                           onChange={(e) => updateField("profile_visible", e.target.value)}
-                        >
-                          <option value="">Select Visibility</option>
-                          <option value="yes">Yes</option>
-                          <option value="no">No</option>
-                        </select>
+                    >
+                      <option value="">Select Visibility</option>
+                      <option value="visible_to_all">Visible to all</option>
+                      <option value="visible_to_matches">Visible to only matches</option>
+                    </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
+                      </svg>
                       </div>
+                    </div>
                       {formErrors.profile_visible && (
                         <p className="text-red-500 text-sm">{formErrors.profile_visible}</p>
-                      )}
-                    </div>
-                  </div>
+                  )}
+                </div>
+              </div>
                 </div>
                 {/* Navigation Buttons */}
-                <div className="flex justify-between items-center pt-8 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/memstepfour")}
-                    className="px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-full font-medium hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                  >
-                    Back
-                  </button>
+                <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-4 pt-8 border-t border-gray-200">
+                <button
+                      onClick={() => navigate("/memstepthree")}
+                      type="button"
+                      className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      <span className="text-sm sm:text-base">Back</span>
+                </button>
                   
-                  <button
-                    type="button"
-                    onClick={naviagteNextStep}
-                    className="px-8 py-3 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white rounded-full font-medium hover:from-[#F971BC] hover:to-[#DA73AD] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:ring-offset-2 shadow-lg hover:shadow-xl"
-                  >
-                    Next Step
-                  </button>
-                </div>
-                </form>
+                <button
+                  onClick={naviagteNextStep}
+                      type="button"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                    >
+                      {/* Gradient overlay for hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      
+                      <span className="relative text-sm sm:text-base font-medium">Next Step</span>
+                      <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                </button>
               </div>
-            </div>
+            </form>
+          </div>
+        </div>
           </div>
         </div>
       </div>
