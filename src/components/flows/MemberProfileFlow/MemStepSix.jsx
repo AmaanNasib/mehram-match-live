@@ -162,7 +162,7 @@ const MemStepSix = () => {
 
   const naviagteNextStep = () => {
     // Navigate to dashboard or success page
-    navigate(`/dashboard/${userId}`);
+    navigate(`/newdashboard`);
   };
 
   // Helper function to format display values
@@ -306,46 +306,46 @@ const MemStepSix = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFC0E3] via-white to-[#FFA4D6]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent px-2">
             Create Your Mehram Match Profile
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-2">
             Follow these 6 simple steps to complete your profile and find the perfect match
           </p>
             </div>
 
         {/* Main Content Container */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
           {/* Mobile Step Tracker - Separate container above form */}
           <div className="lg:hidden block">
             <StepTracker percentage={100} />
           </div>
 
           {/* Desktop and Form Container */}
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             {/* Step Tracker - Professional sidebar layout */}
             <div className="lg:block hidden">
               <StepTracker percentage={100} />
             </div>
 
             {/* Main Form Container */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
               {/* Form Header */}
-              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-8 py-6">
+              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
+                    <p className="text-pink-100 text-xs sm:text-sm font-medium uppercase tracking-wide">
                       Step 6 of 6
                     </p>
-                    <h2 className="text-2xl font-bold text-white mt-1">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mt-1">
                       Review & Confirm
                     </h2>
             </div>
-                  <div className="bg-white/20 rounded-full p-3">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-white/20 rounded-full p-2 sm:p-3">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -353,11 +353,11 @@ const MemStepSix = () => {
           </div>
 
               {/* Form Content */}
-              <div className="p-8">
-                <form className="space-y-8">
+              <div className="p-4 sm:p-6 lg:p-8">
+                <form className="space-y-6 sm:space-y-8">
                   {/* Form Description */}
-                  <div className="text-center space-y-4">
-                    <p className="text-gray-600 text-sm leading-relaxed max-w-3xl mx-auto">
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed max-w-3xl mx-auto px-2">
                       You're almost there! Please take a moment to review all the details you've provided. 
                       This is your chance to ensure everything is accurate and as per your preference before proceeding. 
                       If any information needs to be updated, feel free to go back and make the necessary changes. 
@@ -367,78 +367,78 @@ const MemStepSix = () => {
                   </div>
 
                   {/* Review Sections */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Personal Information Section */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                       <div
-                        className="flex justify-between items-center cursor-pointer p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
+                        className="flex justify-between items-center cursor-pointer p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
                       onClick={togglePersonalInfoAccordion}
                     >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                           </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                         Personal Information
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">Basic details and contact information</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">Basic details and contact information</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-500 font-medium">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
                             {isPersonalInfoAccordionOpen ? 'Hide Details' : 'View Details'}
                           </span>
-                          <div className={`w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
                             isPersonalInfoAccordionOpen ? 'rotate-180' : ''
                           }`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                           </div>
                         </div>
                     </div>
                     {isPersonalInfoAccordionOpen && (
-                        <div className="px-6 pb-6 border-t border-gray-100">
-                          <div className="pt-6 space-y-8">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                              <div className="space-y-6">
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">First Name</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                        <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-100">
+                          <div className="pt-4 sm:pt-6 space-y-6 sm:space-y-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                              <div className="space-y-4 sm:space-y-6">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">First Name</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.first_name)}
                           </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Last Name</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Last Name</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.last_name)}
                         </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Date of Birth</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Date of Birth</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDate(profileData.dob)}
                           </div>
                         </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Gender</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Gender</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.gender)}
                             </div>
                               </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Height</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Height</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.hieght || profileData.height)}
                               </div>
                             </div>
                                 {profileData.weight && (
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Weight</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.weight)}
                           </div>
                           </div>
@@ -446,28 +446,28 @@ const MemStepSix = () => {
                         </div>
 
                               <div className="space-y-6">
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Marital Status</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Marital Status</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.martial_status)}
                                   </div>
                                   </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Education</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Education</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.Education)}
                                   </div>
                                 </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Profession</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Profession</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.profession)}
                               </div>
                                   </div>
                                 {profileData.describe_job_business && profileData.profession && (
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Job/Business Description</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.describe_job_business)}
                                   </div>
                                   </div>
@@ -475,7 +475,7 @@ const MemStepSix = () => {
                                 {profileData.disability && (
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Disability</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.disability)}
                                 </div>
                               </div>
@@ -483,7 +483,7 @@ const MemStepSix = () => {
                                 {profileData.type_of_disability && (
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Type of Disability</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.type_of_disability)}
                             </div>
                           </div>
@@ -491,7 +491,7 @@ const MemStepSix = () => {
                                 {profileData.incomeRange && (
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Income Range</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.incomeRange)}
                           </div>
                         </div>
@@ -519,21 +519,21 @@ const MemStepSix = () => {
                                 <h4 className="text-lg font-bold text-gray-800">Current Address</h4>
                                 </div>
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">City</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">City</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.city)}
                               </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">State</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">State</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.state)}
                           </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Country</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Country</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.country)}
                         </div>
                           </div>
@@ -551,21 +551,21 @@ const MemStepSix = () => {
                                 <h4 className="text-lg font-bold text-gray-800">Native Place</h4>
                         </div>
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Native City</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Native City</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.native_city)}
                   </div>
                 </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Native State</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Native State</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.native_state)}
                 </div>
                                 </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Native Country</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Native Country</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.native_country)}
                                   </div>
                                 </div>
@@ -577,41 +577,41 @@ const MemStepSix = () => {
               </div>
 
                     {/* Religious Information Section */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                       <div
-                        className="flex justify-between items-center cursor-pointer p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
+                        className="flex justify-between items-center cursor-pointer p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
                       onClick={toggleAccordion}
                     >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                         Religious Information
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">Faith, beliefs and religious practices</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">Faith, beliefs and religious practices</p>
                           </div>
                           </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-500 font-medium">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
                             {isAccordionOpen ? 'Hide Details' : 'View Details'}
                           </span>
-                          <div className={`w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
                             isAccordionOpen ? 'rotate-180' : ''
                           }`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                         </div>
                               </div>
                               </div>
                       {isAccordionOpen && (
-                        <div className="px-6 pb-6 border-t border-gray-100">
-                          <div className="pt-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-100">
+                          <div className="pt-4 sm:pt-6 space-y-6 sm:space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                               <div className="space-y-3">
                                 <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Sect / School of Thought</label>
                                 <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
@@ -645,40 +645,40 @@ const MemStepSix = () => {
               </div>
 
                     {/* Family Information Section */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                       <div
-                        className="flex justify-between items-center cursor-pointer p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
+                        className="flex justify-between items-center cursor-pointer p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
                       onClick={toggleFamilyInfoAccordion}
                     >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                           </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                         Family Information
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">Family details and background</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">Family details and background</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-500 font-medium">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
                             {isFamilyInfoAccordionOpen ? 'Hide Details' : 'View Details'}
                           </span>
-                          <div className={`w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
                             isFamilyInfoAccordionOpen ? 'rotate-180' : ''
                           }`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                           </div>
                         </div>
                     </div>
                     {isFamilyInfoAccordionOpen && (
-                        <div className="px-6 pb-6 border-t border-gray-100">
-                          <div className="pt-6 space-y-6">
+                        <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-100">
+                          <div className="pt-4 sm:pt-6 space-y-6 sm:space-y-8">
                             {/* Parents Information */}
                             <div className="space-y-6">
                               <div className="flex items-center space-x-3">
@@ -690,63 +690,63 @@ const MemStepSix = () => {
                                 <h4 className="text-lg font-bold text-gray-800">Parents Information</h4>
                           </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Father's Name</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Father's Name</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.father_name)}
                         </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Father's Occupation</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Father's Occupation</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.father_occupation)}
                           </div>
                         </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Mother's Name</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Mother's Name</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.mother_name)}
                             </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Mother's Occupation</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Mother's Occupation</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.mother_occupation)}
                             </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Father Alive</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Father Alive</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.father_alive)}
                           </div>
                           </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Mother Alive</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Mother Alive</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.mother_alive)}
                             </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Step Father</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Step Father</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.step_father)}
                             </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Step Mother</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Step Mother</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.step_mother)}
                             </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Family Type</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Family Type</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.family_type)}
                             </div>
                             </div>
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Family Practicing Level</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Family Practicing Level</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.family_practicing_level)}
                             </div>
                             </div>
@@ -767,19 +767,19 @@ const MemStepSix = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Total Siblings</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_siblings)}
                                     </div>
                                   </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Brothers</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_brothers)}
                                     </div>
                                   </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Sisters</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_sisters)}
                                     </div>
                                   </div>
@@ -802,19 +802,19 @@ const MemStepSix = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Total Children</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_children)}
                         </div>
                             </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Sons</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_son)}
                                     </div>
                                   </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Daughters</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.number_of_daughter)}
                                     </div>
                                   </div>
@@ -836,19 +836,19 @@ const MemStepSix = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Wali Name</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.wali_name)}
                             </div>
                               </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Contact Number</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.wali_contact_number)}
                             </div>
                                   </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Blood Relation</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.wali_blood_relation)}
                                     </div>
                                   </div>
@@ -861,41 +861,41 @@ const MemStepSix = () => {
               </div>
 
                     {/* Partner Expectations Section */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                       <div
-                        className="flex justify-between items-center cursor-pointer p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
+                        className="flex justify-between items-center cursor-pointer p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
                       onClick={togglePartnerExpectationAccordion}
                     >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                       </svg>
                     </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                               Partner Expectations
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">Your preferences for a life partner</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">Your preferences for a life partner</p>
                           </div>
                           </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-500 font-medium">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
                             {isPartnerExpectationAccordionOpen ? 'Hide Details' : 'View Details'}
                           </span>
-                          <div className={`w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
                             isPartnerExpectationAccordionOpen ? 'rotate-180' : ''
                           }`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                             </div>
                           </div>
                       {isPartnerExpectationAccordionOpen && (
-                        <div className="px-6 pb-6 border-t border-gray-100">
-                          <div className="pt-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-100">
+                          <div className="pt-4 sm:pt-6 space-y-6 sm:space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                               <div className="space-y-3">
                                 <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred Surname</label>
                                 <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
@@ -933,9 +933,9 @@ const MemStepSix = () => {
                           </div>
                         </div>
                               {profileData.preferred_family_background && (
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred Family Background</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred Family Background</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.preferred_family_background)}
                           </div>
                           </div>
@@ -967,19 +967,19 @@ const MemStepSix = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred City</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.preferred_city)}
                             </div>
                           </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred State</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.preferred_state)}
                         </div>
                             </div>
                                   <div className="space-y-3">
                                     <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Preferred Country</label>
-                                    <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                    <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                       {formatDisplayValue(profileData.preferred_country)}
                           </div>
                         </div>
@@ -992,41 +992,41 @@ const MemStepSix = () => {
               </div>
 
                     {/* Privacy Settings Section */}
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                       <div
-                        className="flex justify-between items-center cursor-pointer p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
+                        className="flex justify-between items-center cursor-pointer p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200"
                         onClick={togglePrivacyAccordion}
                       >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                               Privacy Settings
                             </h3>
-                            <p className="text-sm text-gray-500 mt-1">Profile visibility and photo privacy</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">Profile visibility and photo privacy</p>
                               </div>
                               </div>
-                        <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-500 font-medium">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
                             {isPrivacyAccordionOpen ? 'Hide Details' : 'View Details'}
                           </span>
-                          <div className={`w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-full flex items-center justify-center transition-all duration-300 ${
                             isPrivacyAccordionOpen ? 'rotate-180' : ''
                           }`}>
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                             </div>
                               </div>
                               </div>
                       {isPrivacyAccordionOpen && (
-                        <div className="px-6 pb-6 border-t border-gray-100">
-                          <div className="pt-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-gray-100">
+                          <div className="pt-4 sm:pt-6 space-y-6 sm:space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                               <div className="space-y-3">
                                 <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Profile Visibility</label>
                                 <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
@@ -1036,9 +1036,9 @@ const MemStepSix = () => {
                               </div>
                             </div>
                               {profileData.gender === "female" && (
-                                <div className="space-y-3">
-                                  <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Photo Privacy Option</label>
-                                  <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
+                                <div className="space-y-2 sm:space-y-3">
+                                  <label className="block text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Photo Privacy Option</label>
+                                  <div className="w-full h-12 sm:h-14 px-3 sm:px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-sm sm:text-base font-semibold text-gray-800 shadow-sm">
                                     {formatDisplayValue(profileData.photo_upload_privacy_option)}
                               </div>
                               </div>
@@ -1087,11 +1087,11 @@ const MemStepSix = () => {
                   </div>
 
                   {/* Navigation Buttons */}
-                  <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-4 pt-8 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-200">
                 <button
                       type="button"
                       onClick={() => navigate(`/memstepfive/`)}
-                      className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
+                      className="group w-full sm:w-auto bg-white text-gray-700 px-4 sm:px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[44px] sm:min-h-[48px]"
                     >
                       <svg className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -1102,7 +1102,7 @@ const MemStepSix = () => {
                 <button
                   type="button"
                   onClick={naviagteNextStep}
-                      className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-4 sm:px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[44px] sm:min-h-[48px] relative overflow-hidden"
                     >
                       {/* Gradient overlay for hover effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
