@@ -328,6 +328,12 @@ const MemStepThree = () => {
       [field]: value,
       };
 
+      // Reset brothers and sisters when siblings count changes
+      if (field === 'number_of_siblings') {
+        newState.number_of_brothers = "";
+        newState.number_of_sisters = "";
+      }
+
       // Auto-calculate siblings logic
       if (field === 'number_of_brothers' && prevState.number_of_siblings) {
         const totalSiblings = parseInt(prevState.number_of_siblings) || 0;
@@ -372,6 +378,15 @@ const MemStepThree = () => {
         return newErrors;
       });
     }
+  };
+
+  // Generate dynamic options based on siblings count
+  const generateSiblingOptions = (maxCount) => {
+    const options = [{ value: "", label: "Select Number" }];
+    for (let i = 0; i <= maxCount; i++) {
+      options.push({ value: i.toString(), label: i.toString() });
+    }
+    return options;
   };
 
   const skip = () => {
@@ -1014,26 +1029,23 @@ const MemStepThree = () => {
                       id="number_of_brothers"
                       name="number_of_brothers"
                       value={profileData.number_of_brothers || ""}
-                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none ${
+                        !profileData.number_of_siblings 
+                          ? "cursor-not-allowed bg-gray-100 text-gray-400" 
+                          : "cursor-pointer"
+                      } ${
                         formErrors.number_of_brothers
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                       }`}
                       onChange={(e) => updateField("number_of_brothers", e.target.value)}
+                      disabled={!profileData.number_of_siblings}
                     >
-                      <option value="">Select Number</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="6">6</option>
-                      <option value="7">7</option>
-                      <option value="8">8</option>
-                      <option value="9">9</option>
-                      <option value="10">10</option>
-                      <option value="10+">10+</option>
+                      {generateSiblingOptions(parseInt(profileData.number_of_siblings) || 0).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1073,26 +1085,23 @@ const MemStepThree = () => {
                       id="number_of_sisters"
                       name="number_of_sisters"
                       value={profileData.number_of_sisters || ""}
-                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none ${
+                        !profileData.number_of_siblings 
+                          ? "cursor-not-allowed bg-gray-100 text-gray-400" 
+                          : "cursor-pointer"
+                      } ${
                         formErrors.number_of_sisters
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                       }`}
                       onChange={(e) => updateField("number_of_sisters", e.target.value)}
+                      disabled={!profileData.number_of_siblings}
                     >
-                      <option value="">Select Number</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="6">6</option>
-                      <option value="7">7</option>
-                      <option value="8">8</option>
-                      <option value="9">9</option>
-                      <option value="10">10</option>
-                      <option value="10+">10+</option>
+                      {generateSiblingOptions(parseInt(profileData.number_of_siblings) || 0).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
