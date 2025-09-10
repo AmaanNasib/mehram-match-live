@@ -296,10 +296,49 @@ const MemStepThree = () => {
   };
 
   const updateField = (field, value) => {
-    setProfileData((prevState) => ({
+    setProfileData((prevState) => {
+      const newState = {
       ...prevState,
       [field]: value,
-    }));
+      };
+
+      // Auto-calculate siblings logic
+      if (field === 'number_of_brothers' && prevState.number_of_siblings) {
+        const totalSiblings = parseInt(prevState.number_of_siblings) || 0;
+        const brothers = parseInt(value) || 0;
+        const calculatedSisters = totalSiblings - brothers;
+        if (calculatedSisters >= 0) {
+          newState.number_of_sisters = calculatedSisters.toString();
+        }
+      } else if (field === 'number_of_sisters' && prevState.number_of_siblings) {
+        const totalSiblings = parseInt(prevState.number_of_siblings) || 0;
+        const sisters = parseInt(value) || 0;
+        const calculatedBrothers = totalSiblings - sisters;
+        if (calculatedBrothers >= 0) {
+          newState.number_of_brothers = calculatedBrothers.toString();
+        }
+      }
+
+      // Auto-calculate children logic
+      if (field === 'number_of_son' && prevState.number_of_children) {
+        const totalChildren = parseInt(prevState.number_of_children) || 0;
+        const sons = parseInt(value) || 0;
+        const calculatedDaughters = totalChildren - sons;
+        if (calculatedDaughters >= 0) {
+          newState.number_of_daughter = calculatedDaughters.toString();
+        }
+      } else if (field === 'number_of_daughter' && prevState.number_of_children) {
+        const totalChildren = parseInt(prevState.number_of_children) || 0;
+        const daughters = parseInt(value) || 0;
+        const calculatedSons = totalChildren - daughters;
+        if (calculatedSons >= 0) {
+          newState.number_of_son = calculatedSons.toString();
+        }
+      }
+
+      return newState;
+    });
+
     if (formErrors[field]) {
       setFormErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
@@ -429,8 +468,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -438,15 +477,15 @@ const MemStepThree = () => {
                       }}
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                      </svg>
                     <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'father_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                       Enter your father's full name as it appears on official documents
                       <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                  </div>
-                </label>
-                <input
-                  type="text"
+                  </label>
+                    <input
+                      type="text"
                   id="father_name"
                   name="father_name"
                   value={profileData.father_name || ""}
@@ -461,7 +500,7 @@ const MemStepThree = () => {
                 {formErrors.father_name && (
                   <p className="text-red-500 text-sm">{formErrors.father_name}</p>
                 )}
-              </div>
+                  </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -469,8 +508,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -499,7 +538,7 @@ const MemStepThree = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+                </div>
               </div>
 
             {/* Mother's Information */}
@@ -510,8 +549,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -519,15 +558,15 @@ const MemStepThree = () => {
                       }}
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                      </svg>
                     <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'mother_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                       Enter your mother's full name as it appears on official documents
                       <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                  </div>
-                </label>
-                <input
-                  type="text"
+                  </label>
+                    <input
+                      type="text"
                   id="mother_name"
                   name="mother_name"
                   value={profileData.mother_name || ""}
@@ -542,7 +581,7 @@ const MemStepThree = () => {
                 {formErrors.mother_name && (
                   <p className="text-red-500 text-sm">{formErrors.mother_name}</p>
                 )}
-              </div>
+                  </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -550,8 +589,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -580,8 +619,8 @@ const MemStepThree = () => {
                     </option>
                   ))}
                 </select>
+                </div>
               </div>
-            </div>
 
               {/* Is Father Alive and Is Mother Alive */}
               {/* <div style={{ display: "flex", gap: "2rem" }}>
@@ -682,25 +721,32 @@ const MemStepThree = () => {
                       <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
-                </label>
-                <select
+                  </label>
+                    <select
                   id="number_of_siblings"
                   name="number_of_siblings"
-                  value={profileData.number_of_siblings || ""}
+                      value={profileData.number_of_siblings || ""}
                   className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                     formErrors.number_of_siblings
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                   }`}
                   onChange={(e) => updateField("number_of_siblings", e.target.value)}
-                >
-                  <option value="">Select Number</option>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4+</option>
-                </select>
+                    >
+                      <option value="">Select Number</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="10+">10+</option>
+                    </select>
                 {formErrors.number_of_siblings && (
                   <p className="text-red-500 text-sm">{formErrors.number_of_siblings}</p>
                 )}
@@ -712,8 +758,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -721,29 +767,33 @@ const MemStepThree = () => {
                       }}
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                      </svg>
                     <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'family_type' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                      Nuclear: Parents and children only. Joint: Multiple generations living together. Extended: Includes relatives
+                      Select the type of family structure you belong to
                       <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                  </div>
-                </label>
-                <select
+                  </label>
+                    <select
                   id="family_type"
                   name="family_type"
-                  value={profileData.family_type || ""}
+                      value={profileData.family_type || ""}
                   className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                     formErrors.family_type
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                   }`}
                   onChange={(e) => updateField("family_type", e.target.value)}
-                >
-                  <option value="">Select Family Type</option>
-                  <option value="Nuclear">Nuclear</option>
-                  <option value="Joint">Joint</option>
-                  <option value="Extended">Extended</option>
-                </select>
+                    >
+                      <option value="">Select Family Type</option>
+                  <option value="Nuclear Family">Nuclear Family</option>
+                  <option value="Joint Family">Joint Family</option>
+                  <option value="Extended Family">Extended Family</option>
+                  <option value="Single-Parent Family">Single-Parent Family</option>
+                  <option value="Blended Family">Blended Family</option>
+                  <option value="Living Alone">Living Alone</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
                 {formErrors.family_type && (
                   <p className="text-red-500 text-sm">{formErrors.family_type}</p>
                 )}
@@ -759,8 +809,8 @@ const MemStepThree = () => {
                     <div className="group relative tooltip-container">
                       <svg 
                         className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                        fill="none" 
-                        stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -774,25 +824,32 @@ const MemStepThree = () => {
                         <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
-                  </label>
-                  <select
+                    </label>
+                      <select
                     id="number_of_brothers"
                     name="number_of_brothers"
-                    value={profileData.number_of_brothers || ""}
+                        value={profileData.number_of_brothers || ""}
                     className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                       formErrors.number_of_brothers
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                     }`}
                     onChange={(e) => updateField("number_of_brothers", e.target.value)}
-                  >
-                    <option value="">Select Number</option>
+                      >
+                        <option value="">Select Number</option>
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
-                    <option value="4">4+</option>
-                  </select>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                      </select>
                   {formErrors.number_of_brothers && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_brothers}</p>
                   )}
@@ -804,8 +861,8 @@ const MemStepThree = () => {
                     <div className="group relative tooltip-container">
                       <svg 
                         className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                        fill="none" 
-                        stroke="currentColor" 
+                          fill="none"
+                          stroke="currentColor"
                         viewBox="0 0 24 24"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -813,31 +870,38 @@ const MemStepThree = () => {
                         }}
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                        </svg>
                       <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_sisters' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         Number of sisters you have
                         <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
-                    </div>
-                  </label>
-                  <select
+                    </label>
+                      <select
                     id="number_of_sisters"
                     name="number_of_sisters"
-                    value={profileData.number_of_sisters || ""}
+                        value={profileData.number_of_sisters || ""}
                     className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                       formErrors.number_of_sisters
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                     }`}
                     onChange={(e) => updateField("number_of_sisters", e.target.value)}
-                  >
-                    <option value="">Select Number</option>
+                      >
+                        <option value="">Select Number</option>
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
-                    <option value="4">4+</option>
-                  </select>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                      </select>
                   {formErrors.number_of_sisters && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_sisters}</p>
                   )}
@@ -853,8 +917,8 @@ const MemStepThree = () => {
                   <div className="group relative tooltip-container">
                     <svg 
                       className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
+                          fill="none"
+                          stroke="currentColor"
                       viewBox="0 0 24 24"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -862,29 +926,41 @@ const MemStepThree = () => {
                       }}
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                        </svg>
                     <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'family_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                      How religiously observant is your family? High: Very observant, Moderate: Somewhat observant, Low: Not very observant
+                      Select your family's religious or spiritual orientation and practice level
                       <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                  </div>
-                </label>
-                <select
+                        </div>
+                      </div>
+                  </label>
+                    <select
                   id="family_practicing_level"
                   name="family_practicing_level"
-                  value={profileData.family_practicing_level || ""}
+                      value={profileData.family_practicing_level || ""}
                   className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                     formErrors.family_practicing_level
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                   }`}
                   onChange={(e) => updateField("family_practicing_level", e.target.value)}
-                >
-                  <option value="">Select Practicing Level</option>
-                  <option value="High">High</option>
-                  <option value="Moderate">Moderate</option>
-                  <option value="Low">Low</option>
-                </select>
+                    >
+                      <option value="">Select Practicing Level</option>
+                  <option value="Devout">Devout</option>
+                  <option value="Very Religious">Very Religious</option>
+                  <option value="Religious">Religious</option>
+                  <option value="Moderately Religious">Moderately Religious</option>
+                  <option value="Occasionally Religious">Occasionally Religious</option>
+                  <option value="Cultural but non-practicing">Cultural but non-practicing</option>
+                  <option value="Spiritual but not religious">Spiritual but not religious</option>
+                  <option value="Religious but not practicing">Religious but not practicing</option>
+                  <option value="Open to exploring religion">Open to exploring religion</option>
+                  <option value="Agnostic">Agnostic</option>
+                  <option value="Atheist">Atheist</option>
+                  <option value="Secular">Secular</option>
+                  <option value="Open to all beliefs">Open to all beliefs</option>
+                  <option value="Not religious">Not religious</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
                 {formErrors.family_practicing_level && (
                   <p className="text-red-500 text-sm">{formErrors.family_practicing_level}</p>
                 )}
@@ -898,8 +974,8 @@ const MemStepThree = () => {
                     <div className="group relative tooltip-container">
                       <svg 
                         className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                        fill="none" 
-                        stroke="currentColor" 
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -913,25 +989,32 @@ const MemStepThree = () => {
                         <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
-                  </label>
-                  <select
+                      </label>
+                        <select
                     id="number_of_children"
                     name="number_of_children"
-                    value={profileData.number_of_children || ""}
+                          value={profileData.number_of_children || ""}
                     className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                       formErrors.number_of_children
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                     }`}
                     onChange={(e) => updateField("number_of_children", e.target.value)}
-                  >
-                    <option value="">Select Number</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4+</option>
-                  </select>
+                        >
+                          <option value="">Select Number</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                        </select>
                   {formErrors.number_of_children && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_children}</p>
                   )}
@@ -949,8 +1032,8 @@ const MemStepThree = () => {
                     <div className="group relative tooltip-container">
                       <svg 
                         className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                        fill="none" 
-                        stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                         viewBox="0 0 24 24"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -958,28 +1041,35 @@ const MemStepThree = () => {
                         }}
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                          </svg>
                       <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'number_of_son' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         Number of sons from previous marriage
                         <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                      </div>
-                    </div>
-                  </label>
-                  <select
+                          </div>
+                        </div>
+                      </label>
+                      <select
                     id="number_of_son"
                     name="number_of_son"
-                    value={profileData.number_of_son || ""}
+                        value={profileData.number_of_son || ""}
                     className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
                     onChange={(e) => updateField("number_of_son", e.target.value)}
-                  >
-                    <option value="">Select Number</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4+</option>
-                  </select>
-                </div>
+                      >
+                        <option value="">Select Number</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                      </select>
+                    </div>
 
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -1002,27 +1092,34 @@ const MemStepThree = () => {
                         <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
-                  </label>
-                  <select
+                      </label>
+                      <select
                     id="number_of_daughter"
                     name="number_of_daughter"
-                    value={profileData.number_of_daughter || ""}
+                        value={profileData.number_of_daughter || ""}
                     className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
                     onChange={(e) => updateField("number_of_daughter", e.target.value)}
-                  >
-                    <option value="">Select Number</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4+</option>
-                  </select>
-                </div>
-              </div>
-            )}
+                      >
+                        <option value="">Select Number</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
 
-            {/* Wali Information (for females) */}
-            {profileData.gender === "female" && (
+              {/* Wali Information (for females) */}
+              {profileData.gender === "female" && (
               <div className="mb-6">
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">Wali Information</h3>
@@ -1051,12 +1148,12 @@ const MemStepThree = () => {
                           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                         </div>
                       </div>
-                    </label>
-                    <input
-                      type="text"
+                      </label>
+                        <input
+                          type="text"
                       id="wali_name"
                       name="wali_name"
-                      value={profileData.wali_name || ""}
+                          value={profileData.wali_name || ""}
                       placeholder="Enter wali's full name"
                       className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.wali_name
@@ -1076,8 +1173,8 @@ const MemStepThree = () => {
                       <div className="group relative tooltip-container">
                         <svg 
                           className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                          fill="none" 
-                          stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                           viewBox="0 0 24 24"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1085,18 +1182,18 @@ const MemStepThree = () => {
                           }}
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                          </svg>
                         <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'wali_contact_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                           Enter your Wali's contact number
                           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
                         </div>
-                      </div>
-                    </label>
-                    <input
-                      type="tel"
+                      </label>
+                        <input
+                          type="tel"
                       id="wali_contact_number"
                       name="wali_contact_number"
-                      value={profileData.wali_contact_number || ""}
+                          value={profileData.wali_contact_number || ""}
                       placeholder="Enter wali's phone number"
                       className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.wali_contact_number
@@ -1118,8 +1215,8 @@ const MemStepThree = () => {
                       <div className="group relative tooltip-container">
                         <svg 
                           className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
-                          fill="none" 
-                          stroke="currentColor" 
+                            fill="none"
+                            stroke="currentColor"
                           viewBox="0 0 24 24"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1127,38 +1224,46 @@ const MemStepThree = () => {
                           }}
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                          </svg>
                         <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'wali_blood_relation' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                           Select your relationship with the Wali
                           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
                         </div>
-                      </div>
-                    </label>
-                    <select
+                      </label>
+                        <select
                       id="wali_blood_relation"
                       name="wali_blood_relation"
-                      value={profileData.wali_blood_relation || ""}
+                          value={profileData.wali_blood_relation || ""}
                       className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.wali_blood_relation
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                       }`}
                       onChange={(e) => updateField("wali_blood_relation", e.target.value)}
-                    >
-                      <option value="">Select Relation</option>
-                      <option value="Father">Father</option>
-                      <option value="Brother">Brother</option>
-                      <option value="Uncle">Uncle</option>
+                        >
+                          <option value="">Select Relation</option>
+                          <option value="Father">Father</option>
+                          <option value="Brother">Brother</option>
+                      <option value="Son">Son</option>
+                      <option value="Uncle (Father's side)">Uncle (Father's side)</option>
+                      <option value="Uncle (Mother's side)">Uncle (Mother's side)</option>
                       <option value="Grandfather">Grandfather</option>
-                      <option value="Cousin">Cousin</option>
-                    </select>
+                      <option value="Husband">Husband</option>
+                      <option value="Father-in-law">Father-in-law</option>
+                      <option value="Brother-in-law">Brother-in-law</option>
+                      <option value="Son-in-law">Son-in-law</option>
+                      <option value="Nephew">Nephew</option>
+                      <option value="Male Guardian">Male Guardian</option>
+                      <option value="Other">Other</option>
+                        </select>
                     {formErrors.wali_blood_relation && (
                       <p className="text-red-500 text-sm">{formErrors.wali_blood_relation}</p>
                     )}
-                  </div>
-                </div>
-              </div>
-            )}
+                          </div>
+                        </div>
+                      </div>
+              )}
 
               {/* Navigation Buttons */}
             <div className="pt-8 border-t border-gray-200">
@@ -1192,14 +1297,14 @@ const MemStepThree = () => {
                 </button>
               </div>
             </div>
-            </div>
+              </div>
             </form>
           </div>
         </div>
       </div>
     </div>
   </div>
-  </div>
+    </div>
   );
 };
 
