@@ -25,7 +25,28 @@ const StepTracker = ({ percentage }) => {
 
   const totalSteps = prefix === "agn" ? 5 : 6;
   const completedSteps = Math.floor((percentage / 100) * totalSteps);
-  const currentStep = Math.ceil((percentage / 100) * totalSteps);
+  
+  // Determine current step based on URL path
+  const getCurrentStepFromPath = () => {
+    if (prefix === "agn") {
+      if (pathname.includes('/agnstepone')) return 1;
+      if (pathname.includes('/agnsteptwo')) return 2;
+      if (pathname.includes('/agnstepthree')) return 3;
+      if (pathname.includes('/agnstepfour')) return 4;
+      if (pathname.includes('/agnstepfive')) return 5;
+      return 1;
+    } else {
+      if (pathname.includes('/memstepone')) return 1;
+      if (pathname.includes('/memsteptwo')) return 2;
+      if (pathname.includes('/memstepthree')) return 3;
+      if (pathname.includes('/memstepfour')) return 4;
+      if (pathname.includes('/memstepfive')) return 5;
+      if (pathname.includes('/memstepsix')) return 6;
+      return 1;
+    }
+  };
+  
+  const currentStep = getCurrentStepFromPath();
 
   // Calculate progress for horizontal layout
   const progressWidth = isMobile ? `${(completedSteps / totalSteps) * 100}%` : '0%';
@@ -99,35 +120,35 @@ const StepTracker = ({ percentage }) => {
       id: 1,
       title: "Personal Details",
       description: "Enter your basic information",
-      completed: 1 <= completedSteps,
+      completed: 1 < currentStep,
       current: 1 === currentStep
     },
     {
       id: 2,
       title: "Residence Details", 
       description: "Add your address information",
-      completed: 2 <= completedSteps,
+      completed: 2 < currentStep,
       current: 2 === currentStep
     },
     {
       id: 3,
       title: "Education & Profession",
       description: "Share your background",
-      completed: 3 <= completedSteps,
+      completed: 3 < currentStep,
       current: 3 === currentStep
     },
     {
       id: 4,
       title: "Verification",
       description: "Verify your details",
-      completed: 4 <= completedSteps,
+      completed: 4 < currentStep,
       current: 4 === currentStep
     },
     {
       id: 5,
       title: "Payment",
       description: "Complete payment",
-      completed: 5 <= completedSteps,
+      completed: 5 < currentStep,
       current: 5 === currentStep
     }
   ] : [
@@ -135,42 +156,42 @@ const StepTracker = ({ percentage }) => {
       id: 1,
       title: "Personal Details",
       description: "Enter your basic information",
-      completed: 1 <= completedSteps,
+      completed: 1 < currentStep,
       current: 1 === currentStep
     },
     {
       id: 2,
       title: "Religious Details",
       description: "Share your religious background", 
-      completed: 2 <= completedSteps,
+      completed: 2 < currentStep,
       current: 2 === currentStep
     },
     {
       id: 3,
       title: "Family Details",
       description: "Add family information",
-      completed: 3 <= completedSteps,
+      completed: 3 < currentStep,
       current: 3 === currentStep
     },
     {
       id: 4,
       title: "Partner Expectations",
       description: "Define your preferences",
-      completed: 4 <= completedSteps,
+      completed: 4 < currentStep,
       current: 4 === currentStep
     },
     {
       id: 5,
       title: "Privacy Selection",
       description: "Set your privacy settings",
-      completed: 5 <= completedSteps,
+      completed: 5 < currentStep,
       current: 5 === currentStep
     },
     {
       id: 6,
       title: "Review & Confirm",
       description: "Review and submit",
-      completed: 6 <= completedSteps,
+      completed: 6 < currentStep,
       current: 6 === currentStep
     }
   ];
