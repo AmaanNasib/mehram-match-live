@@ -148,6 +148,18 @@ const MemStepThree = () => {
     if (!profileData.mother_name?.trim()) {
       newErrors.mother_name = "Mother's name is required";
     }
+    if (!profileData.father_alive) {
+      newErrors.father_alive = "Father's alive status is required";
+    }
+    if (!profileData.mother_alive) {
+      newErrors.mother_alive = "Mother's alive status is required";
+    }
+    if (!profileData.step_father) {
+      newErrors.step_father = "Father's stepfather status is required";
+    }
+    if (!profileData.step_mother) {
+      newErrors.step_mother = "Mother's stepmother status is required";
+    }
     if (!profileData.family_type) {
       newErrors.family_type = "Family type is required";
     }
@@ -196,6 +208,18 @@ const MemStepThree = () => {
     if (!profileData.mother_name?.trim()) {
       newErrors.mother_name = "Mother's name is required";
     }
+    if (!profileData.father_alive) {
+      newErrors.father_alive = "Father's alive status is required";
+    }
+    if (!profileData.mother_alive) {
+      newErrors.mother_alive = "Mother's alive status is required";
+    }
+    if (!profileData.step_father) {
+      newErrors.step_father = "Father's stepfather status is required";
+    }
+    if (!profileData.step_mother) {
+      newErrors.step_mother = "Mother's stepmother status is required";
+    }
     if (!profileData.family_type) {
       newErrors.family_type = "Family type is required";
     }
@@ -236,10 +260,12 @@ const MemStepThree = () => {
     // Auto-scroll to first error field
     if (Object.keys(newErrors).length > 0) {
       const fieldOrder = [
-        'father_name', 'mother_name', 'family_type', 'family_practicing_level',
-        'number_of_siblings', 'number_of_brothers', 'number_of_sisters',
-        'number_of_children', 'number_of_son', 'number_of_daughter',
-        'wali_name', 'wali_contact_number', 'wali_blood_relation'
+        'father_name', 'mother_name', 'father_occupation', 'mother_occupation',
+        'father_alive', 'mother_alive', 'step_father', 'step_mother', 
+        'family_type', 'family_practicing_level', 'number_of_siblings', 
+        'number_of_brothers', 'number_of_sisters', 'number_of_children', 
+        'number_of_son', 'number_of_daughter', 'wali_name', 'wali_contact_number', 
+        'wali_blood_relation'
       ];
       
       const firstErrorField = fieldOrder.find(field => newErrors[field]);
@@ -637,80 +663,210 @@ const MemStepThree = () => {
               </div>
 
               {/* Is Father Alive and Is Mother Alive */}
-              {/* <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%]">
-                  <label htmlFor="isFatherAlive" className="block text-sm font-medium text-[#000000]">
-                    Is Father Alive <span style={{ color: "red" }}>*</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Is Father Alive */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Is Father Alive? <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('father_alive');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'father_alive' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select whether your father is alive or not
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
                   </label>
-                  <select
-                    id="isFatherAlive"
-                    name="isFatherAlive"
-                    value={profileData.father_alive || ''}
-                    required
-                    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                    onChange={(e) => updateField("father_alive", e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="father_alive"
+                      name="father_alive"
+                      value={profileData.father_alive || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.father_alive
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("father_alive", e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  {formErrors.father_alive && (
+                    <p className="text-red-500 text-sm">{formErrors.father_alive}</p>
+                  )}
                 </div>
-                <div className="w-[50%]">
-                  <label htmlFor="isMotherAlive" className="block text-sm font-medium text-[#000000]">
-                    Is Mother Alive <span style={{ color: "red" }}>*</span>
+
+                {/* Is Mother Alive */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Is Mother Alive? <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('mother_alive');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'mother_alive' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select whether your mother is alive or not
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
                   </label>
-                  <select
-                    id="isMotherAlive"
-                    name="isMotherAlive"
-                    value={profileData.mother_alive || ''}
-                    required
-                    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                    onChange={(e) => updateField("mother_alive", e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="mother_alive"
+                      name="mother_alive"
+                      value={profileData.mother_alive || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.mother_alive
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("mother_alive", e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  {formErrors.mother_alive && (
+                    <p className="text-red-500 text-sm">{formErrors.mother_alive}</p>
+                  )}
                 </div>
-              </div> */}
+              </div>
 
               {/* Is Father a Stepfather and Is Mother a Stepmother */}
-              {/* <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%]">
-                  <label htmlFor="isFatherStepfather" className="block text-sm font-medium text-[#000000]">
-                    Is Father a Stepfather? <span style={{ color: "red" }}>*</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Is Father a Stepfather */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Is Father a Stepfather? <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('step_father');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'step_father' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select whether your father is a stepfather or biological father
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
                   </label>
-                  <select
-                    id="isFatherStepfather"
-                    name="isFatherStepfather"
-                    value={profileData.step_father || ''}
-                    required
-                    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                    onChange={(e) => updateField("step_father", e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="step_father"
+                      name="step_father"
+                      value={profileData.step_father || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.step_father
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("step_father", e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  {formErrors.step_father && (
+                    <p className="text-red-500 text-sm">{formErrors.step_father}</p>
+                  )}
                 </div>
-                <div className="w-[50%]">
-                  <label htmlFor="isMotherStepmother" className="block text-sm font-medium text-[#000000]">
-                    Is Mother a Stepmother? <span style={{ color: "red" }}>*</span>
+
+                {/* Is Mother a Stepmother */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Is Mother a Stepmother? <span className="text-red-500">*</span></span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('step_mother');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'step_mother' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select whether your mother is a stepmother or biological mother
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
                   </label>
-                  <select
-                    id="isMotherStepmother"
-                    name="isMotherStepmother"
-                    value={profileData.step_mother || ''}
-                    required
-                    className="mt-1 px-[12px] text-[12px] h-[38px] w-full border rounded-[4px] border-[#ED58AC] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                    onChange={(e) => updateField("step_mother", e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="step_mother"
+                      name="step_mother"
+                      value={profileData.step_mother || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.step_mother
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("step_mother", e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  {formErrors.step_mother && (
+                    <p className="text-red-500 text-sm">{formErrors.step_mother}</p>
+                  )}
                 </div>
-              </div> */}
+              </div>
 
             {/* Family Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
