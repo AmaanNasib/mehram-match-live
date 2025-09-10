@@ -1,21 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import TopBar from "../../sections/TopBar";
-import { fetchDataObjectV2, updateDataV2 } from "../../../apiUtils";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
+import { fetchDataObjectV2, updateDataV2 } from "../../../apiUtils";
 import StepTracker from "../../StepTracker/StepTracker";
-import findUser from "../../../images/findUser.svg";
 
 const MemStepFour = () => {
   const navigate = useNavigate();
   let [userId] = useState(localStorage.getItem("userId"));
-  const [message, setMessage] = useState("");
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [showTooltip, setShowTooltip] = useState(null);
+  const [error, setError] = useState("");
+  const [errors, setErrors] = useState("");
+  
   userId = localStorage.getItem("member_id") || userId;
   const [profileData, setProfileData] = useState({
     preferred_surname: "",
@@ -68,40 +66,106 @@ const MemStepFour = () => {
     }
   }, [apiData]);
 
+  const handleTooltipClick = (field) => {
+    setShowTooltip(showTooltip === field ? null : field);
+  };
+
+  const handleTooltipLeave = () => {
+    setShowTooltip(null);
+  };
+
+  // Close tooltip when clicking outside or pressing escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showTooltip && !event.target.closest('.tooltip-container')) {
+        setShowTooltip(null);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showTooltip) {
+        setShowTooltip(null);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
+      };
+    }
+  }, [showTooltip]);
+
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate Sect / School of Thought
+    // Field order for scrolling (top to bottom)
+    const fieldOrder = [
+      'preferred_sect', 'preferred_dargah_fatiha_niyah', 'desired_practicing_level', 'preferred_family_type',
+      'preferred_country', 'preferred_state', 'preferred_city'
+    ];
+
+    // Validate Preferred Sect
     if (!profileData.preferred_sect?.trim()) {
-      newErrors.preferred_sect = "Preferred sect required";
+      newErrors.preferred_sect = "Preferred sect is required";
     }
-    // if (!profileData.family_type) {
-    //   newErrors.family_type =
-    //     "Family type required";
-    // }
+
+    // Validate Dargah/Fatiha/Niyah
     if (!profileData.preferred_dargah_fatiha_niyah) {
-      newErrors.preferred_dargah_fatiha_niyah = "Field required";
+      newErrors.preferred_dargah_fatiha_niyah = "Please select an option for Dargah/Fatiha/Niyah";
     }
+
+    // Validate Desired Practicing Level
     if (!profileData.desired_practicing_level) {
-      newErrors.desired_practicing_level = "Desired Practicing Level required";
+      newErrors.desired_practicing_level = "Desired practicing level is required";
     }
+
+    // Validate Preferred Family Type
     if (!profileData.preferred_family_type) {
-      newErrors.preferred_family_type = "Preferred Family Type required";
+      newErrors.preferred_family_type = "Preferred family type is required";
     }
-    // Validate Believe in Dargah/Fatiha/Niyah
-    // if (!profileData.mother_name) {
-    //   newErrors.mother_name =
-    //     "Mother's name required";
-    // }
-    // if (!profileData.family_practicing_level) {
-    //   newErrors.family_practicing_level =
-    //     "Family Practicing Level required";
-    // }
 
-    setErrors(newErrors);
-    console.log(Object.keys(newErrors).length, ">>>");
+    // Validate Preferred Country
+    if (!profileData.preferred_country) {
+      newErrors.preferred_country = "Preferred country is required";
+    }
 
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    // Validate Preferred State
+    if (!profileData.preferred_state) {
+      newErrors.preferred_state = "Preferred state is required";
+    }
+
+    // Validate Preferred City
+    if (!profileData.preferred_city) {
+      newErrors.preferred_city = "Preferred city is required";
+    }
+
+    setFormErrors(newErrors);
+
+    // If there are errors, scroll to the first error field
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = fieldOrder.find(field => newErrors[field]);
+      if (firstErrorField) {
+        setTimeout(() => {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
+                         document.querySelector(`input[name="${firstErrorField}"]`) ||
+                         document.querySelector(`select[name="${firstErrorField}"]`) ||
+                         document.querySelector(`textarea[name="${firstErrorField}"]`);
+          
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+            element.focus();
+          }
+        }, 100);
+      }
+    }
+
+    return Object.keys(newErrors).length === 0;
   };
   const naviagteNextStep = () => {
     const parameters = {
@@ -135,12 +199,28 @@ const MemStepFour = () => {
   };
 
   const updateField = (field, value) => {
-    setProfileData((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-    if (errors[field]) {
-      setErrors((prevErrors) => {
+    setProfileData((prevState) => {
+      const newState = {
+        ...prevState,
+        [field]: value,
+      };
+
+      // Handle cascading dropdown logic for preferred location
+      if (field === 'preferred_country') {
+        // Reset state and city when country changes
+        newState.preferred_state = '';
+        newState.preferred_city = '';
+      } else if (field === 'preferred_state') {
+        // Reset city when state changes
+        newState.preferred_city = '';
+      }
+
+      return newState;
+    });
+
+    // Clear the error for the field when it is updated
+    if (formErrors[field]) {
+      setFormErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
         delete newErrors[field];
         return newErrors;
@@ -157,836 +237,1030 @@ const MemStepFour = () => {
     ) {
       navigate(`/memstepfive/${userId}`);
     } else {
-      setErrors(true);
-      setMessage("Plese fill all the required fields");
+      setErrors("Please fill all the required fields");
     }
   };
 
-  return (
-    <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        {/* {errors && (
-          <div
-            style={{
-              zIndex: "10000",
-              height: "17vh",
-              width: "33vw",
-              backgroundColor: "#F8BF00",
-              display: "flex",
-              flexDirection: "row",
-              // alignItems: "center",
-              padding: "2vh 3vh",
-              gap: "10px",
-              position: "absolute",
-              left: "35%",
-              borderRadius :"1vh",
-              cursor : "pointer"
-              
-            }}
-          >
-          <div>
-            <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M8.77348 1.90259C9.14789 1.69179 9.57031 1.58105 9.99998 1.58105C10.4296 1.58105 10.8521 1.69179 11.2265 1.90259C11.6009 2.11338 11.9146 2.41712 12.1375 2.78448L12.1399 2.78844L19.1982 14.5718L19.205 14.5833C19.4233 14.9613 19.5388 15.3899 19.54 15.8264C19.5412 16.263 19.4281 16.6922 19.2119 17.0714C18.9958 17.4507 18.6841 17.7667 18.3078 17.9881C17.9316 18.2095 17.504 18.3285 17.0675 18.3333L17.0583 18.3334L2.93248 18.3333C2.49598 18.3285 2.06834 18.2095 1.69212 17.9881C1.31589 17.7667 1.00419 17.4507 0.788018 17.0714C0.571848 16.6922 0.458748 16.263 0.459971 15.8264C0.461193 15.3899 0.576695 14.9613 0.794985 14.5833L0.801754 14.5718L7.86247 2.78448C8.0853 2.41711 8.39908 2.11338 8.77348 1.90259ZM9.99998 3.24772C9.85675 3.24772 9.71595 3.28463 9.59115 3.3549C9.46691 3.42485 9.3627 3.52549 9.28849 3.64721L2.23555 15.4215C2.16457 15.5464 2.12703 15.6874 2.12663 15.8311C2.12622 15.9766 2.16392 16.1197 2.23598 16.2461C2.30804 16.3725 2.41194 16.4779 2.53735 16.5517C2.66166 16.6248 2.80281 16.6644 2.94697 16.6667H17.053C17.1971 16.6644 17.3383 16.6248 17.4626 16.5517C17.588 16.4779 17.6919 16.3725 17.764 16.2461C17.836 16.1197 17.8737 15.9766 17.8733 15.8311C17.8729 15.6875 17.8354 15.5464 17.7644 15.4216L10.7125 3.64886C10.7121 3.64831 10.7118 3.64776 10.7115 3.64721C10.6373 3.52549 10.533 3.42485 10.4088 3.3549C10.284 3.28463 10.1432 3.24772 9.99998 3.24772Z" fill="white"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M10.0001 6.6665C10.4603 6.6665 10.8334 7.0396 10.8334 7.49984V10.8332C10.8334 11.2934 10.4603 11.6665 10.0001 11.6665C9.53984 11.6665 9.16675 11.2934 9.16675 10.8332V7.49984C9.16675 7.0396 9.53984 6.6665 10.0001 6.6665Z" fill="white"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M9.16675 14.1668C9.16675 13.7066 9.53984 13.3335 10.0001 13.3335H10.0084C10.4687 13.3335 10.8417 13.7066 10.8417 14.1668C10.8417 14.6271 10.4687 15.0002 10.0084 15.0002H10.0001C9.53984 15.0002 9.16675 14.6271 9.16675 14.1668Z" fill="white"/>
-</svg>
-</div>
+  // Dropdown component
+  const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
+    return (
+      <div className="relative">
+        <select
+          name={name}
+          value={value || ""}
+          onChange={onChange}
+          disabled={disabled}
+          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
+            disabled 
+              ? "bg-gray-100 cursor-not-allowed" 
+              : "bg-white cursor-pointer"
+          }`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+    );
+  };
 
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                color: "white",
-                width :"100%",
-                paddingLeft : "5%"
-              }}
-            >
-              <h2 style={{ margin: 0, fontSize: "3vh", fontWeight: "500" }}>
-                Missing Information
-              </h2>
-              <p style={{ margin: 0, width: "100%", fontSize :"2.2vh"}}>
-                Please fill out all required fields to proceed to the next step
-              </p>
+  // Radio button component
+  const RadioGroup = ({ name, value, onChange, options, error }) => {
+    return (
+      <div className="space-y-2">
+        <div className="flex space-x-6">
+          {options.map((option) => (
+            <div key={option.value} className="flex items-center">
+              <input
+                type="radio"
+                id={`${name}_${option.value}`}
+                name={name}
+                value={option.value}
+                checked={value === option.value}
+                onChange={onChange}
+                className="h-4 w-4 text-pink-600 focus:ring-pink-500 focus:border-pink-500"
+              />
+              <label
+                htmlFor={`${name}_${option.value}`}
+                className="ml-2 text-sm font-medium text-gray-700"
+              >
+                {option.label}
+              </label>
             </div>
-              <div onClick={()=>setErrors(!errors)}>
-            <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M15.5893 4.41058C15.9148 4.73602 15.9148 5.26366 15.5893 5.58909L5.58934 15.5891C5.2639 15.9145 4.73626 15.9145 4.41083 15.5891C4.08539 15.2637 4.08539 14.736 4.41083 14.4106L14.4108 4.41058C14.7363 4.08514 15.2639 4.08514 15.5893 4.41058Z" fill="white"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M4.41083 4.41058C4.73626 4.08514 5.2639 4.08514 5.58934 4.41058L15.5893 14.4106C15.9148 14.736 15.9148 15.2637 15.5893 15.5891C15.2639 15.9145 14.7363 15.9145 14.4108 15.5891L4.41083 5.58909C4.08539 5.26366 4.08539 4.73602 4.41083 4.41058Z" fill="white"/>
-</svg>
-</div>
-          </div>
-        )} */}
-        <h3
-          style={{
-            fontSize: "1.8rem",
-            padding: "3vh 0 0 10vh",
-            fontWeight: "400",
-            color: "#ec4899",
-          }}
-        >
-          Create Your Mehram Match Profile
-        </h3>
-        <h5
-          style={{
-            fontSize: "1rem",
-            padding: "0 1vh 3vh 10vh",
-            fontWeight: "100",
-          }}
-        >
-          Follow these 6 simple step to complete your profile and find the
-          perfect match
-        </h5>
+          ))}
+        </div>
+        {error && (
+          <p className="text-red-500 text-sm">{error}</p>
+        )}
+      </div>
+    );
+  };
 
-        <div
-          style={{
-            height: "1px",
-            width: "91.5%",
-            backgroundColor: "#ccc",
-            marginLeft: "10vh",
-          }}
-        ></div>
+  // Sect options
+  const sectOptions = [
+    { value: "ahle_quran", label: "Ahle Qur'an" },
+    { value: "ahmadi", label: "Ahamadi" },
+    { value: "barelvi", label: "Barelvi" },
+    { value: "bohra", label: "Bohra" },
+    { value: "deobandi", label: "Deobandi" },
+    { value: "hanabali", label: "Hanabali" },
+    { value: "hanafi", label: "Hanafi" },
+    { value: "ibadi", label: "Ibadi" },
+    { value: "ismaili", label: "Ismaili" },
+    { value: "jamat_e_islami", label: "Jamat e Islami" },
+    { value: "maliki", label: "Maliki" },
+    { value: "pathan", label: "Pathan" },
+    { value: "salafi", label: "Salafi" },
+    { value: "salafi_ahle_hadees", label: "Salafi/Ahle Hadees" },
+    { value: "sayyid", label: "Sayyid" },
+    { value: "shafi", label: "Shafi" },
+    { value: "shia", label: "Shia" },
+    { value: "sunni", label: "Sunni" },
+    { value: "sufism", label: "Sufism" },
+    { value: "tableeghi_jamaat", label: "Tableeghi Jama'at" },
+    { value: "zahiri", label: "Zahiri" },
+    { value: "muslim", label: "Muslim" },
+    { value: "other", label: "Other" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
+  ];
 
-        <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
-          <div
-            style={{
-              width: "33.8%",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
+  // Practicing level options
+  const practicingLevelOptions = [
+    { value: "devout", label: "Devout" },
+    { value: "very_religious", label: "Very Religious" },
+    { value: "religious", label: "Religious" },
+    { value: "moderately_religious", label: "Moderately Religious" },
+    { value: "occasionally_religious", label: "Occasionally Religious" },
+    { value: "cultural_but_non_practicing", label: "Cultural but non-practicing" },
+    { value: "spiritual_but_not_religious", label: "Spiritual but not religious" },
+    { value: "religious_but_not_practicing", label: "Religious but not practicing" },
+    { value: "open_to_exploring_religion", label: "Open to exploring religion" },
+    { value: "agnostic", label: "Agnostic" },
+    { value: "atheist", label: "Atheist" },
+    { value: "secular", label: "Secular" },
+    { value: "open_to_all_beliefs", label: "Open to all beliefs" },
+    { value: "not_religious", label: "Not religious" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
+  ];
+
+  // Family type options
+  const familyTypeOptions = [
+    { value: "Nuclear Family", label: "Nuclear Family" },
+    { value: "Joint Family", label: "Joint Family" },
+    { value: "Extended Family", label: "Extended Family" },
+    { value: "Single-Parent Family", label: "Single-Parent Family" },
+    { value: "Blended Family", label: "Blended Family" },
+    { value: "Living Alone", label: "Living Alone" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
+  ];
+
+  // Education options
+  const educationOptions = [
+    { value: "High School", label: "High School" },
+    { value: "Undergraduate", label: "Undergraduate" },
+    { value: "Postgraduate", label: "Postgraduate" },
+    { value: "Doctorate", label: "Doctorate" },
+    { value: "Professional Degree", label: "Professional Degree" },
+    { value: "Other", label: "Other" },
+  ];
+
+  // Yes/No options
+  const yesNoOptions = [
+    { value: "yes", label: "Yes" },
+    { value: "no", label: "No" },
+  ];
+
+  // Comprehensive country-state-city data structure
+  const locationData = {
+    india: {
+      label: "India",
+      states: {
+        andhra_pradesh: {
+          label: "Andhra Pradesh",
+          cities: [
+            { value: "visakhapatnam", label: "Visakhapatnam" },
+            { value: "vijayawada", label: "Vijayawada" },
+            { value: "tirupati", label: "Tirupati" },
+            { value: "guntur", label: "Guntur" },
+            { value: "nellore", label: "Nellore" }
+          ]
+        },
+        arunachal_pradesh: {
+          label: "Arunachal Pradesh",
+          cities: [
+            { value: "itanagar", label: "Itanagar" },
+            { value: "pasighat", label: "Pasighat" },
+            { value: "ziro", label: "Ziro" }
+          ]
+        },
+        assam: {
+          label: "Assam",
+          cities: [
+            { value: "guwahati", label: "Guwahati" },
+            { value: "silchar", label: "Silchar" },
+            { value: "dibrugarh", label: "Dibrugarh" },
+            { value: "jorhat", label: "Jorhat" }
+          ]
+        },
+        bihar: {
+          label: "Bihar",
+          cities: [
+            { value: "patna", label: "Patna" },
+            { value: "gaya", label: "Gaya" },
+            { value: "bhagalpur", label: "Bhagalpur" },
+            { value: "muzaffarpur", label: "Muzaffarpur" }
+          ]
+        },
+        chhattisgarh: {
+          label: "Chhattisgarh",
+          cities: [
+            { value: "raipur", label: "Raipur" },
+            { value: "bilaspur", label: "Bilaspur" },
+            { value: "durg", label: "Durg" }
+          ]
+        },
+        goa: {
+          label: "Goa",
+          cities: [
+            { value: "panaji", label: "Panaji" },
+            { value: "margao", label: "Margao" },
+            { value: "vasco_da_gama", label: "Vasco da Gama" }
+          ]
+        },
+        gujarat: {
+          label: "Gujarat",
+          cities: [
+            { value: "ahmedabad", label: "Ahmedabad" },
+            { value: "surat", label: "Surat" },
+            { value: "vadodara", label: "Vadodara" },
+            { value: "rajkot", label: "Rajkot" },
+            { value: "bhavnagar", label: "Bhavnagar" }
+          ]
+        },
+        haryana: {
+          label: "Haryana",
+          cities: [
+            { value: "gurgaon", label: "Gurgaon" },
+            { value: "faridabad", label: "Faridabad" },
+            { value: "panipat", label: "Panipat" },
+            { value: "ambala", label: "Ambala" }
+          ]
+        },
+        himachal_pradesh: {
+          label: "Himachal Pradesh",
+          cities: [
+            { value: "shimla", label: "Shimla" },
+            { value: "dharamshala", label: "Dharamshala" },
+            { value: "manali", label: "Manali" }
+          ]
+        },
+        jharkhand: {
+          label: "Jharkhand",
+          cities: [
+            { value: "ranchi", label: "Ranchi" },
+            { value: "jamshedpur", label: "Jamshedpur" },
+            { value: "dhanbad", label: "Dhanbad" }
+          ]
+        },
+        karnataka: {
+          label: "Karnataka",
+          cities: [
+            { value: "bangalore", label: "Bangalore" },
+            { value: "mysore", label: "Mysore" },
+            { value: "hubli", label: "Hubli" },
+            { value: "mangalore", label: "Mangalore" }
+          ]
+        },
+        kerala: {
+          label: "Kerala",
+          cities: [
+            { value: "thiruvananthapuram", label: "Thiruvananthapuram" },
+            { value: "kochi", label: "Kochi" },
+            { value: "kozhikode", label: "Kozhikode" },
+            { value: "thrissur", label: "Thrissur" }
+          ]
+        },
+        madhya_pradesh: {
+          label: "Madhya Pradesh",
+          cities: [
+            { value: "bhopal", label: "Bhopal" },
+            { value: "indore", label: "Indore" },
+            { value: "gwalior", label: "Gwalior" },
+            { value: "jabalpur", label: "Jabalpur" }
+          ]
+        },
+        maharashtra: {
+          label: "Maharashtra",
+          cities: [
+            { value: "mumbai", label: "Mumbai" },
+            { value: "pune", label: "Pune" },
+            { value: "nagpur", label: "Nagpur" },
+            { value: "nashik", label: "Nashik" },
+            { value: "aurangabad", label: "Aurangabad" }
+          ]
+        },
+        manipur: {
+          label: "Manipur",
+          cities: [
+            { value: "imphal", label: "Imphal" },
+            { value: "thoubal", label: "Thoubal" }
+          ]
+        },
+        meghalaya: {
+          label: "Meghalaya",
+          cities: [
+            { value: "shillong", label: "Shillong" },
+            { value: "tura", label: "Tura" }
+          ]
+        },
+        mizoram: {
+          label: "Mizoram",
+          cities: [
+            { value: "aizawl", label: "Aizawl" },
+            { value: "lunglei", label: "Lunglei" }
+          ]
+        },
+        nagaland: {
+          label: "Nagaland",
+          cities: [
+            { value: "kohima", label: "Kohima" },
+            { value: "dimapur", label: "Dimapur" }
+          ]
+        },
+        odisha: {
+          label: "Odisha",
+          cities: [
+            { value: "bhubaneswar", label: "Bhubaneswar" },
+            { value: "cuttack", label: "Cuttack" },
+            { value: "rourkela", label: "Rourkela" }
+          ]
+        },
+        punjab: {
+          label: "Punjab",
+          cities: [
+            { value: "ludhiana", label: "Ludhiana" },
+            { value: "amritsar", label: "Amritsar" },
+            { value: "jalandhar", label: "Jalandhar" },
+            { value: "patiala", label: "Patiala" }
+          ]
+        },
+        rajasthan: {
+          label: "Rajasthan",
+          cities: [
+            { value: "jaipur", label: "Jaipur" },
+            { value: "jodhpur", label: "Jodhpur" },
+            { value: "udaipur", label: "Udaipur" },
+            { value: "kota", label: "Kota" },
+            { value: "bikaner", label: "Bikaner" }
+          ]
+        },
+        sikkim: {
+          label: "Sikkim",
+          cities: [
+            { value: "gangtok", label: "Gangtok" },
+            { value: "namchi", label: "Namchi" }
+          ]
+        },
+        tamil_nadu: {
+          label: "Tamil Nadu",
+          cities: [
+            { value: "chennai", label: "Chennai" },
+            { value: "coimbatore", label: "Coimbatore" },
+            { value: "madurai", label: "Madurai" },
+            { value: "tiruchirappalli", label: "Tiruchirappalli" }
+          ]
+        },
+        telangana: {
+          label: "Telangana",
+          cities: [
+            { value: "hyderabad", label: "Hyderabad" },
+            { value: "warangal", label: "Warangal" },
+            { value: "nizamabad", label: "Nizamabad" },
+            { value: "khammam", label: "Khammam" }
+          ]
+        },
+        tripura: {
+          label: "Tripura",
+          cities: [
+            { value: "agartala", label: "Agartala" },
+            { value: "dharamnagar", label: "Dharamnagar" }
+          ]
+        },
+        uttar_pradesh: {
+          label: "Uttar Pradesh",
+          cities: [
+            { value: "lucknow", label: "Lucknow" },
+            { value: "kanpur", label: "Kanpur" },
+            { value: "agra", label: "Agra" },
+            { value: "varanasi", label: "Varanasi" },
+            { value: "meerut", label: "Meerut" },
+            { value: "prayagraj", label: "Prayagraj" }
+          ]
+        },
+        uttarakhand: {
+          label: "Uttarakhand",
+          cities: [
+            { value: "dehradun", label: "Dehradun" },
+            { value: "haridwar", label: "Haridwar" },
+            { value: "roorkee", label: "Roorkee" },
+            { value: "nainital", label: "Nainital" }
+          ]
+        },
+        west_bengal: {
+          label: "West Bengal",
+          cities: [
+            { value: "kolkata", label: "Kolkata" },
+            { value: "asansol", label: "Asansol" },
+            { value: "siliguri", label: "Siliguri" },
+            { value: "durgapur", label: "Durgapur" },
+            { value: "howrah", label: "Howrah" }
+          ]
+        }
+      }
+    },
+    usa: {
+      label: "USA",
+      states: {
+        california: {
+          label: "California",
+          cities: [
+            { value: "los_angeles", label: "Los Angeles" },
+            { value: "san_francisco", label: "San Francisco" },
+            { value: "san_diego", label: "San Diego" },
+            { value: "sacramento", label: "Sacramento" }
+          ]
+        },
+        new_york: {
+          label: "New York",
+          cities: [
+            { value: "new_york_city", label: "New York City" },
+            { value: "buffalo", label: "Buffalo" },
+            { value: "rochester", label: "Rochester" }
+          ]
+        },
+        texas: {
+          label: "Texas",
+          cities: [
+            { value: "houston", label: "Houston" },
+            { value: "dallas", label: "Dallas" },
+            { value: "austin", label: "Austin" }
+          ]
+        },
+        florida: {
+          label: "Florida",
+          cities: [
+            { value: "miami", label: "Miami" },
+            { value: "orlando", label: "Orlando" },
+            { value: "tampa", label: "Tampa" }
+          ]
+        }
+      }
+    },
+    canada: {
+      label: "Canada",
+      states: {
+        ontario: {
+          label: "Ontario",
+          cities: [
+            { value: "toronto", label: "Toronto" },
+            { value: "ottawa", label: "Ottawa" },
+            { value: "hamilton", label: "Hamilton" }
+          ]
+        },
+        quebec: {
+          label: "Quebec",
+          cities: [
+            { value: "montreal", label: "Montreal" },
+            { value: "quebec_city", label: "Quebec City" }
+          ]
+        },
+        british_columbia: {
+          label: "British Columbia",
+          cities: [
+            { value: "vancouver", label: "Vancouver" },
+            { value: "victoria", label: "Victoria" }
+          ]
+        }
+      }
+    },
+    australia: {
+      label: "Australia",
+      states: {
+        new_south_wales: {
+          label: "New South Wales",
+          cities: [
+            { value: "sydney", label: "Sydney" },
+            { value: "newcastle", label: "Newcastle" },
+            { value: "wollongong", label: "Wollongong" }
+          ]
+        },
+        victoria: {
+          label: "Victoria",
+          cities: [
+            { value: "melbourne", label: "Melbourne" },
+            { value: "geelong", label: "Geelong" }
+          ]
+        },
+        queensland: {
+          label: "Queensland",
+          cities: [
+            { value: "brisbane", label: "Brisbane" },
+            { value: "gold_coast", label: "Gold Coast" }
+          ]
+        }
+      }
+    },
+    uk: {
+      label: "United Kingdom",
+      states: {
+        england: {
+          label: "England",
+          cities: [
+            { value: "london", label: "London" },
+            { value: "manchester", label: "Manchester" },
+            { value: "birmingham", label: "Birmingham" }
+          ]
+        },
+        scotland: {
+          label: "Scotland",
+          cities: [
+            { value: "edinburgh", label: "Edinburgh" },
+            { value: "glasgow", label: "Glasgow" }
+          ]
+        },
+        wales: {
+          label: "Wales",
+          cities: [
+            { value: "cardiff", label: "Cardiff" },
+            { value: "swansea", label: "Swansea" }
+          ]
+        }
+      }
+    }
+  };
+
+  // Helper functions for location dropdowns
+  const getCountries = () => {
+    return Object.keys(locationData).map(key => ({
+      value: key,
+      label: locationData[key].label
+    }));
+  };
+
+  const getStates = (country) => {
+    if (!country || !locationData[country]) return [];
+    return Object.keys(locationData[country].states).map(key => ({
+      value: key,
+      label: locationData[country].states[key].label
+    }));
+  };
+
+  const getCities = (country, state) => {
+    if (!country || !state || !locationData[country] || !locationData[country].states[state]) return [];
+    return locationData[country].states[state].cities;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            Create Your Mehram Match Profile
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Follow these 6 simple steps to complete your profile and find the perfect match
+          </p>
+        </div>
+
+        {/* Main Content Container */}
+        <div className="flex flex-col gap-6">
+          {/* Mobile Step Tracker - Separate container above form */}
+          <div className="lg:hidden block">
             <StepTracker percentage={75} />
           </div>
 
-          <div style={{ width: "86.1%", marginLeft: "19.5%" }}>
-            <form
-              style={{
-                borderLeft: "0.5px solid #ccc",
-                padding: "1rem",
-                width: "70%",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                padding: "1% 4%",
-                margin: "auto",
-                height: "auto",
-                position: "absolute",
-                left: "24.2rem",
-                zIndex: "0",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  margin: "0",
-                  padding: "0",
-                }}
-              >
-                step 4/6
-              </p>
-              <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-                Partner Expectations
-              </h4>
-              <p
-                style={{
-                  fontSize: "small",
-                  color: "gray",
-                  marginBottom: "1vh",
-                  padding: "0",
-                }}
-              >
-                Fill in the details below to share your expectations and vision
-                for your partnership.
-              </p>
-              <div
-                style={{
-                  height: "0.7px",
-                  width: "100%",
-                  backgroundColor: "#ccc",
-                }}
-              ></div>
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="firstName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Preferred Surname
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="preferredSurname"
-                      name="preferredSurname"
-                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                      placeholder="Enter surname"
-                      value={profileData.preferred_surname}
-                      onChange={(e) =>
-                        updateField("preferred_surname", e.target.value)
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Preferred
-                        Surname field.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* Desktop and Form Container */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Step Tracker - Professional sidebar layout */}
+            <div className="lg:block hidden">
+              <StepTracker percentage={75} />
+            </div>
 
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Preferred Sect <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="preferredSect"
-                      name="preferredSect"
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.preferred_sect
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      value={profileData.preferred_sect}
-                      onChange={(e) =>
-                        updateField("preferred_sect", e.target.value)
-                      }
-                    >
-                      <option value="">Select Sect</option>
-                      <option value="Sunni">Sunni</option>
-                      <option value="Shia">Shia</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Preferred Sect
-                        field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.preferred_sect && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.preferred_sect}
+            {/* Main Form Container */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
+              {/* Form Header */}
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
+                      Step 4 of 6
                     </p>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-[#000000] mb-0">
-                      Belives in Dargah/Fatiha/Niyah?{" "}
-                      <span style={{ color: "red" }}>*</span>
-                    </label>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Belives in
-                        Dargah/Fatiha/Niyah field.
-                      </div>
-                    </div>
+                    <h2 className="text-2xl font-bold text-white mt-1">
+                      Partner Expectations
+                    </h2>
                   </div>
-
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={(e) =>
-                        updateField("preferred_dargah_fatiha_niyah", "yes")
-                      }
-                      type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
-                        profileData.preferred_dargah_fatiha_niyah === "yes"
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                          profileData.preferred_dargah_fatiha_niyah === "yes"
-                            ? "translate-x-6"
-                            : "translate-x-0"
-                        }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
-
-                    <button
-                      onClick={(e) =>
-                        updateField("preferred_dargah_fatiha_niyah", "no")
-                      }
-                      type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
-                        profileData.preferred_dargah_fatiha_niyah === "no"
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                          profileData.preferred_dargah_fatiha_niyah === "no"
-                            ? "translate-x-6"
-                            : "translate-x-0"
-                        }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
-                  </div>
-                  {errors.preferred_dargah_fatiha_niyah && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.preferred_dargah_fatiha_niyah}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="dob"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Desired Practicing Level{" "}
-                    <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="desiredPracticingLevel"
-                      name="desiredPracticingLevel"
-                      value={profileData.desired_practicing_level}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.desired_practicing_level
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("desired_practicing_level", e.target.value)
-                      }
-                    >
-                      <option value="">Select Practicing Level</option>
-                      <option value="High">High</option>
-                      <option value="Moderate">Moderate</option>
-                      <option value="Low">Low</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Desired
-                        Practicing Level field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.desired_practicing_level && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.desired_practicing_level}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Preferred Family Type{" "}
-                    <span style={{ color: "red" }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="preferredFamilyType"
-                      name="preferredFamilyType"
-                      value={profileData.preferred_family_type}
-                      required
-                      className={`h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${
-                        errors.preferred_family_type
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
-                      onChange={(e) =>
-                        updateField("preferred_family_type", e.target.value)
-                      }
-                    >
-                      <option value="">Select Family Type</option>
-                      <option value="Nuclear">Nuclear</option>
-                      <option value="Joint">Joint</option>
-                      <option value="Extended">Extended</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Preferred
-                        Family Type field.
-                      </div>
-                    </div>
-                  </div>
-                  {errors.preferred_family_type && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.preferred_family_type}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Education Level
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="educationLevel"
-                      name="educationLevel"
-                      className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                      value={profileData.preferred_education}
-                      onChange={(e) =>
-                        updateField("preferred_education", e.target.value)
-                      }
-                    >
-                      <option value="">Select Education Level</option>
-                      <option value="High School">High School</option>
-                      <option value="Undergraduate">Undergraduate</option>
-                      <option value="Postgraduate">Postgraduate</option>
-                      <option value="Doctorate">Doctorate</option>
-                    </select>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Education Level
-                        field.
-                      </div>
-                    </div>
+                  <div className="bg-white/20 rounded-full p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="firstName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Profession / Occupation
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="preferredSurname"
-                      name="preferredSurname"
-                      value={profileData.preferred_occupation_profession}
-                      className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                      placeholder="Profession / Occupation"
-                      onChange={(e) =>
-                        updateField(
-                          "preferred_occupation_profession",
-                          e.target.value
-                        )
-                      }
-                    />
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Profession /
-                        Occupation field.
-                      </div>
+              {/* Form Content */}
+              <div className="p-8">
+                <form className="space-y-8">
+                  {/* Partner Expectations Section */}
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                        Partner Preferences
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Share your expectations and preferences for your ideal partner
+                      </p>
                     </div>
-                  </div>
-                </div>
-
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="maritalStatus"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Preferred Location
-                  </label>
-
-                  <div style={{ display: "flex", width: "100%",gap:"1%" }}>
-                    {/* City Dropdown with Tooltip */}
-                    <div className="w-1/3 relative">
-                      
-                        <select
-                          id="preferred_city"
-                          name="preferred_city"
-                          required
-                          value={profileData.preferred_city || ""}
-                          className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("preferred_city", e.target.value)
-                          }
-                        >
-                          <option value="">City</option>
-                          <option value="mumbai">Mumbai</option>
-                          <option value="delhi">Delhi</option>
-                          <option value="bangalore">Bangalore</option>
-                          <option value="hyderabad">Hyderabad</option>
-                          <option value="chennai">Chennai</option>
-                          <option value="kolkata">Kolkata</option>
-                          <option value="pune">Pune</option>
-                          <option value="ahmedabad">Ahmedabad</option>
-                          <option value="jaipur">Jaipur</option>
-                          <option value="lucknow">Lucknow</option>
-                        </select>
-
-                        {/* Tooltip */}
-                        <div className="absolute right-4 top-3 group">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-10 hidden group-hover:block w-48 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-full ml-2 top-1/2 transform -translate-y-1/2">
-                            Please select your preferred city.
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Preferred Surname */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Preferred Surname</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_surname');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_surname' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Enter your preferred surname for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
                           </div>
-                        </div>
-                      
-                    </div>
+                        </label>
+                        <input
+                          type="text"
+                          name="preferred_surname"
+                          value={profileData.preferred_surname || ""}
+                          placeholder="Enter preferred surname"
+                          className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium"
+                          onChange={(e) => updateField("preferred_surname", e.target.value)}
+                        />
+                      </div>
 
-                    {/* State Dropdown with Tooltip */}
-                    <div className="w-1/3 relative">
-                      
-                        <select
-                          id="preferred_state"
-                          name="preferred_state"
-                          required
-                          value={profileData.preferred_state || ""}
-                          className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("preferred_state", e.target.value)
-                          }
-                        >
-                          <option value="">State</option>
-                          <option value="andhra_pradesh">Andhra Pradesh</option>
-                          <option value="arunachal_pradesh">
-                            Arunachal Pradesh
-                          </option>
-                          <option value="assam">Assam</option>
-                          <option value="bihar">Bihar</option>
-                          <option value="chhattisgarh">Chhattisgarh</option>
-                          <option value="goa">Goa</option>
-                          <option value="gujarat">Gujarat</option>
-                          <option value="haryana">Haryana</option>
-                          <option value="himachal_pradesh">
-                            Himachal Pradesh
-                          </option>
-                          <option value="jharkhand">Jharkhand</option>
-                          <option value="karnataka">Karnataka</option>
-                          <option value="kerala">Kerala</option>
-                          <option value="madhya_pradesh">Madhya Pradesh</option>
-                          <option value="maharashtra">Maharashtra</option>
-                          <option value="manipur">Manipur</option>
-                          <option value="meghalaya">Meghalaya</option>
-                          <option value="mizoram">Mizoram</option>
-                          <option value="nagaland">Nagaland</option>
-                          <option value="odisha">Odisha</option>
-                          <option value="punjab">Punjab</option>
-                          <option value="rajasthan">Rajasthan</option>
-                          <option value="sikkim">Sikkim</option>
-                          <option value="tamil_nadu">Tamil Nadu</option>
-                          <option value="telangana">Telangana</option>
-                          <option value="tripura">Tripura</option>
-                          <option value="uttar_pradesh">Uttar Pradesh</option>
-                          <option value="uttarakhand">Uttarakhand</option>
-                          <option value="west_bengal">West Bengal</option>
-                        </select>
-
-                        {/* Tooltip */}
-                        <div className="absolute right-4 top-3 group">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-10 hidden group-hover:block w-48 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-full ml-2 top-1/2 transform -translate-y-1/2">
-                            Please select your preferred state.
+                      {/* Preferred Sect */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Preferred Sect <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_sect');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_sect' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred Islamic sect for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
                           </div>
-                        </div>
-                      
+                        </label>
+                        <Dropdown
+                          options={sectOptions}
+                          name="preferred_sect"
+                          value={profileData.preferred_sect}
+                          onChange={(e) => updateField("preferred_sect", e.target.value)}
+                        />
+                        {formErrors.preferred_sect && (
+                          <p className="text-red-500 text-sm">{formErrors.preferred_sect}</p>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Country Dropdown with Tooltip */}
-                    <div className="w-1/3 relative">
-                      
-                        <select
-                          id="preferred_country"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Believe in Dargah/Fatiha/Niyah */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Believe in Dargah/Fatiha/Niyah? <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_dargah_fatiha_niyah');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_dargah_fatiha_niyah' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Do you prefer a partner who believes in visiting dargahs, offering fatiha, or making niyah?
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <RadioGroup
+                          name="preferred_dargah_fatiha_niyah"
+                          value={profileData.preferred_dargah_fatiha_niyah}
+                          onChange={(e) => updateField("preferred_dargah_fatiha_niyah", e.target.value)}
+                          options={yesNoOptions}
+                          error={formErrors.preferred_dargah_fatiha_niyah}
+                        />
+                      </div>
+
+                      {/* Desired Practicing Level */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Desired Practicing Level <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('desired_practicing_level');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'desired_practicing_level' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your desired level of Islamic practice for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={practicingLevelOptions}
+                          name="desired_practicing_level"
+                          value={profileData.desired_practicing_level}
+                          onChange={(e) => updateField("desired_practicing_level", e.target.value)}
+                        />
+                        {formErrors.desired_practicing_level && (
+                          <p className="text-red-500 text-sm">{formErrors.desired_practicing_level}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Preferred Family Type */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Preferred Family Type <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_family_type');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_family_type' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred family structure for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={familyTypeOptions}
+                          name="preferred_family_type"
+                          value={profileData.preferred_family_type}
+                          onChange={(e) => updateField("preferred_family_type", e.target.value)}
+                        />
+                        {formErrors.preferred_family_type && (
+                          <p className="text-red-500 text-sm">{formErrors.preferred_family_type}</p>
+                        )}
+                      </div>
+
+                      {/* Education Level */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Education Level</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_education');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_education' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred education level for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={educationOptions}
+                          name="preferred_education"
+                          value={profileData.preferred_education}
+                          onChange={(e) => updateField("preferred_education", e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Profession / Occupation */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Profession / Occupation</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none"
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_occupation_profession');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_occupation_profession' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Enter your preferred profession or occupation for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="text"
+                          name="preferred_occupation_profession"
+                          value={profileData.preferred_occupation_profession || ""}
+                          placeholder="Enter profession or occupation"
+                          className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium"
+                          onChange={(e) => updateField("preferred_occupation_profession", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Preferred Location Section */}
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                        Preferred Location
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Country */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>Country <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_country');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred country for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={getCountries()}
                           name="preferred_country"
-                          required
-                          value={profileData.preferred_country || ""}
-                          className="h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
-                          text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                          onChange={(e) =>
-                            updateField("preferred_country", e.target.value)
-                          }
-                        >
-                          <option value="">Country</option>
-                          <option value="india">India</option>
-                          <option value="usa">United States</option>
-                          <option value="canada">Canada</option>
-                          <option value="australia">Australia</option>
-                          <option value="uk">United Kingdom</option>
-                          <option value="china">China</option>
-                          <option value="japan">Japan</option>
-                          <option value="germany">Germany</option>
-                          <option value="france">France</option>
-                          <option value="italy">Italy</option>
-                          <option value="brazil">Brazil</option>
-                          <option value="south_africa">South Africa</option>
-                          <option value="russia">Russia</option>
-                          <option value="mexico">Mexico</option>
-                          <option value="new_zealand">New Zealand</option>
-                        </select>
-
-                        {/* Tooltip */}
-                        <div className="absolute right-8 top-3.5 group">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-red-500 cursor-pointer"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div className="absolute z-10 hidden group-hover:block w-48 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-full ml-2 top-1/2 transform -translate-y-1/2">
-                            Please select your preferred country.
-                          </div>
-                        </div>
-                      
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "2rem" }}>
-                <div className="w-[50%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Partner's Family Background
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      id="partnerFamilyBackground"
-                      name="partnerFamilyBackground"
-                      rows="3"
-                      value={profileData.preferred_family_background || ""}
-                      className="h-[100px] py-[8px] px-[12px] resize-none text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                      placeholder="Describe family background"
-                      onChange={(e) =>
-                        updateField(
-                          "preferred_family_background",
-                          e.target.value
-                        )
-                      }
-                    ></textarea>
-                    {/* Information icon positioned at right corner of input */}
-                    <div className="absolute right-4 top-5 transform -translate-y-1/2 group z-20">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-red-500 cursor-pointer"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          value={profileData.preferred_country}
+                          onChange={(e) => updateField("preferred_country", e.target.value)}
                         />
-                      </svg>
-                      {/* Tooltip text */}
-                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                        This is additional information about the Partner's
-                        Family Background field.
+                        {formErrors.preferred_country && (
+                          <p className="text-red-500 text-sm">{formErrors.preferred_country}</p>
+                        )}
+                      </div>
+
+                      {/* State */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>State <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_state');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_state' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred state/province for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={getStates(profileData.preferred_country)}
+                          name="preferred_state"
+                          value={profileData.preferred_state}
+                          onChange={(e) => updateField("preferred_state", e.target.value)}
+                        />
+                        {formErrors.preferred_state && (
+                          <p className="text-red-500 text-sm">{formErrors.preferred_state}</p>
+                        )}
+                      </div>
+
+                      {/* City */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          <span>City <span className="text-red-500">*</span></span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('preferred_city');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Select your preferred city for your partner
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <Dropdown
+                          options={getCities(profileData.preferred_country, profileData.preferred_state)}
+                          name="preferred_city"
+                          value={profileData.preferred_city}
+                          onChange={(e) => updateField("preferred_city", e.target.value)}
+                        />
+                        {formErrors.preferred_city && (
+                          <p className="text-red-500 text-sm">{formErrors.preferred_city}</p>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="w-[50%]">
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-[#000000]"
-                  ></label>
-                </div>
+                  {/* Partner's Family Background Section */}
+                  <div className="space-y-6">
+                    <div className="border-b border-gray-200 pb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                        Additional Preferences
+                      </h3>
+                    </div>
+
+                    {/* Partner's Family Background */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Partner's Family Background</span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            fill="none"
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('preferred_family_background');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_family_background' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Describe your preferred family background for your partner
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <textarea
+                        name="preferred_family_background"
+                        rows="4"
+                        value={profileData.preferred_family_background || ""}
+                        placeholder="Describe your preferred family background for your partner..."
+                        className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
+                        onChange={(e) => updateField("preferred_family_background", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {/* Navigation Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">
+                    {/* Back Button */}
+                    <button
+                      onClick={() => navigate("/memstepthree")}
+                      type="button"
+                      className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
+                    >
+                      <svg className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      <span className="text-sm sm:text-base">Back</span>
+                    </button>
+                    
+                    {/* Next Step Button */}
+                    <button
+                      onClick={naviagteNextStep}
+                      type="button"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                    >
+                      {/* Gradient overlay for hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      
+                      <span className="relative text-sm sm:text-base font-medium">Next Step</span>
+                      <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <button
-                  onClick={() => {
-                    navigate("/memstepthree");
-                  }}
-                  className="text-[black] bg-[white] mt-[24px] h-[40px] w-[150px]   "
-                  style={{
-                    borderRadius: "5vh",
-                    Color: "#fff !important",
-                    fontWeight: "400",
-                    border: "1px solid black",
-                  }}
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={naviagteNextStep}
-                  className="text-[white] bg-[#0fd357] mt-[24px] h-[40px] w-[150px]  "
-                  style={{
-                    borderRadius: "5vh",
-                    Color: "#fff !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Next Step
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
