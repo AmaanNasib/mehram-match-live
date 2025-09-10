@@ -279,7 +279,7 @@ const MemStepFour = () => {
           value={value || ""}
           onChange={onChange}
           disabled={disabled}
-          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
+          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
             disabled 
               ? "bg-gray-100 cursor-not-allowed" 
               : "bg-white cursor-pointer"
@@ -315,7 +315,7 @@ const MemStepFour = () => {
                 value={option.value}
                 checked={value === option.value}
                 onChange={onChange}
-                className="h-4 w-4 text-pink-600 focus:ring-pink-500 focus:border-pink-500"
+                className="h-4 w-4 text-pink-600 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
               />
               <label
                 htmlFor={`${name}_${option.value}`}
@@ -345,15 +345,15 @@ const MemStepFour = () => {
                 key={option.value}
                 type="button"
                 onClick={() => onChange(name, option.value)}
-                className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:ring-offset-2 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-500 shadow-lg shadow-pink-200'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 shadow-sm hover:shadow-md'
+                    ? 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white border-[#CB3B8B] shadow-lg shadow-[#FFC0E3]'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-[#FFA4D6] hover:bg-[#FFC0E3] hover:text-[#CB3B8B] shadow-sm hover:shadow-md'
                 }`}
               >
                 <span className="relative z-10">{option.label}</span>
                 {isSelected && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl opacity-90"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-xl opacity-90"></div>
                 )}
               </button>
             );
@@ -1053,11 +1053,11 @@ const MemStepFour = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFC0E3] via-white to-[#FFA4D6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent">
             Create Your Mehram Match Profile
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -1082,7 +1082,7 @@ const MemStepFour = () => {
             {/* Main Form Container */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
               {/* Form Header */}
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-8 py-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
@@ -1107,7 +1107,7 @@ const MemStepFour = () => {
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                        <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
                         Partner Preferences
                       </h3>
                       <p className="text-sm text-gray-600 mt-2">
@@ -1121,7 +1121,7 @@ const MemStepFour = () => {
                           <span>Preferred Surname</span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1143,7 +1143,7 @@ const MemStepFour = () => {
                           name="preferred_surname"
                           value={profileData.preferred_surname || ""}
                           placeholder="Enter preferred surname"
-                          className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium"
+                          className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium"
                           onChange={(e) => updateField("preferred_surname", e.target.value)}
                         />
                       </div>
@@ -1154,7 +1154,7 @@ const MemStepFour = () => {
                           <span>Preferred Sect <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1190,7 +1190,7 @@ const MemStepFour = () => {
                           <span>Believe in Dargah/Fatiha/Niyah? <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1222,7 +1222,7 @@ const MemStepFour = () => {
                           <span>Desired Practicing Level <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1258,7 +1258,7 @@ const MemStepFour = () => {
                           <span>Preferred Family Type <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1292,7 +1292,7 @@ const MemStepFour = () => {
                           <span>Education Level</span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1325,7 +1325,7 @@ const MemStepFour = () => {
                           <span>Profession / Occupation</span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none"
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1356,7 +1356,7 @@ const MemStepFour = () => {
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                        <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
                         Preferred Location
                       </h3>
                     </div>
@@ -1368,7 +1368,7 @@ const MemStepFour = () => {
                           <span>Country <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1402,7 +1402,7 @@ const MemStepFour = () => {
                           <span>State <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1436,7 +1436,7 @@ const MemStepFour = () => {
                           <span>City <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -1470,7 +1470,7 @@ const MemStepFour = () => {
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                        <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">3</span>
                         Additional Preferences
                       </h3>
                     </div>
@@ -1481,7 +1481,7 @@ const MemStepFour = () => {
                         <span>Partner's Family Background</span>
                         <div className="group relative tooltip-container">
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                             fill="none"
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
@@ -1503,7 +1503,7 @@ const MemStepFour = () => {
                         rows="4"
                         value={profileData.preferred_family_background || ""}
                         placeholder="Describe your preferred family background for your partner..."
-                        className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
+                        className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
                         onChange={(e) => updateField("preferred_family_background", e.target.value)}
                       />
                     </div>
@@ -1526,10 +1526,10 @@ const MemStepFour = () => {
                     <button
                       onClick={naviagteNextStep}
                       type="button"
-                      className="group w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
                     >
                       {/* Gradient overlay for hover effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       
                       <span className="relative text-sm sm:text-base font-medium">Next Step</span>
                       <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

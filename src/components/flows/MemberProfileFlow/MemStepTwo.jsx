@@ -246,8 +246,8 @@ const MemStepTwo = () => {
                 onClick={() => onChange(name, option.value)}
                 className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-500 shadow-lg shadow-pink-200'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 shadow-sm hover:shadow-md'
+                    ? 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white border-[#CB3B8B] shadow-lg shadow-[#FFC0E3]'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-[#FFA4D6] hover:bg-[#FFC0E3] hover:text-[#CB3B8B] shadow-sm hover:shadow-md'
                 }`}
               >
                 <div className="flex items-center justify-center space-x-2">
@@ -272,8 +272,8 @@ const MemStepTwo = () => {
                 {/* Hover effect overlay */}
                 <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
                   isSelected 
-                    ? 'bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-20' 
-                    : 'bg-gradient-to-r from-pink-100 to-purple-100 opacity-0 group-hover:opacity-100'
+                    ? 'bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-20' 
+                    : 'bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] opacity-0 group-hover:opacity-100'
                 }`}></div>
               </button>
             );
@@ -283,7 +283,7 @@ const MemStepTwo = () => {
         {/* Selected count indicator */}
         {values.length > 0 && (
           <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
-            <svg className="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[#CB3B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{values.length} option{values.length !== 1 ? 's' : ''} selected</span>
@@ -316,7 +316,7 @@ const MemStepTwo = () => {
                 value={option.value}
                 checked={value === option.value}
                 onChange={onChange}
-                className="h-4 w-4 text-pink-600 focus:ring-pink-500 focus:border-pink-500"
+                className="h-4 w-4 text-[#CB3B8B] focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
               />
                   <label
                 htmlFor={`${name}_${option.value}`}
@@ -402,11 +402,11 @@ const MemStepTwo = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFC0E3] via-white to-[#FFA4D6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent">
           Create Your Mehram Match Profile
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -431,7 +431,7 @@ const MemStepTwo = () => {
             {/* Main Form Container */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
               {/* Form Header */}
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-8 py-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
@@ -456,7 +456,7 @@ const MemStepTwo = () => {
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                        <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
                         Religious Background
                       </h3>
                       <p className="text-sm text-gray-600 mt-2">
@@ -471,7 +471,7 @@ const MemStepTwo = () => {
                           <span>Sect / School of Thought <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                               stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -505,7 +505,7 @@ const MemStepTwo = () => {
                           <span>Islamic Practicing Level</span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
@@ -536,7 +536,7 @@ const MemStepTwo = () => {
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                        <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">2</span>
                         Religious Beliefs & Practices
                       </h3>
                 </div>
@@ -548,7 +548,7 @@ const MemStepTwo = () => {
                           <span>Believe in Dargah/Fatiha/Niyah? <span className="text-red-500">*</span></span>
                           <div className="group relative tooltip-container">
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                           fill="none"
                               stroke="currentColor" 
                           viewBox="0 0 24 24"
@@ -581,7 +581,7 @@ const MemStepTwo = () => {
                             <span>Hijab/Niqab Preference? <span className="text-red-500">*</span></span>
                             <div className="group relative tooltip-container">
                               <svg 
-                                className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                                className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                                 fill="none" 
                                 stroke="currentColor" 
                                 viewBox="0 0 24 24"
@@ -643,10 +643,10 @@ const MemStepTwo = () => {
                 <button
                       onClick={naviagteNextStep}
                   type="button"
-                      className="group w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
+                      className="group w-full sm:w-auto bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-h-[48px] relative overflow-hidden"
                     >
                       {/* Gradient overlay for hover effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       
                       <span className="relative text-sm sm:text-base font-medium">Next Step</span>
                       <svg className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

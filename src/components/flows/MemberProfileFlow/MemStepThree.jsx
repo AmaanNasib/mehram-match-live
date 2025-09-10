@@ -439,11 +439,11 @@ const MemStepThree = () => {
   // }, [errors]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFC0E3] via-white to-[#FFA4D6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] bg-clip-text text-transparent">
           Create Your Mehram Match Profile
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -468,7 +468,7 @@ const MemStepThree = () => {
             {/* Main Form Container */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex-1">
             {/* Form Header */}
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6">
+            <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-8 py-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-pink-100 text-sm font-medium uppercase tracking-wide">
@@ -493,7 +493,7 @@ const MemStepThree = () => {
                 <div className="space-y-6">
                   <div className="border-b border-gray-200 pb-4">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                      <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                      <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">1</span>
                       Family Information
                     </h3>
                     <p className="text-sm text-gray-600 mt-2">
@@ -508,7 +508,7 @@ const MemStepThree = () => {
                   <span>Father's Name <span className="text-red-500">*</span></span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                         stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -534,7 +534,7 @@ const MemStepThree = () => {
                   className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                     formErrors.father_name
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                   }`}
                   onChange={(e) => updateField("father_name", e.target.value)}
                 />
@@ -548,7 +548,7 @@ const MemStepThree = () => {
                   <span>Father's Occupation</span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -570,7 +570,7 @@ const MemStepThree = () => {
                     id="father_occupation"
                     name="father_occupation"
                     value={profileData.father_occupation || ""}
-                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
                     onChange={(e) => updateField("father_occupation", e.target.value)}
                   >
                     <option value="">Select Father's Occupation</option>
@@ -596,7 +596,7 @@ const MemStepThree = () => {
                   <span>Mother's Name <span className="text-red-500">*</span></span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                         stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -622,7 +622,7 @@ const MemStepThree = () => {
                   className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                     formErrors.mother_name
                       ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                   }`}
                   onChange={(e) => updateField("mother_name", e.target.value)}
                 />
@@ -636,7 +636,7 @@ const MemStepThree = () => {
                   <span>Mother's Occupation</span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -658,7 +658,7 @@ const MemStepThree = () => {
                     id="mother_occupation"
                     name="mother_occupation"
                     value={profileData.mother_occupation || ""}
-                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
                     onChange={(e) => updateField("mother_occupation", e.target.value)}
                   >
                     <option value="">Select Mother's Occupation</option>
@@ -685,7 +685,7 @@ const MemStepThree = () => {
                     <span>Is Father Alive? <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -710,7 +710,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                         formErrors.father_alive
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("father_alive", e.target.value)}
                     >
@@ -735,7 +735,7 @@ const MemStepThree = () => {
                     <span>Is Mother Alive? <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -760,7 +760,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                         formErrors.mother_alive
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("mother_alive", e.target.value)}
                     >
@@ -788,7 +788,7 @@ const MemStepThree = () => {
                     <span>Is Father a Stepfather? <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -813,7 +813,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                         formErrors.step_father
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("step_father", e.target.value)}
                     >
@@ -838,7 +838,7 @@ const MemStepThree = () => {
                     <span>Is Mother a Stepmother? <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -863,7 +863,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                         formErrors.step_mother
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("step_mother", e.target.value)}
                     >
@@ -890,7 +890,7 @@ const MemStepThree = () => {
                   <span>Number of Siblings <span className="text-red-500">*</span></span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -915,7 +915,7 @@ const MemStepThree = () => {
                     className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                       formErrors.number_of_siblings
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                     }`}
                     onChange={(e) => updateField("number_of_siblings", e.target.value)}
                   >
@@ -949,7 +949,7 @@ const MemStepThree = () => {
                   <span>Family Type <span className="text-red-500">*</span></span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                         stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -974,7 +974,7 @@ const MemStepThree = () => {
                     className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                       formErrors.family_type
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                     }`}
                     onChange={(e) => updateField("family_type", e.target.value)}
                   >
@@ -1007,7 +1007,7 @@ const MemStepThree = () => {
                     <span>Number of Brothers <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1036,7 +1036,7 @@ const MemStepThree = () => {
                       } ${
                         formErrors.number_of_brothers
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("number_of_brothers", e.target.value)}
                       disabled={!profileData.number_of_siblings}
@@ -1063,7 +1063,7 @@ const MemStepThree = () => {
                     <span>Number of Sisters <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                           fill="none"
                           stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1092,7 +1092,7 @@ const MemStepThree = () => {
                       } ${
                         formErrors.number_of_sisters
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("number_of_sisters", e.target.value)}
                       disabled={!profileData.number_of_siblings}
@@ -1123,7 +1123,7 @@ const MemStepThree = () => {
                   <span>Family Practicing Level <span className="text-red-500">*</span></span>
                   <div className="group relative tooltip-container">
                     <svg 
-                      className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                      className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                           fill="none"
                           stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1148,7 +1148,7 @@ const MemStepThree = () => {
                     className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                       formErrors.family_practicing_level
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                     }`}
                     onChange={(e) => updateField("family_practicing_level", e.target.value)}
                   >
@@ -1187,7 +1187,7 @@ const MemStepThree = () => {
                     <span>Number of Children <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1212,7 +1212,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                         formErrors.number_of_children
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("number_of_children", e.target.value)}
                     >
@@ -1252,7 +1252,7 @@ const MemStepThree = () => {
                     <span>Number of Sons <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                             fill="none"
                             stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1274,7 +1274,7 @@ const MemStepThree = () => {
                           id="number_of_son"
                           name="number_of_son"
                           value={profileData.number_of_son || ""}
-                          className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                          className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
                           onChange={(e) => updateField("number_of_son", e.target.value)}
                         >
                           <option value="">Select Number</option>
@@ -1304,7 +1304,7 @@ const MemStepThree = () => {
                     <span>Number of Daughters <span className="text-red-500">*</span></span>
                     <div className="group relative tooltip-container">
                       <svg 
-                        className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -1326,7 +1326,7 @@ const MemStepThree = () => {
                         id="number_of_daughter"
                         name="number_of_daughter"
                         value={profileData.number_of_daughter || ""}
-                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
                         onChange={(e) => updateField("number_of_daughter", e.target.value)}
                       >
                         <option value="">Select Number</option>
@@ -1367,7 +1367,7 @@ const MemStepThree = () => {
                       <span>Wali Name <span className="text-red-500">*</span></span>
                       <div className="group relative tooltip-container">
                         <svg 
-                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                           fill="none" 
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
@@ -1393,7 +1393,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.wali_name
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("wali_name", e.target.value)}
                     />
@@ -1407,7 +1407,7 @@ const MemStepThree = () => {
                       <span>Wali Contact Number <span className="text-red-500">*</span></span>
                       <div className="group relative tooltip-container">
                         <svg 
-                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                             fill="none"
                             stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1433,7 +1433,7 @@ const MemStepThree = () => {
                       className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.wali_contact_number
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                          : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
                       onChange={(e) => updateField("wali_contact_number", e.target.value)}
                     />
@@ -1449,7 +1449,7 @@ const MemStepThree = () => {
                       <span>Blood Relation <span className="text-red-500">*</span></span>
                       <div className="group relative tooltip-container">
                         <svg 
-                          className="w-4 h-4 text-gray-400 hover:text-pink-500 cursor-help transition-colors" 
+                          className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
                             fill="none"
                             stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1474,7 +1474,7 @@ const MemStepThree = () => {
                     className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                       formErrors.wali_blood_relation
                         ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                        : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                     }`}
                     onChange={(e) => updateField("wali_blood_relation", e.target.value)}
                   >
@@ -1530,7 +1530,7 @@ const MemStepThree = () => {
                 <button
                   type="button"
                   onClick={naviagteNextStep}
-                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl"
+                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white rounded-xl font-medium hover:from-[#F971BC] hover:to-[#DA73AD] transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 group shadow-lg hover:shadow-xl"
                 >
                   Next Step
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
