@@ -974,24 +974,31 @@ const MemStepOne = () => {
 
   const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
     return (
-      <select
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        disabled={disabled}
-        className={`w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium ${
-          disabled 
-            ? "bg-gray-100 cursor-not-allowed" 
-            : "bg-white"
-        }`}
-      >
-        <option value="">Select an option</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          name={name}
+          value={value || ""}
+          onChange={onChange}
+          disabled={disabled}
+          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
+            disabled 
+              ? "bg-gray-100 cursor-not-allowed" 
+              : "bg-white cursor-pointer"
+          }`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
     );
   };
 
@@ -1662,19 +1669,26 @@ const MemStepOne = () => {
                           </div>
                         </div>
                       </label>
-                    <select
-                      value={profileData.disability || ""}
+                    <div className="relative">
+                      <select
+                        value={profileData.disability || ""}
                         onChange={(e) => handleFieldChange("disability", e.target.value)}
-                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                        className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                             formErrors.disability
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                         }`}
-                    >
-                      <option value="">Select Disability Status</option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
-                    </select>
+                      >
+                        <option value="">Select Disability Status</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   {formErrors.disability && (
                         <p className="text-red-500 text-sm">{formErrors.disability}</p>
                   )}
@@ -1703,25 +1717,32 @@ const MemStepOne = () => {
                           </div>
                         </div>
                       </label>
-                    <select
-                      value={profileData.incomeRange || ""}
+                    <div className="relative">
+                      <select
+                        value={profileData.incomeRange || ""}
                         onChange={(e) => handleFieldChange("incomeRange", e.target.value)}
-                        className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                        className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
                             formErrors.incomeRange
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
                         }`}
-                    >
-                      <option value="">Select Income Range</option>
-                      <option value="below_2lac">Below ₹2,00,000</option>
-                      <option value="2lac_to_5lac">₹2,00,000 - ₹5,00,000</option>
-                      <option value="5lac_to_10lac">₹5,00,000 - ₹10,00,000</option>
-                      <option value="10lac_to_20lac">₹10,00,000 - ₹20,00,000</option>
-                      <option value="20lac_to_50lac">₹20,00,000 - ₹50,00,000</option>
-                      <option value="above_50lac">Above ₹50,00,000</option>
-                      <option value="no_preference">No preference</option>
-                      <option value="prefer_not_to_say">Prefer not to say</option>
-                    </select>
+                      >
+                        <option value="">Select Income Range</option>
+                        <option value="below_2lac">Below ₹2,00,000</option>
+                        <option value="2lac_to_5lac">₹2,00,000 - ₹5,00,000</option>
+                        <option value="5lac_to_10lac">₹5,00,000 - ₹10,00,000</option>
+                        <option value="10lac_to_20lac">₹10,00,000 - ₹20,00,000</option>
+                        <option value="20lac_to_50lac">₹20,00,000 - ₹50,00,000</option>
+                        <option value="above_50lac">Above ₹50,00,000</option>
+                        <option value="no_preference">No preference</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   {formErrors.incomeRange && (
                         <p className="text-red-500 text-sm">{formErrors.incomeRange}</p>
                   )}

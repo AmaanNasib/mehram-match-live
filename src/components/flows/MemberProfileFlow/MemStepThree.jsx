@@ -524,20 +524,27 @@ const MemStepThree = () => {
                     </div>
                   </div>
                 </label>
-                <select
-                  id="father_occupation"
-                  name="father_occupation"
-                  value={profileData.father_occupation || ""}
-                  className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
-                  onChange={(e) => updateField("father_occupation", e.target.value)}
-                >
-                  <option value="">Select Father's Occupation</option>
-                  {ParentOccupations.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="father_occupation"
+                    name="father_occupation"
+                    value={profileData.father_occupation || ""}
+                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                    onChange={(e) => updateField("father_occupation", e.target.value)}
+                  >
+                    <option value="">Select Father's Occupation</option>
+                    {ParentOccupations.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 </div>
               </div>
 
@@ -605,20 +612,27 @@ const MemStepThree = () => {
                     </div>
                   </div>
                 </label>
-                <select
-                  id="mother_occupation"
-                  name="mother_occupation"
-                  value={profileData.mother_occupation || ""}
-                  className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
-                  onChange={(e) => updateField("mother_occupation", e.target.value)}
-                >
-                  <option value="">Select Mother's Occupation</option>
-                  {ParentOccupations.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="mother_occupation"
+                    name="mother_occupation"
+                    value={profileData.mother_occupation || ""}
+                    className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                    onChange={(e) => updateField("mother_occupation", e.target.value)}
+                  >
+                    <option value="">Select Mother's Occupation</option>
+                    {ParentOccupations.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 </div>
               </div>
 
@@ -722,31 +736,38 @@ const MemStepThree = () => {
                     </div>
                   </div>
                   </label>
-                    <select
-                  id="number_of_siblings"
-                  name="number_of_siblings"
-                      value={profileData.number_of_siblings || ""}
-                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                    formErrors.number_of_siblings
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                  }`}
-                  onChange={(e) => updateField("number_of_siblings", e.target.value)}
-                    >
-                      <option value="">Select Number</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                  <option value="10+">10+</option>
-                    </select>
+                <div className="relative">
+                  <select
+                    id="number_of_siblings"
+                    name="number_of_siblings"
+                    value={profileData.number_of_siblings || ""}
+                    className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      formErrors.number_of_siblings
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("number_of_siblings", e.target.value)}
+                  >
+                    <option value="">Select Number</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="10+">10+</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 {formErrors.number_of_siblings && (
                   <p className="text-red-500 text-sm">{formErrors.number_of_siblings}</p>
                 )}
@@ -774,26 +795,33 @@ const MemStepThree = () => {
                       </div>
                     </div>
                   </label>
-                    <select
-                  id="family_type"
-                  name="family_type"
-                      value={profileData.family_type || ""}
-                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                    formErrors.family_type
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                  }`}
-                  onChange={(e) => updateField("family_type", e.target.value)}
-                    >
-                      <option value="">Select Family Type</option>
-                  <option value="Nuclear Family">Nuclear Family</option>
-                  <option value="Joint Family">Joint Family</option>
-                  <option value="Extended Family">Extended Family</option>
-                  <option value="Single-Parent Family">Single-Parent Family</option>
-                  <option value="Blended Family">Blended Family</option>
-                  <option value="Living Alone">Living Alone</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
+                <div className="relative">
+                  <select
+                    id="family_type"
+                    name="family_type"
+                    value={profileData.family_type || ""}
+                    className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      formErrors.family_type
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("family_type", e.target.value)}
+                  >
+                    <option value="">Select Family Type</option>
+                    <option value="Nuclear Family">Nuclear Family</option>
+                    <option value="Joint Family">Joint Family</option>
+                    <option value="Extended Family">Extended Family</option>
+                    <option value="Single-Parent Family">Single-Parent Family</option>
+                    <option value="Blended Family">Blended Family</option>
+                    <option value="Living Alone">Living Alone</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 {formErrors.family_type && (
                   <p className="text-red-500 text-sm">{formErrors.family_type}</p>
                 )}
@@ -825,31 +853,38 @@ const MemStepThree = () => {
                       </div>
                     </div>
                     </label>
-                      <select
-                    id="number_of_brothers"
-                    name="number_of_brothers"
-                        value={profileData.number_of_brothers || ""}
-                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                      formErrors.number_of_brothers
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                    }`}
-                    onChange={(e) => updateField("number_of_brothers", e.target.value)}
-                      >
-                        <option value="">Select Number</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="10+">10+</option>
-                      </select>
+                  <div className="relative">
+                    <select
+                      id="number_of_brothers"
+                      name="number_of_brothers"
+                      value={profileData.number_of_brothers || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.number_of_brothers
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("number_of_brothers", e.target.value)}
+                    >
+                      <option value="">Select Number</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="10+">10+</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                   {formErrors.number_of_brothers && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_brothers}</p>
                   )}
@@ -877,31 +912,38 @@ const MemStepThree = () => {
                         </div>
                       </div>
                     </label>
-                      <select
-                    id="number_of_sisters"
-                    name="number_of_sisters"
-                        value={profileData.number_of_sisters || ""}
-                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                      formErrors.number_of_sisters
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                    }`}
-                    onChange={(e) => updateField("number_of_sisters", e.target.value)}
-                      >
-                        <option value="">Select Number</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="10+">10+</option>
-                      </select>
+                  <div className="relative">
+                    <select
+                      id="number_of_sisters"
+                      name="number_of_sisters"
+                      value={profileData.number_of_sisters || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.number_of_sisters
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("number_of_sisters", e.target.value)}
+                    >
+                      <option value="">Select Number</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="10+">10+</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                   {formErrors.number_of_sisters && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_sisters}</p>
                   )}
@@ -933,34 +975,41 @@ const MemStepThree = () => {
                         </div>
                       </div>
                   </label>
-                    <select
-                  id="family_practicing_level"
-                  name="family_practicing_level"
-                      value={profileData.family_practicing_level || ""}
-                  className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                    formErrors.family_practicing_level
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                  }`}
-                  onChange={(e) => updateField("family_practicing_level", e.target.value)}
-                    >
-                      <option value="">Select Practicing Level</option>
-                  <option value="Devout">Devout</option>
-                  <option value="Very Religious">Very Religious</option>
-                  <option value="Religious">Religious</option>
-                  <option value="Moderately Religious">Moderately Religious</option>
-                  <option value="Occasionally Religious">Occasionally Religious</option>
-                  <option value="Cultural but non-practicing">Cultural but non-practicing</option>
-                  <option value="Spiritual but not religious">Spiritual but not religious</option>
-                  <option value="Religious but not practicing">Religious but not practicing</option>
-                  <option value="Open to exploring religion">Open to exploring religion</option>
-                  <option value="Agnostic">Agnostic</option>
-                  <option value="Atheist">Atheist</option>
-                  <option value="Secular">Secular</option>
-                  <option value="Open to all beliefs">Open to all beliefs</option>
-                  <option value="Not religious">Not religious</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                    </select>
+                <div className="relative">
+                  <select
+                    id="family_practicing_level"
+                    name="family_practicing_level"
+                    value={profileData.family_practicing_level || ""}
+                    className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      formErrors.family_practicing_level
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("family_practicing_level", e.target.value)}
+                  >
+                    <option value="">Select Practicing Level</option>
+                    <option value="Devout">Devout</option>
+                    <option value="Very Religious">Very Religious</option>
+                    <option value="Religious">Religious</option>
+                    <option value="Moderately Religious">Moderately Religious</option>
+                    <option value="Occasionally Religious">Occasionally Religious</option>
+                    <option value="Cultural but non-practicing">Cultural but non-practicing</option>
+                    <option value="Spiritual but not religious">Spiritual but not religious</option>
+                    <option value="Religious but not practicing">Religious but not practicing</option>
+                    <option value="Open to exploring religion">Open to exploring religion</option>
+                    <option value="Agnostic">Agnostic</option>
+                    <option value="Atheist">Atheist</option>
+                    <option value="Secular">Secular</option>
+                    <option value="Open to all beliefs">Open to all beliefs</option>
+                    <option value="Not religious">Not religious</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 {formErrors.family_practicing_level && (
                   <p className="text-red-500 text-sm">{formErrors.family_practicing_level}</p>
                 )}
@@ -990,31 +1039,38 @@ const MemStepThree = () => {
                       </div>
                     </div>
                       </label>
-                        <select
-                    id="number_of_children"
-                    name="number_of_children"
-                          value={profileData.number_of_children || ""}
-                    className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                      formErrors.number_of_children
-                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                    }`}
-                    onChange={(e) => updateField("number_of_children", e.target.value)}
-                        >
-                          <option value="">Select Number</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="10+">10+</option>
-                        </select>
+                  <div className="relative">
+                    <select
+                      id="number_of_children"
+                      name="number_of_children"
+                      value={profileData.number_of_children || ""}
+                      className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                        formErrors.number_of_children
+                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                      }`}
+                      onChange={(e) => updateField("number_of_children", e.target.value)}
+                    >
+                      <option value="">Select Number</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="10+">10+</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                   {formErrors.number_of_children && (
                     <p className="text-red-500 text-sm">{formErrors.number_of_children}</p>
                   )}
@@ -1048,27 +1104,34 @@ const MemStepThree = () => {
                           </div>
                         </div>
                       </label>
-                      <select
-                    id="number_of_son"
-                    name="number_of_son"
-                        value={profileData.number_of_son || ""}
-                    className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
-                    onChange={(e) => updateField("number_of_son", e.target.value)}
-                      >
-                        <option value="">Select Number</option>
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="10+">10+</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          id="number_of_son"
+                          name="number_of_son"
+                          value={profileData.number_of_son || ""}
+                          className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                          onChange={(e) => updateField("number_of_son", e.target.value)}
+                        >
+                          <option value="">Select Number</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="10+">10+</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
 
                 <div className="space-y-2">
@@ -1093,27 +1156,34 @@ const MemStepThree = () => {
                       </div>
                     </div>
                       </label>
+                    <div className="relative">
                       <select
-                    id="number_of_daughter"
-                    name="number_of_daughter"
+                        id="number_of_daughter"
+                        name="number_of_daughter"
                         value={profileData.number_of_daughter || ""}
-                    className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium"
-                    onChange={(e) => updateField("number_of_daughter", e.target.value)}
+                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
+                        onChange={(e) => updateField("number_of_daughter", e.target.value)}
                       >
                         <option value="">Select Number</option>
                         <option value="0">0</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="10+">10+</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="10+">10+</option>
                       </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                     </div>
                   </div>
                 )}
@@ -1231,32 +1301,39 @@ const MemStepThree = () => {
                           </div>
                         </div>
                       </label>
-                        <select
-                      id="wali_blood_relation"
-                      name="wali_blood_relation"
-                          value={profileData.wali_blood_relation || ""}
-                      className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                        formErrors.wali_blood_relation
-                          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                          : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
-                      }`}
-                      onChange={(e) => updateField("wali_blood_relation", e.target.value)}
-                        >
-                          <option value="">Select Relation</option>
-                          <option value="Father">Father</option>
-                          <option value="Brother">Brother</option>
-                      <option value="Son">Son</option>
-                      <option value="Uncle (Father's side)">Uncle (Father's side)</option>
-                      <option value="Uncle (Mother's side)">Uncle (Mother's side)</option>
-                      <option value="Grandfather">Grandfather</option>
-                      <option value="Husband">Husband</option>
-                      <option value="Father-in-law">Father-in-law</option>
-                      <option value="Brother-in-law">Brother-in-law</option>
-                      <option value="Son-in-law">Son-in-law</option>
-                      <option value="Nephew">Nephew</option>
-                      <option value="Male Guardian">Male Guardian</option>
-                      <option value="Other">Other</option>
-                        </select>
+                <div className="relative">
+                  <select
+                    id="wali_blood_relation"
+                    name="wali_blood_relation"
+                    value={profileData.wali_blood_relation || ""}
+                    className={`w-full h-12 px-4 pr-10 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium appearance-none cursor-pointer ${
+                      formErrors.wali_blood_relation
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                        : "border-gray-300 focus:ring-pink-500 focus:border-pink-500"
+                    }`}
+                    onChange={(e) => updateField("wali_blood_relation", e.target.value)}
+                  >
+                    <option value="">Select Relation</option>
+                    <option value="Father">Father</option>
+                    <option value="Brother">Brother</option>
+                    <option value="Son">Son</option>
+                    <option value="Uncle (Father's side)">Uncle (Father's side)</option>
+                    <option value="Uncle (Mother's side)">Uncle (Mother's side)</option>
+                    <option value="Grandfather">Grandfather</option>
+                    <option value="Husband">Husband</option>
+                    <option value="Father-in-law">Father-in-law</option>
+                    <option value="Brother-in-law">Brother-in-law</option>
+                    <option value="Son-in-law">Son-in-law</option>
+                    <option value="Nephew">Nephew</option>
+                    <option value="Male Guardian">Male Guardian</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                     {formErrors.wali_blood_relation && (
                       <p className="text-red-500 text-sm">{formErrors.wali_blood_relation}</p>
                     )}

@@ -204,24 +204,31 @@ const MemStepTwo = () => {
   // Dropdown component
   const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
     return (
-      <select
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        disabled={disabled}
-        className={`w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium ${
-          disabled 
-            ? "bg-gray-100 cursor-not-allowed" 
-            : "bg-white"
-        }`}
-      >
-        <option value="">Select an option</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          name={name}
+          value={value || ""}
+          onChange={onChange}
+          disabled={disabled}
+          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
+            disabled 
+              ? "bg-gray-100 cursor-not-allowed" 
+              : "bg-white cursor-pointer"
+          }`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
     );
   };
 
