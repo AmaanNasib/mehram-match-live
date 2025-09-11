@@ -1,15 +1,19 @@
+/* Flutter Homepage Style Dashboard */
 .dashboard {
   width: 100%;
   min-height: 100vh;
-  background-color: #F4F5F9;
+  background: #f9fafb;
   overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
 }
 
 .dashboard-header {
   background: white;
   padding: 16px 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(203, 59, 139, 0.1);
   width: 100%;
+  border-bottom: 1px solid rgba(255, 192, 227, 0.2);
 }
 
 .header-content {
@@ -32,34 +36,284 @@
   height: 30px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #FF59B6;
 }
 
 .dashboard-container {
- width: 100vw;
- margin: auto;
+  width: 100vw;
+  margin: auto;
   height: 100vh;
   display: flex;
   padding-top: 4vh;
+  max-width: none;
 }
 
 .sidebarContainer {
   height: 25vw;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(203, 59, 139, 0.15);
   width: 20%;
   margin-right: 1vh;
   height: auto;
+  border: 1px solid rgba(255, 192, 227, 0.3);
 }
 
 .users {
-  /* flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-width: 0; 
-  overflow-x: hidden; */
   height: 100vh;
-  /* overflow-y: scroll; */
   width: 80%;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #FF59B6, #EB53A7);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #F971BC, #DA73AD);
+}
+
+/* Enhanced Responsive Styles */
+@media (max-width: 1280px) {
+  .dashboard-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    flex-direction: column;
+    padding-top: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .sidebarContainer {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .users {
+    width: 100%;
+    flex: 1;
+  }
+
+  /* Mobile Sidebar Overlay */
+  .mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    backdrop-filter: blur(2px);
+  }
+
+  /* Mobile Sidebar */
+  .mobile-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 320px;
+    max-width: 85vw;
+    background: white;
+    z-index: 50;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+  
+  .users {
+    padding: 0;
+  }
+}
+
+/* Mobile First Flutter Homepage Style */
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding: 0.25rem;
+  }
+  
+  /* Mobile First Profile Cards */
+  .mobile-first-card {
+    width: 100%;
+    max-width: 280px;
+    min-height: 400px;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+  }
+  
+  /* Mobile First Horizontal Scroll */
+  .mobile-first-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .mobile-first-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile First Section Headers */
+  .mobile-first-header {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+  
+  .mobile-first-title {
+    font-size: 1rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+  }
+  
+  /* Mobile First Content Padding */
+  .mobile-first-content {
+    padding: 1rem;
+  }
+  
+  /* Mobile First View All Button */
+  .mobile-first-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .mobile-first-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Hide scrollbars for clean look */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile First Grid Layout */
+  .mobile-first-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* Tablet and Desktop Responsive */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .mobile-first-card {
+    max-width: 320px;
+    min-height: 450px;
+  }
+  
+  .mobile-first-scroll {
+    gap: 1.5rem;
+  }
+  
+  .mobile-first-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .mobile-first-content {
+    padding: 1.5rem;
+  }
+  
+  .mobile-first-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .mobile-first-card {
+    max-width: 350px;
+    min-height: 500px;
+  }
+  
+  .mobile-first-scroll {
+    gap: 2rem;
+  }
+  
+  .mobile-first-header {
+    padding: 1.25rem 2rem;
+  }
+  
+  .mobile-first-content {
+    padding: 2rem;
+  }
+  
+  .mobile-first-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .dashboard-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 12px 16px;
+  }
+  
+  .header-content {
+    padding: 0 16px;
+  }
 }

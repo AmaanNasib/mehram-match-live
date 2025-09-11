@@ -14,6 +14,48 @@ import {
 import AllUser from "./AllUsers/AllUser";
 import { useLocation } from "react-router-dom";
 import UserPop from "../sections/UserPop";
+import MobileDashboard from "./MobileDashboard";
+
+// Shimmer Loading Component
+const ShimmerCard = () => (
+  <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
+    <div className="p-6">
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="w-12 h-12 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-full"></div>
+        <div className="flex-1">
+          <div className="h-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-3/4 mb-2"></div>
+          <div className="h-3 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-1/2"></div>
+        </div>
+      </div>
+      <div className="space-y-3">
+        <div className="h-3 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded"></div>
+        <div className="h-3 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-5/6"></div>
+        <div className="h-3 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-4/6"></div>
+      </div>
+    </div>
+  </div>
+);
+
+// Shimmer Loading for Profile Cards - Exact Flutter Homepage Style
+  const ShimmerProfileCard = () => (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-pulse w-full">
+      <div className="h-64 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] relative">
+        <div className="absolute top-4 right-4 w-20 h-6 bg-white/30 rounded-full"></div>
+      </div>
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="h-6 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-1/3"></div>
+          <div className="h-7 w-7 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-full"></div>
+        </div>
+        <div className="space-y-3 mb-5">
+          <div className="h-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-2/3"></div>
+          <div className="h-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-1/2"></div>
+          <div className="h-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded w-3/4"></div>
+        </div>
+        <div className="h-10 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-full"></div>
+      </div>
+    </div>
+  );
 
 const NewDashboard = () => {
   const location = useLocation();
@@ -29,6 +71,7 @@ const NewDashboard = () => {
   const [userId] = useState(localStorage.getItem("userId"));
   const userData = localStorage.getItem("userId");
   const role = localStorage.getItem("role");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // console.log(activeUser);
 
   const updateLater = () => {
@@ -152,13 +195,33 @@ useEffect(() => {
       }
     };
   }, [activeUser]);
+  // Mobile responsive check
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // For mobile devices, render MobileDashboard component
+  if (isMobile) {
+    return <MobileDashboard />;
+  }
+
   return (
-    <div className="dashboard" style={{display:"flex",flexDirection:"column",gap:"20px"}}>
+    <div className="min-h-screen bg-gray-50 font-['Poppins'] overflow-x-hidden">
+      {/* Header Section */}
       <Header
         apiData={activeUser}
         members={apiMember?.member || []}
         subNavActive={"newdashboard"}
       />
+      
+      {/* User Profile Completion Modal */}
       <UserPop
         updateLater={updateLater}
         isOpenWindow={isOpenWindow}
@@ -177,14 +240,101 @@ useEffect(() => {
         }
       />
 
-      <div className="dashboard-container" style={{height:"auto",padding:"0",width:"100%",gap:"20px"}}>
-        
-          <Sidebar setApiData={setUserDetail} />
-        
-        <div className="users" style={{height:"auto",display:"flex",flexDirection:"column",gap:"20px",width:"calc(100% - 300px)"}} >
-          <>
+      {/* Main Dashboard Container - Desktop Style */}
+      <div className="w-full px-4 py-4">
+        <div className="flex flex-col lg:flex-row gap-4">
+          
+          {/* Mobile Filter Toggle Button */}
+          <div className="xl:hidden fixed top-24 right-4 z-50">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            >
+              {isSidebarOpen ? (
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Overlay */}
+          {isSidebarOpen && (
+            <div 
+              className="xl:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => setIsSidebarOpen(false)}
+            ></div>
+          )}
+
+          {/* Sidebar Section */}
+          <div className={`xl:w-80 w-full xl:relative fixed xl:translate-x-0 transition-transform duration-300 z-50 ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } xl:block xl:top-auto top-0 left-0 h-full xl:h-auto xl:flex-shrink-0`}>
+            <div className="xl:block h-full xl:h-auto">
+              <Sidebar 
+                setApiData={setUserDetail} 
+                onClose={() => setIsSidebarOpen(false)}
+              />
+            </div>
+          </div>
+          
+          {/* Main Content Section - Exact Flutter Homepage Style */}
+          <div className="flex-1 space-y-6 min-w-0 w-full">
+            
+            {/* Welcome Section - Flutter Homepage Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-xl font-bold text-white">
+                      Welcome to Your Dashboard
+                    </h1>
+                    <p className="text-pink-100 text-sm mt-1">
+                      Discover your perfect match with Mehram Match
+                    </p>
+                  </div>
+                  <div className="bg-white/20 rounded-full p-3">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Sections */}
             {role !== "agent" && (
               <>
+                {/* Trending Profiles Section - Exact Flutter Homepage Style */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-white flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        Trending Profiles
+                      </h2>
+                      <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {loading ? (
+                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+                        {[...Array(4)].map((_, index) => (
+                          <div key={index} className="flex-shrink-0 w-72">
+                            <ShimmerProfileCard />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 <TrendingProfiles
                   setApiData={setApiData}
                   setIsModalOpen={setIsModalOpen}
@@ -199,7 +349,37 @@ useEffect(() => {
                       : []
                   }
                 />
+                      </div>
+                    )}
+                  </div>
+                </div>
 
+                {/* Recommended Profiles Section - Exact Flutter Homepage Style */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-white flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Recommended for You
+                      </h2>
+                      <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    {loading ? (
+                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+                        {[...Array(4)].map((_, index) => (
+                          <div key={index} className="flex-shrink-0 w-72">
+                            <ShimmerProfileCard />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 <RecommendedProfiles
                   setApiData={setApiDataRecommend}
                   setIsModalOpen={setIsModalOpen}
@@ -214,10 +394,36 @@ useEffect(() => {
                       : []
                   }
                 />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </>
             )}
-          </>
 
+            {/* All Users Section - Exact Flutter Homepage Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-[#EB53A7] to-[#FF59B6] px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-white flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Browse All Profiles
+                  </h2>
+                  <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
+                    View All
+                  </button>
+                </div>
+              </div>
+              <div className="p-6">
+                {loading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(12)].map((_, index) => (
+                      <ShimmerProfileCard key={index} />
+                    ))}
+                  </div>
+                ) : (
           <AllUser
             profiles={userDetail}
             setApiData={setUserDetail}
@@ -225,9 +431,15 @@ useEffect(() => {
             url={`/api/user/`}
             setIsModalOpen={setIsModalOpen}
           />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div style={{ marginTop: "4vh" }}>
+
+      {/* Footer Section */}
+      <div className="mt-16">
         <Footer />
       </div>
     </div>

@@ -166,6 +166,7 @@ const Header = ({ subNavActive, apiData, members }) => {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
   const [isMemberDropdownOpen, setIsMemberDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const notificationsRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -189,6 +190,10 @@ const Header = ({ subNavActive, apiData, members }) => {
   const toggleMemberDropdown = (event) => {
     event.stopPropagation();
     setIsMemberDropdownOpen((prev) => !prev);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -607,18 +612,257 @@ const Header = ({ subNavActive, apiData, members }) => {
                 className="logo-img"
               />
             </div>
-            <div className="nav-links">
+            
+            {/* Desktop Navigation */}
+            <div className="nav-links hidden lg:flex">
               <a href="/newdashboard" className="active">
                 HOME
               </a>
               <a href="/my-memberss" style={{display:role === "individual"? "none ":""}}>MEMBERS</a>
-              {/* <a href="#">PREMIUM PLANS</a> */}
               <a href="/guidance">GUIDANCE</a>
               <a href="#">CONTACT US</a>
             </div>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="lg:hidden flex flex-col items-center justify-center w-10 h-10 space-y-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              aria-label="Toggle mobile menu"
+            >
+              <span className={`w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
+                isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
+              }`}></span>
+              <span className={`w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
+                isMobileMenuOpen ? 'opacity-0' : ''
+              }`}></span>
+              <span className={`w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
+                isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
+              }`}></span>
+            </button>
           </nav>
 
-          <div className="sub-nav">
+          {/* Mobile Menu Overlay */}
+          {isMobileMenuOpen && (
+            <div 
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            ></div>
+          )}
+
+          {/* Mobile Navigation Menu */}
+          <div className={`lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
+            <div className="flex flex-col h-full">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={logo}
+                    style={{ width: "8rem", height: "2rem" }}
+                    alt="Mehram Match"
+                    className="logo-img"
+                  />
+                </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mobile Menu Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-6">
+                  {/* Main Navigation */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Main Menu</h3>
+                    <div className="space-y-2">
+                      <a 
+                        href="/newdashboard" 
+                        className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        HOME
+                      </a>
+                      <a 
+                        href="/my-memberss" 
+                        className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${role === "individual" ? "hidden" : ""}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        MEMBERS
+                      </a>
+                      <a 
+                        href="/guidance" 
+                        className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        GUIDANCE
+                      </a>
+                      <a 
+                        href="#" 
+                        className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        CONTACT US
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Sub Navigation */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Quick Access</h3>
+                    <div className="space-y-2">
+                      <a 
+                        href="user-dashboard"
+                        className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                          activeSubNav === "user-dashboard" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                        }`}
+                        onClick={() => {
+                          handleSubNavClick("/user-dashboard");
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <img src={time} alt="" className="w-5 h-5 mr-3" />
+                        Dashboard
+                      </a>
+                      <a 
+                        href={`/myprofile/${userId}`}
+                        className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                          activeSubNav === "My Profile" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                        }`}
+                        onClick={() => {
+                          handleSubNavClick("/newdashboard");
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <img src={people} alt="" className="w-5 h-5 mr-3" />
+                        My Profile
+                      </a>
+                      <a 
+                        href="#"
+                        className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                          activeSubNav === "Shortlist" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                        }`}
+                        onClick={() => {
+                          handleSubNavClick("/total-shortlist");
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <img src={hamburger} alt="" className="w-5 h-5 mr-3" />
+                        Shortlist
+                      </a>
+                      {role != "agent" && (
+                        <>
+                          <a 
+                            href="#"
+                            className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                              activeSubNav === "myInterest" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                            }`}
+                            onClick={() => {
+                              handleSubNavClick("/total-interest");
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <img src={grayHeart} alt="" className="w-5 h-5 mr-3" />
+                            My Interest
+                          </a>
+                          <a 
+                            href="#"
+                            className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                              activeSubNav === "Messaging" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                            }`}
+                            onClick={() => {
+                              handleSubNavClick("/${userId}/inbox");
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <img src={grayEnv} alt="" className="w-5 h-5 mr-3" />
+                            Messaging
+                          </a>
+                          <a 
+                            href="#"
+                            className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                              activeSubNav === "Ignored User List" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                            }`}
+                            onClick={() => {
+                              handleSubNavClick("/total-ignored");
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <img src={notAllowed} alt="" className="w-5 h-5 mr-3" />
+                            Ignored User List
+                          </a>
+                          <a 
+                            href="#"
+                            className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
+                              activeSubNav === "Matched profile" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
+                            }`}
+                            onClick={() => {
+                              handleSubNavClick("/matches");
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <img src={multiPeople} alt="" className="w-5 h-5 mr-3" />
+                            Matched profile
+                          </a>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* User Profile Section */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Profile</h3>
+                    <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-lg">
+                      <img
+                        src={
+                          apiData?.profile_photo
+                            ? apiData?.profile_photo.upload_photo
+                            : `data:image/svg+xml;utf8,${encodeURIComponent(
+                                apiData?.gender === "male"
+                                  ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                    <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                    <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                  </svg>`
+                                  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                    <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                    <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                    <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                  </svg>`
+                              )}`
+                        }
+                        alt="User"
+                        className="w-12 h-12 rounded-full border-2 border-white"
+                      />
+                      <div>
+                        <p className="font-semibold text-[#CB3B8B]">{apiData?.name}</p>
+                        <p className="text-sm text-gray-600">{role === "agent" ? "Agent" : "User"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Sub Navigation */}
+          <div className="sub-nav hidden lg:flex">
             <a
               href="user-dashboard"
               className={
@@ -702,6 +946,11 @@ const Header = ({ subNavActive, apiData, members }) => {
                 </a>
               </>
             )}
+          </div>
+
+          {/* Mobile Sub Navigation - Add to Mobile Menu */}
+          <div className="lg:hidden">
+            {/* Mobile Sub Navigation will be added to the mobile menu content */}
           </div>
         </div>
       </header>

@@ -1181,7 +1181,7 @@ const MemStepThree = () => {
               </div>
 
               {/* Conditional Children Field */}
-              {(profileData.martial_status === "Divorced" || profileData.martial_status === "Widowed") && (
+              {(profileData.martial_status === "Divorced" || profileData.martial_status === "divorced" || profileData.martial_status === "Widowed" || profileData.martial_status === "widowed") && (
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                     <span>Number of Children <span className="text-red-500">*</span></span>
@@ -1244,7 +1244,7 @@ const MemStepThree = () => {
             </div>
 
             {/* Conditional Children Details */}
-            {(profileData.martial_status === "Divorced" || profileData.martial_status === "Widowed") && 
+            {(profileData.martial_status === "Divorced" || profileData.martial_status === "divorced" || profileData.martial_status === "Widowed" || profileData.martial_status === "widowed") && 
                 profileData.number_of_children > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-2">

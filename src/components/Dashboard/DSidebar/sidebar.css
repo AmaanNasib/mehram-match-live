@@ -1,11 +1,13 @@
+/* Modern Sidebar Styles */
 .sidebar {
     width: 280px;
     background: white;
     padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(203, 59, 139, 0.15);
     height: 100%;
-    /* overflow-y: scroll; */
+    border: 1px solid rgba(255, 192, 227, 0.3);
+    font-family: 'Poppins', sans-serif;
 }
 
 .sidebar h2 {
@@ -13,7 +15,7 @@
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 24px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 192, 227, 0.3);
     padding-bottom: 12px;
 }
 
@@ -63,19 +65,22 @@
 .search-button {
     margin-top: 1.5rem;
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: none;
-    border-radius: 2rem;
-    background-color: #f1f5ff;
-    color: black;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF59B6, #EB53A7);
+    color: white;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 89, 182, 0.3);
   }
 
   .search-button:hover {
-    background-color: #e3e9ff;
+    background: linear-gradient(135deg, #F971BC, #DA73AD);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 89, 182, 0.4);
   }
 .form-group label {
     display: block;
@@ -87,11 +92,19 @@
 
 .form-group input[type="text"] {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 2rem;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
     font-size: 14px;
     color: #666;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #FF59B6;
+    box-shadow: 0 0 0 3px rgba(255, 89, 182, 0.1);
 }
 
 .form-group input[type="text"]::placeholder {
@@ -107,45 +120,53 @@
 .age-slider {
     width: 100%;
     margin-top: 12px;
-    height: 4px;
-    background: #FF1493;
-    border-radius: 2px;
+    height: 6px;
+    background: linear-gradient(90deg, #FFC0E3, #FFA4D6);
+    border-radius: 3px;
     -webkit-appearance: none;
+    outline: none;
 }
 
 .age-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #FF1493;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #FF59B6, #EB53A7);
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(255, 89, 182, 0.3);
+    transition: all 0.3s ease;
+}
+
+.age-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 89, 182, 0.4);
 }
 
 .form-group select {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 2rem;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
     font-size: 14px;
     color: #666;
     background: white;
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF59B6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
+    background-position: right 16px center;
+    background-size: 18px;
+    padding-right: 45px;
 }
 
-.form-group select:focus,
-.form-group input[type="text"]:focus {
+.form-group select:focus {
     outline: none;
-    border-color: #FF1493;
-    box-shadow: 0 0 0 3px rgba(255,20,147,0.1);
+    border-color: #FF59B6;
+    box-shadow: 0 0 0 3px rgba(255, 89, 182, 0.1);
 }
 
 .form-group select option {
