@@ -30,82 +30,813 @@ const ShimmerProfileCard = () => (
   </div>
 );
 
-// Profile Completion Card - Exact Flutter Style
-const ProfileCompletionCard = ({ profilePercentage, userName, userPhoto, userGender }) => {
+// Profile Completion Card - Exact Homepage.dart Style with Bottom Sheet
+const ProfileCompletionCard = ({ profilePercentage, userName, userPhoto, userGender, userData }) => {
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+
   const getProgressColor = (percentage) => {
     if (percentage >= 90) return "#10B981"; // Green
-    if (percentage >= 70) return "#F59E0B"; // Yellow
-    if (percentage >= 50) return "#EF4444"; // Red
-    return "#6B7280"; // Gray
+    if (percentage >= 75) return "#F59E0B"; // Amber
+    if (percentage >= 50) return "#F97316"; // Orange
+    return "#EF4444"; // Red
   };
 
   const getStatusText = (percentage) => {
-    if (percentage >= 90) return "Complete";
-    if (percentage >= 70) return "Almost Done";
-    if (percentage >= 50) return "In Progress";
-    return "Get Started";
+    if (percentage >= 90) return "Excellent!";
+    if (percentage >= 75) return "Almost Complete";
+    if (percentage >= 50) return "Good Progress";
+    return "Needs Attention";
   };
 
   const getMotivationText = (percentage) => {
-    if (percentage >= 90) return "Your profile looks amazing!";
-    if (percentage >= 70) return "Just a few more details to go!";
-    if (percentage >= 50) return "You're making great progress!";
-    return "Complete your profile to find better matches!";
+    if (percentage >= 90) return "Ready to find perfect match!";
+    if (percentage >= 75) return "Few more details to complete.";
+    if (percentage >= 50) return "Continue for better matches.";
+    return "Complete for better matches.";
+  };
+
+  // Get Step 2 completion details (Religious Details) - Real DB Check with Marital Status Logic
+  const getStep2CompletionDetails = (userData) => {
+    if (!userData) {
+      return {
+        totalFields: 8,
+        completedFields: 0,
+        missingFields: [
+          "Sect/School", "Islamic Practice Level", "Spiritual Beliefs", "Hijab/Niqab Preference",
+          "Beard Preference", "Namaz Performance", "Quran Recitation", "Religious Commitment"
+        ],
+        completedFieldsList: []
+      };
+    }
+
+    const gender = userData.gender?.toString().toLowerCase() || '';
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Define MANDATORY fields for Step 2 (Religious Details) - Required for 100% completion
+    const mandatoryFields = [
+      { key: 'sect_school_info', label: 'Sect/School', isMandatory: true },
+      { key: 'islamic_practicing_level', label: 'Islamic Practice Level', isMandatory: true },
+      { key: 'believe_in_dargah_fatiha_niyah', label: 'Spiritual Beliefs', isMandatory: true }
+    ];
+
+    // Define OPTIONAL fields for Step 2 (Religious Details) - Enhance profile but not required
+    const optionalFields = [
+      { key: 'perform_namaz', label: 'Namaz Performance', isMandatory: false },
+      { key: 'recite_quran', label: 'Quran Recitation', isMandatory: false },
+      { key: 'marriage_plan', label: 'Religious Commitment', isMandatory: false }
+    ];
+
+    // Gender-specific fields
+    if (gender === 'female') {
+      optionalFields.push({ key: 'hijab_niqab_prefer', label: 'Hijab/Niqab Preference', isMandatory: false });
+    } else {
+      // For males, we can use smoking status as beard preference indicator
+      optionalFields.push({ key: 'smoking_cigarette_sheesha', label: 'Beard Preference', isMandatory: false });
+    }
+
+    // Combine all fields
+    const requiredFields = [...mandatoryFields, ...optionalFields];
+
+    // Marital status specific logic for Step 2
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed') {
+      // For divorced/widowed users, religious commitment becomes more important
+      // They might be more serious about religious compatibility
+    } else if (maritalStatus === 'single') {
+      // For single users, all religious fields are equally important
+    } else if (maritalStatus === 'married') {
+      // Married users shouldn't be on matrimonial platform
+    }
+
+    const completedFields = [];
+    const missingFields = [];
+
+    requiredFields.forEach(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      
+      if (isCompleted) {
+        completedFields.push(field.label);
+      } else {
+        missingFields.push(field.label);
+      }
+    });
+
+    // Calculate mandatory and optional completion
+    const mandatoryCompleted = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return isCompleted;
+    });
+
+    const optionalCompleted = optionalFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return isCompleted;
+    });
+
+    const mandatoryMissing = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return !isCompleted;
+    }).map(field => field.label);
+
+    const optionalMissing = optionalFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return !isCompleted;
+    }).map(field => field.label);
+
+    return {
+      totalFields: requiredFields.length,
+      completedFields: completedFields.length,
+      missingFields: missingFields,
+      completedFieldsList: completedFields,
+      mandatoryTotal: mandatoryFields.length,
+      mandatoryCompleted: mandatoryCompleted.length,
+      mandatoryMissing: mandatoryMissing,
+      optionalTotal: optionalFields.length,
+      optionalCompleted: optionalCompleted.length,
+      optionalMissing: optionalMissing
+    };
+  };
+
+  // Get Step 3 completion details (Family Information) - Real DB Check with Marital Status Logic
+  const getStep3CompletionDetails = (userData) => {
+    if (!userData) {
+      return {
+        totalFields: 15,
+        completedFields: 0,
+        missingFields: [
+          "Father Name", "Father Occupation", "Mother Name", "Mother Occupation", "Family Type",
+          "Family Practice Level", "Number of Siblings", "Wali Name", "Wali Contact", "Wali Relation",
+          "Number of Brothers", "Number of Sisters", "Number of Children", "Number of Sons", "Number of Daughters"
+        ],
+        completedFieldsList: []
+      };
+    }
+
+    const gender = userData.gender?.toString().toLowerCase() || '';
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Define MANDATORY fields for Step 3 (Family Information) - Required for 100% completion
+    const mandatoryFields = [
+      { key: 'father_name', label: 'Father Name', isMandatory: true },
+      { key: 'mother_name', label: 'Mother Name', isMandatory: true },
+      { key: 'family_type', label: 'Family Type', isMandatory: true }
+    ];
+
+    // Define OPTIONAL fields for Step 3 (Family Information) - Enhance profile but not required
+    const optionalFields = [
+      { key: 'father_occupation', label: 'Father Occupation', isMandatory: false },
+      { key: 'mother_occupation', label: 'Mother Occupation', isMandatory: false },
+      { key: 'family_practicing_level', label: 'Family Practice Level', isMandatory: false },
+      { key: 'number_of_siblings', label: 'Number of Siblings', isMandatory: false },
+      { key: 'number_of_brothers', label: 'Number of Brothers', isMandatory: false },
+      { key: 'number_of_sisters', label: 'Number of Sisters', isMandatory: false }
+    ];
+
+    // Gender-specific fields for females
+    if (gender === 'female') {
+      optionalFields.push(
+        { key: 'wali_name', label: 'Wali Name', isMandatory: false },
+        { key: 'wali_contact_number', label: 'Wali Contact', isMandatory: false },
+        { key: 'wali_blood_relation', label: 'Wali Relation', isMandatory: false }
+      );
+    }
+
+    // Marital status specific fields for divorced/widowed/khula users
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed' || maritalStatus === 'khula') {
+      optionalFields.push(
+        { key: 'number_of_children', label: 'Number of Children', isMandatory: false },
+        { key: 'number_of_son', label: 'Number of Sons', isMandatory: false },
+        { key: 'number_of_daughter', label: 'Number of Daughters', isMandatory: false }
+      );
+    }
+
+    // Combine all fields
+    const requiredFields = [...mandatoryFields, ...optionalFields];
+
+    // Marital status specific logic for Step 3
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed' || maritalStatus === 'khula') {
+      // For divorced/widowed/khula users, family support becomes more important
+      // Father/Mother status might be more critical
+      // Family practicing level becomes more significant
+      // Children information is crucial for future partner matching
+    } else if (maritalStatus === 'single') {
+      // For single users, family background is important for matching
+      // All family fields are equally important
+      // No children fields required
+    } else if (maritalStatus === 'married') {
+      // Married users shouldn't be on matrimonial platform
+    }
+
+    const completedFields = [];
+    const missingFields = [];
+
+    requiredFields.forEach(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      if (isCompleted) {
+        completedFields.push(field.label);
+      } else {
+        missingFields.push(field.label);
+      }
+    });
+
+    // Calculate mandatory and optional completion
+    const mandatoryCompleted = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const optionalCompleted = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const mandatoryMissing = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    const optionalMissing = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    return {
+      totalFields: requiredFields.length,
+      completedFields: completedFields.length,
+      missingFields: missingFields,
+      completedFieldsList: completedFields,
+      mandatoryTotal: mandatoryFields.length,
+      mandatoryCompleted: mandatoryCompleted.length,
+      mandatoryMissing: mandatoryMissing,
+      optionalTotal: optionalFields.length,
+      optionalCompleted: optionalCompleted.length,
+      optionalMissing: optionalMissing
+    };
+  };
+
+  // Get Step 4 completion details (Partner Preferences) - Real DB Check with Marital Status Logic
+  const getStep4CompletionDetails = (userData) => {
+    if (!userData) {
+      return {
+        totalFields: 12,
+        completedFields: 0,
+        missingFields: [
+          "Preferred Surname", "Preferred Sect", "Spiritual Beliefs", "Desired Practice Level", 
+          "Preferred Family Type", "Preferred Family Background", "Preferred Education", 
+          "Preferred Occupation", "Preferred Country", "Preferred State", "Preferred City", "Preferred City State"
+        ],
+        completedFieldsList: []
+      };
+    }
+
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Define MANDATORY fields for Step 4 (Partner Preferences) - Required for 100% completion
+    const mandatoryFields = [
+      { key: 'preferred_sect', label: 'Preferred Sect', isMandatory: true },
+      { key: 'preferred_dargah_fatiha_niyah', label: 'Spiritual Beliefs', isMandatory: true },
+      { key: 'desired_practicing_level', label: 'Desired Practice Level', isMandatory: true }
+    ];
+
+    // Define OPTIONAL fields for Step 4 (Partner Preferences) - Enhance profile but not required
+    const optionalFields = [
+      { key: 'preferred_surname', label: 'Preferred Surname', isMandatory: false },
+      { key: 'preferred_family_type', label: 'Preferred Family Type', isMandatory: false },
+      { key: 'preferred_family_background', label: 'Preferred Family Background', isMandatory: false },
+      { key: 'preferred_education', label: 'Preferred Education', isMandatory: false },
+      { key: 'preferred_occupation_profession', label: 'Preferred Occupation', isMandatory: false },
+      { key: 'preferred_country', label: 'Preferred Country', isMandatory: false },
+      { key: 'preferred_state', label: 'Preferred State', isMandatory: false },
+      { key: 'preferred_city', label: 'Preferred City', isMandatory: false },
+      { key: 'preferred_city_state', label: 'Preferred City State', isMandatory: false }
+    ];
+
+    // Combine all fields
+    const requiredFields = [...mandatoryFields, ...optionalFields];
+
+    // Marital status specific logic for Step 4
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed' || maritalStatus === 'khula') {
+      // For divorced/widowed/khula users, partner preferences become more specific
+      // They might be more particular about family type and background
+      // Location preferences might be more flexible
+      // They might prefer partners who are understanding about their situation
+    } else if (maritalStatus === 'single') {
+      // For single users, all partner preferences are important
+      // They might be more flexible with some preferences
+    } else if (maritalStatus === 'married') {
+      // Married users shouldn't be on matrimonial platform
+    }
+
+    const completedFields = [];
+    const missingFields = [];
+
+    requiredFields.forEach(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for array fields
+      if (field.key === 'preferred_dargah_fatiha_niyah') {
+        isCompleted = value && (
+          (Array.isArray(value) && value.length > 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      if (isCompleted) {
+        completedFields.push(field.label);
+      } else {
+        missingFields.push(field.label);
+      }
+    });
+
+    // Calculate mandatory and optional completion
+    const mandatoryCompleted = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for array fields
+      if (field.key === 'preferred_dargah_fatiha_niyah') {
+        isCompleted = value && (
+          (Array.isArray(value) && value.length > 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const optionalCompleted = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for array fields
+      if (field.key === 'preferred_dargah_fatiha_niyah') {
+        isCompleted = value && (
+          (Array.isArray(value) && value.length > 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const mandatoryMissing = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for array fields
+      if (field.key === 'preferred_dargah_fatiha_niyah') {
+        isCompleted = value && (
+          (Array.isArray(value) && value.length > 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    const optionalMissing = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for array fields
+      if (field.key === 'preferred_dargah_fatiha_niyah') {
+        isCompleted = value && (
+          (Array.isArray(value) && value.length > 0) ||
+          (typeof value === 'string' && value.trim() !== '')
+        );
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    return {
+      totalFields: requiredFields.length,
+      completedFields: completedFields.length,
+      missingFields: missingFields,
+      completedFieldsList: completedFields,
+      mandatoryTotal: mandatoryFields.length,
+      mandatoryCompleted: mandatoryCompleted.length,
+      mandatoryMissing: mandatoryMissing,
+      optionalTotal: optionalFields.length,
+      optionalCompleted: optionalCompleted.length,
+      optionalMissing: optionalMissing
+    };
+  };
+
+  // Get Step 5 completion details (Photo & Profile Privacy) - Real DB Check with Marital Status Logic
+  const getStep5CompletionDetails = (userData) => {
+    if (!userData) {
+      return {
+        totalFields: 2,
+        completedFields: 0,
+        missingFields: [
+          "Profile Photo", "Profile Visibility"
+        ],
+        completedFieldsList: []
+      };
+    }
+
+    const gender = userData.gender?.toString().toLowerCase() || '';
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Define MANDATORY fields for Step 5 (Photo & Profile Privacy) - Required for 100% completion
+    const mandatoryFields = [
+      { key: 'upload_photo', label: 'Profile Photo', isMandatory: true }
+    ];
+
+    // Define OPTIONAL fields for Step 5 (Photo & Profile Privacy) - Enhance profile but not required
+    const optionalFields = [
+      { key: 'profile_visible', label: 'Profile Visibility', isMandatory: false }
+    ];
+
+    // Gender-specific fields for females
+    if (gender === 'female') {
+      optionalFields.push({ key: 'photo_upload_privacy_option', label: 'Photo Privacy Option', isMandatory: false });
+    }
+
+    // Combine all fields
+    const requiredFields = [...mandatoryFields, ...optionalFields];
+
+    // Marital status specific logic for Step 5
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed' || maritalStatus === 'khula') {
+      // For divorced/widowed/khula users, profile visibility might be more important
+      // They might want to be more selective about who can see their profile
+      // Privacy becomes more critical for their situation
+    } else if (maritalStatus === 'single') {
+      // For single users, profile photo and visibility are both important
+    } else if (maritalStatus === 'married') {
+      // Married users shouldn't be on matrimonial platform
+    }
+
+    const completedFields = [];
+    const missingFields = [];
+
+    requiredFields.forEach(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      
+      if (isCompleted) {
+        completedFields.push(field.label);
+      } else {
+        missingFields.push(field.label);
+      }
+    });
+
+    // Calculate mandatory and optional completion
+    const mandatoryCompleted = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return isCompleted;
+    });
+
+    const optionalCompleted = optionalFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return isCompleted;
+    });
+
+    const mandatoryMissing = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return !isCompleted;
+    }).map(field => field.label);
+
+    const optionalMissing = optionalFields.filter(field => {
+      const value = userData[field.key];
+      const isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      return !isCompleted;
+    }).map(field => field.label);
+
+    return {
+      totalFields: requiredFields.length,
+      completedFields: completedFields.length,
+      missingFields: missingFields,
+      completedFieldsList: completedFields,
+      mandatoryTotal: mandatoryFields.length,
+      mandatoryCompleted: mandatoryCompleted.length,
+      mandatoryMissing: mandatoryMissing,
+      optionalTotal: optionalFields.length,
+      optionalCompleted: optionalCompleted.length,
+      optionalMissing: optionalMissing
+    };
+  };
+
+  // Get step completion status based on percentage (homepage.dart logic)
+  const getStepCompletionStatus = (percentage, userData) => {
+    // Get real Step 1, Step 2, Step 3, Step 4, and Step 5 completion details from user data
+    const step1Details = getStep1CompletionDetails(userData);
+    const step2Details = getStep2CompletionDetails(userData);
+    const step3Details = getStep3CompletionDetails(userData);
+    const step4Details = getStep4CompletionDetails(userData);
+    const step5Details = getStep5CompletionDetails(userData);
+    
+    if (percentage >= 90) {
+      return [
+        { step: 1, title: "Basic Details", completed: true, color: "#10B981", details: step1Details },
+        { step: 2, title: "Religious Details", completed: true, color: "#10B981", details: step2Details },
+        { step: 3, title: "Family Background", completed: true, color: "#10B981", details: step3Details },
+        { step: 4, title: "Partner Preferences", completed: true, color: "#10B981", details: step4Details },
+        { step: 5, title: "Photo & Profile Privacy", completed: true, color: "#10B981", details: step5Details }
+      ];
+    } else if (percentage >= 75) {
+      return [
+        { step: 1, title: "Basic Details", completed: true, color: "#10B981", details: step1Details },
+        { step: 2, title: "Religious Details", completed: true, color: "#10B981", details: step2Details },
+        { step: 3, title: "Family Background", completed: true, color: "#10B981", details: step3Details },
+        { step: 4, title: "Partner Preferences", completed: false, color: "#F59E0B", details: step4Details },
+        { step: 5, title: "Photo & Profile Privacy", completed: false, color: "#F59E0B", details: step5Details }
+      ];
+    } else if (percentage >= 50) {
+      return [
+        { step: 1, title: "Basic Details", completed: true, color: "#10B981", details: step1Details },
+        { step: 2, title: "Religious Details", completed: true, color: "#10B981", details: step2Details },
+        { step: 3, title: "Family Background", completed: false, color: "#F97316", details: step3Details },
+        { step: 4, title: "Partner Preferences", completed: false, color: "#F97316", details: step4Details },
+        { step: 5, title: "Photo & Profile Privacy", completed: false, color: "#F97316", details: step5Details }
+      ];
+    } else {
+      return [
+        { step: 1, title: "Basic Details", completed: false, color: "#EF4444", details: step1Details },
+        { step: 2, title: "Religious Details", completed: false, color: "#EF4444", details: step2Details },
+        { step: 3, title: "Family Background", completed: false, color: "#EF4444", details: step3Details },
+        { step: 4, title: "Partner Preferences", completed: false, color: "#EF4444", details: step4Details },
+        { step: 5, title: "Photo & Profile Privacy", completed: false, color: "#EF4444", details: step5Details }
+      ];
+    }
+  };
+
+  // Get Step 1 completion details (Basic Information) - Real DB Check with Marital Status Logic
+  const getStep1CompletionDetails = (userData) => {
+    if (!userData) {
+      return {
+        totalFields: 30,
+        completedFields: 0,
+        missingFields: [
+          "First Name", "Last Name", "Age", "Gender", "Marital Status", 
+          "Height", "Weight", "Education", "Profession", "Current City", "Current State", "Current Country",
+          "Native City", "Native State", "Native Country", "Annual Income Range", "Disability Status",
+          "About You", "Cultural Background", "Skin Tone", "Body Type", "Financial Status",
+          "Father Status", "Mother Status", "Namaz Performance", "Quran Recitation", "Marriage Plan",
+          "Smoking Status", "Drinking Status"
+        ],
+        completedFieldsList: []
+      };
+    }
+
+    const gender = userData.gender?.toString().toLowerCase() || '';
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Define MANDATORY fields for Step 1 (Basic Information) - Required for 100% completion
+    const mandatoryFields = [
+      { key: 'first_name', label: 'First Name', isMandatory: true },
+      { key: 'last_name', label: 'Last Name', isMandatory: true },
+      { key: 'age', label: 'Age', isMandatory: true },
+      { key: 'gender', label: 'Gender', isMandatory: true },
+      { key: 'martial_status', label: 'Marital Status', isMandatory: true },
+      { key: 'hieght', label: 'Height', isMandatory: true },
+      { key: 'Education', label: 'Education', isMandatory: true },
+      { key: 'profession', label: 'Profession', isMandatory: true }
+    ];
+
+    // Define OPTIONAL fields for Step 1 (Basic Information) - Enhance profile but not required
+    const optionalFields = [
+      { key: 'weight', label: 'Weight', isMandatory: false },
+      { key: 'city', label: 'Current City', isMandatory: false },
+      { key: 'state', label: 'Current State', isMandatory: false },
+      { key: 'country', label: 'Current Country', isMandatory: false },
+      { key: 'native_city', label: 'Native City', isMandatory: false },
+      { key: 'native_state', label: 'Native State', isMandatory: false },
+      { key: 'native_country', label: 'Native Country', isMandatory: false },
+      { key: 'income', label: 'Annual Income Range', isMandatory: false },
+      { key: 'disability', label: 'Disability Status', isMandatory: false },
+      { key: 'about_you', label: 'About You', isMandatory: false },
+      { key: 'cultural_background', label: 'Cultural Background', isMandatory: false },
+      { key: 'skin_tone', label: 'Skin Tone', isMandatory: false },
+      { key: 'body_type', label: 'Body Type', isMandatory: false },
+      { key: 'financial_status', label: 'Financial Status', isMandatory: false },
+      { key: 'father_alive', label: 'Father Status', isMandatory: false },
+      { key: 'mother_alive', label: 'Mother Status', isMandatory: false },
+      { key: 'perform_namaz', label: 'Namaz Performance', isMandatory: false },
+      { key: 'recite_quran', label: 'Quran Recitation', isMandatory: false },
+      { key: 'marriage_plan', label: 'Marriage Plan', isMandatory: false },
+      { key: 'smoking_cigarette_sheesha', label: 'Smoking Status', isMandatory: false },
+      { key: 'drinking_alcohol_wine', label: 'Drinking Status', isMandatory: false }
+    ];
+
+    // Combine all fields
+    const requiredFields = [...mandatoryFields, ...optionalFields];
+
+    // Marital status specific logic for Step 1
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed') {
+      // For divorced/widowed users, marriage plan might be more important
+      // Income and financial status become more critical
+    } else if (maritalStatus === 'single') {
+      // For single users, marriage plan is crucial
+      // Age becomes more important for matching
+    } else if (maritalStatus === 'married') {
+      // Married users shouldn't be on matrimonial platform
+      // But if they are, different validation might be needed
+    }
+
+    const completedFields = [];
+    const missingFields = [];
+
+    requiredFields.forEach(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      if (isCompleted) {
+        completedFields.push(field.label);
+      } else {
+        missingFields.push(field.label);
+      }
+    });
+
+    // Calculate mandatory and optional completion
+    const mandatoryCompleted = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const optionalCompleted = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return isCompleted;
+    });
+
+    const mandatoryMissing = mandatoryFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    const optionalMissing = optionalFields.filter(field => {
+      const value = userData[field.key];
+      let isCompleted = false;
+      
+      // Special handling for number fields - 0 is a valid completed value
+      if (field.key.includes('number_of_') || field.key === 'age') {
+        isCompleted = value !== null && value !== undefined && value !== '';
+      } else {
+        isCompleted = value !== null && value !== undefined && value !== '' && value !== 0;
+      }
+      
+      return !isCompleted;
+    }).map(field => field.label);
+
+    return {
+      totalFields: requiredFields.length,
+      completedFields: completedFields.length,
+      missingFields: missingFields,
+      completedFieldsList: completedFields,
+      mandatoryTotal: mandatoryFields.length,
+      mandatoryCompleted: mandatoryCompleted.length,
+      mandatoryMissing: mandatoryMissing,
+      optionalTotal: optionalFields.length,
+      optionalCompleted: optionalCompleted.length,
+      optionalMissing: optionalMissing
+    };
   };
 
   const progressColor = getProgressColor(profilePercentage);
   const statusText = getStatusText(profilePercentage);
   const motivationText = getMotivationText(profilePercentage);
+  const stepStatus = getStepCompletionStatus(profilePercentage, userData);
 
   return (
-    <div className="mobile-profile-card">
-      <div className="mobile-profile-background">
-        <div className="mobile-profile-pattern"></div>
-      </div>
-      <div className="mobile-profile-content">
-        <div className="mobile-profile-header">
-          <div className="mobile-profile-icon-container">
+      <div className="modern-profile-banner">
+        <div className="banner-background-pattern"></div>
+        <div className="banner-content">
+          <div className="banner-header">
+          <div className="banner-icon-container">
             <div 
-              className="mobile-profile-icon"
+              className="banner-icon"
               style={{ backgroundColor: `${progressColor}20` }}
             >
               {profilePercentage >= 90 ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="icon" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="icon" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
               )}
             </div>
           </div>
-          <div className="mobile-profile-info">
-            <div className="mobile-profile-title-row">
-              <span className="mobile-profile-percentage">
-                {profilePercentage.toFixed(0)}% Complete
-              </span>
+          <div className="banner-info">
+            <div className="banner-title-row">
+              <span className="banner-percentage">{profilePercentage.toFixed(0)}% Complete</span>
               <div 
-                className="mobile-profile-status"
+                className="banner-status"
                 style={{ backgroundColor: `${progressColor}20`, color: progressColor }}
               >
                 {statusText}
               </div>
             </div>
-            <p className="mobile-profile-motivation">{motivationText}</p>
+            <p className="banner-motivation">{motivationText}</p>
           </div>
         </div>
 
-        <div className="mobile-profile-progress-section">
-          <div className="mobile-profile-progress-header">
-            <span className="mobile-profile-progress-label">Profile Completion</span>
-            <span className="mobile-profile-progress-percentage">
-              {profilePercentage.toFixed(1)}%
-            </span>
+        <div className="banner-progress-section">
+          <div className="progress-header">
+            <span className="progress-label">Profile Completion</span>
+            <span className="progress-percentage">{profilePercentage.toFixed(1)}%</span>
           </div>
-          <div className="mobile-profile-progress-bar">
+          <div className="progress-bar-container">
             <div 
-              className="mobile-profile-progress-fill"
+              className="progress-bar-fill"
               style={{ 
                 width: `${profilePercentage}%`,
                 background: `linear-gradient(90deg, ${progressColor}, ${progressColor}CC)`
@@ -114,52 +845,290 @@ const ProfileCompletionCard = ({ profilePercentage, userName, userPhoto, userGen
           </div>
         </div>
 
-        <div className="mobile-profile-actions">
+        <div className="banner-actions">
           <button 
-            className="mobile-profile-continue-btn"
+            className="continue-setup-button"
             style={{ 
               background: `linear-gradient(90deg, ${progressColor}, ${progressColor}CC)`,
               boxShadow: `0 3px 8px ${progressColor}30`
             }}
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            <span>{profilePercentage >= 90 ? 'VIEW PROFILE' : 'CONTINUE SETUP'}</span>
+            <span>CONTINUE SETUP</span>
           </button>
-          <button className="mobile-profile-steps-btn">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button 
+            className="steps-button"
+            onClick={() => setShowBottomSheet(true)}
+          >
+            <svg className="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </button>
+        </div>
+      </div>
+      
+      {/* Bottom Sheet */}
+      <ProfileStepsBottomSheet 
+        isOpen={showBottomSheet}
+        onClose={() => setShowBottomSheet(false)}
+        profilePercentage={profilePercentage}
+        stepStatus={stepStatus}
+      />
+    </div>
+  );
+};
+
+{/* // Bottom Sheet Component - Exact Homepage.dart Style */}
+const ProfileStepsBottomSheet = ({ isOpen, onClose, profilePercentage, stepStatus }) => {
+ // Disable body scroll when bottom sheet is open
+  useEffect(() => {
+    if (isOpen) {
+      // Disable body scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      // Re-enable body scroll
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="bottom-sheet-overlay" onClick={onClose}>
+      <div className="bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
+        {/* Drag Handle */}
+        <div className="bottom-sheet-drag-handle"></div>
+        
+        {/* Header with Gradient */}
+        <div className="bottom-sheet-header">
+          <div className="header-icon-container">
+            <svg className="header-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div className="header-content">
+            <h2 className="header-title">Profile Completion Steps</h2>
+            <p className="header-subtitle">Complete your profile to find better matches</p>
+          </div>
+          <button className="header-close-btn" onClick={onClose}>
+            <svg className="close-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="bottom-sheet-content">
+          {/* Progress Bar Section */}
+          <div className="progress-section">
+            <div className="progress-header">
+              <span className="progress-label">Overall Progress</span>
+              <span className="progress-percentage">{profilePercentage.toFixed(0)}%</span>
+            </div>
+            <div className="progress-bar-container">
+              <div 
+                className="progress-bar-fill"
+                style={{ 
+                  width: `${profilePercentage}%`,
+                  background: profilePercentage >= 75 ? "#10B981" : "#F97316"
+                }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Progress Calculation Explanation */}
+          <div className="progress-explanation">
+            <div className="explanation-header">
+              <svg className="info-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="explanation-title">How is this calculated?</span>
+            </div>
+            <div className="explanation-content">
+              <p className="explanation-text">
+                Your profile completion is calculated based on <strong>mandatory fields only</strong> across all 5 steps. 
+                Optional fields enhance your profile but don't affect the completion percentage.
+              </p>
+              <div className="mandatory-explanation">
+                <div className="mandatory-info">
+                  <span className="mandatory-label">📋 Mandatory Fields:</span>
+                  <span className="mandatory-desc">Required for 100% completion</span>
+                </div>
+                <div className="optional-info">
+                  <span className="optional-label">✨ Optional Fields:</span>
+                  <span className="optional-desc">Enhance profile visibility</span>
+                </div>
+              </div>
+              <div className="calculation-breakdown">
+                {stepStatus.map((step, index) => (
+                  <div key={index} className="step-breakdown">
+                    <div className="step-breakdown-header">
+                      <span className="step-breakdown-title">{step.title}</span>
+                      <div className="step-breakdown-counts">
+                        <span className="mandatory-count">
+                          📋 {step.details ? `${step.details.mandatoryCompleted || 0}/${step.details.mandatoryTotal || 0}` : '0/0'}
+                        </span>
+                        <span className="optional-count">
+                          ✨ {step.details ? `${step.details.optionalCompleted || 0}/${step.details.optionalTotal || 0}` : '0/0'}
+                        </span>
+                      </div>
+                    </div>
+                    {step.details && (step.details.mandatoryMissing?.length > 0 || step.details.optionalMissing?.length > 0) && (
+                      <div className="step-missing-fields">
+                        {step.details.mandatoryMissing && step.details.mandatoryMissing.length > 0 && (
+                          <div className="missing-mandatory">
+                            <span className="missing-label mandatory">📋 Mandatory Missing:</span>
+                            <div className="missing-fields-mini">
+                              {step.details.mandatoryMissing.slice(0, 2).map((field, fieldIndex) => (
+                                <span key={fieldIndex} className="missing-field-mini mandatory">
+                                  {field}
+                                </span>
+                              ))}
+                              {step.details.mandatoryMissing.length > 2 && (
+                                <span className="missing-field-mini mandatory">
+                                  +{step.details.mandatoryMissing.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {step.details.optionalMissing && step.details.optionalMissing.length > 0 && (
+                          <div className="missing-optional">
+                            <span className="missing-label optional">✨ Optional Missing:</span>
+                            <div className="missing-fields-mini">
+                              {step.details.optionalMissing.slice(0, 2).map((field, fieldIndex) => (
+                                <span key={fieldIndex} className="missing-field-mini optional">
+                                  {field}
+                                </span>
+                              ))}
+                              {step.details.optionalMissing.length > 2 && (
+                                <span className="missing-field-mini optional">
+                                  +{step.details.optionalMissing.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Step Items */}
+          <div className="step-items-section">
+            {stepStatus.map((step, index) => (
+              <div key={index} className="step-item-detailed">
+                <div 
+                  className="step-number-detailed"
+                  style={{ backgroundColor: step.completed ? "#10B981" : step.color }}
+                >
+                  {step.completed ? (
+                    <svg className="step-check-icon" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <span className="step-number-text">{step.step}</span>
+                  )}
+                </div>
+                <div className="step-details-detailed">
+                  <h3 className="step-title-detailed">{step.title}</h3>
+                  
+                  {/* Show detailed completion for all 5 steps */}
+                  {(step.step === 1 || step.step === 2 || step.step === 3 || step.step === 4 || step.step === 5) && step.details && (
+                    <div className="step-completion-details">
+                      <div className="completion-stats">
+                        <span className="completion-text">
+                          {step.details.completedFields}/{step.details.totalFields} fields completed
+                        </span>
+                        <div className="completion-progress-bar">
+                          <div 
+                            className="completion-progress-fill"
+                            style={{ 
+                              width: `${(step.details.completedFields / step.details.totalFields) * 100}%`,
+                              backgroundColor: step.completed ? "#10B981" : step.color
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                      
+                      {step.details.missingFields.length > 0 && (
+                        <div className="missing-fields">
+                          <div className="missing-fields-title">Missing:</div>
+                          <div className="missing-fields-list">
+                            {step.details.missingFields.map((field, fieldIndex) => (
+                              <span key={fieldIndex} className="missing-field-tag">
+                                {field}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div 
+                    className="step-status-detailed"
+                    style={{ 
+                      backgroundColor: step.completed ? "#10B98120" : `${step.color}20`, 
+                      color: step.completed ? "#10B981" : step.color 
+                    }}
+                  >
+                    {step.completed ? "✓ Complete" : "Pending"}
+                  </div>
+                </div>
+                {!step.completed && (
+                  <div className="step-tap-hint">
+                    <span>TAP</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// Modern Section Header - Exact Flutter Style
+// Modern Section Header - Exact Homepage.dart Style
 const ModernSectionHeader = ({ title, subtitle, themeColor }) => (
-  <div className="mobile-section-header">
-    <div className="mobile-section-header-content">
+  <div className="modern-section-header">
+    <div className="section-header-content">
+      <div className="section-indicator-container">
       <div 
-        className="mobile-section-indicator"
+          className="section-indicator"
         style={{ 
           background: `linear-gradient(180deg, ${themeColor}, ${themeColor}80)`
         }}
       ></div>
-      <div className="mobile-section-text">
-        <h2 className="mobile-section-title">{title}</h2>
-        <p className="mobile-section-subtitle">{subtitle}</p>
       </div>
-      <svg className="mobile-section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="section-text-content">
+        <h2 className="section-title">{title}</h2>
+        <p className="section-subtitle">{subtitle}</p>
+      </div>
+      <div className="section-icon-container">
+        <svg className="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
+      </div>
     </div>
   </div>
 );
 
-// Profile Card - Exact Flutter Style
+// Profile Card - Exact Homepage.dart Style
 const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) => {
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
@@ -208,20 +1177,6 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
   const maritalStatus = profile.marital_status || profile.marriage_status || profile.status || "Single";
   const religion = profile.religion || profile.religious_background || profile.faith || "Islam";
 
-  // Debug profile data
-  console.log("ProfileCard Debug:", {
-    originalProfile: profile,
-    profileName,
-    profileAge,
-    profileHeight,
-    profileCity,
-    profileState,
-    profileEducation,
-    profileImage,
-    profession,
-    maritalStatus
-  });
-
   const handleInterest = () => {
     setIsInterested(!isInterested);
     onInterest && onInterest(profile);
@@ -237,101 +1192,55 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
   };
 
   return (
-    <div className="mobile-profile-card-item">
-      <div className="mobile-profile-card-image">
+    <div className="modern-profile-card">
+      <div className="profile-image-section">
         <img 
           src={profileImage} 
           alt={profileName}
-          className="mobile-profile-image"
+          className="profile-main-image"
           onError={(e) => {
+            console.log('Image failed to load, using fallback:', e.target.src);
             e.target.src = profile.gender === 'female' ? '/images/hijab-woman.png' : '/images/muslim-man.png';
           }}
         />
-        <div className="mobile-profile-badge">
-          {isVerified ? 'Verified' : 'New'}
+        <div className="profile-status-badge">
+          {maritalStatus}
         </div>
+        <button className="profile-options-button">
+          <div className="options-dots">
+            <div></div>
+            <div></div>
+            <div></div>
       </div>
-      
-      <div className="mobile-profile-card-content">
-        <div className="mobile-profile-card-header">
-          <h3 className="mobile-profile-name">{profileName}</h3>
-          <button 
-            className={`mobile-profile-shortlist-btn ${isShortlisted ? 'active' : ''}`}
-            onClick={handleShortlist}
-          >
-            <svg className="w-5 h-5" fill={isShortlisted ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
           </button>
         </div>
 
-        <div className="mobile-profile-details">
-          <div className="mobile-profile-detail-item">
-            <span className="mobile-profile-age">{profileAge} years</span>
-            <span className="mobile-profile-height">{profileHeight}</span>
+      <div className="profile-details-section">
+        <div className="profile-name-row">
+          <h3 className="profile-display-name">{profileName}</h3>
+          <div className="profile-age-badge">{profileAge} yrs</div>
           </div>
-          <div className="mobile-profile-location">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        
+        <div className="profile-info-details">
+          <p className="profile-occupation">{profession}</p>
+          <div className="profile-location-info">
+            <svg className="location-pin-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span>{profileCity}, {profileState}</span>
           </div>
-          <div className="mobile-profile-education">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-            </svg>
-            <span>{profileEducation}</span>
-          </div>
-          <div className="mobile-profile-profession">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-            </svg>
-            <span>{profession}</span>
-          </div>
-          <div className="mobile-profile-marital-status">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <span>{maritalStatus}</span>
-          </div>
         </div>
 
-        <div className="mobile-profile-match">
-          <div className="mobile-profile-match-info">
-            <span className="mobile-profile-match-label">Match</span>
-            <span className="mobile-profile-match-percentage">{matchPercentage}%</span>
-          </div>
-          <div className="mobile-profile-online-indicator">
-            <div className={`mobile-profile-online-dot ${isOnline ? 'online' : 'offline'}`}></div>
-          </div>
-        </div>
-
-        <div className="mobile-profile-actions">
           <button 
-            className={`mobile-profile-interest-btn ${isInterested ? 'active' : ''}`}
+          className="send-interest-button"
             onClick={handleInterest}
-            style={{ 
-              background: isInterested 
-                ? `linear-gradient(90deg, ${themeColor}, ${themeColor}CC)`
-                : 'linear-gradient(90deg, #6B7280, #9CA3AF)'
-            }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <svg className="heart-icon" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <span>{isInterested ? 'Interested' : 'Send Interest'}</span>
+          <span>Send Interest</span>
           </button>
-          <button 
-            className="mobile-profile-chat-btn"
-            onClick={handleChat}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -339,22 +1248,27 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
 
 // Modern Section with Profiles - Exact Flutter Style
 const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInterest, onShortlist, onChat }) => (
-  <div className="mobile-section">
+  <div className="modern-section">
     <ModernSectionHeader title={title} subtitle={subtitle} themeColor={themeColor} />
     
-    <div className="mobile-section-content">
+    <div className="section-content">
       {isLoading ? (
-        <div className="mobile-profiles-scroll">
+        <div className="profiles-horizontal-scroll">
+          <div className="profiles-scroll-container">
           {[...Array(3)].map((_, index) => (
-            <div key={`shimmer-${index}`} className="mobile-profile-scroll-item">
+              <div key={`shimmer-${index}`} className="profile-card-item">
               <ShimmerProfileCard />
             </div>
           ))}
+          </div>
         </div>
       ) : profiles.length > 0 ? (
-        <div className="mobile-profiles-scroll">
-          {profiles.map((profile, index) => (
-            <div key={profile.id || profile.user_id || `profile-${index}`} className="mobile-profile-scroll-item">
+        <>
+          {/* Horizontal Scroll Container - Exact Homepage.dart Style */}
+          <div className="profiles-horizontal-scroll">
+            <div className="profiles-scroll-container">
+              {profiles.slice(0, 10).map((profile, index) => (
+                <div key={profile.id || profile.user_id || `profile-${index}`} className="profile-card-item">
               <ProfileCard 
                 profile={profile} 
                 themeColor={themeColor}
@@ -365,29 +1279,30 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
             </div>
           ))}
         </div>
+    </div>
+
+          {/* See All Button */}
+          <div className="section-footer">
+            <button className="see-all-button">
+          <span>See All {title}</span>
+              <svg className="button-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+          </div>
+        </>
       ) : (
-        <div className="mobile-empty-state">
-          <div className="mobile-empty-icon">
+        <div className="empty-state">
+          <div className="empty-icon">
             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="mobile-empty-title">No {title} Found</h3>
-          <p className="mobile-empty-subtitle">Check back later for new profiles</p>
-        </div>
-      )}
-    </div>
-
-    {!isLoading && profiles.length > 0 && (
-      <div className="mobile-section-footer">
-        <button className="mobile-see-all-btn">
-          <span>See All {title}</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+          <h3 className="empty-title">No {title} Found</h3>
+          <p className="empty-subtitle">Check back later for new profiles</p>
       </div>
     )}
+    </div>
   </div>
 );
 
@@ -408,6 +1323,7 @@ const MobileDashboard = () => {
   const [errors, setErrors] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpenWindow, setIsOpenWindow] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
 
   // User data extraction
   // Extract user data from localStorage - Matching NewDashboard
@@ -854,7 +1770,41 @@ const MobileDashboard = () => {
   }
 
   return (
-    <div className="mobile-dashboard">
+    <div className="homepage-dashboard">
+      {/* Modern AppBar with glassmorphism effect - Exact homepage.dart style */}
+      <div className="modern-appbar">
+        <div className="appbar-container">
+          <button 
+            className="menu-button"
+            onClick={() => setShowDrawer(!showDrawer)}
+          >
+            <svg className="menu-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+          </button>
+          
+          <div className="appbar-content">
+            <div className="greeting-section">
+              <p className="greeting-text">Assalam-o-Alaikum</p>
+              <h1 className="user-name">{userName}!</h1>
+            </div>
+          </div>
+          
+          <div className="appbar-actions">
+            <button className="notification-button">
+              <svg className="notification-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            <button className="filter-button">
+              <svg className="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* User Profile Completion Modal */}
       <UserPop
         updateLater={updateLater}
@@ -875,55 +1825,103 @@ const MobileDashboard = () => {
       />
 
       {/* Main Content */}
-      <div className="mobile-dashboard-content">
-        {/* Profile Completion Card */}
+      <div className="dashboard-main-content">
+        {/* Profile Completion Card - Always Show for Demo */}
         <ProfileCompletionCard 
-          profilePercentage={profilePercentage}
-          userName={userName}
+          profilePercentage={profilePercentage || 45}
+          userName={userName || "Demo User"}
           userPhoto={userPhoto}
-          userGender={userGender}
+          userGender={userGender || "female"}
+          userData={activeUser}
         />
 
-        {/* Content Sections - Only for non-agents */}
-        {role !== "agent" && (
-          <>
+        {/* Gender Filter Banner - Always Show for Demo */}
+        <div className="gender-filter-banner">
+          <div className="gender-icon-container">
+            <div className="gender-icon">♂</div>
+          </div>
+          <div className="gender-banner-content">
+            <p className="gender-banner-title">Showing Male profiles as per Islamic matrimonial traditions</p>
+            <p className="gender-banner-subtitle">Your gender: {userGender || "female"} • User ID: {userId || "12345"}</p>
+          </div>
+        </div>
+
+        {/* Content Sections */}
+        <div className="content-spacing"></div>
+        
             {/* Trending Profiles Section */}
             <ModernSection
               title="Trending Profiles"
-              subtitle="Most viewed profiles this week"
+          subtitle="Most active and popular male members according to Islamic values."
               profiles={trendingProfiles}
-              themeColor={themeColors.trending}
+          themeColor="#EC4899"
               isLoading={trendingLoading}
               onInterest={handleInterest}
               onShortlist={handleShortlist}
               onChat={handleChat}
             />
 
-            {/* Recommended Profiles Section */}
+        <div className="content-spacing"></div>
+
+        {/* Recommended Profiles Section - Only for non-agents */}
+        {role !== "agent" && (
+          <>
             <ModernSection
-              title="Recommended for You"
-              subtitle="Based on your preferences and compatibility"
+              title="Recommendations"
+              subtitle="Best matches based on your preferences male members according to Islamic values."
               profiles={recommendedProfiles}
-              themeColor={themeColors.recommended}
+              themeColor="#8B5CF6"
               isLoading={recommendedLoading}
               onInterest={handleInterest}
               onShortlist={handleShortlist}
               onChat={handleChat}
             />
+            <div className="content-spacing"></div>
           </>
         )}
 
-        {/* All Users Section */}
+        {/* Latest Profiles Section */}
         <ModernSection
-          title="Browse All Profiles"
-          subtitle="Discover new connections and expand your network"
+          title="Latest Profiles"
+          subtitle="Newest members who just joined"
           profiles={allUsersProfiles}
-          themeColor={themeColors.allUsers}
+          themeColor="#3B82F6"
           isLoading={allUsersLoading}
           onInterest={handleInterest}
           onShortlist={handleShortlist}
           onChat={handleChat}
         />
+
+        <div className="bottom-spacing"></div>
+      </div>
+
+      {/* Modern Bottom Navigation - Exact Homepage.dart Style */}
+        <div className="modern-bottom-nav">
+          <button className="nav-item active" title="Home">
+            <svg className="nav-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </button>
+          <button className="nav-item" title="Activity">
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+          <button className="nav-item" title="Search">
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+          <button className="nav-item" title="Messages">
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </button>
+          <button className="nav-item" title="Profile">
+            <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </button>
       </div>
     </div>
   );
