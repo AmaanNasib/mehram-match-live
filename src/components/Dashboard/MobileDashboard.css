@@ -1569,27 +1569,35 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: #EC4899;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-weight: 600;
+  background: linear-gradient(135deg, 
+    rgba(236, 72, 153, 0.1), 
+    rgba(236, 72, 153, 0.05));
+  color: #EC4899;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 20px;
+  font-weight: 700;
   font-size: 14px;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 100%;
+  width: auto;
   justify-content: center;
+  min-width: fit-content;
 }
 
 .see-all-button:hover {
-  background: #BE185D;
+  background: linear-gradient(135deg, 
+    rgba(236, 72, 153, 0.15), 
+    rgba(236, 72, 153, 0.1));
+  border-color: rgba(236, 72, 153, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
 }
 
 .button-arrow-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
+  color: #EC4899;
 }
 
 /* Modern Bottom Navigation - Exact homepage.dart style */
@@ -1763,6 +1771,199 @@
   background: #BE185D;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+/* Professional Drawer - Exact Homepage.dart Style */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  animation: fadeIn 0.3s ease;
+}
+
+.drawer-container {
+  background: white;
+  width: 320px;
+  height: 100vh;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  animation: slideInLeft 0.3s ease;
+  overflow-y: auto;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* Professional Header */
+.drawer-header {
+  padding: 24px 24px 32px 24px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.drawer-user-profile {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.drawer-user-photo-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.drawer-user-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  border: 1px solid #E5E7EB;
+  object-fit: cover;
+}
+
+.drawer-edit-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: #EC4899;
+  border-radius: 50%;
+  border: 1.5px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.drawer-edit-icon {
+  width: 10px;
+  height: 10px;
+  color: white;
+}
+
+.drawer-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-user-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 2px 0;
+  letter-spacing: -0.3px;
+}
+
+.drawer-profile-status {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.drawer-profile-status.complete {
+  color: #059669;
+}
+
+.drawer-profile-status.incomplete {
+  color: #EA580C;
+}
+
+/* Menu Items */
+.drawer-menu {
+  padding: 16px 0;
+}
+
+.drawer-menu-section {
+  margin-bottom: 0;
+}
+
+.drawer-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.drawer-menu-item:hover {
+  background-color: #F9FAFB;
+}
+
+.drawer-menu-item.expandable {
+  cursor: pointer;
+}
+
+.drawer-menu-icon {
+  width: 22px;
+  height: 22px;
+  color: #6B7280;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.drawer-menu-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
+}
+
+.drawer-arrow-icon {
+  width: 14px;
+  height: 14px;
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.drawer-expand-icon {
+  width: 22px;
+  height: 22px;
+  color: #EC4899;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.drawer-expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Submenu */
+.drawer-submenu {
+  margin-bottom: 4px;
+}
+
+.drawer-submenu-item {
+  padding: 12px 48px 12px 48px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.drawer-submenu-item:hover {
+  background-color: #F9FAFB;
+}
+
+/* Divider */
+.drawer-divider {
+  height: 1px;
+  background-color: #F3F4F6;
+  margin: 0;
 }
 
 /* Responsive Design - Mobile Device Compatibility */

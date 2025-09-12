@@ -1299,11 +1299,11 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
           {/* See All Button */}
           <div className="section-footer">
             <button className="see-all-button">
-          <span>See All</span>
+              <span>SEE ALL PROFILES</span>
               <svg className="button-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </>
       ) : (
@@ -1320,6 +1320,146 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
     </div>
   </div>
 );
+
+// Professional Drawer Component - Exact Homepage.dart Style
+const ProfessionalDrawer = ({ isOpen, onClose, userName, userPhoto, userGender, isProfileComplete, isProfileMenuExpanded, setIsProfileMenuExpanded, isHelpSupportMenuExpanded, setIsHelpSupportMenuExpanded }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="drawer-overlay" onClick={onClose}>
+      <div className="drawer-container" onClick={(e) => e.stopPropagation()}>
+        {/* Professional Header */}
+        <div className="drawer-header">
+          <div className="drawer-user-profile">
+            <div className="drawer-user-photo-container">
+              <img 
+                src={userPhoto || (userGender === 'female' ? '/images/hijab-woman.png' : '/images/muslim-man.png')} 
+                alt={userName}
+                className="drawer-user-photo"
+                onError={(e) => {
+                  e.target.src = userGender === 'female' ? '/images/hijab-woman.png' : '/images/muslim-man.png';
+                }}
+              />
+              <div className="drawer-edit-button">
+                <svg className="drawer-edit-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                </svg>
+              </div>
+            </div>
+            <div className="drawer-user-info">
+              <h3 className="drawer-user-name">{userName}</h3>
+              <p className={`drawer-profile-status ${isProfileComplete ? 'complete' : 'incomplete'}`}>
+                {isProfileComplete ? 'Profile Complete' : 'Profile Incomplete'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Menu Items */}
+        <div className="drawer-menu">
+          {/* Profile (expandable) */}
+          <div className="drawer-menu-section">
+            <div className="drawer-menu-item expandable" onClick={() => setIsProfileMenuExpanded(!isProfileMenuExpanded)}>
+              <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="drawer-menu-title">Profile</span>
+              <svg className={`drawer-expand-icon ${isProfileMenuExpanded ? 'expanded' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            {isProfileMenuExpanded && (
+              <div className="drawer-submenu">
+                <div className="drawer-submenu-item">Edit My Profile</div>
+                <div className="drawer-submenu-item">Gallery</div>
+                <div className="drawer-submenu-item">Add Trust Badge</div>
+                <div className="drawer-submenu-item">My Package</div>
+              </div>
+            )}
+          </div>
+
+          <div className="drawer-divider"></div>
+
+          {/* My Interests */}
+          <div className="drawer-menu-item">
+            <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <span className="drawer-menu-title">My Interests</span>
+            <svg className="drawer-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
+          <div className="drawer-divider"></div>
+
+          {/* Messages */}
+          <div className="drawer-menu-item">
+            <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span className="drawer-menu-title">Messages</span>
+            <svg className="drawer-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
+          <div className="drawer-divider"></div>
+
+          {/* Advanced Search */}
+          <div className="drawer-menu-item">
+            <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span className="drawer-menu-title">Advanced Search</span>
+            <svg className="drawer-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
+          <div className="drawer-divider"></div>
+
+          {/* Help & Support (expandable) */}
+          <div className="drawer-menu-section">
+            <div className="drawer-menu-item expandable" onClick={() => setIsHelpSupportMenuExpanded(!isHelpSupportMenuExpanded)}>
+              <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="drawer-menu-title">Help & Support</span>
+              <svg className={`drawer-expand-icon ${isHelpSupportMenuExpanded ? 'expanded' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            {isHelpSupportMenuExpanded && (
+              <div className="drawer-submenu">
+                <div className="drawer-submenu-item">Contact Us</div>
+                <div className="drawer-submenu-item">About Us</div>
+                <div className="drawer-submenu-item">Blogs</div>
+                <div className="drawer-submenu-item">Report Bugs</div>
+                <div className="drawer-submenu-item">Terms & Conditions</div>
+                <div className="drawer-submenu-item">Privacy Policy</div>
+              </div>
+            )}
+          </div>
+
+          <div className="drawer-divider"></div>
+
+          {/* Settings */}
+          <div className="drawer-menu-item">
+            <svg className="drawer-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="drawer-menu-title">Settings</span>
+            <svg className="drawer-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MobileDashboard = () => {
   const location = useLocation();
@@ -1339,6 +1479,8 @@ const MobileDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpenWindow, setIsOpenWindow] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [isProfileMenuExpanded, setIsProfileMenuExpanded] = useState(false);
+  const [isHelpSupportMenuExpanded, setIsHelpSupportMenuExpanded] = useState(false);
 
   // User data extraction
   // Extract user data from localStorage - Matching NewDashboard
@@ -1786,6 +1928,19 @@ const MobileDashboard = () => {
 
   return (
     <div className="homepage-dashboard">
+      {/* Professional Drawer */}
+      <ProfessionalDrawer 
+        isOpen={showDrawer}
+        onClose={() => setShowDrawer(false)}
+        userName={userName || "Demo User"}
+        userPhoto={userPhoto}
+        userGender={userGender || "female"}
+        isProfileComplete={profilePercentage >= 100}
+        isProfileMenuExpanded={isProfileMenuExpanded}
+        setIsProfileMenuExpanded={setIsProfileMenuExpanded}
+        isHelpSupportMenuExpanded={isHelpSupportMenuExpanded}
+        setIsHelpSupportMenuExpanded={setIsHelpSupportMenuExpanded}
+      />
       {/* Modern AppBar with glassmorphism effect - Exact homepage.dart style */}
       <div className="modern-appbar">
         <div className="appbar-container">
