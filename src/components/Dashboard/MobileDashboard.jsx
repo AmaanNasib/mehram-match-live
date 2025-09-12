@@ -1108,22 +1108,24 @@ const ModernSectionHeader = ({ title, subtitle, themeColor }) => (
   <div className="modern-section-header">
     <div className="section-header-content">
       <div className="section-indicator-container">
-      <div 
+        <div 
           className="section-indicator"
-        style={{ 
-          background: `linear-gradient(180deg, ${themeColor}, ${themeColor}80)`
-        }}
-      ></div>
+          style={{ 
+            background: `linear-gradient(180deg, ${themeColor}, ${themeColor}80)`
+          }}
+        ></div>
       </div>
       <div className="section-text-content">
         <h2 className="section-title">{title}</h2>
-        <p className="section-subtitle">{subtitle}</p>
       </div>
       <div className="section-icon-container">
         <svg className="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-      </svg>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
       </div>
+    </div>
+    <div className="section-subtitle-container">
+      <p className="section-subtitle">{subtitle}</p>
     </div>
   </div>
 );
@@ -1192,55 +1194,68 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
   };
 
   return (
-    <div className="modern-profile-card">
-      <div className="profile-image-section">
+    <div className="modern-profile-card-homepage">
+      {/* Enhanced Photo Section */}
+      <div className="profile-image-section-homepage">
         <img 
           src={profileImage} 
           alt={profileName}
-          className="profile-main-image"
+          className="profile-main-image-homepage"
           onError={(e) => {
             console.log('Image failed to load, using fallback:', e.target.src);
             e.target.src = profile.gender === 'female' ? '/images/hijab-woman.png' : '/images/muslim-man.png';
           }}
         />
-        <div className="profile-status-badge">
+        
+        {/* Status indicator - Marital Status Badge */}
+        <div className="profile-status-badge-homepage">
           {maritalStatus}
         </div>
-        <button className="profile-options-button">
+        
+        {/* Menu button - top right corner */}
+        <button className="profile-options-button-homepage">
           <div className="options-dots">
             <div></div>
             <div></div>
             <div></div>
+          </div>
+        </button>
       </div>
-          </button>
-        </div>
 
-      <div className="profile-details-section">
-        <div className="profile-name-row">
-          <h3 className="profile-display-name">{profileName}</h3>
-          <div className="profile-age-badge">{profileAge} yrs</div>
-          </div>
+      {/* Enhanced Profile Information Section */}
+      <div className="profile-details-section-homepage">
+        {/* Name and age row */}
+        <div className="profile-name-age-row">
+          <h3 className="profile-display-name-homepage">{profileName}</h3>
+          <div className="profile-age-badge-homepage">{profileAge} yrs</div>
+        </div>
         
-        <div className="profile-info-details">
-          <p className="profile-occupation">{profession}</p>
-          <div className="profile-location-info">
-            <svg className="location-pin-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>{profileCity}, {profileState}</span>
+        {/* Profession */}
+        {profession && (
+          <div className="profile-profession-homepage">
+            {profession}
           </div>
+        )}
+        
+        {/* Location */}
+        <div className="profile-location-homepage">
+          <svg className="location-pin-icon-homepage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>{profileCity}, {profileState}</span>
         </div>
 
-          <button 
-          className="send-interest-button"
-            onClick={handleInterest}
-          >
-          <svg className="heart-icon" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
+        {/* Send Interest Button */}
+        <button 
+          className="send-interest-button-homepage"
+          onClick={handleInterest}
+        >
+          <svg className="heart-icon-homepage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
           <span>Send Interest</span>
-          </button>
+        </button>
       </div>
     </div>
   );
@@ -1284,7 +1299,7 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
           {/* See All Button */}
           <div className="section-footer">
             <button className="see-all-button">
-          <span>See All {title}</span>
+          <span>See All</span>
               <svg className="button-arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

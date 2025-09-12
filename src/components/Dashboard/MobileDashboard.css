@@ -1168,8 +1168,13 @@
   font-size: 22px;
   font-weight: 700;
   color: #1F2937;
-  margin: 0 0 6px 0;
+  margin: 0;
   line-height: 1.2;
+}
+
+.section-subtitle-container {
+  margin-top: 6px;
+  padding-left: 16px; /* 4px (indicator) + 12px (gap) = 16px - same as title start */
 }
 
 .section-subtitle {
@@ -1177,7 +1182,6 @@
   color: #6B7280;
   line-height: 1.3;
   margin: 0;
-  padding-left: 16px;
 }
 
 .section-icon-container {
@@ -1221,9 +1225,9 @@
 }
 
 .profile-card-item {
-  flex: 0 0 280px; /* Fixed width for cards */
-  min-width: 280px;
-  max-width: 280px;
+  flex: 0 0 200px; /* Fixed width for cards - matching homepage.dart */
+  min-width: 200px;
+  max-width: 200px;
 }
 
 /* Modern Profile Card - Exact homepage.dart style */
@@ -1237,6 +1241,173 @@
   height: 380px; /* Fixed height for consistent carousel */
   display: flex;
   flex-direction: column;
+}
+
+/* Homepage.dart Exact Profile Card Design */
+.modern-profile-card-homepage {
+  width: 200px;
+  height: 370px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9), 
+    rgba(255, 255, 255, 0.8));
+  border-radius: 25px;
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  box-shadow: 
+    0 8px 20px rgba(236, 72, 153, 0.1),
+    0 -5px 20px rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.modern-profile-card-homepage:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 25px rgba(236, 72, 153, 0.15),
+    0 -8px 25px rgba(255, 255, 255, 0.6);
+}
+
+.profile-image-section-homepage {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-main-image-homepage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-status-badge-homepage {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  font-size: 10px;
+  font-weight: 600;
+  color: #EC4899;
+  backdrop-filter: blur(4px);
+}
+
+.profile-options-button-homepage {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.profile-options-button-homepage:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.05);
+}
+
+.profile-details-section-homepage {
+  padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.profile-name-age-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.profile-display-name-homepage {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.profile-age-badge-homepage {
+  padding: 2px 7px;
+  background: rgba(236, 72, 153, 0.1);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #EC4899;
+  flex-shrink: 0;
+}
+
+.profile-profession-homepage {
+  padding: 3px 7px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6B7280;
+  margin-bottom: 6px;
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.profile-location-homepage {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: 12px;
+}
+
+.location-pin-icon-homepage {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: #6B7280;
+}
+
+.send-interest-button-homepage {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #EC4899, rgba(236, 72, 153, 0.8));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 8px rgba(236, 72, 153, 0.3);
+}
+
+.send-interest-button-homepage:hover {
+  background: linear-gradient(135deg, #BE185D, #EC4899);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(236, 72, 153, 0.4);
+}
+
+.heart-icon-homepage {
+  width: 16px;
+  height: 16px;
+  color: white;
 }
 
 .modern-profile-card:hover {
@@ -1656,17 +1827,17 @@
   
   /* Mobile-specific horizontal scroll adjustments */
   .profile-card-item {
-    flex: 0 0 260px; /* Slightly smaller cards on mobile */
-    min-width: 260px;
-    max-width: 260px;
+    flex: 0 0 200px; /* Same width as homepage.dart */
+    min-width: 200px;
+    max-width: 200px;
   }
   
-  .modern-profile-card {
-    height: 360px; /* Slightly shorter on mobile */
+  .modern-profile-card-homepage {
+    height: 370px; /* Same height as homepage.dart */
   }
   
-  .profile-image-section {
-    height: 180px; /* Reduced image height on mobile */
+  .profile-image-section-homepage {
+    height: 200px; /* Same height as homepage.dart */
   }
   
   .profiles-horizontal-scroll {
@@ -1730,17 +1901,17 @@
   
   /* Tablet-specific horizontal scroll adjustments */
   .profile-card-item {
-    flex: 0 0 300px; /* Larger cards on tablet */
-    min-width: 300px;
-    max-width: 300px;
+    flex: 0 0 200px; /* Same width as homepage.dart */
+    min-width: 200px;
+    max-width: 200px;
   }
   
-  .modern-profile-card {
-    height: 400px; /* Taller cards on tablet */
+  .modern-profile-card-homepage {
+    height: 370px; /* Same height as homepage.dart */
   }
   
-  .profile-image-section {
-    height: 220px; /* Larger image height on tablet */
+  .profile-image-section-homepage {
+    height: 200px; /* Same height as homepage.dart */
   }
 }
 
@@ -1783,17 +1954,17 @@
   
   /* Desktop-specific horizontal scroll adjustments */
   .profile-card-item {
-    flex: 0 0 320px; /* Largest cards on desktop */
-    min-width: 320px;
-    max-width: 320px;
+    flex: 0 0 200px; /* Same width as homepage.dart */
+    min-width: 200px;
+    max-width: 200px;
   }
   
-  .modern-profile-card {
-    height: 420px; /* Tallest cards on desktop */
+  .modern-profile-card-homepage {
+    height: 370px; /* Same height as homepage.dart */
   }
   
-  .profile-image-section {
-    height: 240px; /* Largest image height on desktop */
+  .profile-image-section-homepage {
+    height: 200px; /* Same height as homepage.dart */
   }
   
   .profiles-scroll-container {
