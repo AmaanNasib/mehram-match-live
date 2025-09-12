@@ -1,0 +1,656 @@
+/* Profile Details Modal - Exact Profile Details Screen Style */
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  position: fixed !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.profile-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  /* Prevent background scroll and interaction */
+  overflow: hidden;
+  touch-action: none;
+  -webkit-overflow-scrolling: touch;
+  /* Make it feel like a new page - cover entire viewport */
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
+  width: 100vw;
+  width: 100dvw; /* Dynamic viewport width for mobile */
+}
+
+.profile-details-container {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideInUp 0.3s ease;
+  /* Solid gradient background - no transparency */
+  background: linear-gradient(135deg, 
+    #FCE7F3 0%, 
+    #F3E8FF 30%, 
+    #FFFFFF 70%, 
+    #EFF6FF 100%);
+  /* Make it feel like a new page - use full viewport */
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
+  max-height: 100vh;
+  max-height: 100dvh; /* Dynamic viewport height for mobile */
+  width: 100vw;
+  width: 100dvw; /* Dynamic viewport width for mobile */
+  max-width: 100vw;
+  max-width: 100dvw; /* Dynamic viewport width for mobile */
+  border-radius: 0; /* Remove rounded corners for full page feel */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Header */
+.profile-details-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #F3F4F6;
+  flex-shrink: 0;
+  height: 60px;
+}
+
+.back-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #F9FAFB;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #F3F4F6;
+  transform: scale(1.05);
+}
+
+.back-icon {
+  width: 20px;
+  height: 20px;
+  color: #374151;
+}
+
+.profile-details-title {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 16px;
+  text-align: center;
+  letter-spacing: -0.3px;
+  max-lines: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-spacer {
+  width: 40px;
+}
+
+/* Content */
+.profile-details-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Gallery Section */
+.profile-gallery-section {
+  position: relative;
+  background: white;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.gallery-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+}
+
+.gallery-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-nav-button:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-nav-button.prev {
+  left: 16px;
+}
+
+.gallery-nav-button.next {
+  right: 16px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  color: #374151;
+}
+
+.gallery-indicators {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.gallery-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gallery-indicator.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* Content Cards - Exact Profile Details Screen Style */
+.profile-content-cards {
+  padding: 0 16px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Main Info Card - Solid colors */
+.main-info-card {
+  margin: 20px 0 0 0;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #EFF6FF;
+  box-shadow: 0 8px 20px rgba(239, 246, 255, 0.15);
+}
+
+.main-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Name and Badge Row */
+.name-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0;
+  flex: 1;
+  line-height: 1.2;
+}
+
+/* Verified Badges */
+.verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.verified-badge.agent-verified {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+}
+
+.verified-badge.regular-verified {
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  color: white;
+}
+
+.verified-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Member ID Row */
+.member-id-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.member-id-icon {
+  width: 16px;
+  height: 16px;
+  color: #6B7280;
+}
+
+.member-id-text {
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+/* Info Tags Row */
+.info-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.info-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.info-tag-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.info-tag-label {
+  font-weight: 500;
+}
+
+/* Introduction Card - Solid colors */
+.intro-card {
+  margin: 0;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #FCE7F3;
+  box-shadow: 0 6px 18px rgba(252, 231, 243, 0.15);
+}
+
+.intro-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.intro-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #FCE7F3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-card-icon .icon {
+  width: 20px;
+  height: 20px;
+  color: #EC4899;
+}
+
+.intro-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0;
+}
+
+.intro-card-content {
+  margin: 0;
+}
+
+.intro-text {
+  font-size: 14px;
+  color: #4B5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Info Cards */
+.info-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Different card types with different colors - matching profile_details_screen.dart */
+.info-card:nth-of-type(2) { /* Basic Information */
+  border: 1px solid #EFF6FF;
+  box-shadow: 0 6px 18px rgba(239, 246, 255, 0.15);
+}
+
+.info-card:nth-of-type(3) { /* Religious Information */
+  border: 1px solid #F0FDF4;
+  box-shadow: 0 6px 18px rgba(240, 253, 244, 0.15);
+}
+
+.info-card:nth-of-type(4) { /* Family Information */
+  border: 1px solid #FEF3C7;
+  box-shadow: 0 6px 18px rgba(254, 243, 199, 0.15);
+}
+
+.info-card:nth-of-type(5) { /* Partner Preference */
+  border: 1px solid #FCE7F3;
+  box-shadow: 0 6px 18px rgba(252, 231, 243, 0.15);
+}
+
+.info-card:nth-of-type(6) { /* Expectations & Preferences */
+  border: 1px solid #F3E8FF;
+  box-shadow: 0 6px 18px rgba(243, 232, 255, 0.15);
+}
+
+.info-card:nth-of-type(7) { /* Social Details */
+  border: 1px solid #ECFDF5;
+  box-shadow: 0 6px 18px rgba(236, 253, 245, 0.15);
+}
+
+.info-card-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 20px 16px 20px;
+  gap: 12px;
+}
+
+.info-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #EC4899, #BE185D);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Different icon colors for different card types */
+.info-card:nth-of-type(2) .info-card-icon { /* Basic Information */
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+}
+
+.info-card:nth-of-type(3) .info-card-icon { /* Religious Information */
+  background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.info-card:nth-of-type(4) .info-card-icon { /* Family Information */
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.info-card:nth-of-type(5) .info-card-icon { /* Partner Preference */
+  background: linear-gradient(135deg, #EC4899, #BE185D);
+}
+
+.info-card:nth-of-type(6) .info-card-icon { /* Expectations & Preferences */
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.info-card:nth-of-type(7) .info-card-icon { /* Social Details */
+  background: linear-gradient(135deg, #06B6D4, #0891B2);
+}
+
+.info-card-icon .icon {
+  width: 18px;
+  height: 18px;
+  color: white;
+}
+
+.info-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.info-card-content {
+  padding: 0 20px 20px 20px;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #F3F4F6;
+  gap: 10px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row-icon {
+  width: 20px;
+  height: 20px;
+  color: #A855F7;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.info-row-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1F2937;
+  line-height: 1.2;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.2;
+}
+
+/* Action Buttons */
+.profile-details-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px 16px;
+  background: white;
+  border-top: 1px solid #F3F4F6;
+  flex-shrink: 0;
+  /* Full page feel - no extra padding for browser UI */
+  padding-bottom: 20px;
+  margin-bottom: 0;
+  /* Ensure buttons are always visible */
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.action-button {
+  flex: 1;
+  height: 48px;
+  border-radius: 16px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, #EC4899, #BE185D);
+  color: white;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.action-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+.action-button.primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-button.secondary {
+  background: #F9FAFB;
+  color: #374151;
+  border: 1px solid #E5E7EB;
+}
+
+.action-button.secondary:hover {
+  background: #F3F4F6;
+  transform: translateY(-1px);
+}
+
+.action-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .profile-details-container {
+    max-width: 100%;
+    /* Full page feel on mobile - cover entire screen */
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+    max-height: 100vh;
+    max-height: 100dvh; /* Dynamic viewport height for mobile */
+    width: 100vw;
+    width: 100dvw; /* Dynamic viewport width for mobile */
+    max-width: 100vw;
+    max-width: 100dvw; /* Dynamic viewport width for mobile */
+    border-radius: 0; /* Remove rounded corners for full page feel */
+  }
+  
+  .profile-gallery-section {
+    height: 300px;
+  }
+  
+  .info-card-header {
+    padding: 16px 16px 12px 16px;
+  }
+  
+  .info-card-content {
+    padding: 0 16px 16px 16px;
+  }
+  
+  .profile-details-actions {
+    padding: 16px;
+    /* Full page feel - no extra padding for browser UI */
+    padding-bottom: 16px;
+    margin-bottom: 0;
+  }
+  
+  .action-button {
+    height: 44px;
+    font-size: 13px;
+  }
+  
+  .profile-name {
+    font-size: 22px;
+  }
+  
+  .main-info-card {
+    padding: 16px;
+  }
+  
+  .intro-card {
+    padding: 16px;
+  }
+}

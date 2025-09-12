@@ -6,7 +6,9 @@ import {
   fetchDataWithTokenV2,
 } from "../../apiUtils";
 import UserPop from "../sections/UserPop";
+import ProfileDetailsModal from "./ProfileDetailsModal";
 import "./MobileDashboard.css";
+import "./ProfileDetailsModal.css";
 
 // Shimmer Loading for Profile Cards - Exact Flutter Homepage Style
 const ShimmerProfileCard = () => (
@@ -1131,7 +1133,7 @@ const ModernSectionHeader = ({ title, subtitle, themeColor }) => (
 );
 
 // Profile Card - Exact Homepage.dart Style
-const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) => {
+const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat, onProfileClick }) => {
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
   
@@ -1194,7 +1196,7 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
   };
 
   return (
-    <div className="modern-profile-card-homepage">
+    <div className="modern-profile-card-homepage" onClick={() => onProfileClick && onProfileClick(profile)}>
       {/* Enhanced Photo Section */}
       <div className="profile-image-section-homepage">
         <img 
@@ -1262,7 +1264,7 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat }) =
 };
 
 // Modern Section with Profiles - Exact Flutter Style
-const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInterest, onShortlist, onChat }) => (
+const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInterest, onShortlist, onChat, onProfileClick }) => (
   <div className="modern-section">
     <ModernSectionHeader title={title} subtitle={subtitle} themeColor={themeColor} />
     
@@ -1290,6 +1292,7 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
                 onInterest={onInterest}
                 onShortlist={onShortlist}
                 onChat={onChat}
+                onProfileClick={onProfileClick}
               />
             </div>
           ))}
@@ -1320,6 +1323,7 @@ const ModernSection = ({ title, subtitle, profiles, themeColor, isLoading, onInt
     </div>
   </div>
 );
+
 
 // Professional Drawer Component - Exact Homepage.dart Style
 const ProfessionalDrawer = ({ isOpen, onClose, userName, userPhoto, userGender, isProfileComplete, isProfileMenuExpanded, setIsProfileMenuExpanded, isHelpSupportMenuExpanded, setIsHelpSupportMenuExpanded }) => {
@@ -1481,6 +1485,8 @@ const MobileDashboard = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [isProfileMenuExpanded, setIsProfileMenuExpanded] = useState(false);
   const [isHelpSupportMenuExpanded, setIsHelpSupportMenuExpanded] = useState(false);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedProfileData, setSelectedProfileData] = useState(null);
 
   // User data extraction
   // Extract user data from localStorage - Matching NewDashboard
@@ -1928,6 +1934,18 @@ const MobileDashboard = () => {
 
   return (
     <div className="homepage-dashboard">
+      {/* Profile Details Modal */}
+      <ProfileDetailsModal 
+        isOpen={showProfileDetails}
+        onClose={() => {
+          setShowProfileDetails(false);
+          setSelectedProfileData(null);
+        }}
+        userData={selectedProfileData}
+        currentUserGender={userGender || "female"}
+        currentUserId={userId || ""}
+      />
+      
       {/* Professional Drawer */}
       <ProfessionalDrawer 
         isOpen={showDrawer}
@@ -2029,6 +2047,10 @@ const MobileDashboard = () => {
               onInterest={handleInterest}
               onShortlist={handleShortlist}
               onChat={handleChat}
+              onProfileClick={(profileData) => {
+                setSelectedProfileData(profileData);
+                setShowProfileDetails(true);
+              }}
             />
 
         <div className="content-spacing"></div>
@@ -2045,6 +2067,10 @@ const MobileDashboard = () => {
               onInterest={handleInterest}
               onShortlist={handleShortlist}
               onChat={handleChat}
+              onProfileClick={(profileData) => {
+                setSelectedProfileData(profileData);
+                setShowProfileDetails(true);
+              }}
             />
             <div className="content-spacing"></div>
           </>
@@ -2060,6 +2086,10 @@ const MobileDashboard = () => {
           onInterest={handleInterest}
           onShortlist={handleShortlist}
           onChat={handleChat}
+          onProfileClick={(profileData) => {
+            setSelectedProfileData(profileData);
+            setShowProfileDetails(true);
+          }}
         />
 
         <div className="bottom-spacing"></div>
