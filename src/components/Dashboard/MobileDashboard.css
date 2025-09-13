@@ -1792,9 +1792,14 @@
   background: white;
   width: 320px;
   height: 100vh;
+  height: calc(100vh - 0px); /* Ensure full height */
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   animation: slideInLeft 0.3s ease;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scroll-behavior: smooth;
 }
 
 @keyframes fadeIn {
@@ -1811,6 +1816,7 @@
 .drawer-header {
   padding: 24px 24px 32px 24px;
   border-bottom: 1px solid #F3F4F6;
+  flex-shrink: 0;
 }
 
 .drawer-user-profile {
@@ -1883,7 +1889,12 @@
 
 /* Menu Items */
 .drawer-menu {
-  padding: 16px 0;
+  padding: 16px 0 80px 0; /* Increased bottom padding to avoid bottom nav overlap */
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scroll-behavior: smooth;
 }
 
 .drawer-menu-section {
@@ -1893,7 +1904,7 @@
 .drawer-menu-item {
   display: flex;
   align-items: center;
-  padding: 16px 24px;
+  padding: 12px 24px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -1943,11 +1954,11 @@
 
 /* Submenu */
 .drawer-submenu {
-  margin-bottom: 4px;
+  margin-bottom: 0px;
 }
 
 .drawer-submenu-item {
-  padding: 12px 48px 12px 48px;
+  padding: 8px 48px 8px 48px;
   font-size: 16px;
   font-weight: 600;
   color: #111827;
@@ -1966,6 +1977,11 @@
   margin: 0;
 }
 
+/* Last menu item spacing */
+.drawer-menu-item:last-of-type {
+  margin-bottom: 20px; /* Extra spacing for last item */
+}
+
 
 /* Responsive Design - Mobile Device Compatibility */
 @media (max-width: 480px) {
@@ -1981,6 +1997,19 @@
   .bottom-sheet-content {
     padding-bottom: 80px; /* Smaller padding for mobile */
     max-height: calc(100vh - 190px); /* Adjust for mobile header and navbar */
+  }
+  
+  /* Drawer mobile improvements */
+  .drawer-container {
+    width: 100vw;
+    max-width: 320px;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  .drawer-menu {
+    padding-bottom: 100px; /* Extra padding for mobile to avoid bottom nav */
+    -webkit-overflow-scrolling: touch; /* Enhanced touch scrolling */
   }
   
   .modern-bottom-nav {
