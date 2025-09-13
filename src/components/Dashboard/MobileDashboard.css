@@ -1990,7 +1990,7 @@
 }
 
 
-/* Filter Bottom Sheet Styles */
+/* Filter Bottom Sheet Styles - Exact homepage.dart Match */
 .filter-bottom-sheet-overlay {
   position: fixed;
   top: 0;
@@ -2009,27 +2009,52 @@
   background: white;
   border-radius: 25px 25px 0 0;
   width: 100%;
-  max-height: 85vh;
+  max-height: 60vh; /* Reduced from 85vh to 60vh for half height */
+  min-height: 50vh; /* Minimum half height */
   overflow-y: auto;
   box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
   animation: slideInUp 0.3s ease;
-  padding: 20px 20px 0 20px;
+  padding: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
+.filter-bottom-sheet-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 0; /* Allow content to shrink */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scroll-behavior: smooth;
+}
+
+/* Handle Bar - Exact homepage.dart style with drag functionality */
 .filter-bottom-sheet-handle {
   width: 40px;
   height: 4px;
   background: #D1D5DB;
   border-radius: 2px;
   margin: 0 auto 16px auto;
+  align-self: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: all 0.2s ease;
 }
 
-.filter-bottom-sheet-header {
-  padding: 0 0 20px 0;
-  border-bottom: none;
+.filter-bottom-sheet-handle:hover {
+  background: #9CA3AF;
+  transform: scale(1.1);
 }
 
+.filter-bottom-sheet-handle:active {
+  cursor: grabbing;
+  background: #6B7280;
+  transform: scale(1.2);
+}
+
+/* Title - Exact homepage.dart style */
 .filter-bottom-sheet-title {
   font-size: 20px;
   font-weight: 700;
@@ -2037,23 +2062,40 @@
   margin: 0;
   letter-spacing: -0.3px;
   text-align: left;
+  align-self: flex-start;
 }
 
-.filter-bottom-sheet-content {
-  padding: 0;
+/* Spacing - Exact homepage.dart spacing */
+.filter-spacing-20 {
+  height: 20px;
 }
 
+.filter-spacing-16 {
+  height: 16px;
+}
+
+.filter-spacing-24 {
+  height: 24px;
+}
+
+.filter-spacing-10 {
+  height: 10px;
+}
+
+/* Filter Group - Exact homepage.dart style */
 .filter-group {
-  margin-bottom: 24px;
+  width: 100%;
+  margin-bottom: 0;
 }
 
+/* Filter Label - Exact homepage.dart style */
 .filter-label {
-  display: block;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-  letter-spacing: -0.1px;
+  color: #111827;
+  margin-bottom: 0;
+  display: block;
+  text-align: left;
 }
 
 .filter-input,
@@ -2080,13 +2122,13 @@
   color: #9CA3AF;
 }
 
-/* Filter Dropdown Styles */
-.filter-dropdown-container {
+/* Filter Input Container - Exact homepage.dart TextFormField style */
+.filter-input-container {
   position: relative;
-  margin-top: 4px;
+  margin-top: 0;
 }
 
-.filter-dropdown-input {
+.filter-text-input {
   width: 100%;
   padding: 14px 16px;
   border: 1px solid #D1D5DB;
@@ -2097,19 +2139,22 @@
   transition: all 0.2s ease;
   box-sizing: border-box;
   cursor: pointer;
+  font-weight: 600;
 }
 
-.filter-dropdown-input:focus {
+.filter-text-input:focus {
   outline: none;
   border-color: #EC4899;
+  border-width: 2px;
   box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
 }
 
-.filter-dropdown-input::placeholder {
+.filter-text-input::placeholder {
   color: #9CA3AF;
+  font-weight: 400;
 }
 
-.filter-dropdown-icon {
+.filter-input-arrow {
   position: absolute;
   right: 16px;
   top: 50%;
@@ -2120,15 +2165,62 @@
   pointer-events: none;
 }
 
-/* Marital Status Chips */
-.marital-status-chips {
+/* Filter Dropdown Container - Exact homepage.dart Container style */
+.filter-dropdown-container {
+  position: relative;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-dropdown-container:hover {
+  border-color: #EC4899;
+}
+
+.filter-dropdown-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #111827;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.filter-dropdown-input::placeholder {
+  color: #9CA3AF;
+  font-weight: 400;
+}
+
+.filter-dropdown-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9CA3AF;
+  pointer-events: none;
+}
+
+/* Marital Status Wrap - Exact homepage.dart Wrap style */
+.marital-status-wrap {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 0;
+  width: 100%;
+  row-gap: 10px;
 }
 
-.marital-status-chip {
+/* Marital Status Choice Chip - Exact homepage.dart ChoiceChip style */
+.marital-status-choice-chip {
   padding: 8px 16px;
   border: 1.5px solid #D1D5DB;
   border-radius: 25px;
@@ -2139,30 +2231,35 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  outline: none;
 }
 
-.marital-status-chip:hover {
+.marital-status-choice-chip:hover {
   border-color: #EC4899;
   background: rgba(236, 72, 153, 0.05);
 }
 
-.marital-status-chip.selected {
+.marital-status-choice-chip.selected {
   background: #EC4899;
   border-color: #EC4899;
   color: white;
 }
 
-.age-range-container {
+/* Age Range Slider Container - Exact homepage.dart style */
+.age-range-slider-container {
   position: relative;
+  width: 100%;
+  margin-top: 0;
 }
 
+/* Age Range Slider - Exact homepage.dart RangeSlider style */
 .age-range-slider {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: #E5E7EB;
+  background: #FCE7F3; /* Colors.pink.shade100 */
   outline: none;
-  margin: 8px 0;
+  margin: 0;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -2194,17 +2291,19 @@
   box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
 }
 
+/* Age Range Display - Exact homepage.dart style */
 .age-range-display-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  width: 100%;
 }
 
 .age-range-min,
 .age-range-max {
   font-size: 13px;
   color: #6B7280;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .age-range-display {
@@ -2221,15 +2320,8 @@
   box-sizing: border-box;
 }
 
-.filter-bottom-sheet-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 24px 0 0 0;
-  border-top: none;
-}
-
-.filter-apply-btn {
+/* Apply Filter Button - Exact homepage.dart ElevatedButton style */
+.filter-apply-button {
   width: 100%;
   padding: 16px 20px;
   border: none;
@@ -2241,34 +2333,37 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  outline: none;
 }
 
-.filter-apply-btn:hover {
+.filter-apply-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
 }
 
-.filter-apply-btn:active {
+.filter-apply-button:active {
   transform: translateY(0);
 }
 
-.filter-clear-btn {
+/* Clear Filter Button - Exact homepage.dart OutlinedButton style */
+.filter-clear-button {
   width: 100%;
-  padding: 16px 20px;
-  border: 1px solid #D1D5DB;
+  padding: 14px 20px;
+  border: 1px solid #EC4899;
   border-radius: 12px;
   background: white;
-  color: #6B7280;
-  font-size: 14px;
-  font-weight: 600;
+  color: #EC4899;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+  outline: none;
 }
 
-.filter-clear-btn:hover {
-  background: #F9FAFB;
-  border-color: #9CA3AF;
-  color: #374151;
+.filter-clear-button:hover {
+  background: rgba(236, 72, 153, 0.05);
+  border-color: #EC4899;
+  color: #EC4899;
 }
 
 @keyframes slideInUp {
@@ -2310,12 +2405,27 @@
   }
   
   /* Prevent body scrolling when drawer is open */
-  body.drawer-open {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
+body.drawer-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+body.filter-modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+body.filter-dragging {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
   
   .drawer-menu {
     padding-bottom: 100px; /* Extra padding for mobile to avoid bottom nav */
@@ -2328,38 +2438,84 @@
     max-height: 65px;
   }
   
-  /* Filter Bottom Sheet Mobile Styles */
+  /* Filter Bottom Sheet Mobile Styles - Physical mobile optimized */
   .filter-bottom-sheet-container {
-    max-height: 90vh;
+    max-height: 65vh; /* Slightly more than half for mobile */
+    min-height: 55vh; /* Minimum half height for mobile */
     border-radius: 20px 20px 0 0;
-    padding: 16px 16px 0 16px;
+    padding: 16px;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   
   .filter-bottom-sheet-title {
     font-size: 18px;
   }
   
-  .filter-group {
-    margin-bottom: 20px;
-  }
-  
-  .filter-input,
+  .filter-text-input,
   .filter-dropdown-input {
     padding: 14px 16px;
     font-size: 16px; /* Prevent zoom on iOS */
   }
   
-  .filter-bottom-sheet-actions {
-    padding: 20px 0 0 0;
-  }
-  
-  .filter-clear-btn,
-  .filter-apply-btn {
+  .filter-apply-button,
+  .filter-clear-button {
     padding: 14px 20px;
     font-size: 16px;
   }
   }
+
+/* Extra small mobile devices - Physical mobile optimization */
+@media (max-width: 360px) {
+  .filter-bottom-sheet-container {
+    max-height: 70vh; /* More height for very small screens */
+    min-height: 60vh;
+    padding: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  
+  .filter-bottom-sheet-title {
+    font-size: 16px;
+  }
+  
+  .filter-group {
+    margin-bottom: 16px;
+  }
+  
+  .filter-text-input,
+  .filter-dropdown-input {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+  
+  .marital-status-choice-chip {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .filter-apply-button,
+  .filter-clear-button {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+}
+
+/* Landscape orientation on mobile - Adjust height */
+@media (max-height: 500px) and (orientation: landscape) {
+  .filter-bottom-sheet-container {
+    max-height: 80vh; /* More height in landscape */
+    min-height: 70vh;
+  }
+}
+
+/* Very short screens - Physical mobile with notch */
+@media (max-height: 600px) {
+  .filter-bottom-sheet-container {
+    max-height: 75vh;
+    min-height: 65vh;
+  }
+}
   
   .nav-item {
     padding: 8px;

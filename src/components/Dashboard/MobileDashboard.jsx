@@ -1494,14 +1494,19 @@ const MobileDashboard = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
     ageRange: [18, 40],
-    location: '',
+    location: 'India, Assam, Dibrugarh', // Default location like homepage.dart
     profession: '',
-    maritalStatus: '',
+    maritalStatus: 'Single', // Default selection like homepage.dart
     education: '',
     sect: ''
   });
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
+  
+  // Drag to close functionality
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragCurrentY, setDragCurrentY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedProfileData, setSelectedProfileData] = useState(null);
 
@@ -1842,6 +1847,31 @@ const MobileDashboard = () => {
     };
   }, [showDrawer]);
 
+  // Disable background content when filter modal is open
+  useEffect(() => {
+    if (showFilterModal) {
+      document.body.classList.add('filter-modal-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+    } else {
+      document.body.classList.remove('filter-modal-open');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    }
+    return () => {
+      document.body.classList.remove('filter-modal-open');
+      document.body.classList.remove('filter-dragging');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, [showFilterModal]);
+
   // Event handlers with real API calls
   const handleInterest = async (profile) => {
     try {
@@ -1991,14 +2021,51 @@ const MobileDashboard = () => {
   const clearFilters = () => {
     setFilters({
       ageRange: [18, 40],
-      location: '',
+      location: 'India, Assam, Dibrugarh',
       profession: '',
-      maritalStatus: '',
+      maritalStatus: 'Single',
       education: '',
       sect: ''
     });
     setFilteredProfiles([]);
     setIsFilterApplied(false);
+    setShowFilterModal(false);
+  };
+
+  // Drag to close functionality - Only for handle bar
+  const handleDragStart = (e) => {
+    e.preventDefault(); // Prevent default touch behavior
+    e.stopPropagation(); // Stop event bubbling
+    setDragStartY(e.touches ? e.touches[0].clientY : e.clientY);
+    setIsDragging(true);
+    // Add dragging class to body to prevent background scrolling
+    document.body.classList.add('filter-dragging');
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault(); // Prevent default touch behavior
+    e.stopPropagation(); // Stop event bubbling
+    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    setDragCurrentY(currentY);
+  };
+
+  const handleDragEnd = (e) => {
+    if (!isDragging) return;
+    e.preventDefault(); // Prevent default touch behavior
+    e.stopPropagation(); // Stop event bubbling
+    const dragDistance = dragCurrentY - dragStartY;
+    
+    // If dragged down more than 100px, close the modal
+    if (dragDistance > 100) {
+      setShowFilterModal(false);
+    }
+    
+    setIsDragging(false);
+    setDragStartY(0);
+    setDragCurrentY(0);
+    // Remove dragging class from body
+    document.body.classList.remove('filter-dragging');
   };
 
   // Profile completion popup logic like NewDashboard
@@ -2059,26 +2126,39 @@ const MobileDashboard = () => {
         currentUserId={userId || ""}
       />
 
-      {/* Filter Bottom Sheet */}
+      {/* Filter Bottom Sheet - Exact homepage.dart Match */}
       {showFilterModal && (
         <div className="filter-bottom-sheet-overlay" onClick={() => setShowFilterModal(false)}>
-          <div className="filter-bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
-            {/* Bottom Sheet Handle */}
-            <div className="filter-bottom-sheet-handle"></div>
-            
-            <div className="filter-bottom-sheet-header">
-              <h2 className="filter-bottom-sheet-title">Filter Profiles</h2>
-            </div>
-            
+          <div 
+            className="filter-bottom-sheet-container" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="filter-bottom-sheet-content">
-              {/* Age Range Filter */}
+              {/* Handle Bar - Exact homepage.dart style with drag functionality */}
+              <div 
+                className="filter-bottom-sheet-handle"
+                onTouchStart={handleDragStart}
+                onTouchMove={handleDragMove}
+                onTouchEnd={handleDragEnd}
+                onMouseDown={handleDragStart}
+                onMouseMove={handleDragMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+              ></div>
+              
+              {/* Title - Exact homepage.dart style */}
+              <h2 className="filter-bottom-sheet-title">Filter Profiles</h2>
+              
+              <div className="filter-spacing-20"></div>
+              
+              {/* Age Range - Exact homepage.dart RangeSlider */}
               <div className="filter-group">
                 <label className="filter-label">Age Range</label>
                 <div className="age-range-display-row">
                   <span className="age-range-min">{filters.ageRange[0]} yrs</span>
                   <span className="age-range-max">{filters.ageRange[1]} yrs</span>
                 </div>
-                <div className="age-range-container">
+                <div className="age-range-slider-container">
                   <input
                     type="range"
                     min="18"
@@ -2097,20 +2177,30 @@ const MobileDashboard = () => {
                   />
                 </div>
               </div>
-
-              {/* Location Filter */}
+              
+              <div className="filter-spacing-16"></div>
+              
+              {/* Location - Exact homepage.dart TextFormField */}
               <div className="filter-group">
                 <label className="filter-label">Location</label>
-                <input
-                  type="text"
-                  placeholder="Select location"
-                  value={filters.location}
-                  onChange={(e) => handleFilterChange('location', e.target.value)}
-                  className="filter-input"
-                />
+                <div className="filter-input-container">
+                  <input
+                    type="text"
+                    placeholder="Select location"
+                    value={filters.location}
+                    onChange={(e) => handleFilterChange('location', e.target.value)}
+                    className="filter-text-input"
+                    readOnly
+                  />
+                  <svg className="filter-input-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
-
-              {/* Profession Filter */}
+              
+              <div className="filter-spacing-16"></div>
+              
+              {/* Profession - Exact homepage.dart Container style */}
               <div className="filter-group">
                 <label className="filter-label">Profession</label>
                 <div className="filter-dropdown-container">
@@ -2122,13 +2212,13 @@ const MobileDashboard = () => {
                     className="filter-dropdown-input"
                     readOnly
                   />
-                  <svg className="filter-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="filter-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
-
-              {/* Education Filter */}
+              
+              {/* Education - Exact homepage.dart Container style */}
               <div className="filter-group">
                 <label className="filter-label">Education</label>
                 <div className="filter-dropdown-container">
@@ -2140,44 +2230,61 @@ const MobileDashboard = () => {
                     className="filter-dropdown-input"
                     readOnly
                   />
-                  <svg className="filter-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="filter-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
-
-              {/* Marital Status Filter */}
+              
+              {/* Marital Status - Exact homepage.dart ChoiceChip with all options */}
               <div className="filter-group">
                 <label className="filter-label">Select Marital Status</label>
-                <div className="marital-status-chips">
+                <div className="marital-status-wrap">
                   <button 
-                    className={`marital-status-chip ${filters.maritalStatus === 'Single' ? 'selected' : ''}`}
+                    className={`marital-status-choice-chip ${filters.maritalStatus === 'Single' ? 'selected' : ''}`}
                     onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Single' ? '' : 'Single')}
                   >
                     Single
                   </button>
                   <button 
-                    className={`marital-status-chip ${filters.maritalStatus === 'Divorced' ? 'selected' : ''}`}
+                    className={`marital-status-choice-chip ${filters.maritalStatus === 'Married' ? 'selected' : ''}`}
+                    onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Married' ? '' : 'Married')}
+                  >
+                    Married
+                  </button>
+                  <button 
+                    className={`marital-status-choice-chip ${filters.maritalStatus === 'Divorced' ? 'selected' : ''}`}
                     onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Divorced' ? '' : 'Divorced')}
                   >
                     Divorced
                   </button>
                   <button 
-                    className={`marital-status-chip ${filters.maritalStatus === 'Widowed' ? 'selected' : ''}`}
+                    className={`marital-status-choice-chip ${filters.maritalStatus === 'Khula' ? 'selected' : ''}`}
+                    onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Khula' ? '' : 'Khula')}
+                  >
+                    Khula
+                  </button>
+                  <button 
+                    className={`marital-status-choice-chip ${filters.maritalStatus === 'Widowed' ? 'selected' : ''}`}
                     onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Widowed' ? '' : 'Widowed')}
                   >
                     Widowed
                   </button>
                 </div>
               </div>
-            </div>
-
-            <div className="filter-bottom-sheet-actions">
-              <button className="filter-apply-btn" onClick={applyFilters}>
+              
+              <div className="filter-spacing-24"></div>
+              
+              {/* Apply Filter Button - Exact homepage.dart ElevatedButton */}
+              <button className="filter-apply-button" onClick={applyFilters}>
                 Apply Filter
               </button>
+              
+              <div className="filter-spacing-10"></div>
+              
+              {/* Clear Filter Button - Exact homepage.dart OutlinedButton */}
               {isFilterApplied && (
-                <button className="filter-clear-btn" onClick={clearFilters}>
+                <button className="filter-clear-button" onClick={clearFilters}>
                   Clear Filter
                 </button>
               )}
