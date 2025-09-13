@@ -1671,8 +1671,198 @@ const MobileDashboard = () => {
   ];
   
   const educationList = [
-    'High School', 'Diploma', 'Bachelor\'s Degree', 'Master\'s Degree',
-    'PhD', 'Professional Degree', 'Certificate', 'Other'
+    'PhD in Science (Doctor of Philosophy in Science)',
+    "Master's Degree",
+    "Bachelor's Degree",
+    'Diploma',
+    'Trade School/TTC (Technical Training College)/ITI (Industrial Training Institute)',
+    'Islamic Education',
+    'Higher Secondary School (12th)',
+    'Less than High School',
+    'Secondary School (10th)',
+    'Never been to School/Never Studied',
+    'Agriculture',
+    'Mass Communication',
+    'D.Pharm (Diploma in Pharmacy)',
+    'Drafting/Design',
+    'Religious Education',
+    'Nursing',
+    'Medicine (Other)',
+    'Administrative Services',
+    'Social Work',
+    'Philosophy',
+    'Aeronautical Engineering',
+    'Fine Arts',
+    'Travel & Tourism',
+    'Shipping',
+    'Advertising/Marketing',
+    'Office Administration',
+    'Paramedical',
+    'Medicine (Allopathic)',
+    'Law',
+    'Home Science',
+    'Finance',
+    'Fashion',
+    'Education',
+    'Computers/IT (Information Technology)',
+    'Commerce',
+    'Arts',
+    'Armed Forces',
+    'Architecture',
+    'Administration/Management',
+    'Engineering/Technology',
+    'Veterinary Science',
+    'Biotechnology',
+    'Visual Communication',
+    'Radiology',
+    'Cardiac Care Technology',
+    'Health and Safety',
+    'Business Administration',
+    'Design (B.Design/M.Design - Bachelor/Master of Design)',
+    'Management (MFM - Master of Fashion Management, MBA - Master of Business Administration)',
+    'Engineering (B.Tech - Bachelor of Technology, M.Tech - Master of Technology, B.E - Bachelor of Engineering, M.E - Master of Engineering, MS - Master of Science)',
+    'Medical Laboratory Technology',
+    'Pharmacy (B.Pharm - Bachelor of Pharmacy, M.Pharm - Master of Pharmacy, Pharm.D - Doctor of Pharmacy)',
+    'Biochemistry/Bioengineering',
+    'Law (LLB - Bachelor of Laws, LLM - Master of Laws, Course in Legal)',
+    'Chartered Accountancy (CA, CA Inter - Chartered Accountant, CA Intermediate)',
+    'Cost Accounting (ICWA - Institute of Cost and Works Accountants)',
+    'Company Secretary (CS)',
+    'Chartered Financial Analyst (CFA)',
+    'Public Administration (IAS - Indian Administrative Service, IPS - Indian Police Service, IRS - Indian Revenue Service)',
+    'Civil Services (IES - Indian Engineering Services)',
+    'Fashion Management (MFM - Master of Fashion Management, BFM - Bachelor of Fashion Management)',
+    'Management (PGDM - Post Graduate Diploma in Management, MBA - Master of Business Administration)',
+    'Media Studies/Visual Arts',
+    'Clinical Psychology',
+    'Geography/Geology',
+    'Environmental Science',
+    'Aerospace Engineering',
+    'Education (B.Ed - Bachelor of Education, M.Ed - Master of Education)',
+    'Bachelor of Law (BL)',
+    'Bachelor of Engineering (B.E)',
+    'Bachelor of Science (BSc)',
+    'MSc (Master of Science) Computer Science/IT (Information Technology)',
+    'MSc Health and Safety',
+    'MSc Radiology',
+    'MSc Biotechnology',
+    'MSc Nursing',
+    'Master of Law (LLM)',
+    'Master of Veterinary Science',
+    'MPhil (Master of Philosophy)',
+    'MD/MS (Medical Doctor/Master of Surgery)',
+    'MDS (Master of Dental Surgery)',
+    'MPT (Master of Physiotherapy)',
+    'MCA (Master of Computer Applications)',
+    'BPT (Bachelor of Physiotherapy)',
+    'Aalimah',
+    'Aalim',
+    'Hafizah',
+    'Hafiz',
+    'PhD in Islamic Studies (Doctor of Philosophy in Islamic Studies)',
+    'Artificial Intelligence (AI)',
+    'Data Science',
+    'Cybersecurity',
+    'Digital Marketing',
+    'Blockchain Technology',
+    'Cloud Computing',
+    'Robotics',
+    'Game Development',
+    'Animation',
+    'Graphic Design',
+    'Interior Design',
+    'Film Studies',
+    'Journalism',
+    'Public Relations',
+    'Hospitality Management',
+    'Event Management',
+    'Culinary Arts',
+    'Sports Management',
+    'Education Administration',
+    'Early Childhood Education',
+    'Special Education',
+    'Occupational Therapist',
+    'Speech-Language Pathology',
+    'Dentistry (BDS - Bachelor of Dental Surgery, MDS - Master of Dental Surgery)',
+    'Optometry',
+    'Physiotherapy',
+    'Biotechnology Engineering',
+    'Chemical Engineering',
+    'Civil Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Environmental Engineering',
+    'Nuclear Engineering',
+    'Robotics Engineering',
+    'Materials Science Engineering',
+    'Petroleum Engineering',
+    'Mining Engineering',
+    'Structural Engineering',
+    'Computer Engineering',
+    'Software Engineering',
+    'Data Engineering',
+    'Applied Mathematics',
+    'Actuarial Science',
+    'Statistics',
+    'Public Health',
+    'Epidemiology',
+    'Biomedical Science',
+    'Microbiology',
+    'Pharmacology',
+    'Toxicology',
+    'Medical Sciences',
+    'Nuclear Medicine',
+    'Psychiatry',
+    'Neurology',
+    'Cardiology',
+    'Gastroenterology',
+    'Orthopedics',
+    'Dermatology',
+    'Pediatrics',
+    'Obstetrics and Gynecology',
+    'Emergency Medicine',
+    'Anesthesiology',
+    'Ophthalmology',
+    'Radiology',
+    'Veterinary Medicine',
+    'Human Resource Management',
+    'Supply Chain Management',
+    'Project Management',
+    'International Relations',
+    'Political Science',
+    'Sociology',
+    'Psychology',
+    'Anthropology',
+    'Linguistics',
+    'Theology/Religious Studies',
+    'History',
+    'Literature',
+    'Philosophy',
+    'Social Sciences',
+    'Human Development',
+    'Geography',
+    'Geophysics',
+    'Meteorology',
+    'Urban Planning',
+    'Renewable Energy',
+    'Sustainable Development',
+    'Environmental Policy',
+    'International Business',
+    'Entrepreneurship',
+    'Marketing Research',
+    'Risk Management',
+    'International Law',
+    'Human Rights Law',
+    'Maritime Studies',
+    'Forensic Science',
+    'Criminology',
+    'Fire Safety Engineering',
+    'Industrial Design',
+    'Fashion Design',
+    'Textile Engineering',
+    'Marine Engineering',
+    'Others',
+    'Not Applicable/Not Studied/Never Studied',
   ];
   
   // Location data structure like homepage.dart
@@ -2533,6 +2723,39 @@ const MobileDashboard = () => {
         </div>
       )}
 
+      {/* Education Picker Modal - Professional Modal */}
+      {showEducationDropdown && (
+        <div className="education-picker-modal-overlay" onClick={() => setShowEducationDropdown(false)}>
+          <div className="education-picker-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="education-picker-modal-header">
+              <h3 className="education-picker-modal-title">Select Education</h3>
+              <button className="education-picker-modal-close" onClick={() => setShowEducationDropdown(false)}>
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="education-picker-modal-content">
+              <div className="education-modal-step">
+                <h4 className="education-modal-step-title">Select Education</h4>
+                <div className="education-modal-options-grid">
+                  {educationList.map((education, index) => (
+                    <div
+                      key={index}
+                      className="education-modal-option-item"
+                      onClick={() => handleEducationSelect(education)}
+                    >
+                      {education}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Details Modal */}
       <ProfileDetailsModal 
         isOpen={showProfileDetails}
@@ -2654,19 +2877,6 @@ const MobileDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
-                {showEducationDropdown && (
-                  <div className="filter-dropdown-list">
-                    {educationList.map((education, index) => (
-                      <div
-                        key={index}
-                        className="filter-dropdown-item"
-                        onClick={() => handleEducationSelect(education)}
-                      >
-                        {education}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
               
               {/* Marital Status - Exact homepage.dart ChoiceChip with all options */}

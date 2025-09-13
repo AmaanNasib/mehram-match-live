@@ -2176,7 +2176,6 @@
   position: relative;
   margin-top: 4px;
   margin-bottom: 12px;
-  padding: 14px 16px;
   border: 1px solid #D1D5DB;
   border-radius: 12px;
   background: white;
@@ -2190,6 +2189,7 @@
 
 .filter-dropdown-input {
   width: 100%;
+  padding: 14px 16px;
   border: none;
   outline: none;
   font-size: 16px;
@@ -2476,6 +2476,124 @@
   color: #EC4899;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+}
+
+/* Education Picker Modal - Professional Modal */
+.education-picker-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 3000;
+  padding: 20px;
+}
+
+.education-picker-modal-container {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideInUp 0.3s ease;
+}
+
+.education-picker-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #E5E7EB;
+  background: #F9FAFB;
+}
+
+.education-picker-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #EC4899;
+  margin: 0;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.education-picker-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+}
+
+.education-picker-modal-close:hover {
+  background-color: #F3F4F6;
+  color: #374151;
+}
+
+.education-picker-modal-content {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.education-modal-step {
+  margin-bottom: 24px;
+}
+
+.education-modal-step:last-child {
+  margin-bottom: 0;
+}
+
+.education-modal-step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.education-modal-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.education-modal-option-item {
+  padding: 16px 20px;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 16px;
+  color: #111827;
+  background: white;
+  text-align: center;
+  font-weight: 500;
+}
+
+.education-modal-option-item:hover {
+  border-color: #EC4899;
+  background-color: #FDF2F8;
+  color: #EC4899;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+}
+
+.education-modal-option-item:active {
+  background-color: #EC4899;
+  color: white;
+  border-color: #EC4899;
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
 }
 
 .profession-modal-option-item:active {
