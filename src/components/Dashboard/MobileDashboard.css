@@ -2370,6 +2370,121 @@
   transform: translateY(0);
 }
 
+/* Profession Picker Modal - Professional Modal */
+.profession-picker-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 20px;
+}
+
+.profession-picker-modal-container {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideInUp 0.3s ease;
+}
+
+.profession-picker-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  border-bottom: 1px solid #F3F4F6;
+  background: #F9FAFB;
+}
+
+.profession-picker-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #EC4899;
+  margin: 0;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.profession-picker-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  color: #6B7280;
+}
+
+.profession-picker-modal-close:hover {
+  background-color: #F3F4F6;
+  color: #374151;
+}
+
+.profession-picker-modal-content {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.profession-modal-step {
+  margin-bottom: 24px;
+}
+
+.profession-modal-step:last-child {
+  margin-bottom: 0;
+}
+
+.profession-modal-step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.profession-modal-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.profession-modal-option-item {
+  padding: 16px 20px;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 16px;
+  color: #111827;
+  background: white;
+  text-align: center;
+  font-weight: 500;
+}
+
+.profession-modal-option-item:hover {
+  border-color: #EC4899;
+  background-color: #FDF2F8;
+  color: #EC4899;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+}
+
+.profession-modal-option-item:active {
+  background-color: #EC4899;
+  color: white;
+  border-color: #EC4899;
+  transform: translateY(0);
+}
+
 /* Marital Status Wrap - Exact homepage.dart Wrap style */
 .marital-status-wrap {
   display: flex;

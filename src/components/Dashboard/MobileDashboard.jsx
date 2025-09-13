@@ -1494,9 +1494,9 @@ const MobileDashboard = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
     ageRange: [18, 40],
-    location: 'India, Assam, Dibrugarh', // Default location like homepage.dart
+    location: '', // Default location like homepage.dart
     profession: '',
-    maritalStatus: 'Single', // Default selection like homepage.dart
+    maritalStatus: '', // Default selection like homepage.dart
     education: '',
     sect: ''
   });
@@ -1523,10 +1523,151 @@ const MobileDashboard = () => {
   
   // Options lists like homepage.dart
   const professionList = [
-    'Software Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Engineer',
-    'Lawyer', 'Accountant', 'Designer', 'Marketing Manager', 'Sales Manager',
-    'HR Manager', 'Project Manager', 'Consultant', 'Freelancer', 'Student',
-    'Government Employee', 'Banker', 'Architect', 'Artist', 'Writer'
+    'Accountant',
+    'Acting Professional',
+    'Actor',
+    'Administrator',
+    'Administration Professional',
+    'Advertising Professional',
+    'Advertiser',
+    'Air Hostess',
+    'Airline Professional',
+    'Agriculture',
+    'Airforce',
+    'Architect',
+    'Artist',
+    'Assistant Professor',
+    'Audiologist',
+    'Auditor',
+    'Bank Job',
+    'Bank Officer',
+    'Bank Staff',
+    'Beautician',
+    'Biologist/Botanist',
+    'Business Person',
+    'Captain',
+    'CEO/CTO/President',
+    'Chemist',
+    'Civil Engineer',
+    'Civil Service',
+    'Clerical Official',
+    'Clinical Pharmacist',
+    'Company Secretary',
+    'Computer Engineer',
+    'Computer Programmer',
+    'Consultant',
+    'Contractor',
+    'Content Creator',
+    'Counsellor',
+    'Creative Person',
+    'Customer Support Professional',
+    'Data Analyst and Content Strategist',
+    'Defence Employee',
+    'Dentist',
+    'Designer',
+    'Director/Chairman',
+    'Doctor',
+    'Domestic Helper',
+    'Economist',
+    'Engineer',
+    'Engineer (Civil)',
+    'Engineer (Electrical)',
+    'Engineer (Mechanical)',
+    'Engineer (Project)',
+    'Entertainment Professional',
+    'Event Manager',
+    'Event Management Professional',
+    'Executive',
+    'Factory Worker',
+    'Farmer',
+    'Fashion Designer',
+    'Finance Professional',
+    'Food Technology',
+    'Government Employee',
+    'Government Official',
+    'Graphic Designer',
+    'Gulf Based',
+    'Hair Dresser',
+    'Health Care Professional',
+    'Hospitality',
+    'Hotel & Restaurant Professional',
+    'Hotel Professional',
+    'Human Resource Professional',
+    'HSE Officer',
+    'Interior Designer',
+    'Influencer',
+    'Insurance Advisor',
+    'Insurance Agent',
+    'Investment Professional',
+    'IT/Telecom Professional',
+    'Islamic Activities',
+    'Islamic Dawah',
+    'Islamic Scholar',
+    'Islamic Teacher',
+    'Journalist',
+    'Law',
+    'Lawyer',
+    'Lecturer',
+    'Legal Professional',
+    'Librarian',
+    'Logistics',
+    'Manager',
+    'Marketing Professional',
+    'Media Professional',
+    'Medical Professional',
+    'Medical Representative',
+    'Medical Transcriptionist',
+    'Merchant Naval Officer',
+    'Microbiologist',
+    'Military',
+    'Nanny/Child Care',
+    'Navy',
+    'Non-mainstream Professional',
+    'Nurse',
+    'NRI',
+    'Occupation Therapist',
+    'Office Staff',
+    'Optician',
+    'Optometrist',
+    'Pharmacist',
+    'Physician Assistant',
+    'Physician',
+    'Pilot',
+    'Police',
+    'Priest',
+    'Product Professional',
+    'Professor',
+    'Project Manager',
+    'Public Relations Professional',
+    'Real Estate Professional',
+    'Research Scholar',
+    'Retail Professional',
+    'Sales Professional',
+    'Scientist',
+    'Self-employed Person',
+    'Social Worker',
+    'Software Consultant',
+    'Speech Therapist',
+    'Sportsman',
+    'Supervisor',
+    'Teacher',
+    'Technician',
+    'Technical Staff',
+    'Tiktoker',
+    'Tour Guide',
+    'Trainer',
+    'Transportation Professional',
+    'Tutor',
+    'Unemployed',
+    'Veterinary Doctor',
+    'Videographer',
+    'Web Designer',
+    'Web Developer',
+    'Wholesale Businessman',
+    'Writer',
+    'Zoologist',
+    'NA',
+    'Other',
   ];
   
   const educationList = [
@@ -1944,7 +2085,7 @@ const MobileDashboard = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showProfessionDropdown || showEducationDropdown) {
+      if (showEducationDropdown) {
         const dropdowns = document.querySelectorAll('.filter-dropdown-list');
         const containers = document.querySelectorAll('.filter-dropdown-container');
         
@@ -1956,7 +2097,6 @@ const MobileDashboard = () => {
         });
         
         if (!clickedInside) {
-          setShowProfessionDropdown(false);
           setShowEducationDropdown(false);
         }
       }
@@ -1969,7 +2109,7 @@ const MobileDashboard = () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [showProfessionDropdown, showEducationDropdown]);
+  }, [showEducationDropdown]);
 
   // Event handlers with real API calls
   const handleInterest = async (profile) => {
@@ -2157,9 +2297,9 @@ const MobileDashboard = () => {
   const clearFilters = () => {
     setFilters({
       ageRange: [18, 40],
-      location: 'India, Assam, Dibrugarh',
+      location: '',
       profession: '',
-      maritalStatus: 'Single',
+      maritalStatus: '',
       education: '',
       sect: ''
     });
@@ -2360,6 +2500,39 @@ const MobileDashboard = () => {
         </div>
       )}
 
+      {/* Profession Picker Modal - Professional Modal */}
+      {showProfessionDropdown && (
+        <div className="profession-picker-modal-overlay" onClick={() => setShowProfessionDropdown(false)}>
+          <div className="profession-picker-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="profession-picker-modal-header">
+              <h3 className="profession-picker-modal-title">Select Profession</h3>
+              <button className="profession-picker-modal-close" onClick={() => setShowProfessionDropdown(false)}>
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="profession-picker-modal-content">
+              <div className="profession-modal-step">
+                <h4 className="profession-modal-step-title">Select Profession</h4>
+                <div className="profession-modal-options-grid">
+                  {professionList.map((profession, index) => (
+                    <div
+                      key={index}
+                      className="profession-modal-option-item"
+                      onClick={() => handleProfessionSelect(profession)}
+                    >
+                      {profession}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Details Modal */}
       <ProfileDetailsModal 
         isOpen={showProfileDetails}
@@ -2463,19 +2636,6 @@ const MobileDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
-                {showProfessionDropdown && (
-                  <div className="filter-dropdown-list">
-                    {professionList.map((profession, index) => (
-                      <div
-                        key={index}
-                        className="filter-dropdown-item"
-                        onClick={() => handleProfessionSelect(profession)}
-                      >
-                        {profession}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
               
               {/* Education - Exact homepage.dart Container style */}
