@@ -1897,7 +1897,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ],
     );
   }
-
+.
   // Build individual step item for dialog - Enhanced with better layout and tap functionality
   Widget _buildStepItem(
       dynamic stepNumber, String title, bool isCompleted, Color statusColor) {

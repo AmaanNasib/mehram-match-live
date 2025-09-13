@@ -334,71 +334,71 @@ const MemStepTwo = () => {
     );
   };
 
-  // Sect options
+  // Sect options - Now saving proper labels to database
   const sectOptions = [
-    { value: "ahle_quran", label: "Ahle Qur'an" },
-    { value: "ahmadi", label: "Ahamadi" },
-    { value: "barelvi", label: "Barelvi" },
-    { value: "bohra", label: "Bohra" },
-    { value: "deobandi", label: "Deobandi" },
-    { value: "hanabali", label: "Hanabali" },
-    { value: "hanafi", label: "Hanafi" },
-    { value: "ibadi", label: "Ibadi" },
-    { value: "ismaili", label: "Ismaili" },
-    { value: "jamat_e_islami", label: "Jamat e Islami" },
-    { value: "maliki", label: "Maliki" },
-    { value: "pathan", label: "Pathan" },
-    { value: "salafi", label: "Salafi" },
-    { value: "salafi_ahle_hadees", label: "Salafi/Ahle Hadees" },
-    { value: "sayyid", label: "Sayyid" },
-    { value: "shafi", label: "Shafi" },
-    { value: "shia", label: "Shia" },
-    { value: "sunni", label: "Sunni" },
-    { value: "sufism", label: "Sufism" },
-    { value: "tableeghi_jamaat", label: "Tableeghi Jama'at" },
-    { value: "zahiri", label: "Zahiri" },
-    { value: "muslim", label: "Muslim" },
-    { value: "other", label: "Other" },
-    { value: "prefer_not_to_say", label: "Prefer not to say" },
+    { value: "Ahle Qur'an", label: "Ahle Qur'an" },
+    { value: "Ahamadi", label: "Ahamadi" },
+    { value: "Barelvi", label: "Barelvi" },
+    { value: "Bohra", label: "Bohra" },
+    { value: "Deobandi", label: "Deobandi" },
+    { value: "Hanabali", label: "Hanabali" },
+    { value: "Hanafi", label: "Hanafi" },
+    { value: "Ibadi", label: "Ibadi" },
+    { value: "Ismaili", label: "Ismaili" },
+    { value: "Jamat e Islami", label: "Jamat e Islami" },
+    { value: "Maliki", label: "Maliki" },
+    { value: "Pathan", label: "Pathan" },
+    { value: "Salafi", label: "Salafi" },
+    { value: "Salafi/Ahle Hadees", label: "Salafi/Ahle Hadees" },
+    { value: "Sayyid", label: "Sayyid" },
+    { value: "Shafi", label: "Shafi" },
+    { value: "Shia", label: "Shia" },
+    { value: "Sunni", label: "Sunni" },
+    { value: "Sufism", label: "Sufism" },
+    { value: "Tableeghi Jama'at", label: "Tableeghi Jama'at" },
+    { value: "Zahiri", label: "Zahiri" },
+    { value: "Muslim", label: "Muslim" },
+    { value: "Other", label: "Other" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
   ];
 
-  // Islamic practicing level options
+  // Islamic practicing level options - Now saving proper labels to database
   const practicingLevelOptions = [
-    { value: "devout", label: "Devout" },
-    { value: "very_religious", label: "Very Religious" },
-    { value: "religious", label: "Religious" },
-    { value: "moderately_religious", label: "Moderately Religious" },
-    { value: "occasionally_religious", label: "Occasionally Religious" },
-    { value: "cultural_but_non_practicing", label: "Cultural but non-practicing" },
-    { value: "spiritual_but_not_religious", label: "Spiritual but not religious" },
-    { value: "religious_but_not_practicing", label: "Religious but not practicing" },
-    { value: "open_to_exploring_religion", label: "Open to exploring religion" },
-    { value: "agnostic", label: "Agnostic" },
-    { value: "atheist", label: "Atheist" },
-    { value: "secular", label: "Secular" },
-    { value: "open_to_all_beliefs", label: "Open to all beliefs" },
-    { value: "not_religious", label: "Not religious" },
-    { value: "prefer_not_to_say", label: "Prefer not to say" },
+    { value: "Devout", label: "Devout" },
+    { value: "Very Religious", label: "Very Religious" },
+    { value: "Religious", label: "Religious" },
+    { value: "Moderately Religious", label: "Moderately Religious" },
+    { value: "Occasionally Religious", label: "Occasionally Religious" },
+    { value: "Cultural but non-practicing", label: "Cultural but non-practicing" },
+    { value: "Spiritual but not religious", label: "Spiritual but not religious" },
+    { value: "Religious but not practicing", label: "Religious but not practicing" },
+    { value: "Open to exploring religion", label: "Open to exploring religion" },
+    { value: "Agnostic", label: "Agnostic" },
+    { value: "Atheist", label: "Atheist" },
+    { value: "Secular", label: "Secular" },
+    { value: "Open to all beliefs", label: "Open to all beliefs" },
+    { value: "Not religious", label: "Not religious" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
   ];
 
-  // Dargah/Fatiha/Niyaz options
+  // Dargah/Fatiha/Niyaz options - Now saving proper labels to database
   const dargahOptions = [
-    { value: "dargah_fatiha_niyaz", label: "Yes (Dargah, Fatiha, and Niyaz)" },
-    { value: "dargah_fatiha", label: "Yes (Dargah and Fatiha)" },
-    { value: "dargah_niyaz", label: "Yes (Dargah and Niyaz)" },
-    { value: "fatiha_niyaz", label: "Yes (Fatiha and Niyaz)" },
-    { value: "only_dargah", label: "Yes (Only Dargah)" },
-    { value: "only_fatiha", label: "Yes (Only Fatiha)" },
-    { value: "only_niyaz", label: "Yes (Only Niyaz)" },
-    { value: "no_all", label: "No (No Dargah, No Fatiha, No Niyaz)" },
-    { value: "sometimes", label: "Sometimes" },
-    { value: "prefer_not_to_say", label: "Prefer not to say" },
+    { value: "Yes (Dargah, Fatiha, and Niyaz)", label: "Yes (Dargah, Fatiha, and Niyaz)" },
+    { value: "Yes (Dargah and Fatiha)", label: "Yes (Dargah and Fatiha)" },
+    { value: "Yes (Dargah and Niyaz)", label: "Yes (Dargah and Niyaz)" },
+    { value: "Yes (Fatiha and Niyaz)", label: "Yes (Fatiha and Niyaz)" },
+    { value: "Yes (Only Dargah)", label: "Yes (Only Dargah)" },
+    { value: "Yes (Only Fatiha)", label: "Yes (Only Fatiha)" },
+    { value: "Yes (Only Niyaz)", label: "Yes (Only Niyaz)" },
+    { value: "No (No Dargah, No Fatiha, No Niyaz)", label: "No (No Dargah, No Fatiha, No Niyaz)" },
+    { value: "Sometimes", label: "Sometimes" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
   ];
 
-  // Yes/No options
+  // Yes/No options - Now saving proper labels to database
   const yesNoOptions = [
-    { value: "yes", label: "Yes" },
-    { value: "no", label: "No" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
   ];
 
   return (
