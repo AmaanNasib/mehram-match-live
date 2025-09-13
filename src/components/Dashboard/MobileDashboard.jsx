@@ -1507,6 +1507,61 @@ const MobileDashboard = () => {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Dropdown functionality
+  const [showProfessionDropdown, setShowProfessionDropdown] = useState(false);
+  const [showEducationDropdown, setShowEducationDropdown] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
+  
+  // Location picker states
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  
+  // Options lists like homepage.dart
+  const professionList = [
+    'Software Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Engineer',
+    'Lawyer', 'Accountant', 'Designer', 'Marketing Manager', 'Sales Manager',
+    'HR Manager', 'Project Manager', 'Consultant', 'Freelancer', 'Student',
+    'Government Employee', 'Banker', 'Architect', 'Artist', 'Writer'
+  ];
+  
+  const educationList = [
+    'High School', 'Diploma', 'Bachelor\'s Degree', 'Master\'s Degree',
+    'PhD', 'Professional Degree', 'Certificate', 'Other'
+  ];
+  
+  // Location data structure like homepage.dart
+  const locationData = {
+    'India': {
+      'Delhi': ['New Delhi', 'Central Delhi', 'East Delhi', 'North Delhi', 'South Delhi', 'West Delhi'],
+      'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad', 'Solapur'],
+      'Karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum', 'Gulbarga'],
+      'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem', 'Tirunelveli'],
+      'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Bardhaman'],
+      'Telangana': ['Hyderabad', 'Warangal', 'Nizamabad', 'Khammam', 'Karimnagar', 'Ramagundam'],
+      'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar', 'Jamnagar'],
+      'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Kota', 'Bikaner', 'Ajmer'],
+      'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Meerut', 'Allahabad'],
+      'Assam': ['Guwahati', 'Dibrugarh', 'Silchar', 'Jorhat', 'Tezpur', 'Nagaon']
+    },
+    'Pakistan': {
+      'Sindh': ['Karachi', 'Hyderabad', 'Sukkur', 'Larkana', 'Nawabshah', 'Mirpur Khas'],
+      'Punjab': ['Lahore', 'Faisalabad', 'Rawalpindi', 'Multan', 'Gujranwala', 'Sialkot'],
+      'Khyber Pakhtunkhwa': ['Peshawar', 'Mardan', 'Mingora', 'Kohat', 'Abbottabad', 'Dera Ismail Khan'],
+      'Balochistan': ['Quetta', 'Turbat', 'Chaman', 'Zhob', 'Gwadar', 'Sibi']
+    },
+    'Bangladesh': {
+      'Dhaka': ['Dhaka', 'Narayanganj', 'Gazipur', 'Savar', 'Dohar', 'Keraniganj'],
+      'Chittagong': ['Chittagong', 'Cox\'s Bazar', 'Comilla', 'Feni', 'Lakshmipur', 'Noakhali'],
+      'Sylhet': ['Sylhet', 'Moulvibazar', 'Habiganj', 'Sunamganj', 'Kishoreganj', 'Netrokona']
+    }
+  };
+  
+  const countryList = Object.keys(locationData);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedProfileData, setSelectedProfileData] = useState(null);
 
@@ -1861,6 +1916,13 @@ const MobileDashboard = () => {
       document.body.style.position = '';
       document.body.style.width = '';
       document.body.style.height = '';
+      
+      // Reset bottom sheet transform when modal closes
+      const bottomSheet = document.querySelector('.filter-bottom-sheet-container');
+      if (bottomSheet) {
+        bottomSheet.style.transform = '';
+        bottomSheet.style.transition = '';
+      }
     }
     return () => {
       document.body.classList.remove('filter-modal-open');
@@ -1869,8 +1931,45 @@ const MobileDashboard = () => {
       document.body.style.position = '';
       document.body.style.width = '';
       document.body.style.height = '';
+      
+      // Reset bottom sheet transform on cleanup
+      const bottomSheet = document.querySelector('.filter-bottom-sheet-container');
+      if (bottomSheet) {
+        bottomSheet.style.transform = '';
+        bottomSheet.style.transition = '';
+      }
     };
   }, [showFilterModal]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showProfessionDropdown || showEducationDropdown) {
+        const dropdowns = document.querySelectorAll('.filter-dropdown-list');
+        const containers = document.querySelectorAll('.filter-dropdown-container');
+        
+        let clickedInside = false;
+        containers.forEach(container => {
+          if (container.contains(event.target)) {
+            clickedInside = true;
+          }
+        });
+        
+        if (!clickedInside) {
+          setShowProfessionDropdown(false);
+          setShowEducationDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showProfessionDropdown, showEducationDropdown]);
 
   // Event handlers with real API calls
   const handleInterest = async (profile) => {
@@ -1971,6 +2070,43 @@ const MobileDashboard = () => {
     }));
   };
 
+  // Dropdown selection functions
+  const handleProfessionSelect = (profession) => {
+    handleFilterChange('profession', profession);
+    setShowProfessionDropdown(false);
+  };
+
+  const handleEducationSelect = (education) => {
+    handleFilterChange('education', education);
+    setShowEducationDropdown(false);
+  };
+
+  // Location picker functions
+  const handleCountrySelect = (country) => {
+    setSelectedCountry(country);
+    setSelectedState('');
+    setSelectedCity('');
+    // Keep dropdown open for state selection
+  };
+
+  const handleStateSelect = (state) => {
+    setSelectedState(state);
+    setSelectedCity('');
+    // Keep dropdown open for city selection
+  };
+
+  const handleCitySelect = (city) => {
+    setSelectedCity(city);
+    // Update the main location filter
+    const fullLocation = `${selectedCountry}, ${selectedState}, ${city}`;
+    handleFilterChange('location', fullLocation);
+    // Close dropdown and reset selections
+    setShowCountryDropdown(false);
+    setSelectedCountry('');
+    setSelectedState('');
+    setSelectedCity('');
+  };
+
   const applyFilters = () => {
     // Apply filters to profiles
     let filtered = [...apiData];
@@ -2032,7 +2168,7 @@ const MobileDashboard = () => {
     setShowFilterModal(false);
   };
 
-  // Drag to close functionality - Only for handle bar
+  // Smooth drag to close functionality - Like iPhone bottom navbar
   const handleDragStart = (e) => {
     e.preventDefault(); // Prevent default touch behavior
     e.stopPropagation(); // Stop event bubbling
@@ -2040,6 +2176,12 @@ const MobileDashboard = () => {
     setIsDragging(true);
     // Add dragging class to body to prevent background scrolling
     document.body.classList.add('filter-dragging');
+    
+    // Add dragging class to bottom sheet for visual feedback
+    const bottomSheet = document.querySelector('.filter-bottom-sheet-container');
+    if (bottomSheet) {
+      bottomSheet.classList.add('dragging');
+    }
   };
 
   const handleDragMove = (e) => {
@@ -2047,7 +2189,24 @@ const MobileDashboard = () => {
     e.preventDefault(); // Prevent default touch behavior
     e.stopPropagation(); // Stop event bubbling
     const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    setDragCurrentY(currentY);
+    const dragDistance = currentY - dragStartY;
+    
+    // Only allow downward dragging
+    if (dragDistance > 0) {
+      setDragCurrentY(currentY);
+      // Apply smooth transform to bottom sheet
+      const bottomSheet = document.querySelector('.filter-bottom-sheet-container');
+      if (bottomSheet) {
+        bottomSheet.style.transform = `translateY(${dragDistance}px)`;
+        
+        // Add visual feedback when close to threshold
+        if (dragDistance > 100) {
+          bottomSheet.style.opacity = '0.8'; // Slightly fade when close to close threshold
+        } else {
+          bottomSheet.style.opacity = '1'; // Full opacity when not close to threshold
+        }
+      }
+    }
   };
 
   const handleDragEnd = (e) => {
@@ -2055,10 +2214,24 @@ const MobileDashboard = () => {
     e.preventDefault(); // Prevent default touch behavior
     e.stopPropagation(); // Stop event bubbling
     const dragDistance = dragCurrentY - dragStartY;
+    const bottomSheet = document.querySelector('.filter-bottom-sheet-container');
     
-    // If dragged down more than 100px, close the modal
-    if (dragDistance > 100) {
-      setShowFilterModal(false);
+    if (bottomSheet) {
+      // Remove dragging class and re-enable transition
+      bottomSheet.classList.remove('dragging');
+      bottomSheet.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+      bottomSheet.style.opacity = '1'; // Reset opacity
+      
+      if (dragDistance > 150) {
+        // If dragged down more than 150px, close the modal with animation
+        bottomSheet.style.transform = 'translateY(100vh)';
+        setTimeout(() => {
+          setShowFilterModal(false);
+        }, 300); // Wait for animation to complete
+      } else {
+        // If not dragged enough, snap back to original position
+        bottomSheet.style.transform = 'translateY(0)';
+      }
     }
     
     setIsDragging(false);
@@ -2114,6 +2287,79 @@ const MobileDashboard = () => {
 
   return (
     <div className="homepage-dashboard">
+
+      {/* Location Picker Modal - Professional Modal */}
+      {showCountryDropdown && (
+        <div className="location-picker-modal-overlay" onClick={() => setShowCountryDropdown(false)}>
+          <div className="location-picker-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="location-picker-modal-header">
+              <h3 className="location-picker-modal-title">Select Location</h3>
+              <button className="location-picker-modal-close" onClick={() => setShowCountryDropdown(false)}>
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="location-picker-modal-content">
+              {/* Country Selection */}
+              {!selectedCountry && (
+                <div className="location-modal-step">
+                  <h4 className="location-modal-step-title">Select Country</h4>
+                  <div className="location-modal-options-grid">
+                    {countryList.map((country, index) => (
+                      <div
+                        key={index}
+                        className="location-modal-option-item"
+                        onClick={() => handleCountrySelect(country)}
+                      >
+                        {country}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* State Selection */}
+              {selectedCountry && !selectedState && (
+                <div className="location-modal-step">
+                  <h4 className="location-modal-step-title">Select State/Province</h4>
+                  <div className="location-modal-options-grid">
+                    {Object.keys(locationData[selectedCountry] || {}).map((state, index) => (
+                      <div
+                        key={index}
+                        className="location-modal-option-item"
+                        onClick={() => handleStateSelect(state)}
+                      >
+                        {state}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* City Selection */}
+              {selectedCountry && selectedState && !selectedCity && (
+                <div className="location-modal-step">
+                  <h4 className="location-modal-step-title">Select City</h4>
+                  <div className="location-modal-options-grid">
+                    {(locationData[selectedCountry]?.[selectedState] || []).map((city, index) => (
+                      <div
+                        key={index}
+                        className="location-modal-option-item"
+                        onClick={() => handleCitySelect(city)}
+                      >
+                        {city}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Details Modal */}
       <ProfileDetailsModal 
         isOpen={showProfileDetails}
@@ -2180,10 +2426,10 @@ const MobileDashboard = () => {
               
               <div className="filter-spacing-16"></div>
               
-              {/* Location - Exact homepage.dart TextFormField */}
+              {/* Location - Exact homepage.dart TextFormField with LocationPicker */}
               <div className="filter-group">
                 <label className="filter-label">Location</label>
-                <div className="filter-input-container">
+                <div className="filter-input-container" onClick={() => setShowCountryDropdown(!showCountryDropdown)}>
                   <input
                     type="text"
                     placeholder="Select location"
@@ -2196,6 +2442,7 @@ const MobileDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
+                
               </div>
               
               <div className="filter-spacing-16"></div>
@@ -2203,7 +2450,7 @@ const MobileDashboard = () => {
               {/* Profession - Exact homepage.dart Container style */}
               <div className="filter-group">
                 <label className="filter-label">Profession</label>
-                <div className="filter-dropdown-container">
+                <div className="filter-dropdown-container" onClick={() => setShowProfessionDropdown(!showProfessionDropdown)}>
                   <input
                     type="text"
                     placeholder="Select Profession"
@@ -2216,12 +2463,25 @@ const MobileDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
+                {showProfessionDropdown && (
+                  <div className="filter-dropdown-list">
+                    {professionList.map((profession, index) => (
+                      <div
+                        key={index}
+                        className="filter-dropdown-item"
+                        onClick={() => handleProfessionSelect(profession)}
+                      >
+                        {profession}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               {/* Education - Exact homepage.dart Container style */}
               <div className="filter-group">
                 <label className="filter-label">Education</label>
-                <div className="filter-dropdown-container">
+                <div className="filter-dropdown-container" onClick={() => setShowEducationDropdown(!showEducationDropdown)}>
                   <input
                     type="text"
                     placeholder="Select Education"
@@ -2234,6 +2494,19 @@ const MobileDashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
+                {showEducationDropdown && (
+                  <div className="filter-dropdown-list">
+                    {educationList.map((education, index) => (
+                      <div
+                        key={index}
+                        className="filter-dropdown-item"
+                        onClick={() => handleEducationSelect(education)}
+                      >
+                        {education}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               {/* Marital Status - Exact homepage.dart ChoiceChip with all options */}
