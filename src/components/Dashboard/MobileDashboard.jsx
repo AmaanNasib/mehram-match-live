@@ -1489,6 +1489,19 @@ const MobileDashboard = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [isProfileMenuExpanded, setIsProfileMenuExpanded] = useState(false);
   const [isHelpSupportMenuExpanded, setIsHelpSupportMenuExpanded] = useState(false);
+  
+  // Filter state
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState({
+    ageRange: [18, 40],
+    location: '',
+    profession: '',
+    maritalStatus: '',
+    education: '',
+    sect: ''
+  });
+  const [filteredProfiles, setFilteredProfiles] = useState([]);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [selectedProfileData, setSelectedProfileData] = useState(null);
 
@@ -1920,6 +1933,74 @@ const MobileDashboard = () => {
     setIsOpenWindow(false);
   };
 
+  // Filter functionality
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
+
+  const applyFilters = () => {
+    // Apply filters to profiles
+    let filtered = [...apiData];
+    
+    if (filters.ageRange) {
+      filtered = filtered.filter(profile => {
+        const age = profile.age || 0;
+        return age >= filters.ageRange[0] && age <= filters.ageRange[1];
+      });
+    }
+    
+    if (filters.location) {
+      filtered = filtered.filter(profile => 
+        (profile.city && profile.city.toLowerCase().includes(filters.location.toLowerCase())) ||
+        (profile.state && profile.state.toLowerCase().includes(filters.location.toLowerCase()))
+      );
+    }
+    
+    if (filters.profession) {
+      filtered = filtered.filter(profile => 
+        profile.profession && profile.profession.toLowerCase().includes(filters.profession.toLowerCase())
+      );
+    }
+    
+    if (filters.maritalStatus) {
+      filtered = filtered.filter(profile => 
+        profile.marital_status === filters.maritalStatus
+      );
+    }
+    
+    if (filters.education) {
+      filtered = filtered.filter(profile => 
+        profile.education && profile.education.toLowerCase().includes(filters.education.toLowerCase())
+      );
+    }
+    
+    if (filters.sect) {
+      filtered = filtered.filter(profile => 
+        profile.sect && profile.sect.toLowerCase().includes(filters.sect.toLowerCase())
+      );
+    }
+    
+    setFilteredProfiles(filtered);
+    setIsFilterApplied(true);
+    setShowFilterModal(false);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      ageRange: [18, 40],
+      location: '',
+      profession: '',
+      maritalStatus: '',
+      education: '',
+      sect: ''
+    });
+    setFilteredProfiles([]);
+    setIsFilterApplied(false);
+  };
+
   // Profile completion popup logic like NewDashboard
   const handPopup = () => {
     if (activeUser?.update_later === false) {
@@ -1977,6 +2058,133 @@ const MobileDashboard = () => {
         currentUserGender={userGender || "female"}
         currentUserId={userId || ""}
       />
+
+      {/* Filter Bottom Sheet */}
+      {showFilterModal && (
+        <div className="filter-bottom-sheet-overlay" onClick={() => setShowFilterModal(false)}>
+          <div className="filter-bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
+            {/* Bottom Sheet Handle */}
+            <div className="filter-bottom-sheet-handle"></div>
+            
+            <div className="filter-bottom-sheet-header">
+              <h2 className="filter-bottom-sheet-title">Filter Profiles</h2>
+            </div>
+            
+            <div className="filter-bottom-sheet-content">
+              {/* Age Range Filter */}
+              <div className="filter-group">
+                <label className="filter-label">Age Range</label>
+                <div className="age-range-display-row">
+                  <span className="age-range-min">{filters.ageRange[0]} yrs</span>
+                  <span className="age-range-max">{filters.ageRange[1]} yrs</span>
+                </div>
+                <div className="age-range-container">
+                  <input
+                    type="range"
+                    min="18"
+                    max="60"
+                    value={filters.ageRange[0]}
+                    onChange={(e) => handleFilterChange('ageRange', [parseInt(e.target.value), filters.ageRange[1]])}
+                    className="age-range-slider"
+                  />
+                  <input
+                    type="range"
+                    min="18"
+                    max="60"
+                    value={filters.ageRange[1]}
+                    onChange={(e) => handleFilterChange('ageRange', [filters.ageRange[0], parseInt(e.target.value)])}
+                    className="age-range-slider"
+                  />
+                </div>
+              </div>
+
+              {/* Location Filter */}
+              <div className="filter-group">
+                <label className="filter-label">Location</label>
+                <input
+                  type="text"
+                  placeholder="Select location"
+                  value={filters.location}
+                  onChange={(e) => handleFilterChange('location', e.target.value)}
+                  className="filter-input"
+                />
+              </div>
+
+              {/* Profession Filter */}
+              <div className="filter-group">
+                <label className="filter-label">Profession</label>
+                <div className="filter-dropdown-container">
+                  <input
+                    type="text"
+                    placeholder="Select Profession"
+                    value={filters.profession}
+                    onChange={(e) => handleFilterChange('profession', e.target.value)}
+                    className="filter-dropdown-input"
+                    readOnly
+                  />
+                  <svg className="filter-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Education Filter */}
+              <div className="filter-group">
+                <label className="filter-label">Education</label>
+                <div className="filter-dropdown-container">
+                  <input
+                    type="text"
+                    placeholder="Select Education"
+                    value={filters.education}
+                    onChange={(e) => handleFilterChange('education', e.target.value)}
+                    className="filter-dropdown-input"
+                    readOnly
+                  />
+                  <svg className="filter-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Marital Status Filter */}
+              <div className="filter-group">
+                <label className="filter-label">Select Marital Status</label>
+                <div className="marital-status-chips">
+                  <button 
+                    className={`marital-status-chip ${filters.maritalStatus === 'Single' ? 'selected' : ''}`}
+                    onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Single' ? '' : 'Single')}
+                  >
+                    Single
+                  </button>
+                  <button 
+                    className={`marital-status-chip ${filters.maritalStatus === 'Divorced' ? 'selected' : ''}`}
+                    onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Divorced' ? '' : 'Divorced')}
+                  >
+                    Divorced
+                  </button>
+                  <button 
+                    className={`marital-status-chip ${filters.maritalStatus === 'Widowed' ? 'selected' : ''}`}
+                    onClick={() => handleFilterChange('maritalStatus', filters.maritalStatus === 'Widowed' ? '' : 'Widowed')}
+                  >
+                    Widowed
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="filter-bottom-sheet-actions">
+              <button className="filter-apply-btn" onClick={applyFilters}>
+                Apply Filter
+              </button>
+              {isFilterApplied && (
+                <button className="filter-clear-btn" onClick={clearFilters}>
+                  Clear Filter
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Professional Drawer */}
       <ProfessionalDrawer 
@@ -2016,7 +2224,7 @@ const MobileDashboard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
-            <button className="filter-button">
+            <button className="filter-button" onClick={() => setShowFilterModal(true)}>
               <svg className="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
@@ -2073,7 +2281,7 @@ const MobileDashboard = () => {
             <ModernSection
               title="Trending Profiles"
           subtitle="Most active and popular male members according to Islamic values."
-              profiles={trendingProfiles}
+              profiles={isFilterApplied ? filteredProfiles : trendingProfiles}
           themeColor="#EC4899"
               isLoading={trendingLoading}
               onInterest={handleInterest}

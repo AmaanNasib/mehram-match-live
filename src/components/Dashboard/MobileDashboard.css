@@ -1990,6 +1990,298 @@
 }
 
 
+/* Filter Bottom Sheet Styles */
+.filter-bottom-sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.filter-bottom-sheet-container {
+  background: white;
+  border-radius: 25px 25px 0 0;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+  animation: slideInUp 0.3s ease;
+  padding: 20px 20px 0 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.filter-bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #D1D5DB;
+  border-radius: 2px;
+  margin: 0 auto 16px auto;
+}
+
+.filter-bottom-sheet-header {
+  padding: 0 0 20px 0;
+  border-bottom: none;
+}
+
+.filter-bottom-sheet-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #EC4899;
+  margin: 0;
+  letter-spacing: -0.3px;
+  text-align: left;
+}
+
+.filter-bottom-sheet-content {
+  padding: 0;
+}
+
+.filter-group {
+  margin-bottom: 24px;
+}
+
+.filter-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  letter-spacing: -0.1px;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #111827;
+  background: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #EC4899;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+.filter-input::placeholder {
+  color: #9CA3AF;
+}
+
+/* Filter Dropdown Styles */
+.filter-dropdown-container {
+  position: relative;
+  margin-top: 4px;
+}
+
+.filter-dropdown-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #111827;
+  background: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.filter-dropdown-input:focus {
+  outline: none;
+  border-color: #EC4899;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+.filter-dropdown-input::placeholder {
+  color: #9CA3AF;
+}
+
+.filter-dropdown-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9CA3AF;
+  pointer-events: none;
+}
+
+/* Marital Status Chips */
+.marital-status-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.marital-status-chip {
+  padding: 8px 16px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 25px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.marital-status-chip:hover {
+  border-color: #EC4899;
+  background: rgba(236, 72, 153, 0.05);
+}
+
+.marital-status-chip.selected {
+  background: #EC4899;
+  border-color: #EC4899;
+  color: white;
+}
+
+.age-range-container {
+  position: relative;
+}
+
+.age-range-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #E5E7EB;
+  outline: none;
+  margin: 8px 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.age-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EC4899;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
+  transition: all 0.2s ease;
+}
+
+.age-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+}
+
+.age-range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EC4899;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
+}
+
+.age-range-display-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.age-range-min,
+.age-range-max {
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.age-range-display {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #EC4899;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: rgba(236, 72, 153, 0.1);
+  border-radius: 8px;
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-bottom-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 0 0 0;
+  border-top: none;
+}
+
+.filter-apply-btn {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 12px;
+  background: #EC4899;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.filter-apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+}
+
+.filter-apply-btn:active {
+  transform: translateY(0);
+}
+
+.filter-clear-btn {
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  background: white;
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-clear-btn:hover {
+  background: #F9FAFB;
+  border-color: #9CA3AF;
+  color: #374151;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive Design - Mobile Device Compatibility */
 @media (max-width: 480px) {
   .dashboard-main-content {
@@ -2036,6 +2328,39 @@
     max-height: 65px;
   }
   
+  /* Filter Bottom Sheet Mobile Styles */
+  .filter-bottom-sheet-container {
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 16px 0 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  
+  .filter-bottom-sheet-title {
+    font-size: 18px;
+  }
+  
+  .filter-group {
+    margin-bottom: 20px;
+  }
+  
+  .filter-input,
+  .filter-dropdown-input {
+    padding: 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .filter-bottom-sheet-actions {
+    padding: 20px 0 0 0;
+  }
+  
+  .filter-clear-btn,
+  .filter-apply-btn {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+  }
+  
   .nav-item {
     padding: 8px;
   }
@@ -2044,7 +2369,7 @@
     width: 20px;
     height: 20px;
   }
-}
+
   
   .modern-appbar {
     margin: 12px 12px 5px 12px;
