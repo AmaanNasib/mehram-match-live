@@ -1801,6 +1801,34 @@ const MobileDashboard = () => {
     fetchDataWithTokenV2(parameter4);
   }, [userId]);
 
+  // Handle body scroll locking when drawer is open
+  useEffect(() => {
+    if (showDrawer) {
+      // Lock body scroll
+      document.body.classList.add('drawer-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+    } else {
+      // Unlock body scroll
+      document.body.classList.remove('drawer-open');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('drawer-open');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, [showDrawer]);
+
   // Event handlers with real API calls
   const handleInterest = async (profile) => {
     try {
