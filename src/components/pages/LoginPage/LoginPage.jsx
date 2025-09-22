@@ -143,7 +143,7 @@ const LoginPage = () => {
                 >
                   <option value="" disabled>Select a role</option>
                   <option value="individual">Individual</option>
-                  <option value="agent">Agent</option>
+                  {/* <option value="agent">Agent</option> */}
                 </select>
                 {roleError && (
                   <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-lg">

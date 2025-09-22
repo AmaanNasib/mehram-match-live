@@ -1,3 +1,5 @@
+import { FcGoogle } from "react-icons/fc";
+
 import { React, useState, useEffect, useRef } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import hero_left_bg from "../../../images/b9f7c5e8-c835-403b-8029-47dcb0f0172c.jpg";
@@ -65,6 +67,12 @@ const LandingPage = () => {
     captcha: '',
   });
 
+  const [showTooltip, setShowTooltip] = useState(null);
+
+  const handleTooltipClick = (field) => {
+    setShowTooltip(showTooltip === field ? null : field);
+  };
+
   const countryCodes = [
     { code: "+1", iso: "US" },
     { code: "+91", iso: "IN" },
@@ -90,15 +98,37 @@ const LandingPage = () => {
 
   const handleInputChange = (e) => {
     const { id, type, value, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value; // Handle checkbox separately
-  
+    let newValue = type === 'checkbox' ? checked : value; // Handle checkbox separately
+
     console.log(id, newValue); // For debugging
-  
+
+    // Real-time filtering for first name and last name
+    if (id === 'first_name' || id === 'last_name') {
+      // Only allow alphabets and spaces, remove numbers and symbols
+      newValue = newValue.replace(/[^A-Za-z\s]/g, '');
+    }
+
     // Update form data
     setFormData((prevState) => ({
       ...prevState,
       [id]: newValue,
     }));
+
+    // Auto-assign gender based on on_behalf selection
+    if (id === 'on_behalf') {
+      let autoGender = '';
+      if (newValue === 'Brother' || newValue === 'Son') {
+        autoGender = 'male';
+      } else if (newValue === 'Daughter' || newValue === 'Sister') {
+        autoGender = 'female';
+      }
+      
+      setFormData((prevState) => ({
+        ...prevState,
+        [id]: newValue,
+        gender: autoGender, // Auto-assign or clear gender field
+      }));
+    }
 
     // Clear the error for the current field
     if (errors[id]) {
@@ -141,8 +171,8 @@ const LandingPage = () => {
       newErrors.last_name = 'Last Name should contain only letters';
     }
 
-    // Validate Gender
-    if (!formData.gender) {
+    // Validate Gender - Only required for Self or Friend
+    if ((formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && !formData.gender) {
       newErrors.gender = 'Gender is required';
     }
 
@@ -354,6 +384,31 @@ const LandingPage = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
+
+  // Tooltip functionality
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showTooltip && !event.target.closest('.tooltip-container')) {
+        setShowTooltip(null);
+      }
+    };
+
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && showTooltip) {
+        setShowTooltip(null);
+      }
+    };
+
+    if (showTooltip) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showTooltip]);
   const [isLogIn, setIsLogIn] = useState(false);
 
   useEffect(() => {
@@ -518,7 +573,7 @@ const LandingPage = () => {
                 width: "60vh",
               }}
             >
-             
+
             </div>
 
             <div className="md:col-span-3 flex flex-col gap-8 justify-between items-start  w-[50%]  ">
@@ -553,9 +608,34 @@ const LandingPage = () => {
                     <div className="w-full flex gap-2 pb-2">
                       {lastSegment !== 'agent' && (
                         <div className="w-[100%]">
-                          <label htmlFor="on_behalf" className="block text-sm font-medium text-[#6D6E6F]">
-                            On Behalf
+                          <div className="flex items-center gap-2 mb-2">
+                            <label htmlFor="on_behalf" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                              Profile Creating For {<span style={{ color: 'red' }}>*</span>}
                           </label>
+                            <div className="group relative tooltip-container">
+                              <svg 
+                                className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  handleTooltipClick('on_behalf');
+                                }}
+                                onMouseDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                }}
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'on_behalf' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                                Select who this profile is for. Brother/Son will auto-set gender as Male, Daughter/Sister as Female. For Self/Friend, you'll need to select gender manually.
+                                <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                              </div>
+                            </div>
+                          </div>
                           <select
                             id="on_behalf"
                             className="h-10 px-4 text-[#898B92] font-semibold mt-2 w-full rounded-lg border-1 border-[#898B92] focus:outline-none focus:ring-2 focus:ring-[#898B92] placeholder:font-[1vh]"
@@ -574,18 +654,52 @@ const LandingPage = () => {
                     </div>
 
                     {/* First Name Field */}
-                    <div className="w-[49%] pb-1">
-                      <label htmlFor="first_name" className="block text-sm font-medium text-[#6D6E6F]">
-                        First Name { <span style={{ color: 'red' }}>*</span>}
+                    <div 
+                      className="w-[49%] pb-1 cursor-pointer"
+                      onClick={() => {
+                        const firstNameInput = document.getElementById('first_name');
+                        if (firstNameInput) {
+                          firstNameInput.focus();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="first_name" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        First Name {<span style={{ color: 'red' }}>*</span>}
                       </label>
+                        <div 
+                          className="group relative tooltip-container"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('first_name');
+                          }}
+                        >
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'first_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                            Enter your first name. Only letters and spaces allowed. Numbers and symbols will be automatically removed.
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
                       <input
                         id="first_name"
                         type="text"
                         className={
-                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.first_name ? 
-                              "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.first_name ?
+                            "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                           } focus:outline-none focus:ring-2`
                         }
                         placeholder="First Name"
@@ -596,18 +710,52 @@ const LandingPage = () => {
                     </div>
 
                     {/* Last Name Field */}
-                    <div className="w-[49%] pb-1">
-                      <label htmlFor="last_name" className="block text-sm font-medium text-[#6D6E6F]">
-                        Last Name { <span style={{ color: 'red' }}>*</span>}
+                    <div 
+                      className="w-[49%] pb-1 cursor-pointer"
+                      onClick={() => {
+                        const lastNameInput = document.getElementById('last_name');
+                        if (lastNameInput) {
+                          lastNameInput.focus();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="last_name" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        Last Name {<span style={{ color: 'red' }}>*</span>}
                       </label>
+                        <div 
+                          className="group relative tooltip-container"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('last_name');
+                          }}
+                        >
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'last_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                            Enter your last name (surname). Only letters and spaces allowed. Numbers and symbols will be automatically removed.
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
                       <input
                         id="last_name"
                         type="text"
                         className={
-                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.last_name ? 
-                              "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.last_name ?
+                            "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                           } focus:outline-none focus:ring-2`
                         }
                         placeholder="Last Name"
@@ -617,18 +765,53 @@ const LandingPage = () => {
                       {errors.last_name && <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>}
                     </div>
 
-                    {/* Gender Field */}
-                    <div className="w-[49%] pb-2">
-                      <label htmlFor="gender" className="block text-sm font-medium text-[#6D6E6F]">
-                        Gender
+                    {/* Gender Field - Only show for Self or Friend */}
+                    {(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && (
+                      <div 
+                        className="w-[49%] pb-2 cursor-pointer"
+                        onClick={() => {
+                          const genderSelect = document.getElementById('gender');
+                          if (genderSelect) {
+                            genderSelect.focus();
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <label htmlFor="gender" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        Gender {<span style={{ color: 'red' }}>*</span>}
                       </label>
+                          <div 
+                            className="group relative tooltip-container"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('gender');
+                            }}
+                          >
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'gender' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                              Select the gender. This field only appears when creating profile for Self or Friend.
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
                       <select
                         id="gender"
                         className={
-                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.gender ? 
-                              "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.gender ?
+                            "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                           } focus:outline-none focus:ring-2`
                         }
                         onChange={handleInputChange}
@@ -640,20 +823,55 @@ const LandingPage = () => {
                       </select>
                       {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
                     </div>
+                    )}
 
                     {/* Date of Birth Field */}
-                    <div className="w-[49%] pb-1">
-                      <label htmlFor="date_of_birth" className="block text-sm font-medium text-[#6D6E6F]">
-                        Date of Birth { <span style={{ color: 'red' }}>*</span>}
+                    <div 
+                      className={`${(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') ? 'w-[49%]' : 'w-[100%]'} pb-1 cursor-pointer`}
+                      onClick={() => {
+                        const dateInput = document.getElementById('date_of_birth');
+                        if (dateInput) {
+                          dateInput.focus();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="date_of_birth" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        Date of Birth {<span style={{ color: 'red' }}>*</span>}
                       </label>
+                        <div 
+                          className="group relative tooltip-container"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('date_of_birth');
+                          }}
+                        >
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'date_of_birth' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                            Select your date of birth. Age limit: Male (18+), Female (21+). Format: DD-MM-YYYY
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
                       <input
                         id="date_of_birth"
                         type="date"
                         className={
-                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                            errors.date_of_birth ? 
-                              "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                          `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.date_of_birth ?
+                            "border-red-500 focus:border-red-500 focus:ring-red-500"
+                            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                           } focus:outline-none focus:ring-2`
                         }
                         onChange={handleInputChange}
@@ -667,18 +885,52 @@ const LandingPage = () => {
                     {/* Email/Phone Field */}
                     <div className="w-[100%] pb-1">
                       {/* Email Input */}
-                      <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-[#6D6E6F]">
-                          Email { <span style={{ color: 'red' }}>*</span>}
+                      <div 
+                        className="mb-4 cursor-pointer"
+                        onClick={() => {
+                          const emailInput = document.getElementById('email');
+                          if (emailInput) {
+                            emailInput.focus();
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <label htmlFor="email" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                          Email {<span style={{ color: 'red' }}>*</span>}
                         </label>
+                          <div 
+                            className="group relative tooltip-container"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('email');
+                            }}
+                          >
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'email' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                              Enter a valid email address. This will be used for account verification and communication.
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
                         <input
                           id="email"
                           type="email"
                           className={
-                            `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-                              errors.email ? 
-                                "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                                : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                            `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.email ?
+                              "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                             } focus:outline-none focus:ring-2`
                           }
                           placeholder="Enter your email"
@@ -691,10 +943,43 @@ const LandingPage = () => {
                       </div>
 
                       {/* Phone Input */}
-                      <div>
-                        <label htmlFor="mobile_no" className="block text-sm font-medium text-[#6D6E6F]">
-                          Phone { <span style={{ color: 'red' }}>*</span>}
+                      <div 
+                        className="cursor-pointer"
+                        onClick={() => {
+                          const phoneInput = document.getElementById('mobile_no');
+                          if (phoneInput) {
+                            phoneInput.focus();
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <label htmlFor="mobile_no" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                          Phone {<span style={{ color: 'red' }}>*</span>}
                         </label>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleTooltipClick('mobile_no');
+                              }}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'mobile_no' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                              Enter your 10-digit phone number. This will be used for OTP verification.
+                              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
                         <div className="flex items-center mt-2">
                           <div className="flex items-center h-10 px-2 text-[#6D6E6F] font-semibold border-1 border-[#898B92] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#898B92]">
                             <ReactCountryFlag
@@ -719,10 +1004,9 @@ const LandingPage = () => {
                             type="text"
                             inputMode="numeric"
                             className={
-                              `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mx-2 w-full rounded-lg border-1 border-[#898B92] ${
-                                errors.mobile_no ? 
-                                  "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                                  : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                              `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mx-2 w-full rounded-lg border-1 border-[#898B92] ${errors.mobile_no ?
+                                "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
                               } focus:outline-none focus:ring-2`
                             }
                             placeholder="Enter your phone number"
@@ -736,87 +1020,155 @@ const LandingPage = () => {
                       </div>
                     </div>
                     {/* Password Field */}
-<div className="w-[49%] pb-1 relative">
-  <label htmlFor="password" className="block text-sm font-medium text-[#6D6E6F]">
-    Password { <span style={{ color: "red" }}>*</span>}
-  </label>
-  <div className="relative">
-    <input
-      id="password"
-      type={!showPassword ? "password" : 'text'}
-      className={
-        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${
-          errors.password ? 
-            "border-red-500 focus:border-red-500 focus:ring-red-500" 
-            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-        } focus:outline-none focus:ring-2`
-      }
-      placeholder="************"
-      onChange={handleInputChange}
-      value={formData.password}
-    />
-    <button
-      type="button"
-      className="absolute inset-y-0 right-0 pr-3 flex items-center mt-2"
-      onClick={() => setShowPassword(!showPassword)}
-    >
-      {showPassword ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-        </svg>
-      )}
-    </button>
-  </div>
-  {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-</div>
+                    <div 
+                      className="w-[49%] pb-1 cursor-pointer"
+                      onClick={() => {
+                        const passwordInput = document.getElementById('password');
+                        if (passwordInput) {
+                          passwordInput.focus();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="password" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        Password {<span style={{ color: "red" }}>*</span>}
+                      </label>
+                        <div 
+                          className="group relative tooltip-container"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('password');
+                          }}
+                        >
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '220px', wordWrap: 'break-word' }}>
+                            Password must be at least 6 characters with 1 uppercase letter, 1 number, and 1 special character.
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input
+                          id="password"
+                          type={!showPassword ? "password" : 'text'}
+                          className={
+                            `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 border-[#898B92] ${errors.password ?
+                              "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                            } focus:outline-none focus:ring-2`
+                          }
+                          placeholder="************"
+                          onChange={handleInputChange}
+                          value={formData.password}
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center mt-2"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                    </div>
 
-{/* Confirm Password Field */}
-<div className="w-[49%] pb-1 relative">
-  <label htmlFor="conform_password" className="block text-sm font-medium text-[#6D6E6F]">
-    Confirm Password { <span style={{ color: 'red' }}>*</span>}
-  </label>
-  <div className="relative">
-    <input
-      id="conform_password"
-      type={!showPassword ? "password" : 'text'}
-      className={
-        `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 ${
-          errors.conform_password ? 
-            "border-red-500 focus:border-red-500 focus:ring-red-500" 
-            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-        } focus:outline-none focus:ring-2`
-      }
-      placeholder="************"
-      onChange={handleInputChange}
-      value={formData.conform_password}
-    />
-    <button
-      type="button"
-      className="absolute inset-y-0 right-0 pr-3 flex items-center mt-2"
-      onClick={() => setShowPassword(!showPassword)}
-    >
-      {showPassword ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-        </svg>
-      )}
-    </button>
-  </div>
-  {errors.conform_password && <p className="text-red-500 text-sm mt-1">{errors.conform_password}</p>}
-</div>
+                    {/* Confirm Password Field */}
+                    <div 
+                      className="w-[49%] pb-1 cursor-pointer"
+                      onClick={() => {
+                        const confirmPasswordInput = document.getElementById('conform_password');
+                        if (confirmPasswordInput) {
+                          confirmPasswordInput.focus();
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <label htmlFor="conform_password" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
+                        Confirm Password {<span style={{ color: 'red' }}>*</span>}
+                      </label>
+                        <div 
+                          className="group relative tooltip-container"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('conform_password');
+                          }}
+                        >
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'conform_password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                            Re-enter your password to confirm. Must match the password above exactly.
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <input
+                          id="conform_password"
+                          type={!showPassword ? "password" : 'text'}
+                          className={
+                            `h-10 px-4 text-[#6D6E6F] font-semibold placeholder-[#898B92] mt-2 w-full rounded-lg border-1 ${errors.conform_password ?
+                              "border-red-500 focus:border-red-500 focus:ring-red-500"
+                              : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                            } focus:outline-none focus:ring-2`
+                          }
+                          placeholder="************"
+                          onChange={handleInputChange}
+                          value={formData.conform_password}
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center mt-2"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6D6E6F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {errors.conform_password && <p className="text-red-500 text-sm mt-1">{errors.conform_password}</p>}
+                    </div>
 
                     {/* Referral Code Field */}
-                    <div className="w-[49%] pb-1">
+                    {/* <div className="w-[49%] pb-1">
                       <label htmlFor="referral_code" className="block text-sm font-medium text-[#6D6E6F]">
                         Referral Code { <span style={{ color: 'red' }}></span>}
                       </label>
@@ -829,7 +1181,7 @@ const LandingPage = () => {
                         value={formData.referral_code}
                       />
                       {errors.referral_code && <p className="text-red-500 text-sm mt-1">{errors.referral_code}</p>}
-                    </div>
+                    </div> */}
 
                     {/* Terms and Conditions Field */}
                     <div className="w-full sm:col-span-2 lg:col-span-4 flex items-center mt-4">
@@ -839,13 +1191,13 @@ const LandingPage = () => {
                         className="w-5 h-5 text-[#6D6E6F] focus:ring-[#898B92] rounded border-[#898B92]"
                         onChange={(e) => {
                           // Only set to true if not already true
-                          
-                           // Check this condition
-      handleInputChange(e);
-    
+
+                          // Check this condition
+                          handleInputChange(e);
+
                         }}
                         checked={formData.terms_condition}
-                       
+
                       />
                       <label htmlFor="terms_condition" className="ml-3 text-sm font-medium text-[#6D6E6F] pt-1">
                         By signing up you agree to our <span className="text-[#FF28A0]">terms and conditions.</span>
@@ -870,17 +1222,32 @@ const LandingPage = () => {
 
                     {/* Or Join With Section */}
                     <div className="flex items-center">
-                      <div className="flex-grow border-t border-gray-200 w-[12vw]"></div>
-                      <span className="text-[#6D6E6F] text-[1.8vh] font-semibold">Or Join With</span>
-                      <div className="flex-grow border-t border-gray-200 w-[12vw]"></div>
+                      <div className="flex-grow border-t border-gray-200 w-[10vw]"></div>
+                      <span className="text-[#6D6E6F] text-[1.6vh] font-semibold">Or Join With</span>
+                      <div className="flex-grow border-t border-gray-200 w-[10vw]"></div>
                     </div>
 
-                    {/* Social Icons */}
-                    <div style={{ height: '6vh', width: '100%', backgroundColor: 'white', display: 'flex', justifyContent: 'center', gap: '1vh' }}>
-                      <div style={{ height: '6vh', width: '6vh', borderRadius: '50%', backgroundColor: '#3B5998' }}></div>
-                      <div style={{ height: '6vh', width: '6vh', borderRadius: '50%', backgroundColor: '#E62833' }}></div>
-                      <div style={{ height: '6vh', width: '6vh', borderRadius: '50%', backgroundColor: '#1DA1F2' }}></div>
+                    {/* Google Sign In Button */}
+                    <div className="w-[100%] sm:col-span-2 lg:col-span-1 flex justify-start item-center">
+                      <button
+                        type="button"
+                        className="py-2 mt-4 px-8 w-[100%] rounded-md shadow border border-gray-300 text-[#6D6E6F] font-medium transition duration-300 hover:bg-gray-50 hover:shadow-lg bg-white flex items-center justify-center gap-3"
+                        onClick={() => {
+                          // Google sign-in logic will be implemented here
+                          console.log('Google Sign In clicked');
+                        }}
+                      >
+                        {/* Google Logo SVG */}
+                        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Sign in with Google
+                      </button>
                     </div>
+
                   </form>
                 ) : (
                   <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4" style={{ width: "100%" }}>
@@ -963,7 +1330,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <Analytics  apiData={apiData1}/>
+        <Analytics apiData={apiData1} />
 
 
 
@@ -972,9 +1339,9 @@ const LandingPage = () => {
         <section className="container mx-auto pt-44 pb-24 px-6 bg-[#ffffff] relative">
           {/* Section Title */}
           <div className="text-center mb-12">
-          <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text pb-2 leading-tight">
-  Packages & Pricing
-</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text pb-2 leading-tight">
+              Packages & Pricing
+            </h2>
             <p className="text-lg sm:text-xl text-[#6D6E6F] mt-4">
               Choose a plan that fits your needs and start your journey toward a
               blessed union.
@@ -991,7 +1358,7 @@ const LandingPage = () => {
             >
               Individual
             </button>
-            <button
+            {/* <button
               className={`py-2 px-6 text-sm font-semibold rounded-full shadow-md transition-all ${cardActiveTab === "agent"
                 ? "bg-gradient-to-r from-[#EE68B3] to-[#FF8DCD] text-white"
                 : "bg-gray-200 text-gray-600"
@@ -999,7 +1366,7 @@ const LandingPage = () => {
               onClick={() => setcardActiveTab("agent")}
             >
               Agent
-            </button>
+            </button> */}
           </div>
 
           {/* Tab Switch */}
@@ -1036,7 +1403,7 @@ const LandingPage = () => {
                 ></video>
               </div>
             </div> */}
-            
+
             {/* Right Side - Steps */}
             <div className="w-full lg:w-1/2 grid grid-cols-2 gap-6">
               {/* Step 1 */}
@@ -1258,11 +1625,11 @@ const LandingPage = () => {
                     Use the platform’s tools and services to finalize your match
                     and begin your journey.
                   </p>
-                  
+
                 </div>
 
               </div>
-              
+
             </div>
             <div className="w-full lg:w-1/2">
               <div className="aspect-[16/9]">
@@ -1289,60 +1656,60 @@ const LandingPage = () => {
 
         {/* Updated Bento Grid Section */}
         <section className="py-4 bg-white">
-  <div className="container mx-auto px-6">
-    <h2 className="text-center text-5xl font-bold my-20 leading-tight bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
-      Why Choose Us?
-    </h2>
-    
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Row 1 - Block 1 (50%) */}
-      <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
-          Faith-Centered
-        </h3>
-        <p className="mt-2 text-[#EC80BC]">
-          We understand the importance of aligning with Islamic values
-          in your search for a life partner.
-        </p>
-      </div>
+          <div className="container mx-auto px-6">
+            <h2 className="text-center text-5xl font-bold my-20 leading-tight bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+              Why Choose Us?
+            </h2>
 
-      {/* Row 1 - Block 2 (50%) */}
-      <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
-          Confidential & Secure
-        </h3>
-        <p className="mt-2 text-[#EC80BC]">
-          Your privacy is our priority. We offer secure communication
-          and profile protection, ensuring a safe and trusted platform
-          for your journey.
-        </p>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Row 1 - Block 1 (50%) */}
+              <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+                  Faith-Centered
+                </h3>
+                <p className="mt-2 text-[#EC80BC]">
+                  We understand the importance of aligning with Islamic values
+                  in your search for a life partner.
+                </p>
+              </div>
 
-      {/* Row 2 - Block 1 (50%) */}
-      <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
-          Personalized Matches
-        </h3>
-        <p className="mt-2 text-[#EC80BC]">
-          We use detailed preferences to recommend the best matches
-          tailored to your needs, ensuring compatibility and a
-          meaningful connection.
-        </p>
-      </div>
+              {/* Row 1 - Block 2 (50%) */}
+              <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+                  Confidential & Secure
+                </h3>
+                <p className="mt-2 text-[#EC80BC]">
+                  Your privacy is our priority. We offer secure communication
+                  and profile protection, ensuring a safe and trusted platform
+                  for your journey.
+                </p>
+              </div>
 
-      {/* Row 2 - Block 2 (50%) */}
-      <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
-          Community Support
-        </h3>
-        <p className="mt-2 text-[#EC80BC]">
-          Join a community that supports you in your journey toward a
-          blessed Nikah.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+              {/* Row 2 - Block 1 (50%) */}
+              <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+                  Personalized Matches
+                </h3>
+                <p className="mt-2 text-[#EC80BC]">
+                  We use detailed preferences to recommend the best matches
+                  tailored to your needs, ensuring compatibility and a
+                  meaningful connection.
+                </p>
+              </div>
+
+              {/* Row 2 - Block 2 (50%) */}
+              <div className="relative bg-[#FFF5FB] rounded-2xl p-6 flex flex-col justify-end h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+                  Community Support
+                </h3>
+                <p className="mt-2 text-[#EC80BC]">
+                  Join a community that supports you in your journey toward a
+                  blessed Nikah.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Testimonial Section */}
         <section className="relative bg-white py-40 px-6">
@@ -2262,8 +2629,8 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-        
-  <Footerer />
+
+        <Footerer />
 
       </div>
     </>

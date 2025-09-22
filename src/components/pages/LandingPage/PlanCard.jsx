@@ -5,7 +5,7 @@ const PlanCard = () => {
     {
       name: "Basic Plan",
       description: "For serious commitment",
-      price: "₹700",
+      price: "Free",
       features: [
         "Access to 100+ profiles",
         "Personalized recommendations",
@@ -16,7 +16,7 @@ const PlanCard = () => {
     {
       name: "Standard Plan",
       description: "For serious commitment",
-      price: "₹1100",
+      price: "Free",
       features: [
         "Access to all profiles",
         "Personalized recommendations",

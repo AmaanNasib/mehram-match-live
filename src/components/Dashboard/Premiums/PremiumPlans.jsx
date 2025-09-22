@@ -6,7 +6,7 @@ const PremiumPlans = () => {
     {
       name: "Basic",
       description: "Monthly Charge",
-      price: "₹700",
+      price: "Free",
       features: [
         "Free Setup",
         "Bandwidth Limit 10 GB",
@@ -21,7 +21,7 @@ const PremiumPlans = () => {
     {
       name: "Standard",
       description: "Monthly Charge",
-      price: "₹1100",
+      price: "Free",
       features: [
         "Free Setup",
         "Bandwidth Limit 10 GB",

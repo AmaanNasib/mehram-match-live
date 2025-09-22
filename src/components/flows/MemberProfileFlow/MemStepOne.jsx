@@ -270,9 +270,9 @@ const MemStepOne = () => {
       newErrors.disability = "Disability status is required";
     }
 
-    // Validate About You
-    if (!profileData.describe_job_business?.trim()) {
-      newErrors.describe_job_business = "Please describe your job/business";
+    // Validate About You - Only required if profession or education is "other"
+    if ((profileData.profession === 'other' || profileData.Education === 'other') && !profileData.describe_job_business?.trim()) {
+      newErrors.describe_job_business = "Please describe your education & job/business";
     }
 
     // Validate Income Range
@@ -615,124 +615,124 @@ const MemStepOne = () => {
     }
   },
 
-    usa: {
-      label: "USA",
-      states: {
-        california: {
-          label: "California",
-          cities: [
-            { value: "los_angeles", label: "Los Angeles" },
-            { value: "san_francisco", label: "San Francisco" },
-            { value: "san_diego", label: "San Diego" },
-            { value: "sacramento", label: "Sacramento" }
-          ]
-        },
-        new_york: {
-          label: "New York",
-          cities: [
-            { value: "new_york_city", label: "New York City" },
-            { value: "buffalo", label: "Buffalo" },
-            { value: "rochester", label: "Rochester" }
-          ]
-        },
-        texas: {
-          label: "Texas",
-          cities: [
-            { value: "houston", label: "Houston" },
-            { value: "dallas", label: "Dallas" },
-            { value: "austin", label: "Austin" }
-          ]
-        },
-        florida: {
-          label: "Florida",
-          cities: [
-            { value: "miami", label: "Miami" },
-            { value: "orlando", label: "Orlando" },
-            { value: "tampa", label: "Tampa" }
-          ]
-        }
-      }
-    },
-    canada: {
-      label: "Canada",
-      states: {
-        ontario: {
-          label: "Ontario",
-          cities: [
-            { value: "toronto", label: "Toronto" },
-            { value: "ottawa", label: "Ottawa" },
-            { value: "hamilton", label: "Hamilton" }
-          ]
-        },
-        quebec: {
-          label: "Quebec",
-          cities: [
-            { value: "montreal", label: "Montreal" },
-            { value: "quebec_city", label: "Quebec City" }
-          ]
-        },
-        british_columbia: {
-          label: "British Columbia",
-          cities: [
-            { value: "vancouver", label: "Vancouver" },
-            { value: "victoria", label: "Victoria" }
-          ]
-        }
-      }
-    },
-    australia: {
-      label: "Australia",
-      states: {
-        new_south_wales: {
-          label: "New South Wales",
-          cities: [
-            { value: "sydney", label: "Sydney" },
-            { value: "newcastle", label: "Newcastle" }
-          ]
-        },
-        victoria: {
-          label: "Victoria",
-          cities: [
-            { value: "melbourne", label: "Melbourne" },
-            { value: "geelong", label: "Geelong" }
-          ]
-        },
-        queensland: {
-          label: "Queensland",
-          cities: [
-            { value: "brisbane", label: "Brisbane" },
-            { value: "gold_coast", label: "Gold Coast" }
-          ]
-        }
-      }
-    },
-    uk: {
-      label: "UK",
-      states: {
-        england: {
-          label: "England",
-          cities: [
-            { value: "london", label: "London" },
-            { value: "manchester", label: "Manchester" },
-            { value: "birmingham", label: "Birmingham" }
-          ]
-        },
-        scotland: {
-          label: "Scotland",
-          cities: [
-            { value: "edinburgh", label: "Edinburgh" },
-            { value: "glasgow", label: "Glasgow" }
-          ]
-        },
-        wales: {
-          label: "Wales",
-          cities: [
-            { value: "cardiff", label: "Cardiff" },
-            { value: "swansea", label: "Swansea" }
-          ]
-        }
-      }
-    }
+    // usa: {
+    //   label: "USA",
+    //   states: {
+    //     california: {
+    //       label: "California",
+    //       cities: [
+    //         { value: "los_angeles", label: "Los Angeles" },
+    //         { value: "san_francisco", label: "San Francisco" },
+    //         { value: "san_diego", label: "San Diego" },
+    //         { value: "sacramento", label: "Sacramento" }
+    //       ]
+    //     },
+    //     new_york: {
+    //       label: "New York",
+    //       cities: [
+    //         { value: "new_york_city", label: "New York City" },
+    //         { value: "buffalo", label: "Buffalo" },
+    //         { value: "rochester", label: "Rochester" }
+    //       ]
+    //     },
+    //     texas: {
+    //       label: "Texas",
+    //       cities: [
+    //         { value: "houston", label: "Houston" },
+    //         { value: "dallas", label: "Dallas" },
+    //         { value: "austin", label: "Austin" }
+    //       ]
+    //     },
+    //     florida: {
+    //       label: "Florida",
+    //       cities: [
+    //         { value: "miami", label: "Miami" },
+    //         { value: "orlando", label: "Orlando" },
+    //         { value: "tampa", label: "Tampa" }
+    //       ]
+    //     }
+    //   }
+    // },
+    // canada: {
+    //   label: "Canada",
+    //   states: {
+    //     ontario: {
+    //       label: "Ontario",
+    //       cities: [
+    //         { value: "toronto", label: "Toronto" },
+    //         { value: "ottawa", label: "Ottawa" },
+    //         { value: "hamilton", label: "Hamilton" }
+    //       ]
+    //     },
+    //     quebec: {
+    //       label: "Quebec",
+    //       cities: [
+    //         { value: "montreal", label: "Montreal" },
+    //         { value: "quebec_city", label: "Quebec City" }
+    //       ]
+    //     },
+    //     british_columbia: {
+    //       label: "British Columbia",
+    //       cities: [
+    //         { value: "vancouver", label: "Vancouver" },
+    //         { value: "victoria", label: "Victoria" }
+    //       ]
+    //     }
+    //   }
+    // },
+    // australia: {
+    //   label: "Australia",
+    //   states: {
+    //     new_south_wales: {
+    //       label: "New South Wales",
+    //       cities: [
+    //         { value: "sydney", label: "Sydney" },
+    //         { value: "newcastle", label: "Newcastle" }
+    //       ]
+    //     },
+    //     victoria: {
+    //       label: "Victoria",
+    //       cities: [
+    //         { value: "melbourne", label: "Melbourne" },
+    //         { value: "geelong", label: "Geelong" }
+    //       ]
+    //     },
+    //     queensland: {
+    //       label: "Queensland",
+    //       cities: [
+    //         { value: "brisbane", label: "Brisbane" },
+    //         { value: "gold_coast", label: "Gold Coast" }
+    //       ]
+    //     }
+    //   }
+    // },
+    // uk: {
+    //   label: "UK",
+    //   states: {
+    //     england: {
+    //       label: "England",
+    //       cities: [
+    //         { value: "london", label: "London" },
+    //         { value: "manchester", label: "Manchester" },
+    //         { value: "birmingham", label: "Birmingham" }
+    //       ]
+    //     },
+    //     scotland: {
+    //       label: "Scotland",
+    //       cities: [
+    //         { value: "edinburgh", label: "Edinburgh" },
+    //         { value: "glasgow", label: "Glasgow" }
+    //       ]
+    //     },
+    //     wales: {
+    //       label: "Wales",
+    //       cities: [
+    //         { value: "cardiff", label: "Cardiff" },
+    //         { value: "swansea", label: "Swansea" }
+    //       ]
+    //     }
+    //   }
+    // }
   };
 
   // Helper functions to get countries, states, and cities
@@ -753,7 +753,9 @@ const MemStepOne = () => {
 
   const getCities = (country, state) => {
     if (!country || !state || !locationData[country] || !locationData[country].states[state]) return [];
-    return locationData[country].states[state].cities;
+    const cities = locationData[country].states[state].cities;
+    // Add "Other" option to every state
+    return [...cities, { value: "other", label: "Other" }];
   };
 
   const Professions = [
@@ -879,6 +881,7 @@ const MemStepOne = () => {
     { value: "wholesale_businessman", label: "Wholesale Businessman" },
     { value: "writer", label: "Writer" },
     { value: "zoologist", label: "Zoologist" },
+    { value: "other", label: "Other" },
   ];
 
   const educationLevels = [
@@ -970,6 +973,7 @@ const MemStepOne = () => {
     { value: "phd_islamic_studies", label: "PhD in Islamic Studies / Theology" },
     { value: "pharm_d", label: "Pharm.D (Doctor of Pharmacy)" },
     { value: "ed_d", label: "Ed.D (Doctor of Education)" },
+    { value: "other", label: "Other" },
   ];
 
   const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
@@ -1597,10 +1601,11 @@ const MemStepOne = () => {
                     </div>
                   </div>
 
-                  {/* Job Description */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <span>Please describe your job/business <span className="text-red-500">*</span></span>
+                  {/* Job Description - Only show if profession or education is "other" */}
+                  {(profileData.profession === 'other' || profileData.Education === 'other') && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Please describe your education & job/business <span className="text-red-500">*</span></span>
                       <div className="group relative tooltip-container">
                         <svg 
                           className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1615,7 +1620,7 @@ const MemStepOne = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'describe_job_business' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                          Provide a detailed description of your job role or business activities
+                          Provide a detailed description of your education and job role or business activities
                           <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                         </div>
                       </div>
@@ -1628,13 +1633,15 @@ const MemStepOne = () => {
                           ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                           : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                       }`}
-                      placeholder="Describe your job or business in detail..."
+                      placeholder="Describe your education and job or business in detail..."
                     />
-                  {formErrors.describe_job_business && (
-                      <p className="text-red-500 text-sm">{formErrors.describe_job_business}</p>
+                      {formErrors.describe_job_business && (
+                          <p className="text-red-500 text-sm">{formErrors.describe_job_business}</p>
+                      )}
+                    </div>
                   )}
+
                 </div>
-              </div>
 
                 {/* Personal Details Section */}
                 <div className="space-y-6">

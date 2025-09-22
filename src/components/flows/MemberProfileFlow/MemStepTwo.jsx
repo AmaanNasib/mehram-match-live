@@ -16,7 +16,7 @@ const MemStepTwo = () => {
   const [profileData, setProfileData] = useState({
     sect_school_info: "",
     islamic_practicing_level: "",
-    believe_in_dargah_fatiha_niyah: [],
+    believe_in_dargah_fatiha_niyah: "",
     hijab_niqab_prefer: "",
     percentage: "",
     gender: "",
@@ -46,12 +46,7 @@ const MemStepTwo = () => {
       setProfileData({
         percentage: apiData.profile_percentage || null,
         gender: apiData.gender || null,
-        believe_in_dargah_fatiha_niyah: apiData.believe_in_dargah_fatiha_niyah ? 
-          (Array.isArray(apiData.believe_in_dargah_fatiha_niyah) ? 
-            apiData.believe_in_dargah_fatiha_niyah : 
-            (typeof apiData.believe_in_dargah_fatiha_niyah === 'string' && apiData.believe_in_dargah_fatiha_niyah.includes(',')) ?
-            apiData.believe_in_dargah_fatiha_niyah.split(',') :
-            [apiData.believe_in_dargah_fatiha_niyah]) : [],
+        believe_in_dargah_fatiha_niyah: apiData.believe_in_dargah_fatiha_niyah || "",
         sect_school_info: apiData.sect_school_info || null,
         islamic_practicing_level: apiData.islamic_practicing_level || null,
         hijab_niqab_prefer: apiData.hijab_niqab_prefer || null,
@@ -145,8 +140,8 @@ const MemStepTwo = () => {
     }
 
     // Validate Believe in Dargah/Fatiha/Niyah
-    if (!profileData.believe_in_dargah_fatiha_niyah || profileData.believe_in_dargah_fatiha_niyah.length === 0) {
-      newErrors.believe_in_dargah_fatiha_niyah = "Please select at least one option for Dargah/Fatiha/Niyah";
+    if (!profileData.believe_in_dargah_fatiha_niyah?.trim()) {
+      newErrors.believe_in_dargah_fatiha_niyah = "Please select an option for Dargah/Fatiha/Niyah";
     }
 
     // Validate Hijab/Niqab Preference (only for females)
@@ -187,9 +182,7 @@ const MemStepTwo = () => {
         payload: {
           sect_school_info: profileData.sect_school_info,
           islamic_practicing_level: profileData.islamic_practicing_level,
-          believe_in_dargah_fatiha_niyah: Array.isArray(profileData.believe_in_dargah_fatiha_niyah) 
-            ? profileData.believe_in_dargah_fatiha_niyah.join(',') 
-            : profileData.believe_in_dargah_fatiha_niyah,
+          believe_in_dargah_fatiha_niyah: profileData.believe_in_dargah_fatiha_niyah,
           hijab_niqab_prefer: profileData.hijab_niqab_prefer,
         },
         navigate: navigate,
@@ -305,27 +298,49 @@ const MemStepTwo = () => {
   // Radio button component
   const RadioGroup = ({ name, value, onChange, options, error }) => {
     return (
-      <div className="space-y-2">
-        <div className="flex space-x-6">
-          {options.map((option) => (
-            <div key={option.value} className="flex items-center">
-              <input
-                type="radio"
-                id={`${name}_${option.value}`}
-                name={name}
-                value={option.value}
-                checked={value === option.value}
-                onChange={onChange}
-                className="h-4 w-4 text-[#CB3B8B] focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
-              />
-                  <label
-                htmlFor={`${name}_${option.value}`}
-                className="ml-2 text-sm font-medium text-gray-700"
-                  >
-                {option.label}
-                  </label>
-            </div>
-          ))}
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {options.map((option) => {
+            const isSelected = value === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange({ target: { value: option.value } })}
+                className={`group relative px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border-2 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white border-[#CB3B8B] shadow-lg shadow-[#FFC0E3]'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-[#FFA4D6] hover:bg-[#FFC0E3] hover:text-[#CB3B8B] shadow-sm hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-center leading-tight">{option.label}</span>
+                  {isSelected && (
+                    <svg 
+                      className="w-4 h-4 text-white animate-pulse" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7" 
+                      />
+                    </svg>
+                  )}
+                </div>
+
+                {/* Hover effect overlay */}
+                <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
+                  isSelected 
+                    ? 'bg-gradient-to-r from-[#F971BC] to-[#DA73AD] opacity-0 group-hover:opacity-20' 
+                    : 'bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] opacity-0 group-hover:opacity-100'
+                }`}></div>
+              </button>
+            );
+          })}
         </div>
         {error && (
           <p className="text-red-500 text-sm">{error}</p>
@@ -565,10 +580,10 @@ const MemStepTwo = () => {
                       </div>
                     </div>
                         </label>
-                        <MultiSelectPills
+                        <RadioGroup
                           name="believe_in_dargah_fatiha_niyah"
-                          values={profileData.believe_in_dargah_fatiha_niyah || []}
-                          onChange={handleMultiSelectChange}
+                          value={profileData.believe_in_dargah_fatiha_niyah}
+                          onChange={(e) => handleFieldChange("believe_in_dargah_fatiha_niyah", e.target.value)}
                           options={dargahOptions}
                           error={formErrors.believe_in_dargah_fatiha_niyah}
                         />

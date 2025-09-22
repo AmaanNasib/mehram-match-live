@@ -141,12 +141,19 @@ const MemStepThree = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // Regex pattern for name validation
+    const nameRegex = /^[A-Za-z\s]+$/; // Allows letters and spaces
+
     // Validate required fields
     if (!profileData.father_name?.trim()) {
       newErrors.father_name = "Father's name is required";
+    } else if (!nameRegex.test(profileData.father_name)) {
+      newErrors.father_name = "Father's name should contain only letters and spaces";
     }
     if (!profileData.mother_name?.trim()) {
       newErrors.mother_name = "Mother's name is required";
+    } else if (!nameRegex.test(profileData.mother_name)) {
+      newErrors.mother_name = "Mother's name should contain only letters and spaces";
     }
     if (!profileData.father_alive) {
       newErrors.father_alive = "Father's alive status is required";
@@ -186,6 +193,8 @@ const MemStepThree = () => {
     if (profileData.gender === "female") {
       if (!profileData.wali_name?.trim()) {
         newErrors.wali_name = "Wali name is required";
+      } else if (!nameRegex.test(profileData.wali_name)) {
+        newErrors.wali_name = "Wali name should contain only letters and spaces";
       }
       if (!profileData.wali_contact_number?.trim()) {
         newErrors.wali_contact_number = "Wali contact number is required";
@@ -201,12 +210,19 @@ const MemStepThree = () => {
   const handleValidForm = () => {
     const newErrors = {};
 
+    // Regex pattern for name validation
+    const nameRegex = /^[A-Za-z\s]+$/; // Allows letters and spaces
+
     // Validate required fields
     if (!profileData.father_name?.trim()) {
       newErrors.father_name = "Father's name is required";
+    } else if (!nameRegex.test(profileData.father_name)) {
+      newErrors.father_name = "Father's name should contain only letters and spaces";
     }
     if (!profileData.mother_name?.trim()) {
       newErrors.mother_name = "Mother's name is required";
+    } else if (!nameRegex.test(profileData.mother_name)) {
+      newErrors.mother_name = "Mother's name should contain only letters and spaces";
     }
     if (!profileData.father_alive) {
       newErrors.father_alive = "Father's alive status is required";
@@ -246,6 +262,8 @@ const MemStepThree = () => {
     if (profileData.gender === "female") {
       if (!profileData.wali_name?.trim()) {
         newErrors.wali_name = "Wali name is required";
+      } else if (!nameRegex.test(profileData.wali_name)) {
+        newErrors.wali_name = "Wali name should contain only letters and spaces";
       }
       if (!profileData.wali_contact_number?.trim()) {
         newErrors.wali_contact_number = "Wali contact number is required";
@@ -322,6 +340,12 @@ const MemStepThree = () => {
   };
 
   const updateField = (field, value) => {
+    // Real-time filtering for name fields - only allow alphabets and spaces
+    if (field === 'father_name' || field === 'mother_name' || field === 'wali_name') {
+      // Only allow alphabets and spaces, remove numbers and symbols
+      value = value.replace(/[^A-Za-z\s]/g, '');
+    }
+
     setProfileData((prevState) => {
       const newState = {
       ...prevState,

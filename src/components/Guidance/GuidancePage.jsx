@@ -27,6 +27,48 @@ const allBlogs = [
     date: 'April 15, 2025',
     img: '/blog3.jpg'
   },
+  {
+    title: 'Career Growth Strategies',
+    slug: 'career-growth-strategies',
+    desc: 'Learn how to advance in your professional journey.',
+    date: 'April 18, 2025',
+    img: '/blog1.jpg'
+  },
+  {
+    title: 'Time Management Tips',
+    slug: 'time-management-tips',
+    desc: 'Master the art of managing your time effectively.',
+    date: 'April 20, 2025',
+    img: '/blog2.jpg'
+  },
+  {
+    title: 'Building Professional Networks',
+    slug: 'building-professional-networks',
+    desc: 'Connect and grow your professional relationships.',
+    date: 'April 22, 2025',
+    img: '/blog3.jpg'
+  },
+  {
+    title: 'Work-Life Balance',
+    slug: 'work-life-balance',
+    desc: 'Find harmony between your career and personal life.',
+    date: 'April 25, 2025',
+    img: '/blog1.jpg'
+  },
+  {
+    title: 'Leadership Skills Development',
+    slug: 'leadership-skills-development',
+    desc: 'Develop essential leadership qualities for success.',
+    date: 'April 28, 2025',
+    img: '/blog2.jpg'
+  },
+  {
+    title: 'Digital Marketing Fundamentals',
+    slug: 'digital-marketing-fundamentals',
+    desc: 'Learn the basics of modern digital marketing.',
+    date: 'May 1, 2025',
+    img: '/blog3.jpg'
+  },
 ];
 
 export default function GuidancePage() {

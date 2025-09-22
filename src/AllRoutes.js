@@ -271,10 +271,7 @@ const AllRoutes = () => {
         <Route
           path="/guidance"
           element={
-            <PrivateRoute>
-              {" "}
-              <GuidancePage />{" "}
-            </PrivateRoute>
+              <GuidancePage />
           }
         />
         <Route
