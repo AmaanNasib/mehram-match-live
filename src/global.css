@@ -2,6 +2,11 @@
     height: calc(100% - 60px);
 }
 
+/* Smooth scroll behavior for anchor links */
+html {
+    scroll-behavior: smooth;
+}
+
 
 .button_base {
     background: radial-gradient(circle at 50% -90%, #ec4899, #ff85ca);

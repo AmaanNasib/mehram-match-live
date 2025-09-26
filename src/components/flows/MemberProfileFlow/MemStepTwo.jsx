@@ -330,7 +330,7 @@ const MemStepTwo = () => {
                       />
                     </svg>
                   )}
-                </div>
+            </div>
 
                 {/* Hover effect overlay */}
                 <div className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
@@ -653,7 +653,12 @@ const MemStepTwo = () => {
                       </svg>
                       <span className="text-sm sm:text-base">Back</span>
                 </button>
-                    
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span className="text-pink-600 font-semibold">2</span>
+                  </div>
+                  <span>of 6 steps</span>
+                </div>
                     {/* Next Step Button */}
                 <button
                       onClick={naviagteNextStep}

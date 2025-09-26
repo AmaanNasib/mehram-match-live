@@ -4,7 +4,7 @@ import { React, useState, useEffect, useRef } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import hero_left_bg from "../../../images/b9f7c5e8-c835-403b-8029-47dcb0f0172c.jpg";
 // import video from "../../../images/6554025-uhd_3840_2160_24fps.mp4";
-import Footerer from "../../sections/Footerer";
+import Footer from "../../sections/Footer";
 import Navbar from "../../sections/Navbar";
 import PlanCard from "./PlanCard";
 import ProfileCardList from "./ProfileCardList";
@@ -29,6 +29,32 @@ import ReactCountryFlag from "react-country-flag";
 const LandingPage = () => {
   const pathname = window.location.pathname;
   const lastSegment = pathname.split("/").pop();
+
+  // Handle hash navigation on page load and hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const element = document.getElementById(hash.substring(1));
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+      }
+    };
+
+    // Handle initial hash
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
   const [isOpenWindow, setIsModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const images = [hero1, hero2, hero3]; // Array of background images
@@ -612,25 +638,28 @@ const LandingPage = () => {
                             <label htmlFor="on_behalf" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                               Profile Creating For {<span style={{ color: 'red' }}>*</span>}
                           </label>
-                            <div className="group relative tooltip-container">
+                            <div 
+                              className="group relative tooltip-container"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleTooltipClick('on_behalf');
+                              }}
+                              onTouchStart={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                handleTooltipClick('on_behalf');
+                              }}
+                            >
                               <svg 
-                                className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                                className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                                 fill="none" 
                                 stroke="currentColor" 
                                 viewBox="0 0 24 24"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  handleTooltipClick('on_behalf');
-                                }}
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                }}
                               >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
-                              <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'on_behalf' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                              <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'on_behalf' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
                                 Select who this profile is for. Brother/Son will auto-set gender as Male, Daughter/Sister as Female. For Self/Friend, you'll need to select gender manually.
                                 <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                               </div>
@@ -654,15 +683,7 @@ const LandingPage = () => {
                     </div>
 
                     {/* First Name Field */}
-                    <div 
-                      className="w-[49%] pb-1 cursor-pointer"
-                      onClick={() => {
-                        const firstNameInput = document.getElementById('first_name');
-                        if (firstNameInput) {
-                          firstNameInput.focus();
-                        }
-                      }}
-                    >
+                    <div className="w-[49%] pb-1">
                       <div className="flex items-center gap-2 mb-2">
                         <label htmlFor="first_name" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         First Name {<span style={{ color: 'red' }}>*</span>}
@@ -674,20 +695,21 @@ const LandingPage = () => {
                             e.preventDefault();
                             handleTooltipClick('first_name');
                           }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('first_name');
+                          }}
                         >
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'first_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'first_name' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
                             Enter your first name. Only letters and spaces allowed. Numbers and symbols will be automatically removed.
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
@@ -710,15 +732,7 @@ const LandingPage = () => {
                     </div>
 
                     {/* Last Name Field */}
-                    <div 
-                      className="w-[49%] pb-1 cursor-pointer"
-                      onClick={() => {
-                        const lastNameInput = document.getElementById('last_name');
-                        if (lastNameInput) {
-                          lastNameInput.focus();
-                        }
-                      }}
-                    >
+                    <div className="w-[49%] pb-1">
                       <div className="flex items-center gap-2 mb-2">
                         <label htmlFor="last_name" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         Last Name {<span style={{ color: 'red' }}>*</span>}
@@ -730,20 +744,21 @@ const LandingPage = () => {
                             e.preventDefault();
                             handleTooltipClick('last_name');
                           }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('last_name');
+                          }}
                         >
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'last_name' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'last_name' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
                             Enter your last name (surname). Only letters and spaces allowed. Numbers and symbols will be automatically removed.
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
@@ -767,15 +782,7 @@ const LandingPage = () => {
 
                     {/* Gender Field - Only show for Self or Friend */}
                     {(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && (
-                      <div 
-                        className="w-[49%] pb-2 cursor-pointer"
-                        onClick={() => {
-                          const genderSelect = document.getElementById('gender');
-                          if (genderSelect) {
-                            genderSelect.focus();
-                          }
-                        }}
-                      >
+                      <div className="w-[49%] pb-2">
                         <div className="flex items-center gap-2 mb-2">
                           <label htmlFor="gender" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         Gender {<span style={{ color: 'red' }}>*</span>}
@@ -787,20 +794,21 @@ const LandingPage = () => {
                               e.preventDefault();
                               handleTooltipClick('gender');
                             }}
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('gender');
+                            }}
                           >
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'gender' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'gender' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
                               Select the gender. This field only appears when creating profile for Self or Friend.
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
@@ -826,15 +834,7 @@ const LandingPage = () => {
                     )}
 
                     {/* Date of Birth Field */}
-                    <div 
-                      className={`${(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') ? 'w-[49%]' : 'w-[100%]'} pb-1 cursor-pointer`}
-                      onClick={() => {
-                        const dateInput = document.getElementById('date_of_birth');
-                        if (dateInput) {
-                          dateInput.focus();
-                        }
-                      }}
-                    >
+                    <div className={`${(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') ? 'w-[49%]' : 'w-[100%]'} pb-1`}>
                       <div className="flex items-center gap-2 mb-2">
                         <label htmlFor="date_of_birth" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         Date of Birth {<span style={{ color: 'red' }}>*</span>}
@@ -846,20 +846,21 @@ const LandingPage = () => {
                             e.preventDefault();
                             handleTooltipClick('date_of_birth');
                           }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('date_of_birth');
+                          }}
                         >
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'date_of_birth' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'date_of_birth' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
                             Select your date of birth. Age limit: Male (18+), Female (21+). Format: DD-MM-YYYY
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
@@ -885,15 +886,7 @@ const LandingPage = () => {
                     {/* Email/Phone Field */}
                     <div className="w-[100%] pb-1">
                       {/* Email Input */}
-                      <div 
-                        className="mb-4 cursor-pointer"
-                        onClick={() => {
-                          const emailInput = document.getElementById('email');
-                          if (emailInput) {
-                            emailInput.focus();
-                          }
-                        }}
-                      >
+                      <div className="mb-4">
                         <div className="flex items-center gap-2 mb-2">
                           <label htmlFor="email" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                           Email {<span style={{ color: 'red' }}>*</span>}
@@ -905,20 +898,21 @@ const LandingPage = () => {
                               e.preventDefault();
                               handleTooltipClick('email');
                             }}
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('email');
+                            }}
                           >
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'email' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'email' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
                               Enter a valid email address. This will be used for account verification and communication.
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
@@ -943,38 +937,33 @@ const LandingPage = () => {
                       </div>
 
                       {/* Phone Input */}
-                      <div 
-                        className="cursor-pointer"
-                        onClick={() => {
-                          const phoneInput = document.getElementById('mobile_no');
-                          if (phoneInput) {
-                            phoneInput.focus();
-                          }
-                        }}
-                      >
+                      <div>
                         <div className="flex items-center gap-2 mb-2">
                           <label htmlFor="mobile_no" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                           Phone {<span style={{ color: 'red' }}>*</span>}
                         </label>
-                          <div className="group relative tooltip-container">
+                          <div 
+                            className="group relative tooltip-container"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('mobile_no');
+                            }}
+                            onTouchStart={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleTooltipClick('mobile_no');
+                            }}
+                          >
                             <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                               fill="none" 
                               stroke="currentColor" 
                               viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                handleTooltipClick('mobile_no');
-                              }}
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
                             >
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'mobile_no' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
+                            <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'mobile_no' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '180px', wordWrap: 'break-word' }}>
                               Enter your 10-digit phone number. This will be used for OTP verification.
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
@@ -1020,15 +1009,7 @@ const LandingPage = () => {
                       </div>
                     </div>
                     {/* Password Field */}
-                    <div 
-                      className="w-[49%] pb-1 cursor-pointer"
-                      onClick={() => {
-                        const passwordInput = document.getElementById('password');
-                        if (passwordInput) {
-                          passwordInput.focus();
-                        }
-                      }}
-                    >
+                    <div className="w-[49%] pb-1">
                       <div className="flex items-center gap-2 mb-2">
                         <label htmlFor="password" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         Password {<span style={{ color: "red" }}>*</span>}
@@ -1040,20 +1021,21 @@ const LandingPage = () => {
                             e.preventDefault();
                             handleTooltipClick('password');
                           }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('password');
+                          }}
                         >
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '220px', wordWrap: 'break-word' }}>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'password' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '220px', wordWrap: 'break-word' }}>
                             Password must be at least 6 characters with 1 uppercase letter, 1 number, and 1 special character.
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
@@ -1094,15 +1076,7 @@ const LandingPage = () => {
                     </div>
 
                     {/* Confirm Password Field */}
-                    <div 
-                      className="w-[49%] pb-1 cursor-pointer"
-                      onClick={() => {
-                        const confirmPasswordInput = document.getElementById('conform_password');
-                        if (confirmPasswordInput) {
-                          confirmPasswordInput.focus();
-                        }
-                      }}
-                    >
+                    <div className="w-[49%] pb-1">
                       <div className="flex items-center gap-2 mb-2">
                         <label htmlFor="conform_password" className="text-sm font-medium text-[#6D6E6F] cursor-pointer">
                         Confirm Password {<span style={{ color: 'red' }}>*</span>}
@@ -1114,20 +1088,21 @@ const LandingPage = () => {
                             e.preventDefault();
                             handleTooltipClick('conform_password');
                           }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleTooltipClick('conform_password');
+                          }}
                         >
                           <svg 
-                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors duration-200" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                            }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 z-50 shadow-lg ${showTooltip === 'conform_password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-all duration-300 z-[9999] shadow-lg pointer-events-none ${showTooltip === 'conform_password' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'}`} style={{ width: '200px', wordWrap: 'break-word' }}>
                             Re-enter your password to confirm. Must match the password above exactly.
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
@@ -1336,7 +1311,7 @@ const LandingPage = () => {
 
 
         {/* Package and Pricing Section */}
-        <section className="container mx-auto pt-44 pb-24 px-6 bg-[#ffffff] relative">
+        <section id="packages" className="container mx-auto pt-44 pb-24 px-6 bg-[#ffffff] relative">
           {/* Section Title */}
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text pb-2 leading-tight">
@@ -1376,7 +1351,7 @@ const LandingPage = () => {
         </section>
 
         {/* How it works Section */}
-        <section className="container m-auto py-44 px-6 bg-[#ffffff]">
+        <section id="how-it-works" className="container m-auto py-44 px-6 bg-[#ffffff]">
           {/* Section Title */}
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
@@ -1655,7 +1630,7 @@ const LandingPage = () => {
 
 
         {/* Updated Bento Grid Section */}
-        <section className="py-4 bg-white">
+        <section id="premium-members" className="py-4 bg-white">
           <div className="container mx-auto px-6">
             <h2 className="text-center text-5xl font-bold my-20 leading-tight bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
               Why Choose Us?
@@ -1712,7 +1687,7 @@ const LandingPage = () => {
         </section>
 
         {/* Testimonial Section */}
-        <section className="relative bg-white py-40 px-6">
+        <section id="reviews" className="relative bg-white py-40 px-6">
           <div className="container mx-auto">
             {/* Section Title */}
             <div className="text-center mb-12">
@@ -2533,9 +2508,9 @@ const LandingPage = () => {
             <h3 className="text-xl font-semibold text-gray-600 mt-2 ">
               Available for iOS and Android
             </h3>
-            <p className="text-5xl font-semibold mt-6 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text leading-tight">
+            {/* <p className="text-5xl font-semibold mt-6 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text leading-tight">
               Coming Soon
-            </p>
+            </p> */}
 
             {/* Badges for iOS and PlayStore */}
             <div className="flex justify-center lg:justify-start gap-4 mt-8"></div>
@@ -2555,82 +2530,160 @@ const LandingPage = () => {
         </section>
 
         {/* FAQs */}
-        <section className="py-12 bg-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[#6D6E6F]">
-              FAQs
+        <section id="faqs" className="py-20 bg-gradient-to-br from-[#FFF5FB] to-[#F8F9FA]">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-4">
+                Frequently Asked Questions
             </h2>
+              <p className="text-lg text-[#6D6E6F] max-w-2xl mx-auto">
+                Get answers to common questions about MehramMatch and how our platform works.
+              </p>
+            </div>
 
-            <div className="space-y-4 max-w-3xl mx-auto">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid gap-6">
               {/* FAQ 1 */}
-              <details className="bg-[#FFF5FB] border border-[##898B92] rounded-md p-4 transition-all duration-300 ease-in-out text-left shadow-lg">
-                <summary className="font-semibold text-[#6D6E6F] cursor-pointer hover:text-[#EC80BC] focus:outline-none transition duration-300 ease-in-out">
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-[#2D3748] mb-4">
                   What is MehramMatch?
-                </summary>
-                <p className="mt-2 text-left text-[#EC80BC]">
+                        </h3>
+                        <p className="text-[#6D6E6F] leading-relaxed">
                   MehramMatch is a SaaS platform designed to help individuals
                   and families find the right match for Nikah. It combines
                   advanced matchmaking algorithms, robust security features, and
                   a user-friendly interface to ensure a seamless and halal
                   experience.
                 </p>
-              </details>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">Q</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
               {/* FAQ 2 */}
-              <details className="bg-[#FFF5FB] border border-[##898B92] rounded-md p-4 transition-all duration-300 ease-in-out text-left shadow-lg">
-                <summary className="font-semibold text-[#6D6E6F] cursor-pointer hover:text-[#EC80BC] focus:outline-none transition duration-300 ease-in-out">
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-[#2D3748] mb-4">
                   How does MehramMatch work?
-                </summary>
-                <p className="mt-2 text-left text-[#EC80BC]">
+                        </h3>
+                        <p className="text-[#6D6E6F] leading-relaxed">
                   MehramMatch uses advanced algorithms to match profiles based
                   on compatibility, values, and preferences. Users can register,
                   complete their profiles, and explore potential matches while
                   maintaining privacy and cultural values.
                 </p>
-              </details>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">Q</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
               {/* FAQ 3 */}
-              <details className="bg-[#FFF5FB] border border-[##898B92] rounded-md p-4 transition-all duration-300 ease-in-out text-left shadow-lg">
-                <summary className="font-semibold text-[#6D6E6F] cursor-pointer hover:text-[#EC80BC] focus:outline-none transition duration-300 ease-in-out">
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-[#2D3748] mb-4">
                   Is MehramMatch secure?
-                </summary>
-                <p className="mt-2 text-left text-[#EC80BC]">
+                        </h3>
+                        <p className="text-[#6D6E6F] leading-relaxed">
                   Yes, security and privacy are our top priorities. MehramMatch
                   uses encrypted data, secure authentication, and profile
                   verification to ensure a safe platform for all users.
                 </p>
-              </details>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">Q</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
               {/* FAQ 4 */}
-              <details className="bg-[#FFF5FB] border border-[##898B92] rounded-md p-4 transition-all duration-300 ease-in-out text-left shadow-lg">
-                <summary className="font-semibold text-[#6D6E6F] cursor-pointer hover:text-[#EC80BC] focus:outline-none transition duration-300 ease-in-out">
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-[#2D3748] mb-4">
                   What makes MehramMatch unique?
-                </summary>
-                <p className="mt-2 text-left text-[#EC80BC]">
+                        </h3>
+                        <p className="text-[#6D6E6F] leading-relaxed">
                   MehramMatch is a SaaS-based solution specifically designed
                   with Islamic principles in mind. It seamlessly combines
                   technology with tradition to offer a modern approach to
                   finding compatible matches while adhering to halal standards.
                 </p>
-              </details>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">Q</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              {/* FAQ 4 */}
-              <details className="bg-[#FFF5FB] border border-[##898B92] rounded-md p-4 transition-all duration-300 ease-in-out text-left shadow-lg">
-                <summary className="font-semibold text-[#6D6E6F] cursor-pointer hover:text-[#EC80BC] focus:outline-none transition duration-300 ease-in-out">
+                {/* FAQ 5 */}
+                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-[#2D3748] mb-4">
                   Can I use MehramMatch on mobile devices?
-                </summary>
-                <p className="mt-2 text-left text-[#EC80BC]">
+                        </h3>
+                        <p className="text-[#6D6E6F] leading-relaxed">
                   As a SaaS platform, MehramMatch is accessible on desktops and
                   tablets. We are excited to announce that our mobile app is
                   launching soon, allowing users to enjoy a seamless experience
                   on their mobile devices in the near future.
                 </p>
-              </details>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">Q</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact CTA */}
+              <div className="mt-16 text-center">
+                <div className="bg-[#FED5EC] rounded-2xl p-8 text-[#333]">
+                  <h3 className="text-2xl font-bold mb-4 text-[#d63384]">Still have questions?</h3>
+                  <p className="text-lg mb-6 text-[#6D6E6F]">
+                    Our support team is here to help you with any questions you might have.
+                  </p>
+                  <a 
+                    href="mailto:contact@mehrammatch.com"
+                    className="inline-block bg-[#d63384] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#CB3B8B] transition-colors duration-300"
+                  >
+                    Contact Us
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <Footerer />
+        <Footer />
 
       </div>
     </>

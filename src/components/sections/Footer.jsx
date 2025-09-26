@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaMapMarkerAlt, FaEnvelope, FaGlobe, FaPhone, FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -6,10 +6,63 @@ import "./Footerr.css"; // Custom CSS for additional styling
 import footerLogo from "../../images/footerLogo.png"
 import andlogo from "../../images/andlogo.png"
 import applogo from "../../images/applogo.png"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 const Footer = () => {
+    const navigate = useNavigate();
+
+    // Debug function to test sections
+    const testSections = () => {
+        const sections = ['how-it-works', 'packages', 'reviews', 'premium-members'];
+        sections.forEach(sectionId => {
+            const element = document.getElementById(sectionId);
+            console.log(`Section ${sectionId}:`, element);
+        });
+    };
+
+    // Test sections on component mount
+    useEffect(() => {
+        testSections();
+    }, []);
+
+    const handleSectionClick = (sectionId) => {
+        console.log('Clicking on section:', sectionId);
+        
+        // Check if we're on the landing page
+        if (window.location.pathname === '/') {
+            // If on landing page, scroll to section directly
+            const element = document.getElementById(sectionId);
+            console.log('Element found:', element);
+            if (element) {
+                // Update URL hash
+                window.location.hash = sectionId;
+                // Scroll to element with multiple methods for better compatibility
+                try {
+                    element.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } catch (error) {
+                    // Fallback method
+                    const elementTop = element.offsetTop;
+                    window.scrollTo({
+                        top: elementTop - 100, // Offset for better visibility
+                        behavior: 'smooth'
+                    });
+                }
+            } else {
+                console.log('Element not found for ID:', sectionId);
+                // Try to find element with different methods
+                const elementByQuery = document.querySelector(`#${sectionId}`);
+                console.log('Element by query selector:', elementByQuery);
+            }
+        } else {
+            // If not on landing page, navigate to landing page with hash
+            navigate(`/#${sectionId}`);
+        }
+    };
+
     return (
         <footer className="footer text-light">
             <Container>
@@ -58,21 +111,18 @@ const Footer = () => {
                             <h5>MAIN MENU</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
-                                <li>Home</li>
-                                <li>How It Works</li>
-                                <li>Premium Members</li>
-                                <li>Packages</li>
-                                <li>Real Reviews</li>
+                                <li><Link to="/" className="footer-link-no-underline">Home</Link></li>
+                                <li><span onClick={() => handleSectionClick('how-it-works')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>How It Works</span></li>
+                                <li><span onClick={() => handleSectionClick('premium-members')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Premium Members</span></li>
+                                <li><span onClick={() => handleSectionClick('packages')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Packages</span></li>
+                                <li><span onClick={() => handleSectionClick('reviews')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Real Reviews</span></li>
                             </ul>
                         </Col>
                         <Col md={3} className="footer-section">
                             <h5>Contact Details</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
-                                <li>Address: 1329 40th St Apt A Orlando, FL</li>
-                                <li>Website: www.mehrammatch.com</li>
-                                <li>Email: support@mehrammatch.com</li>
-                                <li>Phone: +01-321-200-6932, +01-321-200-6933</li>
+                                <li>Email: contact@mehrammatch.com</li>
                             </ul>
                         </Col>
                         <Col md={3} className="footer-section">
@@ -80,7 +130,7 @@ const Footer = () => {
   <div className="footer-heading-linee"></div>
   <ul className="footer-links-list">
     <li className="footer-link-item">
-      <Link to="/faq" className="footer-link-no-underline">FAQ</Link>
+      <span onClick={() => handleSectionClick('faqs')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>FAQ</span>
     </li>
     <li className="footer-link-item">
       <Link to="/terms-conditions" className="footer-link-no-underline">Terms & Conditions</Link>
@@ -88,9 +138,9 @@ const Footer = () => {
     <li className="footer-link-item">
       <Link to="/privacy-policy" className="footer-link-no-underline">Privacy Policy</Link>
     </li>
-    <li className="footer-link-item">
+    {/* <li className="footer-link-item">
       <Link to="/refund-request" className="footer-link-no-underline">Request a Refund</Link>
-    </li>
+    </li> */}
   </ul>
 </Col>
                         <Col md={3} className="footer-section">
@@ -110,7 +160,14 @@ const Footer = () => {
                         <div className="social-icons">
                             <FaFacebook className="social-icon facebook" />
                             <FaTwitter className="social-icon twitter" />
-                            <FaInstagram className="social-icon instagram" />
+                            <a
+  href="https://www.instagram.com/mehrammatch?igsh=MWpxMXh6eWRlZ3hxMw=="
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <FaInstagram className="social-icon instagram" />
+</a>
+
                             <FaYoutube className="social-icon youtube" />
                             <FaLinkedin className="social-icon linkedin" />
                         </div>

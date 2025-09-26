@@ -11,10 +11,144 @@ const MemStepFour = () => {
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [showTooltip, setShowTooltip] = useState(null);
+  const [showSkipPopup, setShowSkipPopup] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState("");
   
   userId = localStorage.getItem("member_id") || userId;
+
+  // Surname options from Flutter app
+  const surnameOptions = [
+    { value: "Al-Haqq", label: "Al-Haqq" },
+    { value: "Al-Hakim", label: "Al-Hakim" },
+    { value: "Al-Khalifa", label: "Al-Khalifa" },
+    { value: "Al-Mahdi", label: "Al-Mahdi" },
+    { value: "Al-Mansoor", label: "Al-Mansoor" },
+    { value: "Al-Muqaddam", label: "Al-Muqaddam" },
+    { value: "Al-Nasser", label: "Al-Nasser" },
+    { value: "Al-Sabah", label: "Al-Sabah" },
+    { value: "Al-Siddiq", label: "Al-Siddiq" },
+    { value: "Al-Sham", label: "Al-Sham" },
+    { value: "Al-Sharif", label: "Al-Sharif" },
+    { value: "Al-Tariq", label: "Al-Tariq" },
+    { value: "Ahmed", label: "Ahmed" },
+    { value: "Ahamadi", label: "Ahamadi" },
+    { value: "Azzam", label: "Azzam" },
+    { value: "Ansari", label: "Ansari" },
+    { value: "Asghar", label: "Asghar" },
+    { value: "Aslami", label: "Aslami" },
+    { value: "Awan", label: "Awan" },
+    { value: "Baghdadi", label: "Baghdadi" },
+    { value: "Bakhshi", label: "Bakhshi" },
+    { value: "Bedi", label: "Bedi" },
+    { value: "Bashir", label: "Bashir" },
+    { value: "Barakat", label: "Barakat" },
+    { value: "Barqi", label: "Barqi" },
+    { value: "Bukhari", label: "Bukhari" },
+    { value: "Chishti", label: "Chishti" },
+    { value: "Chaudhary", label: "Chaudhary" },
+    { value: "Choudhury", label: "Choudhury" },
+    { value: "Chaudhari", label: "Chaudhari" },
+    { value: "Chowdhary", label: "Chowdhary" },
+    { value: "Chauhan", label: "Chauhan" },
+    { value: "Chaurasiya", label: "Chaurasiya" },
+    { value: "Darvesh", label: "Darvesh" },
+    { value: "Durrani", label: "Durrani" },
+    { value: "Elahi", label: "Elahi" },
+    { value: "Farooqi", label: "Farooqi" },
+    { value: "Fayazi", label: "Fayazi" },
+    { value: "Feroze", label: "Feroze" },
+    { value: "Faiz", label: "Faiz" },
+    { value: "Fadl", label: "Fadl" },
+    { value: "Falah", label: "Falah" },
+    { value: "Ghani", label: "Ghani" },
+    { value: "Gul", label: "Gul" },
+    { value: "Gulzar", label: "Gulzar" },
+    { value: "Ghulam", label: "Ghulam" },
+    { value: "Hashim", label: "Hashim" },
+    { value: "Hashmi", label: "Hashmi" },
+    { value: "Hassan", label: "Hassan" },
+    { value: "Imam", label: "Imam" },
+    { value: "Jafari", label: "Jafari" },
+    { value: "Jameel", label: "Jameel" },
+    { value: "Jilani", label: "Jilani" },
+    { value: "Jazairi", label: "Jazairi" },
+    { value: "Javed", label: "Javed" },
+    { value: "Kadir", label: "Kadir" },
+    { value: "Kamal", label: "Kamal" },
+    { value: "Kamar", label: "Kamar" },
+    { value: "Kashani", label: "Kashani" },
+    { value: "Kazi", label: "Kazi" },
+    { value: "Khan", label: "Khan" },
+    { value: "Kirmani", label: "Kirmani" },
+    { value: "Khattak", label: "Khattak" },
+    { value: "Kabbani", label: "Kabbani" },
+    { value: "Madhani", label: "Madhani" },
+    { value: "Madani", label: "Madani" },
+    { value: "Malik", label: "Malik" },
+    { value: "Maalik", label: "Maalik" },
+    { value: "Malick", label: "Malick" },
+    { value: "Maulana", label: "Maulana" },
+    { value: "Maani", label: "Maani" },
+    { value: "Mehdi", label: "Mehdi" },
+    { value: "Mir", label: "Mir" },
+    { value: "Mirza", label: "Mirza" },
+    { value: "Mansoor", label: "Mansoor" },
+    { value: "Mandi", label: "Mandi" },
+    { value: "Mowla", label: "Mowla" },
+    { value: "Nazir", label: "Nazir" },
+    { value: "Najmi", label: "Najmi" },
+    { value: "Niazi", label: "Niazi" },
+    { value: "Nawab", label: "Nawab" },
+    { value: "Noori", label: "Noori" },
+    { value: "Osman", label: "Osman" },
+    { value: "Othman", label: "Othman" },
+    { value: "Qadri", label: "Qadri" },
+    { value: "Qamar", label: "Qamar" },
+    { value: "Qazi", label: "Qazi" },
+    { value: "Qutub", label: "Qutub" },
+    { value: "Rauf", label: "Rauf" },
+    { value: "Rehman", label: "Rehman" },
+    { value: "Rizvi", label: "Rizvi" },
+    { value: "Raza", label: "Raza" },
+    { value: "Sabri", label: "Sabri" },
+    { value: "Shaikh", label: "Shaikh" },
+    { value: "Sheikh", label: "Sheikh" },
+    { value: "Shams", label: "Shams" },
+    { value: "Shamsi", label: "Shamsi" },
+    { value: "Shah", label: "Shah" },
+    { value: "Shahi", label: "Shahi" },
+    { value: "Shakir", label: "Shakir" },
+    { value: "Shazad", label: "Shazad" },
+    { value: "Siddiq", label: "Siddiq" },
+    { value: "Siddiqi", label: "Siddiqi" },
+    { value: "Siddiqui", label: "Siddiqui" },
+    { value: "Sulaiman", label: "Sulaiman" },
+    { value: "Sulaimani", label: "Sulaimani" },
+    { value: "Sufi", label: "Sufi" },
+    { value: "Syed", label: "Syed" },
+    { value: "Sayed", label: "Sayed" },
+    { value: "Sayyed", label: "Sayyed" },
+    { value: "Saiyed", label: "Saiyed" },
+    { value: "Taj", label: "Taj" },
+    { value: "Tanashah", label: "Tanashah" },
+    { value: "Thakur", label: "Thakur" },
+    { value: "Tayyab", label: "Tayyab" },
+    { value: "Tayyari", label: "Tayyari" },
+    { value: "Tirmizi", label: "Tirmizi" },
+    { value: "Uddin", label: "Uddin" },
+    { value: "Usmani", label: "Usmani" },
+    { value: "Wahid", label: "Wahid" },
+    { value: "Wali", label: "Wali" },
+    { value: "Yassin", label: "Yassin" },
+    { value: "Zaidi", label: "Zaidi" },
+    { value: "Zaki", label: "Zaki" },
+    { value: "Other", label: "Other" },
+    { value: "Not Applicable", label: "Not Applicable" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
+    { value: "Surname does not matter.", label: "Surname does not matter." }
+  ];
+
   const [profileData, setProfileData] = useState({
     preferred_surname: "",
     preferred_dargah_fatiha_niyah: [],
@@ -104,74 +238,41 @@ const MemStepFour = () => {
   }, [showTooltip]);
 
   const validateForm = () => {
-    const newErrors = {};
+    // Check if any field is filled
+    const hasAnyFieldFilled = 
+      profileData.preferred_surname?.trim() ||
+      profileData.preferred_sect?.trim() ||
+      (profileData.preferred_dargah_fatiha_niyah && profileData.preferred_dargah_fatiha_niyah.length > 0) ||
+      profileData.desired_practicing_level?.trim() ||
+      profileData.preferred_family_type?.trim() ||
+      profileData.preferred_family_background?.trim() ||
+      profileData.preferred_education?.trim() ||
+      profileData.preferred_occupation_profession?.trim() ||
+      profileData.preferred_country?.trim() ||
+      profileData.preferred_state?.trim() ||
+      profileData.preferred_city?.trim();
 
-    // Field order for scrolling (top to bottom)
-    const fieldOrder = [
-      'preferred_sect', 'preferred_dargah_fatiha_niyah', 'desired_practicing_level', 'preferred_family_type',
-      'preferred_country', 'preferred_state', 'preferred_city'
-    ];
-
-    // Validate Preferred Sect
-    if (!profileData.preferred_sect?.trim()) {
-      newErrors.preferred_sect = "Preferred sect is required";
+    // If no field is filled, show skip popup
+    if (!hasAnyFieldFilled) {
+      setShowSkipPopup(true);
+      return false;
     }
 
-    // Validate Dargah/Fatiha/Niyah
-    if (!profileData.preferred_dargah_fatiha_niyah || profileData.preferred_dargah_fatiha_niyah.length === 0) {
-      newErrors.preferred_dargah_fatiha_niyah = "Please select at least one option for Dargah/Fatiha/Niyah";
-    }
-
-    // Validate Desired Practicing Level
-    if (!profileData.desired_practicing_level) {
-      newErrors.desired_practicing_level = "Desired practicing level is required";
-    }
-
-    // Validate Preferred Family Type
-    if (!profileData.preferred_family_type) {
-      newErrors.preferred_family_type = "Preferred family type is required";
-    }
-
-    // Validate Preferred Country
-    if (!profileData.preferred_country) {
-      newErrors.preferred_country = "Preferred country is required";
-    }
-
-    // Validate Preferred State
-    if (!profileData.preferred_state) {
-      newErrors.preferred_state = "Preferred state is required";
-    }
-
-    // Validate Preferred City
-    if (!profileData.preferred_city) {
-      newErrors.preferred_city = "Preferred city is required";
-    }
-
-    setFormErrors(newErrors);
-
-    // If there are errors, scroll to the first error field
-    if (Object.keys(newErrors).length > 0) {
-      const firstErrorField = fieldOrder.find(field => newErrors[field]);
-      if (firstErrorField) {
-        setTimeout(() => {
-          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
-                         document.querySelector(`input[name="${firstErrorField}"]`) ||
-                         document.querySelector(`select[name="${firstErrorField}"]`) ||
-                         document.querySelector(`textarea[name="${firstErrorField}"]`);
-          
-          if (element) {
-            element.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
-            element.focus();
-          }
-        }, 100);
-      }
-    }
-
-    return Object.keys(newErrors).length === 0;
+    // If at least one field is filled, proceed without validation
+    setFormErrors({});
+    return true;
   };
+
+  const handleSkipConfirm = () => {
+    setShowSkipPopup(false);
+    // Navigate to next step without saving any data
+    navigate(`/memstepfive`);
+  };
+
+  const handleSkipCancel = () => {
+    setShowSkipPopup(false);
+  };
+
   const naviagteNextStep = () => {
     const parameters = {
       url: `/api/user/${userId}`,
@@ -233,6 +334,7 @@ const MemStepFour = () => {
       });
     }
   };
+
 
   const handleMultiSelectChange = (field, value) => {
     setProfileData((prevState) => {
@@ -1138,12 +1240,10 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <input
-                          type="text"
+                        <Dropdown
+                          options={surnameOptions}
                           name="preferred_surname"
-                          value={profileData.preferred_surname || ""}
-                          placeholder="Enter preferred surname"
-                          className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium"
+                          value={profileData.preferred_surname}
                           onChange={(e) => updateField("preferred_surname", e.target.value)}
                         />
                 </div>
@@ -1151,7 +1251,7 @@ const MemStepFour = () => {
                       {/* Preferred Sect */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>Preferred Sect <span className="text-red-500">*</span></span>
+                          <span>Preferred Sect</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1187,7 +1287,7 @@ const MemStepFour = () => {
                       {/* Believe in Dargah/Fatiha/Niyah */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>Believe in Dargah/Fatiha/Niyah? <span className="text-red-500">*</span></span>
+                          <span>Believe in Dargah/Fatiha/Niyah?</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1219,7 +1319,7 @@ const MemStepFour = () => {
                       {/* Desired Practicing Level */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>Desired Practicing Level <span className="text-red-500">*</span></span>
+                          <span>Desired Practicing Level</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1255,7 +1355,7 @@ const MemStepFour = () => {
                       {/* Preferred Family Type */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>Preferred Family Type <span className="text-red-500">*</span></span>
+                          <span>Preferred Family Type</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1365,7 +1465,7 @@ const MemStepFour = () => {
                       {/* Country */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>Country <span className="text-red-500">*</span></span>
+                          <span>Country</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1399,7 +1499,7 @@ const MemStepFour = () => {
                       {/* State */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>State <span className="text-red-500">*</span></span>
+                          <span>State</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1433,7 +1533,7 @@ const MemStepFour = () => {
                       {/* City */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          <span>City <span className="text-red-500">*</span></span>
+                          <span>City</span>
                           <div className="group relative tooltip-container">
                             <svg 
                               className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1521,7 +1621,12 @@ const MemStepFour = () => {
                       </svg>
                       <span className="text-sm sm:text-base">Back</span>
                 </button>
-                    
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span className="text-pink-600 font-semibold">4</span>
+                  </div>
+                  <span>of 6 steps</span>
+                </div>
                     {/* Next Step Button */}
                 <button
                   onClick={naviagteNextStep}
@@ -1543,6 +1648,41 @@ const MemStepFour = () => {
           </div>
         </div>
       </div>
+
+      {/* Skip Popup */}
+      {showSkipPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+                <svg className="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Skip Preferences?
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                You haven't filled any preferences. You can skip this step and continue, or go back to fill your preferences for better matches.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleSkipCancel}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={handleSkipConfirm}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] rounded-lg hover:from-[#F971BC] hover:to-[#DA73AD] focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200"
+                >
+                  Skip & Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

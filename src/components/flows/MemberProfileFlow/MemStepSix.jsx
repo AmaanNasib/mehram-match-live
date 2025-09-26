@@ -28,6 +28,7 @@ const MemStepSix = () => {
   const [isPartnerExpectationAccordionOpen, setIsPartnerExpectationAccordionOpen] = useState(false);
   const [isPrivacyAccordionOpen, setIsPrivacyAccordionOpen] = useState(false);
   const [isAdditionalInfoOpen, setIsAdditionalInfoOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [imagedata, setImagedateset] = useState([]);
   const [lastSegment, setLastSegment] = useState("");
   const [profileData, setProfileData] = useState({});
@@ -161,6 +162,12 @@ const MemStepSix = () => {
   };
 
   const naviagteNextStep = () => {
+    // Check if terms are accepted
+    if (!termsAccepted) {
+      alert("Please accept the Terms and Conditions to continue.");
+      return;
+    }
+    
     // Navigate to dashboard or success page
     navigate(`/newdashboard`);
   };
@@ -1083,8 +1090,102 @@ const MemStepSix = () => {
                     </div>
                   </div>
               )}
+
+                    
                     </div>
                   </div>
+                  {/* Terms and Conditions Section */}
+                  <div className="bg-white border border-gray-200 rounded-xl shadow-sm mb-6">
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Terms and Conditions</h3>
+                        
+                        <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-200">
+                          <div className="text-sm text-gray-700 leading-relaxed">
+                            <div className="text-center mb-4">
+                              <h4 className="text-base font-semibold text-gray-800 mb-2">Mehram Match – Terms and Conditions</h4>
+                              <div className="w-full h-px bg-gray-300"></div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <p><strong>1. Acceptance of Terms</strong><br/>
+                              By accessing or using Mehram Match, you agree to be legally bound by these Terms and Conditions and our Privacy Policy. If you do not agree, please do not use our services.</p>
+
+                              <p><strong>2. Eligibility</strong><br/>
+                              • You must be at least 18 years old to register.<br/>
+                              • Mehram Match is intended for Muslim individuals seeking matrimonial alliances.<br/>
+                              • Users must provide accurate, truthful, and complete information during registration.</p>
+
+                              <p><strong>3. User Conduct</strong><br/>
+                              • You agree to use the platform in a respectful and honest manner.<br/>
+                              • Harassment, discrimination, hate speech, or any offensive behavior is strictly prohibited.<br/>
+                              • No content or behavior that violates Islamic ethics or the laws of your country is allowed.<br/>
+                              • Users should avoid sharing explicit, misleading, or fraudulent information.</p>
+
+                              <p><strong>4. Profile Information</strong><br/>
+                              • Users are responsible for maintaining the accuracy of their profile information.<br/>
+                              • Mehram Match does not verify the authenticity of user profiles but reserves the right to suspend or remove any profiles found to be fraudulent or inappropriate.</p>
+
+                              <p><strong>5. Privacy</strong><br/>
+                              • Mehram Match respects your privacy and handles your personal data in accordance with our Privacy Policy.<br/>
+                              • Personal details shared on the platform should be treated with confidentiality by all users.</p>
+
+                              <p><strong>6. Use of Services</strong><br/>
+                              • Mehram Match provides a platform to connect Muslim singles but does not guarantee any marriage or relationship outcomes.<br/>
+                              • Users are responsible for their own interactions, meetings, and decisions.<br/>
+                              • The platform is not responsible for any disputes, damages, or losses arising from user interactions.</p>
+
+                              <p><strong>7. Prohibited Activities</strong><br/>
+                              • Use of Mehram Match for commercial, advertising, or solicitation purposes is forbidden.<br/>
+                              • Creating fake profiles or impersonating others is strictly prohibited.<br/>
+                              • Sharing offensive, defamatory, or illegal content is forbidden.</p>
+
+                              <p><strong>8. Termination and Suspension</strong><br/>
+                              • Mehram Match reserves the right to suspend or terminate accounts at its sole discretion for violating these terms or engaging in inappropriate conduct.<br/>
+                              • Users can deactivate their accounts at any time.</p>
+
+                              <p><strong>9. Intellectual Property</strong><br/>
+                              • All content on Mehram Match, including logos, design, and text, is owned by Mehram Match or its licensors.<br/>
+                              • Users may not copy, reproduce, or distribute content without permission.</p>
+
+                              <p><strong>10. Disclaimer and Limitation of Liability</strong><br/>
+                              • Mehram Match is provided "as is" without warranties of any kind.<br/>
+                              • The platform does not guarantee the accuracy, completeness, or reliability of user-generated content.<br/>
+                              • Mehram Match is not liable for any direct or indirect damages resulting from the use of the site or interactions with other users.</p>
+
+                              <p><strong>11. Changes to Terms</strong><br/>
+                              Mehram Match reserves the right to modify these Terms and Conditions at any time. Users will be notified of significant changes, and continued use after updates constitutes acceptance.</p>
+
+                              <p><strong>12. Governing Law</strong><br/>
+                              These Terms and Conditions shall be governed by and construed in accordance with the laws of India</p>
+
+                              <p><strong>13. Contact Us</strong><br/>
+                              For questions or concerns about these Terms, please contact us at:<br/>
+                              Email: <br/>
+                              Address: </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Accept Button */}
+                        <div className="mt-4">
+                          <label className="flex items-center space-x-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={termsAccepted}
+                              onChange={(e) => setTermsAccepted(e.target.checked)}
+                              className="w-4 h-4 text-[#FF59B6] bg-gray-100 border-gray-300 rounded focus:ring-[#FF59B6] focus:ring-2"
+                            />
+                            <span className="text-sm text-gray-700 font-medium">
+                              I accept the Terms and Conditions
+                              <span className="text-red-500 ml-1">*</span>
+                            </span>
+                          </label>
+                          {!termsAccepted && (
+                            <p className="text-red-500 text-xs mt-2">You must accept the Terms and Conditions to continue.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
                   {/* Navigation Buttons */}
                   <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-200">

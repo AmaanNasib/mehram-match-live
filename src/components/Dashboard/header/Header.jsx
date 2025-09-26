@@ -14,6 +14,7 @@ import men from "../../../images/men4.jpg";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   fetchDataObjectV2,
+  fetchDataV2,
   fetchDataWithTokenV2,
   ReturnPutResponseFormdataWithoutToken,
 } from "../../../apiUtils";
@@ -161,7 +162,7 @@ const NotificationDropdown = () => {
   );
 };
 
-const Header = ({ subNavActive, apiData, members }) => {
+const Header = ({ subNavActive, apiData: propApiData, members }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
@@ -170,9 +171,9 @@ const Header = ({ subNavActive, apiData, members }) => {
   const notificationsRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const [setApiData] = useState({});
-  const [useLoading, setLoading] = useState({});
-  const [useError, setErrors] = useState({});
+  const [apiData, setApiData] = useState(propApiData || {});
+  const [loading, setLoading] = useState(false);
+  const [error, setErrors] = useState("");
   const [role] = useState(localStorage.getItem("role"));
 
   // Toggle Dropdown
@@ -206,6 +207,33 @@ const Header = ({ subNavActive, apiData, members }) => {
       setLoading: setLoading,
     };
     fetchDataWithTokenV2(parameter8);
+
+    // Fetch user profile photo separately
+    const parameterPhoto = {
+      url: `/api/user_profilephoto/?user_id=${userId}`,
+      setterFunction: (data) => {
+        console.log("Profile photo data:", data);
+        console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
+        if (Array.isArray(data) && data.length > 0) {
+          console.log("Setting user_profilephoto:", data[data.length - 1]);
+          setApiData(prev => ({
+            ...prev,
+            user_profilephoto: data[data.length - 1] // Get the latest photo
+          }));
+        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+          console.log("Setting user_profilephoto (object):", data);
+          setApiData(prev => ({
+            ...prev,
+            user_profilephoto: data
+          }));
+        } else {
+          console.log("No photo data found or unexpected format:", data);
+        }
+      },
+      setErrors: setErrors,
+      setLoading: setLoading,
+    };
+    fetchDataV2(parameterPhoto);
 
     const handleClickOutside = (event) => {
       if (
@@ -346,12 +374,12 @@ const Header = ({ subNavActive, apiData, members }) => {
                   </svg>
                   {showNotifications && <NotificationDropdown />}
                 </div>
-                <span
+                {/* <span
                   style={{ fontSize: "1.2rem", cursor: "pointer" }}
                   onClick={() => navigate("/inbox")}
                 >
                   ✉️
-                </span>
+                </span> */}
               </div>
               <div
                 className="user-profile"
@@ -360,15 +388,15 @@ const Header = ({ subNavActive, apiData, members }) => {
                 style={{ position: "relative", cursor: "pointer" }}
               >
                 {console.log("User profile clicked!")}
-                {console.log(
-                  `${"https://mehram-match.onrender.com"}${
-                    apiData?.profile_photo
-                  }`
-                )}
+                {console.log("apiData:", apiData)}
+                {console.log("profile_photo:", apiData?.profile_photo)}
+                {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
+                {console.log("user_profilephoto:", apiData?.user_profilephoto)}
+                {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
                 <img
                   src={
-                    apiData?.profile_photo
-                      ? apiData?.profile_photo.upload_photo
+                    (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
+                      ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
                       : `data:image/svg+xml;utf8,${encodeURIComponent(
                           apiData?.gender === "male"
                             ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
@@ -383,6 +411,7 @@ const Header = ({ subNavActive, apiData, members }) => {
                         )}`
                   }
                   alt="User"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white"
                 />
                 <div className="user_role_info">
                   <span className="username">{apiData?.name}</span>
@@ -619,8 +648,8 @@ const Header = ({ subNavActive, apiData, members }) => {
                 HOME
               </a>
               <a href="/my-memberss" style={{display:role === "individual"? "none ":""}}>MEMBERS</a>
-              <a href="/guidance">GUIDANCE</a>
-              <a href="#">CONTACT US</a>
+              {/* <a href="/guidance">GUIDANCE</a> */}
+              <a href="/contact-us">CONTACT US</a>
             </div>
 
             {/* Mobile Hamburger Button */}
@@ -832,8 +861,8 @@ const Header = ({ subNavActive, apiData, members }) => {
                     <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-lg">
                       <img
                         src={
-                          apiData?.profile_photo
-                            ? apiData?.profile_photo.upload_photo
+                          (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
+                            ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
                             : `data:image/svg+xml;utf8,${encodeURIComponent(
                                 apiData?.gender === "male"
                                   ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
@@ -848,7 +877,7 @@ const Header = ({ subNavActive, apiData, members }) => {
                               )}`
                         }
                         alt="User"
-                        className="w-12 h-12 rounded-full border-2 border-white"
+                        className="w-12 h-12 rounded-full border-2 border-white object-cover"
                       />
                       <div>
                         <p className="font-semibold text-[#CB3B8B]">{apiData?.name}</p>

@@ -2035,7 +2035,12 @@ const MemStepOne = () => {
                     </div>
                   </div>
                 )}
-
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span className="text-pink-600 font-semibold">1</span>
+                  </div>
+                  <span>of 6 steps</span>
+                </div>
                 {/* Submit Button */}
                 <div className="flex justify-end pt-8 border-t border-gray-200">
                 <button

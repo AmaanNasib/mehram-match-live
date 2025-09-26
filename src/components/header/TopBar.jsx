@@ -10,7 +10,7 @@ const TopBar = ({name}) => {
         <div class="user-section">
             <div class="notifications">
                 <span class="notification-icon">🔔</span>
-                <span class="mail-icon">✉️</span>
+                {/* <span class="mail-icon">✉️</span> */}
             </div>
             <div class="user-profile">
                 <img src="https://placehold.co/30x30" alt="Profile" class="profile-pic" />

@@ -88,9 +88,9 @@ const Footer = () => {
     <li className="footer-link-item">
       <Link to="/privacy-policy" className="footer-link-no-underline">Privacy Policy</Link>
     </li>
-    <li className="footer-link-item">
+    {/* <li className="footer-link-item">
       <Link to="/refund-request" className="footer-link-no-underline">Request a Refund</Link>
-    </li>
+    </li> */}
   </ul>
 </Col>
                         <Col md={3} className="footer-section">

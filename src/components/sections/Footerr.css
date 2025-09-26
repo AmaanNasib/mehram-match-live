@@ -90,6 +90,29 @@
   color: #d63384; /* Hover effect */
 }
 
+/* Remove underline and blue color from footer links */
+.footer-link-no-underline {
+  text-decoration: none !important;
+  color: #333 !important;
+  transition: color 0.3s ease;
+}
+
+.footer-link-no-underline:hover {
+  color: #d63384 !important;
+  text-decoration: none !important;
+}
+
+/* Remove default link styling */
+.footer-section a {
+  text-decoration: none !important;
+  color: #333 !important;
+}
+
+.footer-section a:hover {
+  color: #d63384 !important;
+  text-decoration: none !important;
+}
+
 .footer-bottom {
   margin-top: 20px; /* Add margin to ensure space above the footer bottom */
   color: #d63384; /* Keeps headings pink */

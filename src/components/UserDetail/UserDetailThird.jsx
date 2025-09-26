@@ -86,7 +86,7 @@ const UserDetailThird = () => {
                       <img
                         src={
                     profile.profile_photo
-                      ? profile.profile_photo.upload_photo
+                      ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.profile_photo}`
                       : `data:image/svg+xml;utf8,${encodeURIComponent(
                           profile?.gender === "male"
                             ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

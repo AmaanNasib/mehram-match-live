@@ -72,6 +72,7 @@ const NewDashboard = () => {
   const userData = localStorage.getItem("userId");
   const role = localStorage.getItem("role");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showWelcomeSection, setShowWelcomeSection] = useState(false);
   // console.log(activeUser);
 
   const updateLater = () => {
@@ -110,21 +111,36 @@ const NewDashboard = () => {
     setIsModalOpen(false);
   };
 
-  const handPopup = () => {
-    if (activeUser?.update_later === false) {
-      if (
-        activeUser?.profile_started === false ||
-        activeUser?.profile_completed === false
-      ) {
-        setIsModalOpen(true);
-      }
-    }
-  };
+  // Commented out profile incomplete popup logic for now
+  // const handPopup = () => {
+  //   if (activeUser?.update_later === false) {
+  //     if (
+  //       activeUser?.profile_started === false ||
+  //       activeUser?.profile_completed === false
+  //     ) {
+  //       setIsModalOpen(true);
+  //     }
+  //   }
+  // };
   useEffect(() => {
-    handPopup();
+    // handPopup(); // Commented out for now
     localStorage.setItem("gender", activeUser?.gender);
     localStorage.setItem("profile_completed", activeUser?.profile_completed);
   }, [activeUser]);
+
+  // Check if user has seen welcome section before
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem(`welcome_seen_${userId}`);
+    if (!hasSeenWelcome) {
+      setShowWelcomeSection(true);
+    }
+  }, [userId]);
+
+  // Function to hide welcome section permanently
+  const hideWelcomeSection = () => {
+    setShowWelcomeSection(false);
+    localStorage.setItem(`welcome_seen_${userId}`, 'true');
+  };
 
   useEffect(() => {
     const parameter = {
@@ -167,34 +183,35 @@ useEffect(() => {
     };
     fetchDataWithTokenV2(parameter2);
   }, [userId]);
-  useEffect(() => {
-    const handleButtonClick = (event) => {
-      const link = event.target.closest("a");
-      const button = event.target.closest("button");
-      if ((link || button) && !activeUser?.profile_completed) {
-        event.preventDefault();
-        event.stopPropagation();
-        setIsModalOpen(true);
-      }
-    };
-    const navEventContainer = document.querySelector(".nav-event");
-    const dashboardContainer = document.querySelector(".dashboard-container");
+  // Commented out navigation prevention logic for now
+  // useEffect(() => {
+  //   const handleButtonClick = (event) => {
+  //     const link = event.target.closest("a");
+  //     const button = event.target.closest("button");
+  //     if ((link || button) && !activeUser?.profile_completed) {
+  //       event.preventDefault();
+  //       event.stopPropagation();
+  //       setIsModalOpen(true);
+  //     }
+  //   };
+  //   const navEventContainer = document.querySelector(".nav-event");
+  //   const dashboardContainer = document.querySelector(".dashboard-container");
 
-    if (navEventContainer) {
-      navEventContainer?.addEventListener("click", handleButtonClick);
-    }
-    if (dashboardContainer) {
-      dashboardContainer?.addEventListener("click", handleButtonClick);
-    }
-    return () => {
-      if (navEventContainer) {
-        navEventContainer?.removeEventListener("click", handleButtonClick);
-      }
-      if (dashboardContainer) {
-        dashboardContainer?.removeEventListener("click", handleButtonClick);
-      }
-    };
-  }, [activeUser]);
+  //   if (navEventContainer) {
+  //     navEventContainer?.addEventListener("click", handleButtonClick);
+  //   }
+  //   if (dashboardContainer) {
+  //     dashboardContainer?.addEventListener("click", handleButtonClick);
+  //   }
+  //   return () => {
+  //     if (navEventContainer) {
+  //       navEventContainer?.removeEventListener("click", handleButtonClick);
+  //     }
+  //     if (dashboardContainer) {
+  //       dashboardContainer?.removeEventListener("click", handleButtonClick);
+  //     }
+  //   };
+  // }, [activeUser]);
   // Mobile responsive check
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -221,8 +238,8 @@ useEffect(() => {
         subNavActive={"newdashboard"}
       />
       
-      {/* User Profile Completion Modal */}
-      <UserPop
+      {/* User Profile Completion Modal - Commented out for now */}
+      {/* <UserPop
         updateLater={updateLater}
         isOpenWindow={isOpenWindow}
         closeWindow={closeWindow}
@@ -238,7 +255,7 @@ useEffect(() => {
             ? `/agentstepone/${userData}`
             : `/memstepone/`
         }
-      />
+      /> */}
 
       {/* Main Dashboard Container - Desktop Style */}
       <div className="w-full px-4 py-4">
@@ -285,26 +302,40 @@ useEffect(() => {
           {/* Main Content Section - Exact Flutter Homepage Style */}
           <div className="flex-1 space-y-6 min-w-0 w-full">
             
-            {/* Welcome Section - Flutter Homepage Style */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-xl font-bold text-white">
-                      Welcome to Your Dashboard
-                    </h1>
-                    <p className="text-pink-100 text-sm mt-1">
-                      Discover your perfect match with Mehram Match
-                    </p>
-                  </div>
-                  <div className="bg-white/20 rounded-full p-3">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
+            {/* Welcome Section - Flutter Homepage Style - Only show for first time */}
+            {showWelcomeSection && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h1 className="text-xl font-bold text-white">
+                        Welcome to Your Dashboard
+                      </h1>
+                      <p className="text-pink-100 text-sm mt-1">
+                        Discover your perfect match with Mehram Match
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/20 rounded-full p-3">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </div>
+                      {/* Close Button */}
+                      <button
+                        onClick={hideWelcomeSection}
+                        className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors duration-200"
+                        title="Dismiss welcome message"
+                      >
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Content Sections */}
             {role !== "agent" && (
@@ -319,9 +350,7 @@ useEffect(() => {
                         </svg>
                         Trending Profiles
                       </h2>
-                      <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
-                        View All
-                      </button>
+                      
                     </div>
                   </div>
                   <div className="p-6">
@@ -364,9 +393,7 @@ useEffect(() => {
                         </svg>
                         Recommended for You
                       </h2>
-                      <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
-                        View All
-                      </button>
+                   
                     </div>
                   </div>
                   <div className="p-6">
@@ -411,9 +438,7 @@ useEffect(() => {
                     </svg>
                     Browse All Profiles
                   </h2>
-                  <button className="bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/30 transition-colors">
-                    View All
-                  </button>
+                 
                 </div>
               </div>
               <div className="p-6">

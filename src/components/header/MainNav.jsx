@@ -12,8 +12,8 @@ const MainNav = () => {
         <Link to="/newdashboard" className="active">HOME</Link> 
         <Link to="#">Hello</Link>
         {/* <Link to="#">PREMIUM PLANS</Link> */}
-        <Link to="#">GUIDANCE</Link>
-        <Link to="#">CONTACT US</Link>
+        {/* <Link to="/guidance">GUIDANCE</Link> */}
+        <Link to="/contact-us">CONTACT US</Link>
       </div>
     </nav>
   );

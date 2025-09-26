@@ -8,7 +8,7 @@ import LoginPage from "./components/pages/LoginPage/LoginPage";
 import LoginOTP from "./components/pages/LoginPage/LoginOTP.jsx";
 import RegisterPage from "./components/pages/RegisterPage/RegisterPage";
 import Dashboard from "./components/pages/Dashboard/Dashboard";
-import PrivateRoute from "./components/PrivateRoute ";
+import PrivateRoute from "./components/PrivateRoute";
 import RegSuccess from "./components/pages/RegisterPage/RegSuccess";
 import MemStepOne from "./components/flows/MemberProfileFlow/MemStepOne";
 import MemStepTwo from "./components/flows/MemberProfileFlow/MemStepTwo";
@@ -50,10 +50,13 @@ import MyInterest from "./components/Dashboard/dashboardCard/MyInterest/Myintere
 import MyShortlist from "./components/Dashboard/dashboardCard/MyShortList/MyShortlist";
 import TotalShortlistAgent from "./components/Dashboard/Totalshortlist/Totalshortlist-agent.jsx";
 import ChangePassword from "./components/Dashboard/UserDashboard/ChangePassword.jsx";
-import GuidancePage from "./components/Guidance/GuidancePage.jsx";
+import Landingpage from "./components/Guidance/Landingpage.tsx";
+import BlogPage from "./components/Guidance/Blogpage/BlogPage.tsx";
 import ViewAllTrendingProfiles from "./components/Dashboard/ViewAll/ViewAllTrendingProfiles.jsx";
 import ViewAllRecommendedProfiles from "./components/Dashboard/ViewAll/ViewAllRecommendedProfiles.jsx";
 import ViewAllUser from "./components/Dashboard/ViewAll/ViewAllUser.jsx";
+import AboutUs from "./components/pages/AboutUs/AboutUs";
+import ContactUs from "./components/pages/ContactUs/ContactUs";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -271,7 +274,13 @@ const AllRoutes = () => {
         <Route
           path="/guidance"
           element={
-              <GuidancePage />
+              <Landingpage />
+          }
+        />
+        <Route
+          path="/blogpage"
+          element={
+              <BlogPage />
           }
         />
         <Route
@@ -284,7 +293,8 @@ const AllRoutes = () => {
           }
         />
         <Route path="/terms-conditions" element={<TermsCondition />} />
-
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
         <Route
           path="/dashboard"
           element={
