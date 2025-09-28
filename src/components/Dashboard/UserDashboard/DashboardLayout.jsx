@@ -182,11 +182,42 @@ const DashboardLayout = ({
 
     const parameter8 = {
       url: role === "agent" ? `/api/agent/${userId}/` : `/api/user/${userId}/`,
-      setterFunction: setApiData,
+      setterFunction: (data) => {
+        console.log("API Response Data:", data);
+        setApiData(data);
+      },
       setErrors: setErrors,
       setLoading: setLoading,
     };
     fetchDataWithTokenV2(parameter8);
+
+    // Fetch user profile photo separately (same logic as Header.jsx)
+    const parameterPhoto = {
+      url: `/api/user/profile_photo/?user_id=${userId}`,
+      setterFunction: (data) => {
+        console.log("Profile photo data:", data);
+        console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
+        if (Array.isArray(data) && data.length > 0) {
+          console.log("Setting user_profilephoto:", data[data.length - 1]);
+          setApiData(prev => ({
+            ...prev,
+            user_profilephoto: data[data.length - 1] // Get the latest photo
+          }));
+        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+          console.log("Setting user_profilephoto (object):", data);
+          setApiData(prev => ({
+            ...prev,
+            user_profilephoto: data
+          }));
+        } else {
+          console.log("No photo data found or unexpected format:", data);
+          setApiData(prev => ({ ...prev, user_profilephoto: null }));
+        }
+      },
+      setErrors: setErrors,
+      setLoading: setLoading,
+    };
+    fetchDataWithTokenV2(parameterPhoto);
 
     const handleClickOutside = (event) => {
       if (
@@ -607,16 +638,15 @@ const DashboardLayout = ({
             </div>
 
             <div className="user-profile" onClick={toggleUserDropdown}>
-              {console.log(
-                `${"https://mehram-match.onrender.com"}${
-                  apiData?.profile_photo
-                }`
-              )}
-              {console.log("Test gen:", apiData?.gender)}
+              {console.log("apiData:", apiData)}
+              {console.log("profile_photo:", apiData?.profile_photo)}
+              {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
+              {console.log("user_profilephoto:", apiData?.user_profilephoto)}
+              {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
               <img
                 src={
-                  apiData?.profile_photo
-                    ? apiData?.profile_photo.upload_photo
+                  (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
+                    ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
                     : `data:image/svg+xml;utf8,${encodeURIComponent(
                         apiData?.gender === "male"
                           ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
@@ -631,6 +661,24 @@ const DashboardLayout = ({
                       )}`
                 }
                 alt="User"
+                onError={(e) => {
+                  console.log("Image failed to load, using fallback");
+                  e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                    apiData?.gender === "male"
+                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+              </svg>`
+                      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+              </svg>`
+                  )}`;
+                }}
+                onLoad={() => {
+                  console.log("Image loaded successfully");
+                }}
               />
               <div className="user_role_info">
                 <span className="username">{apiData?.name}</span>

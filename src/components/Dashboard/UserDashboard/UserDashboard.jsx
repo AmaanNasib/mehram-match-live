@@ -40,6 +40,8 @@ const UserDashboard = () => {
     const [apiData6, setApiData6] = useState([]);
     const [apiData7, setApiData7] = useState({});
     const [apiData8, setApiData8] = useState({});
+    const [userProfile, setUserProfile] = useState({});
+    const [userProfilePhoto, setUserProfilePhoto] = useState({});
     const [errors, setErrors] = useState(false);
     const [loading, setLoading] = useState(false);
     const userId =localStorage.getItem('userId');
@@ -95,7 +97,11 @@ const UserDashboard = () => {
       fetchDataWithTokenV2(parameter5);
       const parameter6 = {
         url: role=="agent"?'/api/agent/user/matches/':`/api/user/matches/?user_id=${userId}`,
-        setterFunction: setApiData6,
+        setterFunction: (data) => {
+          console.log("Matches data received:", data);
+          console.log("Matches data type:", typeof data, "Is array:", Array.isArray(data));
+          setApiData6(data);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };
@@ -107,6 +113,48 @@ const UserDashboard = () => {
         setLoading: setLoading,
       };
       fetchDataWithTokenV2(parameter7);
+
+      // Fetch user profile data
+      const userProfileParam = {
+        url: role === "agent" ? `/api/agent/profile/` : `/api/user/profile/?user_id=${userId}`,
+        setterFunction: setUserProfile,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(userProfileParam);
+
+      // Fetch user profile photo separately (same logic as Header.jsx)
+      const parameterPhoto = {
+        url: `/api/user/profile_photo/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log("Profile photo data:", data);
+          console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
+          if (Array.isArray(data) && data.length > 0) {
+            console.log("Setting userProfilePhoto:", data[data.length - 1]);
+            setUserProfilePhoto(data[data.length - 1]); // Get the latest photo
+            // Also update userProfile with photo data
+            setUserProfile(prev => ({
+              ...prev,
+              user_profilephoto: data[data.length - 1]
+            }));
+          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+            console.log("Setting userProfilePhoto (object):", data);
+            setUserProfilePhoto(data);
+            // Also update userProfile with photo data
+            setUserProfile(prev => ({
+              ...prev,
+              user_profilephoto: data
+            }));
+          } else {
+            console.log("No photo data found or unexpected format:", data);
+            setUserProfilePhoto(null);
+            setUserProfile(prev => ({ ...prev, user_profilephoto: null }));
+          }
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(parameterPhoto);
       
     
     }, []);
@@ -267,16 +315,81 @@ const UserDashboard = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col p-[24px] w-[100%]">
-        <h1
-          style={{
-            fontWeight: "700",
-            fontSize: "24px",
-            textAlign: "left",
-            marginBottom: "20px",
-          }}
-        >
-          Dashboard
-        </h1>
+        {/* Dashboard Header with User Profile */}
+        <div className="dashboard-header-section">
+          <div className="header-left">
+            <div className="user-profile-info">
+              <div className="user-avatar">
+                {console.log("=== USER DASHBOARD DEBUG ===")}
+                {console.log("userProfile:", userProfile)}
+                {console.log("userProfilePhoto:", userProfilePhoto)}
+                {console.log("userProfile.user_profilephoto:", userProfile?.user_profilephoto)}
+                {console.log("userProfile.profile_photo:", userProfile?.profile_photo)}
+                {console.log("userProfile.user_profilephoto?.upload_photo:", userProfile?.user_profilephoto?.upload_photo)}
+                {console.log("userProfilePhoto?.upload_photo:", userProfilePhoto?.upload_photo)}
+                {console.log("Environment API URL:", process.env.REACT_APP_API_URL)}
+                {console.log("Final constructed URL:", (userProfile?.profile_photo || userProfile?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${userProfile.profile_photo || userProfile.user_profilephoto?.upload_photo}` : 'Using fallback')}
+                {console.log("=== END DEBUG ===")}
+                <img
+                  src={
+                    (() => {
+                      // Try multiple possible photo sources
+                      const photoUrl = userProfile?.profile_photo || 
+                                     userProfile?.user_profilephoto?.upload_photo || 
+                                     userProfilePhoto?.upload_photo ||
+                                     userProfilePhoto?.profile_photo;
+                      
+                      console.log("Photo URL found:", photoUrl);
+                      
+                      if (photoUrl) {
+                        const fullUrl = photoUrl.startsWith('http') 
+                          ? photoUrl 
+                          : `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${photoUrl}`;
+                        console.log("Full URL constructed:", fullUrl);
+                        return fullUrl;
+                      }
+                      
+                      console.log("No photo found, using fallback");
+                      return "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
+                    })()
+                  }
+                  alt="User Profile"
+                  onError={(e) => {
+                    console.log("Image failed to load, using fallback");
+                    e.target.src = "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
+                  }}
+                  onLoad={() => {
+                    console.log("User profile image loaded successfully");
+                  }}
+                />
+              </div>
+              <div className="user-welcome">
+                <h1 className="dashboard-title">
+                  Welcome back, {userProfile?.name || userProfile?.first_name || "User"}!
+                </h1>
+                <p className="dashboard-subtitle">
+                  Here's your activity overview for today
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="header-right">
+            <div className="user-stats-summary">
+              <div className="stat-item">
+                <span className="stat-label">Total Matches</span>
+                <span className="stat-value">{apiData6?.length || 0}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Interests</span>
+                <span className="stat-value">{apiData1?.total_interest_count || 0}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Requests</span>
+                <span className="stat-value">{apiData?.total_request_count || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="stats-container">
           {/* Stats Section */}
           <div className="stat-card">
@@ -889,13 +1002,36 @@ const UserDashboard = () => {
                         <div className="name-cell">
                           <img
                             src={
-                              match?.profile_photo
-                                ? `${"https://mehram-match.onrender.com"}${
-                                    match?.profile_photo
-                                  }`
-                                : men1
+                              (() => {
+                                // Try multiple possible photo sources for match
+                                const photoUrl = match?.profile_photo || 
+                                               match?.photo || 
+                                               match?.avatar || 
+                                               match?.image ||
+                                               match?.profile_image;
+                                
+                                console.log(`Match ${index} photo URL:`, photoUrl);
+                                
+                                if (photoUrl) {
+                                  const fullUrl = photoUrl.startsWith('http') 
+                                    ? photoUrl 
+                                    : `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${photoUrl}`;
+                                  console.log(`Match ${index} full URL:`, fullUrl);
+                                  return fullUrl;
+                                }
+                                
+                                console.log(`Match ${index} no photo, using fallback`);
+                                return men1;
+                              })()
                             }
-                            alt={match.name}
+                            alt={match.name || "Profile"}
+                            onError={(e) => {
+                              console.log(`Match ${index} image failed to load, using fallback`);
+                              e.target.src = men1;
+                            }}
+                            onLoad={() => {
+                              console.log(`Match ${index} image loaded successfully`);
+                            }}
                           />
                           {match.name || "Not Mentioned"}
                         </div>
