@@ -50,18 +50,22 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
         ) : (
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
-              profiles.map((profile) => (
-                <DashboadrCard
-                  key={profile.id}
-                  profile={profile.user}
-                  url={url}
-                  setApiData={setApiData}
-                  interested_id={profile?.interested_id}
-                  IsInterested={profile?.is_interested}
-                  setIsModalOpen={setIsModalOpen}
-                  isOpenWindow={isOpenWindow}
-                />
-              ))
+              profiles.map((profile) => {
+                const user = profile && profile.user ? profile.user : profile;
+                const keyId = user?.id || profile?.id;
+                return (
+                  <DashboadrCard
+                    key={keyId}
+                    profile={user}
+                    url={url}
+                    setApiData={setApiData}
+                    interested_id={profile?.interested_id}
+                    IsInterested={profile?.is_interested}
+                    setIsModalOpen={setIsModalOpen}
+                    isOpenWindow={isOpenWindow}
+                  />
+                );
+              })
             ) : (
               <p style={{ color: 'red' }}>No match found</p>
             )}

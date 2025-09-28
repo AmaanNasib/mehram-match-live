@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './sidebar.css';
 import RangeSlider from './AgeFilter/RangeSlider';
-import { postDataReturnResponse } from '../../../apiUtils';
+import { postDataReturnResponse, fetchDataObjectV2 } from '../../../apiUtils';
 
 // Shimmer Loading Component for Sidebar
 const ShimmerFormField = () => (
@@ -24,19 +24,598 @@ const Sidebar = ({setApiData, onClose}) => {
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+
+  // Options state
+  const [maritalOptions, setMaritalOptions] = useState([]);
+  const [countryOptions, setCountryOptions] = useState([
+    { value: 'india', label: 'India' },
+    { value: 'usa', label: 'United States' },
+    { value: 'canada', label: 'Canada' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'australia', label: 'Australia' },
+    { value: 'other', label: 'Other' },
+  ]);
+  const [stateOptions, setStateOptions] = useState([]);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [professionOptions, setProfessionOptions] = useState([
+    { value: "accountant", label: "Accountant" },
+    { value: "acting_professional", label: "Acting Professional" },
+    { value: "actor", label: "Actor" },
+    { value: "administrator", label: "Administrator" },
+    { value: "advertising_professional", label: "Advertising Professional" },
+    { value: "air_hostess", label: "Air Hostess" },
+    { value: "airline_professional", label: "Airline Professional" },
+    { value: "airforce", label: "Airforce" },
+    { value: "architect", label: "Architect" },
+    { value: "artist", label: "Artist" },
+    { value: "assistant_professor", label: "Assistant Professor" },
+    { value: "audiologist", label: "Audiologist" },
+    { value: "auditor", label: "Auditor" },
+    { value: "bank_officer", label: "Bank Officer" },
+    { value: "bank_staff", label: "Bank Staff" },
+    { value: "beautician", label: "Beautician" },
+    { value: "biologist_botanist", label: "Biologist / Botanist" },
+    { value: "business_person", label: "Business Person" },
+    { value: "captain", label: "Captain" },
+    { value: "ceo_cto_president", label: "CEO / CTO / President" },
+    { value: "chemist", label: "Chemist" },
+    { value: "civil_engineer", label: "Civil Engineer" },
+    { value: "clerical_official", label: "Clerical Official" },
+    { value: "clinical_pharmacist", label: "Clinical Pharmacist" },
+    { value: "company_secretary", label: "Company Secretary" },
+    { value: "computer_engineer", label: "Computer Engineer" },
+    { value: "computer_programmer", label: "Computer Programmer" },
+    { value: "consultant", label: "Consultant" },
+    { value: "contractor", label: "Contractor" },
+    { value: "content_creator", label: "Content Creator" },
+    { value: "counsellor", label: "Counsellor" },
+    { value: "creative_person", label: "Creative Person" },
+    { value: "customer_support_professional", label: "Customer Support Professional" },
+    { value: "data_analyst", label: "Data Analyst" },
+    { value: "defence_employee", label: "Defence Employee" },
+    { value: "dentist", label: "Dentist" },
+    { value: "designer", label: "Designer" },
+    { value: "director_chairman", label: "Director / Chairman" },
+    { value: "doctor", label: "Doctor" },
+    { value: "economist", label: "Economist" },
+    { value: "electrical_engineer", label: "Electrical Engineer" },
+    { value: "engineer", label: "Engineer" },
+    { value: "entertainment_professional", label: "Entertainment Professional" },
+    { value: "event_manager", label: "Event Manager" },
+    { value: "executive", label: "Executive" },
+    { value: "factory_worker", label: "Factory Worker" },
+    { value: "farmer", label: "Farmer" },
+    { value: "fashion_designer", label: "Fashion Designer" },
+    { value: "finance_professional", label: "Finance Professional" },
+    { value: "food_technologist", label: "Food Technologist" },
+    { value: "government_employee", label: "Government Employee" },
+    { value: "graphic_designer", label: "Graphic Designer" },
+    { value: "hair_dresser", label: "Hair Dresser" },
+    { value: "health_care_professional", label: "Health Care Professional" },
+    { value: "hospitality_professional", label: "Hospitality Professional" },
+    { value: "hotel_restaurant_professional", label: "Hotel & Restaurant Professional" },
+    { value: "human_resource_professional", label: "Human Resource Professional" },
+    { value: "hse_officer", label: "HSE Officer" },
+    { value: "influencer", label: "Influencer" },
+    { value: "insurance_advisor", label: "Insurance Advisor" },
+    { value: "insurance_agent", label: "Insurance Agent" },
+    { value: "interior_designer", label: "Interior Designer" },
+    { value: "investment_professional", label: "Investment Professional" },
+    { value: "it_telecom_professional", label: "IT / Telecom Professional" },
+    { value: "islamic_scholar", label: "Islamic Scholar" },
+    { value: "islamic_teacher", label: "Islamic Teacher" },
+    { value: "journalist", label: "Journalist" },
+    { value: "lawyer", label: "Lawyer" },
+    { value: "lecturer", label: "Lecturer" },
+    { value: "legal_professional", label: "Legal Professional" },
+    { value: "librarian", label: "Librarian" },
+    { value: "logistics_professional", label: "Logistics Professional" },
+    { value: "manager", label: "Manager" },
+    { value: "marketing_professional", label: "Marketing Professional" },
+    { value: "mechanical_engineer", label: "Mechanical Engineer" },
+    { value: "medical_representative", label: "Medical Representative" },
+    { value: "medical_transcriptionist", label: "Medical Transcriptionist" },
+    { value: "merchant_naval_officer", label: "Merchant Naval Officer" },
+    { value: "microbiologist", label: "Microbiologist" },
+    { value: "military", label: "Military" },
+    { value: "nanny_child_care_worker", label: "Nanny / Child Care Worker" },
+    { value: "navy_officer", label: "Navy Officer" },
+    { value: "nurse", label: "Nurse" },
+    { value: "occupational_therapist", label: "Occupational Therapist" },
+    { value: "office_staff", label: "Office Staff" },
+    { value: "optician", label: "Optician" },
+    { value: "optometrist", label: "Optometrist" },
+    { value: "pharmacist", label: "Pharmacist" },
+    { value: "physician", label: "Physician" },
+    { value: "physician_assistant", label: "Physician Assistant" },
+    { value: "pilot", label: "Pilot" },
+    { value: "police_officer", label: "Police Officer" },
+    { value: "priest", label: "Priest" },
+    { value: "product_manager_professional", label: "Product Manager / Professional" },
+    { value: "professor", label: "Professor" },
+    { value: "project_manager", label: "Project Manager" },
+    { value: "public_relations_professional", label: "Public Relations Professional" },
+    { value: "real_estate_professional", label: "Real Estate Professional" },
+    { value: "research_scholar", label: "Research Scholar" },
+    { value: "retail_professional", label: "Retail Professional" },
+    { value: "sales_professional", label: "Sales Professional" },
+    { value: "scientist", label: "Scientist" },
+    { value: "self_employed", label: "Self-Employed" },
+    { value: "social_worker", label: "Social Worker" },
+    { value: "software_consultant", label: "Software Consultant" },
+    { value: "software_developer", label: "Software Developer" },
+    { value: "speech_therapist", label: "Speech Therapist" },
+    { value: "sportsman", label: "Sportsman" },
+    { value: "supervisor", label: "Supervisor" },
+    { value: "teacher", label: "Teacher" },
+    { value: "technician", label: "Technician" },
+    { value: "tour_guide", label: "Tour Guide" },
+    { value: "trainer", label: "Trainer" },
+    { value: "transportation_professional", label: "Transportation Professional" },
+    { value: "tutor", label: "Tutor" },
+    { value: "veterinary_doctor", label: "Veterinary Doctor" },
+    { value: "videographer", label: "Videographer" },
+    { value: "web_designer", label: "Web Designer" },
+    { value: "web_developer", label: "Web Developer" },
+    { value: "wholesale_businessman", label: "Wholesale Businessman" },
+    { value: "writer", label: "Writer" },
+    { value: "zoologist", label: "Zoologist" },
+    { value: "other", label: "Other" },
+  ]);
+  const sectOptions = useMemo(() => ([
+    { value: "Ahle Qur'an", label: "Ahle Qur'an" },
+    { value: "ahle_quran", label: "ahle_quran" },
+    { value: "Ahamadi", label: "Ahamadi" },
+    { value: "Barelvi", label: "Barelvi" },
+    { value: "Bohra", label: "Bohra" },
+    { value: "Deobandi", label: "Deobandi" },
+    { value: "Hanabali", label: "Hanabali" },
+    { value: "Hanafi", label: "Hanafi" },
+    { value: "Ibadi", label: "Ibadi" },
+    { value: "Ismaili", label: "Ismaili" },
+    { value: "Jamat e Islami", label: "Jamat e Islami" },
+    { value: "Maliki", label: "Maliki" },
+    { value: "Pathan", label: "Pathan" },
+    { value: "Salafi", label: "Salafi" },
+    { value: "Salafi/Ahle Hadees", label: "Salafi/Ahle Hadees" },
+    { value: "Sayyid", label: "Sayyid" },
+    { value: "Shafi", label: "Shafi" },
+    { value: "Shia", label: "Shia" },
+    { value: "Sunni", label: "Sunni" },
+    { value: "Sufism", label: "Sufism" },
+    { value: "Tableeghi Jama'at", label: "Tableeghi Jama'at" },
+    { value: "Zahiri", label: "Zahiri" },
+    { value: "Muslim", label: "Muslim" },
+    { value: "Other", label: "Other" },
+    { value: "Prefer not to say", label: "Prefer not to say" },
+  ]), []);
   const [formData, setFormData] = useState({
     memberID: '',
     maritalStatus: '',
-    // sect: '',
+    sect: '',
     profession: '',
     country: '',
     state: '',
     city: '', 
   });
 
+  // Check if any filter is applied
+  const hasActiveFilters = () => {
+    return formData.memberID || 
+           formData.maritalStatus || 
+           formData.sect || 
+           formData.profession || 
+           formData.country || 
+           formData.state || 
+           formData.city ||
+           (rangeText && rangeText !== '18-23');
+  };
 
+  // Clear all filters
+  const clearFilters = () => {
+    setFormData({
+      memberID: '',
+      maritalStatus: '',
+      sect: '',
+      profession: '',
+      country: '',
+      state: '',
+      city: '', 
+    });
+    setRangeText('18-23');
+    setStateOptions([]);
+    setCityOptions([]);
+    
+    // Reset filter state and refresh all data
+    if (setApiData) {
+      // Pass null to indicate clear filters - this will reset to baseline data
+      setApiData(null);
+    }
+  };
 
+  // Comprehensive location data and helpers (aligned with MemStepOne structure)
+  const locationData = useMemo(() => ({
+    india: {
+      label: "India",
+      states: {
+        andhra_pradesh: {
+          label: "Andhra Pradesh",
+          cities: [
+            { value: "visakhapatnam", label: "Visakhapatnam" },
+            { value: "vijayawada", label: "Vijayawada" },
+            { value: "tirupati", label: "Tirupati" },
+            { value: "guntur", label: "Guntur" },
+            { value: "nellore", label: "Nellore" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        arunachal_pradesh: {
+          label: "Arunachal Pradesh",
+          cities: [
+            { value: "itanagar", label: "Itanagar" },
+            { value: "pasighat", label: "Pasighat" },
+            { value: "ziro", label: "Ziro" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        assam: {
+          label: "Assam",
+          cities: [
+            { value: "guwahati", label: "Guwahati" },
+            { value: "silchar", label: "Silchar" },
+            { value: "dibrugarh", label: "Dibrugarh" },
+            { value: "jorhat", label: "Jorhat" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        bihar: {
+          label: "Bihar",
+          cities: [
+            { value: "patna", label: "Patna" },
+            { value: "gaya", label: "Gaya" },
+            { value: "bhagalpur", label: "Bhagalpur" },
+            { value: "muzaffarpur", label: "Muzaffarpur" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        chhattisgarh: {
+          label: "Chhattisgarh",
+          cities: [
+            { value: "raipur", label: "Raipur" },
+            { value: "bilaspur", label: "Bilaspur" },
+            { value: "durg", label: "Durg" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        goa: {
+          label: "Goa",
+          cities: [
+            { value: "panaji", label: "Panaji" },
+            { value: "margao", label: "Margao" },
+            { value: "vasco_da_gama", label: "Vasco da Gama" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        gujarat: {
+          label: "Gujarat",
+          cities: [
+            { value: "ahmedabad", label: "Ahmedabad" },
+            { value: "surat", label: "Surat" },
+            { value: "vadodara", label: "Vadodara" },
+            { value: "rajkot", label: "Rajkot" },
+            { value: "bhavnagar", label: "Bhavnagar" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        haryana: {
+          label: "Haryana",
+          cities: [
+            { value: "gurgaon", label: "Gurgaon" },
+            { value: "faridabad", label: "Faridabad" },
+            { value: "panipat", label: "Panipat" },
+            { value: "ambala", label: "Ambala" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        himachal_pradesh: {
+          label: "Himachal Pradesh",
+          cities: [
+            { value: "shimla", label: "Shimla" },
+            { value: "dharamshala", label: "Dharamshala" },
+            { value: "manali", label: "Manali" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        jharkhand: {
+          label: "Jharkhand",
+          cities: [
+            { value: "ranchi", label: "Ranchi" },
+            { value: "jamshedpur", label: "Jamshedpur" },
+            { value: "dhanbad", label: "Dhanbad" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        karnataka: {
+          label: "Karnataka",
+          cities: [
+            { value: "bangalore", label: "Bangalore" },
+            { value: "mysore", label: "Mysore" },
+            { value: "hubli", label: "Hubli" },
+            { value: "mangalore", label: "Mangalore" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        kerala: {
+          label: "Kerala",
+          cities: [
+            { value: "thiruvananthapuram", label: "Thiruvananthapuram" },
+            { value: "kochi", label: "Kochi" },
+            { value: "kozhikode", label: "Kozhikode" },
+            { value: "thrissur", label: "Thrissur" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        madhya_pradesh: {
+          label: "Madhya Pradesh",
+          cities: [
+            { value: "bhopal", label: "Bhopal" },
+            { value: "indore", label: "Indore" },
+            { value: "gwalior", label: "Gwalior" },
+            { value: "jabalpur", label: "Jabalpur" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        maharashtra: {
+          label: "Maharashtra",
+          cities: [
+            { value: "mumbai", label: "Mumbai" },
+            { value: "pune", label: "Pune" },
+            { value: "nagpur", label: "Nagpur" },
+            { value: "nashik", label: "Nashik" },
+            { value: "aurangabad", label: "Aurangabad" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        manipur: {
+          label: "Manipur",
+          cities: [
+            { value: "imphal", label: "Imphal" },
+            { value: "thoubal", label: "Thoubal" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        meghalaya: {
+          label: "Meghalaya",
+          cities: [
+            { value: "shillong", label: "Shillong" },
+            { value: "tura", label: "Tura" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        mizoram: {
+          label: "Mizoram",
+          cities: [
+            { value: "aizawl", label: "Aizawl" },
+            { value: "lunglei", label: "Lunglei" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        nagaland: {
+          label: "Nagaland",
+          cities: [
+            { value: "kohima", label: "Kohima" },
+            { value: "dimapur", label: "Dimapur" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        odisha: {
+          label: "Odisha",
+          cities: [
+            { value: "bhubaneswar", label: "Bhubaneswar" },
+            { value: "cuttack", label: "Cuttack" },
+            { value: "rourkela", label: "Rourkela" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        punjab: {
+          label: "Punjab",
+          cities: [
+            { value: "ludhiana", label: "Ludhiana" },
+            { value: "amritsar", label: "Amritsar" },
+            { value: "jalandhar", label: "Jalandhar" },
+            { value: "patiala", label: "Patiala" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        rajasthan: {
+          label: "Rajasthan",
+          cities: [
+            { value: "jaipur", label: "Jaipur" },
+            { value: "jodhpur", label: "Jodhpur" },
+            { value: "udaipur", label: "Udaipur" },
+            { value: "kota", label: "Kota" },
+            { value: "bikaner", label: "Bikaner" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        sikkim: {
+          label: "Sikkim",
+          cities: [
+            { value: "gangtok", label: "Gangtok" },
+            { value: "namchi", label: "Namchi" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        tamil_nadu: {
+          label: "Tamil Nadu",
+          cities: [
+            { value: "chennai", label: "Chennai" },
+            { value: "coimbatore", label: "Coimbatore" },
+            { value: "madurai", label: "Madurai" },
+            { value: "tiruchirappalli", label: "Tiruchirappalli" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        telangana: {
+          label: "Telangana",
+          cities: [
+            { value: "hyderabad", label: "Hyderabad" },
+            { value: "warangal", label: "Warangal" },
+            { value: "nizamabad", label: "Nizamabad" },
+            { value: "khammam", label: "Khammam" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        tripura: {
+          label: "Tripura",
+          cities: [
+            { value: "agartala", label: "Agartala" },
+            { value: "dharamnagar", label: "Dharamnagar" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        uttar_pradesh: {
+          label: "Uttar Pradesh",
+          cities: [
+            { value: "lucknow", label: "Lucknow" },
+            { value: "kanpur", label: "Kanpur" },
+            { value: "agra", label: "Agra" },
+            { value: "varanasi", label: "Varanasi" },
+            { value: "meerut", label: "Meerut" },
+            { value: "prayagraj", label: "Prayagraj" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        uttarakhand: {
+          label: "Uttarakhand",
+          cities: [
+            { value: "dehradun", label: "Dehradun" },
+            { value: "haridwar", label: "Haridwar" },
+            { value: "roorkee", label: "Roorkee" },
+            { value: "nainital", label: "Nainital" },
+            { value: "other", label: "Other" }
+          ]
+        },
+        west_bengal: {
+          label: "West Bengal",
+          cities: [
+            { value: "kolkata", label: "Kolkata" },
+            { value: "asansol", label: "Asansol" },
+            { value: "siliguri", label: "Siliguri" },
+            { value: "durgapur", label: "Durgapur" },
+            { value: "howrah", label: "Howrah" },
+            { value: "other", label: "Other" }
+          ]
+        }
+      }
+    },
+    usa: {
+      label: 'United States',
+      states: {
+        new_york: { label: 'New York', cities: [
+          { value: 'new_york_city', label: 'New York City' },
+          { value: 'buffalo', label: 'Buffalo' },
+          { value: 'other', label: 'Other' },
+        ]},
+        california: { label: 'California', cities: [
+          { value: 'los_angeles', label: 'Los Angeles' },
+          { value: 'san_francisco', label: 'San Francisco' },
+          { value: 'other', label: 'Other' },
+        ]},
+      }
+    }
+  }), []);
 
+  const getStates = (country) => {
+    if (!country || !locationData[country]) return [];
+    return Object.keys(locationData[country].states).map((key) => ({
+      value: key,
+      label: locationData[country].states[key].label,
+    }));
+  };
+
+  const getCities = (country, state) => {
+    if (!country || !state || !locationData[country] || !locationData[country].states[state]) return [];
+    return locationData[country].states[state].cities;
+  };
+
+  // Build marital options based on gender (similar to MemStepOne)
+  const computeMaritalOptions = (gender) => {
+    const base = [
+      { value: 'Single', label: 'Single' },
+      { value: 'single', label: 'single' },
+      { value: 'Divorced', label: 'Divorced' },
+      { value: 'divorced', label: 'divorced' },
+      { value: 'Khula', label: 'Khula' },
+      { value: 'khula', label: 'khula' },
+      { value: 'Widowed', label: 'Widowed' },
+      { value: 'widowed', label: 'widowed' },
+    ];
+    // Don't show "Married" option for male users
+    // if (gender === 'male') {
+    //   base.splice(1, 0, { value: 'Married', label: 'Married' });
+    // }
+    return base;
+  };
+
+  // Fetch logged-in user profile to infer gender and defaults
+  useEffect(() => {
+    if (!userId) return;
+    const parameter = {
+      url: `/api/user/${userId}/`,
+      setterFunction: setUserProfile,
+      setLoading,
+      setErrors,
+    };
+    fetchDataObjectV2(parameter);
+  }, [userId]);
+
+  // Update marital options on gender fetch
+  useEffect(() => {
+    const gender = userProfile?.gender || null;
+    setMaritalOptions(computeMaritalOptions(gender));
+  }, [userProfile]);
+
+  // Cascading: when country changes, reset states/cities
+  useEffect(() => {
+    setStateOptions(getStates(formData.country));
+    // reset state/city if country changed
+    setFormData((prev) => ({ ...prev, state: '', city: '' }));
+    setCityOptions([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.country]);
+
+  // Cascading: when state changes, reset cities
+  useEffect(() => {
+    setCityOptions(getCities(formData.country, formData.state));
+    setFormData((prev) => ({ ...prev, city: '' }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.state]);
+
+  // Debounced live search by Member ID
+  const debounceRef = useRef(null);
+  useEffect(() => {
+    if (!formData.memberID) return; // only when user types something
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const parameter = {
+        url: '/api/user/filter/',
+        payload: {
+          member_id: formData.memberID,
+          // include age window even for member id search so backend can respect it if needed
+          age_min: parseInt(rangeText?.split('-')?.[0]),
+          age_max: parseInt(rangeText?.split('-')?.[1]),
+          user_id: userId,
+        },
+        setUserId: setApiData,
+        setErrors,
+      };
+      postDataReturnResponse(parameter);
+    }, 500);
+    return () => debounceRef.current && clearTimeout(debounceRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.memberID]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -50,7 +629,18 @@ const Sidebar = ({setApiData, onClose}) => {
     const parameter = {
       url: "/api/user/filter/",
       payload: {
-        ...formData,
+        // key mapping for backend expectations
+        member_id: formData.memberID || undefined,
+        martial_status: formData.maritalStatus || undefined,
+        sect_school_info: formData.sect || undefined,
+        profession: formData.profession || undefined,
+        country: formData.country || undefined,
+        state: formData.state || undefined,
+        city: formData.city || undefined,
+        // remove FE-only keys
+        memberID: undefined,
+        maritalStatus: undefined,
+        sect: undefined,
         age_min: parseInt(rangeText?.split("-")?.[0]),  
         age_max: parseInt(rangeText?.split("-")?.[1]),  
         user_id:userId
@@ -163,10 +753,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Select One</option>
-                <option value="never-married">Never Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
-                <option value="Single">Single</option>
+                {maritalOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -185,11 +774,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Choose One</option>
-                <option value="sunni-hanafi">Sunni-Hanafi</option>
-                <option value="sunni">Sunni</option>
-                <option value="shia">Shia</option>
-                <option value="sunni-shafi">Sunni-Shafi</option>
-                <option value="other">Other</option>
+                {sectOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -208,11 +795,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Choose One</option>
-                <option value="doctor">Doctor</option>
-                <option value="engineer">Engineer</option>
-                <option value="teacher">Teacher</option>
-                <option value="lawyer">Lawyer</option>
-                <option value="artist">Artist</option>
+                {professionOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -231,12 +816,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Choose One</option>
-                <option value="usa">United States</option>
-                <option value="canada">Canada</option>
-                <option value="uk">United Kingdom</option>
-                <option value="india">India</option>
-                <option value="australia">Australia</option>
-                <option value="other">Other</option>
+                {countryOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -256,10 +838,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Choose One</option>
-                <option value="andhra-pradesh">Andhra Pradesh</option>
-                <option value="arunachal-pradesh">Arunachal Pradesh</option>
-                <option value="assam">Assam</option>
-                {/* Add other states here */}
+                {stateOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -278,10 +859,9 @@ const Sidebar = ({setApiData, onClose}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
               >
                 <option value="">Choose One</option>
-                <option value="mumbai">Mumbai</option>
-                <option value="delhi">Delhi</option>
-                <option value="New York">New York</option>
-                {/* Add other cities here */}
+                {cityOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -313,6 +893,20 @@ const Sidebar = ({setApiData, onClose}) => {
                 </>
               )}
             </button>
+
+            {/* Clear Filters Button - Show only when filters are applied */}
+            {hasActiveFilters() && (
+              <button 
+                type="button"
+                onClick={clearFilters}
+                className="w-full h-12 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-2 bg-gradient-to-r from-[#F8F9FA] to-[#E9ECEF] text-[#6C757D] hover:from-[#E9ECEF] hover:to-[#DEE2E6] hover:text-[#495057] shadow-md hover:shadow-lg border border-[#DEE2E6] hover:border-[#CED4DA]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Clear All Filters</span>
+              </button>
+            )}
           </form>
         )}
       </div>

@@ -113,7 +113,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested,url,interested_id }) 
           </svg>
         </button>
         <img
-          src={profile.profile_photo
+          src={profile?.profile_photo
                           ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.profile_photo}`
                           : `data:image/svg+xml;utf8,${encodeURIComponent(
                               profile?.gender === "male"

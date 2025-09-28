@@ -60,12 +60,19 @@ const ShimmerCard = () => (
 const NewDashboard = () => {
   const location = useLocation();
   const lastSegment = location.pathname.split("/").pop();
-  const [apiData, setApiData] = useState([]);
-  const [apiRecommend, setApiDataRecommend] = useState([]);
+  // Baseline datasets from backend
+  const [apiData, setApiData] = useState([]); // trending baseline
+  const [apiRecommend, setApiDataRecommend] = useState([]); // recommended baseline
   const [apiMember, setApiDataMember] = useState([]);
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [userDetail, setUserDetail] = useState([]);
+  const [filterActive, setFilterActive] = useState(false);
+  const [noResults, setNoResults] = useState(false);
+  const [userDetail, setUserDetail] = useState([]); // all profiles baseline
+  // Display datasets (what UI renders)
+  const [displayTrending, setDisplayTrending] = useState([]);
+  const [displayRecommended, setDisplayRecommended] = useState([]);
+  const [displayAll, setDisplayAll] = useState([]);
   const [activeUser, setactiveUser] = useState({});
   const [successMessage, setMessage] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
@@ -106,6 +113,64 @@ const NewDashboard = () => {
     fetchDataV2(parameter);
   }, []);
 
+  // When filters are applied from Sidebar, partition results into sections
+  const handleFilterResults = (results) => {
+    // If results is null, it means clear filters - reset to baseline data
+    if (results === null) {
+      setDisplayTrending(apiData);
+      setDisplayRecommended(apiRecommend);
+      setDisplayAll(userDetail);
+      setFilterActive(false);
+      setNoResults(false);
+      return;
+    }
+
+    const rawList = Array.isArray(results) ? results : [];
+
+    // Helpers: normalize user object and get id from any shape
+    const normalize = (item) => (item && item.user ? item.user : item);
+    const getId = (item) => normalize(item)?.id;
+
+    const list = rawList.map(normalize).filter(Boolean);
+
+    // Build baseline maps id -> baselineItem (keep original shape used by sections)
+    const trendingMap = new Map();
+    apiData.forEach((base) => {
+      const id = getId(base);
+      if (id != null) trendingMap.set(id, base);
+    });
+    const recommendedMap = new Map();
+    apiRecommend.forEach((base) => {
+      const id = getId(base);
+      if (id != null) recommendedMap.set(id, base);
+    });
+
+    const inTrending = [];
+    const inRecommended = [];
+    const inAll = [];
+
+    list.forEach((user) => {
+      const id = user?.id;
+      if (id == null) return;
+      if (trendingMap.has(id)) {
+        // Use baseline item (preserves props like profile_photo expected by cards)
+        inTrending.push(trendingMap.get(id));
+      } else if (recommendedMap.has(id)) {
+        inRecommended.push(recommendedMap.get(id));
+      } else {
+        // All section expects plain user object
+        inAll.push(user);
+      }
+    });
+
+    setDisplayTrending(inTrending);
+    setDisplayRecommended(inRecommended);
+    setDisplayAll(inAll);
+
+    setFilterActive(true);
+    setNoResults(list.length === 0);
+  };
+
   const [isOpenWindow, setIsModalOpen] = useState(false);
   const closeWindow = () => {
     setIsModalOpen(false);
@@ -145,7 +210,10 @@ const NewDashboard = () => {
   useEffect(() => {
     const parameter = {
       url: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
-      setterFunction: setUserDetail,
+      setterFunction: (data) => {
+        setUserDetail(data);
+        if (!filterActive) setDisplayAll(data);
+      },
       setErrors: setErrors,
       setLoading: setLoading,
     };
@@ -155,7 +223,10 @@ const NewDashboard = () => {
   useEffect(() => {
     const parameter = {
       url: role==="agent"?`/api/trending_profiles_by_interest/`:`/api/trending_profile/?user_id=${userId}`,
-      setterFunction: setApiData,
+      setterFunction: (data) => {
+        setApiData(data);
+        if (!filterActive) setDisplayTrending(data);
+      },
       setErrors: setErrors,
       setLoading: setLoading,
     };
@@ -166,7 +237,10 @@ useEffect(() => {
   if (role === "agent") return;
     const parameter1 = {
       url: `/api/user/recommend/?user_id=${userId}`,
-      setterFunction: setApiDataRecommend,
+      setterFunction: (data) => {
+        setApiDataRecommend(data);
+        if (!filterActive) setDisplayRecommended(data);
+      },
       setErrors: setErrors,
       setLoading: setLoading,
     };
@@ -293,7 +367,7 @@ useEffect(() => {
           } xl:block xl:top-auto top-0 left-0 h-full xl:h-auto xl:flex-shrink-0`}>
             <div className="xl:block h-full xl:h-auto">
               <Sidebar 
-                setApiData={setUserDetail} 
+                setApiData={handleFilterResults} 
                 onClose={() => setIsSidebarOpen(false)}
               />
             </div>
@@ -363,6 +437,11 @@ useEffect(() => {
                         ))}
                       </div>
                     ) : (
+                      noResults && filterActive ? (
+                        <div className="text-center text-gray-500 py-8">
+                          No profiles found for selected filters.
+                        </div>
+                      ) : (
                       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 <TrendingProfiles
                   setApiData={setApiData}
@@ -370,15 +449,16 @@ useEffect(() => {
                   isOpenWindow={isOpenWindow}
                   url={`/api/trending_profile/?user_id=${userId}`}
                   profiles={
-                    Array.isArray(apiData) &&
-                    apiData.every(
+                    Array.isArray(displayTrending) &&
+                    displayTrending.every(
                       (item) => typeof item === "object" && item !== null
                     )
-                      ? apiData
+                      ? displayTrending
                       : []
                   }
                 />
                       </div>
+                      )
                     )}
                   </div>
                 </div>
@@ -406,6 +486,11 @@ useEffect(() => {
                         ))}
                       </div>
                     ) : (
+                      noResults && filterActive ? (
+                        <div className="text-center text-gray-500 py-8">
+                          No profiles found for selected filters.
+                        </div>
+                      ) : (
                       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 <RecommendedProfiles
                   setApiData={setApiDataRecommend}
@@ -413,15 +498,16 @@ useEffect(() => {
                   isOpenWindow={isOpenWindow}
                   url={`/api/user/recommend/?user_id=${userId}`}
                   profiles={
-                    Array.isArray(apiRecommend) &&
-                    apiRecommend.every(
+                    Array.isArray(displayRecommended) &&
+                    displayRecommended.every(
                       (item) => typeof item === "object" && item !== null
                     )
-                      ? apiRecommend
+                      ? displayRecommended
                       : []
                   }
                 />
                       </div>
+                      )
                     )}
                   </div>
                 </div>
@@ -449,13 +535,19 @@ useEffect(() => {
                     ))}
                   </div>
                 ) : (
+                  noResults && filterActive ? (
+                    <div className="text-center text-gray-500 py-8">
+                      No profiles found for selected filters.
+                    </div>
+                  ) : (
           <AllUser
-            profiles={userDetail}
+            profiles={displayAll}
             setApiData={setUserDetail}
             isOpenWindow={isOpenWindow}
             url={`/api/user/`}
             setIsModalOpen={setIsModalOpen}
           />
+                  )
                 )}
               </div>
             </div>

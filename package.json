@@ -30,7 +30,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "start:home": "REACT_APP_API_URL=http://192.168.81.66:8000 react-scripts start",
-    "start:yusuf": "cross-env REACT_APP_API_URL=http://192.168.0.100:8000 react-scripts start",
+    "start:yusuf": "cross-env REACT_APP_API_URL=http://192.168.0.105:8000 react-scripts start",
     "start:extra": "REACT_APP_API_URL=http://192.168.194.66:8000 react-scripts start",
     "eject": "react-scripts eject"
   },

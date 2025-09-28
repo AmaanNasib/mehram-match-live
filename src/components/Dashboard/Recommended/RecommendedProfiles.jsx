@@ -50,16 +50,20 @@ const RecommendedProfiles = ({ profiles, setApiData, url }) => {
         ) : (
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
-              profiles.map((profile) => (
-                <DashboadrCard 
-                  key={profile.id} 
-                  profile={profile.user} 
-                  url={url} 
-                  interested_id={profile?.interested_id} 
-                  setApiData={setApiData} 
-                  IsInterested={profile?.is_interested}
-                />
-              ))
+              profiles.map((profile) => {
+                const user = profile && profile.user ? profile.user : profile;
+                const keyId = user?.id || profile?.id;
+                return (
+                  <DashboadrCard 
+                    key={keyId}
+                    profile={user}
+                    url={url}
+                    interested_id={profile?.interested_id}
+                    setApiData={setApiData}
+                    IsInterested={profile?.is_interested}
+                  />
+                );
+              })
             ) : (
               <p style={{ color: 'red' }}>No match found</p>
             )}

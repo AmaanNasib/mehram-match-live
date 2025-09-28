@@ -210,7 +210,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
 
     // Fetch user profile photo separately
     const parameterPhoto = {
-      url: `/api/user_profilephoto/?user_id=${userId}`,
+      url: `/api/user/profile_photo/?user_id=${userId}`,
       setterFunction: (data) => {
         console.log("Profile photo data:", data);
         console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
@@ -228,6 +228,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
           }));
         } else {
           console.log("No photo data found or unexpected format:", data);
+          setApiData(prev => ({ ...prev, user_profilephoto: null }));
         }
       },
       setErrors: setErrors,
