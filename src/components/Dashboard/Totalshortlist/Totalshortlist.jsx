@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineClose } from "react-icons/ai"; // Import icons
@@ -15,6 +15,23 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [internalDate, setInternalDate] = useState(selectedDate ? new Date(selectedDate) : null);
+  const datePickerRef = useRef(null);
+
+  // Close date picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
   // Generate calendar days for the current month/year
   const generateCalendarDays = () => {
@@ -84,7 +101,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   ];
 
   return (
-    <div className="custom-date-picker-container">
+    <div className="custom-date-picker-container" ref={datePickerRef}>
       <div 
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
@@ -283,42 +300,49 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 // Marital Status Dropdown Component
 const MaritalStatusDropdown = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState(value || []);
+  const [selectedStatus, setSelectedStatus] = useState(value || "");
+  const maritalDropdownRef = useRef(null);
 
   const maritalStatusOptions = [
-    "Never-Married", "Married", "Divorced",
-    "Khula", "Awaiting Divorce", "Widowed",
-    "Separated", "Annulled"
+    "Single", "Married", "Divorced",
+    "Khula", "Widowed"
   ];
 
   useEffect(() => {
     if (value) {
-      setSelectedStatuses(Array.isArray(value) ? value : [value]);
+      setSelectedStatus(value);
     }
   }, [value]);
 
-  const toggleStatus = (status) => {
-    const newSelected = selectedStatuses.includes(status)
-      ? selectedStatuses.filter(s => s !== status)
-      : [...selectedStatuses, status];
-    
-    setSelectedStatuses(newSelected);
-    onChange(newSelected);
-  };
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (maritalDropdownRef.current && !maritalDropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
 
-  const removeStatus = (status) => {
-    const newSelected = selectedStatuses.filter(s => s !== status);
-    setSelectedStatuses(newSelected);
-    onChange(newSelected);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  const selectStatus = (status) => {
+    setSelectedStatus(status);
+    onChange(status);
+    setIsOpen(false); // Close dropdown after selection
   };
 
   return (
-    <div className="marital-status-dropdown-container">
+    <div className="marital-status-dropdown-container" ref={maritalDropdownRef}>
       <div 
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
-        Marital Status
+        {selectedStatus || "Marital Status"}
       </div>
       
       {isOpen && (
@@ -329,23 +353,17 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
               <div
                 key={status}
                 className={`marital-status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
+                  selectedStatus === status ? "selected" : ""
                 }`}
-                onClick={() => toggleStatus(status)}
+                onClick={() => selectStatus(status)}
               >
                 {status}
               </div>
             ))}
           </div>
           <div className="marital-status-note">
-            *You can choose multiple Marital Status
+            *You can choose one Marital Status
           </div>
-          <button 
-            className="apply-now-btn"
-            onClick={() => setIsOpen(false)}
-          >
-            Apply Now
-          </button>
         </div>
       )}
 
@@ -492,6 +510,8 @@ const TotalShortlist = () => {
       return updatedFilters;
     });
   };
+  const [resetKey, setResetKey] = useState(0);
+  
   const onClearFilterClick = () => {
     let clear = {
       id: '',
@@ -507,6 +527,8 @@ const TotalShortlist = () => {
     }
     setFilters(clear)
     applyFilters(clear)
+    // Force re-render of dropdown components by changing key
+    setResetKey(prev => prev + 1);
   };
 
   const applyFilters = (updatedFilters) => {
@@ -617,11 +639,11 @@ const TotalShortlist = () => {
 
 
    // Handle marital status filter change
-   const handleMaritalStatusChange = (selectedStatuses) => {
+   const handleMaritalStatusChange = (selectedStatus) => {
     setFilters(prevFilters => {
       const updatedFilters = { 
         ...prevFilters, 
-        martialStatus: selectedStatuses.join(',') 
+        martialStatus: selectedStatus 
       };
       applyFilters(updatedFilters);
       return updatedFilters;
@@ -663,12 +685,14 @@ const TotalShortlist = () => {
           {/* Replace your current date picker implementation with this */}
 <div className="date-filters-container">
   <CustomDatePicker
+    key={`start-date-${resetKey}`}
     selectedDate={filters.startDate}
     onChange={(date) => handleFilterChange("startDate", date)}
     placeholder="Start Date"
   />
   
   <CustomDatePicker
+    key={`end-date-${resetKey}`}
     selectedDate={filters.endDate}
     onChange={(date) => handleFilterChange("endDate", date)}
     placeholder="End Date"
@@ -692,11 +716,30 @@ const TotalShortlist = () => {
             onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
           >
             <option value="">Sect</option>
-            {distinctSchoolInfo?.map((info, index) => (
-              <option key={index} value={info}>
-                {info}
-              </option>
-            ))}
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
 
           <select
@@ -705,16 +748,135 @@ const TotalShortlist = () => {
             onChange={(e) => handleFilterChange('profession', e.target.value)}
           >
             <option value="">Profession</option>
-            {distinctProfessions?.map((profession, index) => (
-              <option key={index} value={profession}>
-                {profession}
-              </option>
-            ))}
+            <option value="Accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="Actor">Actor</option>
+            <option value="Administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="Air Hostess">Air Hostess</option>
+            <option value="Airline Professional">Airline Professional</option>
+            <option value="Airforce">Airforce</option>
+            <option value="Architect">Architect</option>
+            <option value="Artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="Audiologist">Audiologist</option>
+            <option value="Auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="Beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="Captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="Chemist">Chemist</option>
+            <option value="Civil Engineer">Civil Engineer</option>
+            <option value="Clerical Official">Clerical Official</option>
+            <option value="Clinical Pharmacist">Clinical Pharmacist</option>
+            <option value="Company Secretary">Company Secretary</option>
+            <option value="Computer Engineer">Computer Engineer</option>
+            <option value="Computer Programmer">Computer Programmer</option>
+            <option value="Consultant">Consultant</option>
+            <option value="Contractor">Contractor</option>
+            <option value="Content Creator">Content Creator</option>
+            <option value="Counsellor">Counsellor</option>
+            <option value="Creative Person">Creative Person</option>
+            <option value="Customer Support Professional">Customer Support Professional</option>
+            <option value="Data Analyst">Data Analyst</option>
+            <option value="Defence Employee">Defence Employee</option>
+            <option value="Dentist">Dentist</option>
+            <option value="Designer">Designer</option>
+            <option value="Director / Chairman">Director / Chairman</option>
+            <option value="Doctor">Doctor</option>
+            <option value="Economist">Economist</option>
+            <option value="Electrical Engineer">Electrical Engineer</option>
+            <option value="Engineer">Engineer</option>
+            <option value="Entertainment Professional">Entertainment Professional</option>
+            <option value="Event Manager">Event Manager</option>
+            <option value="Executive">Executive</option>
+            <option value="Factory Worker">Factory Worker</option>
+            <option value="Farmer">Farmer</option>
+            <option value="Fashion Designer">Fashion Designer</option>
+            <option value="Finance Professional">Finance Professional</option>
+            <option value="Food Technologist">Food Technologist</option>
+            <option value="Government Employee">Government Employee</option>
+            <option value="Graphic Designer">Graphic Designer</option>
+            <option value="Hair Dresser">Hair Dresser</option>
+            <option value="Health Care Professional">Health Care Professional</option>
+            <option value="Hospitality Professional">Hospitality Professional</option>
+            <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
+            <option value="Human Resource Professional">Human Resource Professional</option>
+            <option value="HSE Officer">HSE Officer</option>
+            <option value="Influencer">Influencer</option>
+            <option value="Insurance Advisor">Insurance Advisor</option>
+            <option value="Insurance Agent">Insurance Agent</option>
+            <option value="Interior Designer">Interior Designer</option>
+            <option value="Investment Professional">Investment Professional</option>
+            <option value="IT / Telecom Professional">IT / Telecom Professional</option>
+            <option value="Islamic Scholar">Islamic Scholar</option>
+            <option value="Islamic Teacher">Islamic Teacher</option>
+            <option value="Journalist">Journalist</option>
+            <option value="Lawyer">Lawyer</option>
+            <option value="Lecturer">Lecturer</option>
+            <option value="Legal Professional">Legal Professional</option>
+            <option value="Librarian">Librarian</option>
+            <option value="Logistics Professional">Logistics Professional</option>
+            <option value="Manager">Manager</option>
+            <option value="Marketing Professional">Marketing Professional</option>
+            <option value="Mechanical Engineer">Mechanical Engineer</option>
+            <option value="Medical Representative">Medical Representative</option>
+            <option value="Medical Transcriptionist">Medical Transcriptionist</option>
+            <option value="Merchant Naval Officer">Merchant Naval Officer</option>
+            <option value="Microbiologist">Microbiologist</option>
+            <option value="Military">Military</option>
+            <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
+            <option value="Navy Officer">Navy Officer</option>
+            <option value="Nurse">Nurse</option>
+            <option value="Occupational Therapist">Occupational Therapist</option>
+            <option value="Office Staff">Office Staff</option>
+            <option value="Optician">Optician</option>
+            <option value="Optometrist">Optometrist</option>
+            <option value="Pharmacist">Pharmacist</option>
+            <option value="Physician">Physician</option>
+            <option value="Physician Assistant">Physician Assistant</option>
+            <option value="Pilot">Pilot</option>
+            <option value="Police Officer">Police Officer</option>
+            <option value="Priest">Priest</option>
+            <option value="Product Manager / Professional">Product Manager / Professional</option>
+            <option value="Professor">Professor</option>
+            <option value="Project Manager">Project Manager</option>
+            <option value="Public Relations Professional">Public Relations Professional</option>
+            <option value="Real Estate Professional">Real Estate Professional</option>
+            <option value="Research Scholar">Research Scholar</option>
+            <option value="Retail Professional">Retail Professional</option>
+            <option value="Sales Professional">Sales Professional</option>
+            <option value="Scientist">Scientist</option>
+            <option value="Self-Employed">Self-Employed</option>
+            <option value="Social Worker">Social Worker</option>
+            <option value="Software Consultant">Software Consultant</option>
+            <option value="Software Developer">Software Developer</option>
+            <option value="Speech Therapist">Speech Therapist</option>
+            <option value="Sportsman">Sportsman</option>
+            <option value="Supervisor">Supervisor</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Technician">Technician</option>
+            <option value="Tour Guide">Tour Guide</option>
+            <option value="Trainer">Trainer</option>
+            <option value="Transportation Professional">Transportation Professional</option>
+            <option value="Tutor">Tutor</option>
+            <option value="Veterinary Doctor">Veterinary Doctor</option>
+            <option value="Videographer">Videographer</option>
+            <option value="Web Designer">Web Designer</option>
+            <option value="Web Developer">Web Developer</option>
+            <option value="Wholesale Businessman">Wholesale Businessman</option>
+            <option value="Writer">Writer</option>
+            <option value="Zoologist">Zoologist</option>
+            <option value="Other">Other</option>
           </select>
 
           {/* Use the MaritalStatusDropdown component */}
           <MaritalStatusDropdown 
-            value={filters.martialStatus ? filters.martialStatus.split(',') : []}
+            key={`marital-status-${resetKey}`}
+            value={filters.martialStatus}
             onChange={handleMaritalStatusChange}
           />
 

@@ -276,11 +276,30 @@ const Matches = () => {
                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
              >
                <option value="">Sect</option>
-               {distinctSchoolInfo?.map((info, index) => (
-                 <option key={index} value={info}>
-                   {info}
-                 </option>
-               ))}
+               <option value="Ahle Qur'an">Ahle Qur'an</option>
+               <option value="Ahamadi">Ahamadi</option>
+               <option value="Barelvi">Barelvi</option>
+               <option value="Bohra">Bohra</option>
+               <option value="Deobandi">Deobandi</option>
+               <option value="Hanabali">Hanabali</option>
+               <option value="Hanafi">Hanafi</option>
+               <option value="Ibadi">Ibadi</option>
+               <option value="Ismaili">Ismaili</option>
+               <option value="Jamat e Islami">Jamat e Islami</option>
+               <option value="Maliki">Maliki</option>
+               <option value="Pathan">Pathan</option>
+               <option value="Salafi">Salafi</option>
+               <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+               <option value="Sayyid">Sayyid</option>
+               <option value="Shafi">Shafi</option>
+               <option value="Shia">Shia</option>
+               <option value="Sunni">Sunni</option>
+               <option value="Sufism">Sufism</option>
+               <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+               <option value="Zahiri">Zahiri</option>
+               <option value="Muslim">Muslim</option>
+               <option value="Other">Other</option>
+               <option value="Prefer not to say">Prefer not to say</option>
              </select>
      
              <select

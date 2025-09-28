@@ -164,7 +164,15 @@ const DashboardLayout = ({
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  
+  // Search functionality states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  
   const notificationsRef = useRef(null);
+  const searchRef = useRef(null);
   const [apiData, setApiData] = useState({});
   const [useLoading, setLoading] = useState({});
   const [useError, setErrors] = useState({});
@@ -176,6 +184,71 @@ const DashboardLayout = ({
   const isActive = (path) => {
     return location.pathname === path;
   };
+
+  // Search functionality
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.length > 0) {
+      setShowSearchResults(true);
+      // Generate search suggestions based on query
+      const suggestions = generateSearchSuggestions(query);
+      setSearchSuggestions(suggestions);
+    } else {
+      setShowSearchResults(false);
+      setSearchSuggestions([]);
+    }
+  };
+
+  const generateSearchSuggestions = (query) => {
+    const suggestions = [
+      { type: 'profile', text: `Search profiles matching "${query}"`, action: () => navigate(`/search?q=${query}`) },
+      { type: 'dashboard', text: 'Dashboard', action: () => navigate('/user-dashboard') },
+      { type: 'profile', text: 'My Profile', action: () => navigate(`/myprofile/${userId}`) },
+      { type: 'settings', text: 'Settings', action: () => navigate('/settings') },
+      { type: 'help', text: 'Help & Support', action: () => navigate('/help') },
+      { type: 'matches', text: 'My Matches', action: () => navigate('/matches') },
+      { type: 'interests', text: 'My Interests', action: () => navigate('/total-interest') },
+      { type: 'requests', text: 'My Requests', action: () => navigate('/total-request') },
+      { type: 'shortlist', text: 'My Shortlist', action: () => navigate('/total-shortlist') },
+      { type: 'blocked', text: 'Blocked Users', action: () => navigate('/blocked-users') }
+    ];
+    
+    return suggestions.filter(suggestion => 
+      suggestion.text.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to search results page
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setShowSearchResults(false);
+      setSearchQuery("");
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    suggestion.action();
+    setShowSearchResults(false);
+    setSearchQuery("");
+  };
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (role === "agent") return;
@@ -583,9 +656,37 @@ const DashboardLayout = ({
             {/* Navbar Icon (Hamburger Menu) */}
 
             {/* Search Bar */}
-            <div className="search-bar">
-              <FaSearch className="search-icon" />
-              <input type="text" placeholder="Search" />
+            <div className="search-bar" ref={searchRef}>
+              <form onSubmit={handleSearchSubmit}>
+                <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input 
+                  type="text" 
+                  placeholder="Search profiles, settings, help, interests, matches..." 
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowSearchResults(true)}
+                />
+              </form>
+              
+              {/* Search Results Dropdown */}
+              {showSearchResults && searchSuggestions.length > 0 && (
+                <div className="search-results-dropdown">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <div 
+                      key={index}
+                      className="search-suggestion-item"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      <svg className="suggestion-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                      </svg>
+                      <span>{suggestion.text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="header-right">

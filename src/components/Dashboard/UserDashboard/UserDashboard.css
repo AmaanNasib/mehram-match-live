@@ -250,12 +250,17 @@ td {
 
 .header-left {
   flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .user-profile-info {
   display: flex;
   align-items: center;
   gap: 20px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .user-avatar {
@@ -313,6 +318,8 @@ td {
 .header-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .user-stats-summary {
