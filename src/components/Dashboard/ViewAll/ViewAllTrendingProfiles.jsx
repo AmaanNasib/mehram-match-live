@@ -23,7 +23,10 @@ const ViewAllTrendingProfiles = () => {
   const [errors, setErrors] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
   const [interestStatus, setInterestStatus] = useState({}); // Track interest status for each user
+  const [shortlistStatus, setShortlistStatus] = useState({}); // Track shortlist status for each user
+  const [ignoredUsers, setIgnoredUsers] = useState(new Set()); // Track ignored users (lifetime block)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showIgnoreModal, setShowIgnoreModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   // Auto-hide success message after 3 seconds
@@ -179,12 +182,27 @@ const ViewAllTrendingProfiles = () => {
   };
 
   const handleShortlistClick = (actionOnId) => {
+    // Check if already shortlisted
+    if (shortlistStatus[actionOnId]) {
+      // Remove from shortlist
+      setShortlistStatus(prev => ({
+        ...prev,
+        [actionOnId]: false
+      }));
+    } else {
+      // Add to shortlist
+      setShortlistStatus(prev => ({
+        ...prev,
+        [actionOnId]: true
+      }));
+    }
+
     const parameter = {
       url: role === "agent" ? "/api/agent/shortlist/" : `/api/recieved/`,
       payload: {
         action_by_id: userId,
         action_on_id: actionOnId,
-        shortlisted: true,
+        shortlisted: !shortlistStatus[actionOnId],
       },
       setErrors: setErrors,
       tofetch: {
@@ -208,11 +226,22 @@ const ViewAllTrendingProfiles = () => {
   };
 
   const handleIgnoreClick = (actionOnId) => {
+    // Show ignore confirmation modal
+    setSelectedUserId(actionOnId);
+    setShowIgnoreModal(true);
+  };
+
+  const handleConfirmIgnore = () => {
+    if (!selectedUserId) return;
+
+    // Add to ignored users (lifetime block)
+    setIgnoredUsers(prev => new Set([...prev, selectedUserId]));
+
     const parameter = {
       url: role === "agent" ? "/api/agent/ignore/" : `/api/ignore/`,
       payload: {
         action_by_id: userId,
-        action_on_id: actionOnId,
+        action_on_id: selectedUserId,
         ignored: true,
       },
       setErrors: setErrors,
@@ -234,6 +263,10 @@ const ViewAllTrendingProfiles = () => {
     };
 
     postDataWithFetchV2(parameter);
+
+    // Close modal
+    setShowIgnoreModal(false);
+    setSelectedUserId(null);
   };
 
   return (
@@ -342,7 +375,7 @@ const ViewAllTrendingProfiles = () => {
           {/* Profiles Grid */}
           {!loading && trendingProfiles && trendingProfiles.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
-        {trendingProfiles && trendingProfiles.map((profile, index) => (
+        {trendingProfiles && trendingProfiles.filter(profile => !ignoredUsers.has(profile.user?.id)).map((profile, index) => (
           <div
             key={index}
             className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] border border-gray-100 overflow-hidden w-full"
@@ -444,7 +477,7 @@ const ViewAllTrendingProfiles = () => {
                       <button
                   onClick={() => handleShortlistClick(profile.user.id)}
                         className={`flex items-center justify-center px-2 py-1 rounded-md font-medium transition-all duration-200 text-xs ${
-                          profile?.is_shortlisted === true
+                          shortlistStatus[profile.user.id] || profile?.is_shortlisted === true
                             ? 'bg-green-100 text-green-600 border border-green-200'
                             : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 border border-gray-200'
                         }`}
@@ -452,7 +485,7 @@ const ViewAllTrendingProfiles = () => {
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M2.68945 3.62109V7.37109H6.43945V3.62109H2.68945ZM3.93945 4.87109H5.18945V6.12109H3.93945V4.87109ZM7.68945 4.87109V6.12109H17.0645V4.87109H7.68945ZM2.68945 8.62109V12.3711H6.43945V8.62109H2.68945ZM3.93945 9.87109H5.18945V11.1211H3.93945V9.87109ZM7.68945 9.87109V11.1211H17.0645V9.87109H7.68945ZM2.68945 13.6211V17.3711H6.43945V13.6211H2.68945ZM3.93945 14.8711H5.18945V16.1211H3.93945V14.8711ZM7.68945 14.8711V16.1211H17.0645V14.8711H7.68945Z" />
                   </svg>
-                        {profile?.is_shortlisted === true ? "Saved" : "Save"}
+                        {shortlistStatus[profile.user.id] || profile?.is_shortlisted === true ? "Shortlisted" : "Shortlist"}
                       </button>
                 </div>
 
@@ -528,7 +561,43 @@ const ViewAllTrendingProfiles = () => {
               </div>
             </div>
           </div>
-      </div>
+        </div>
+      )}
+
+      {/* Ignore Confirmation Modal */}
+      {showIgnoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Ignore User</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to ignore this user? This action will permanently hide their profile from you and cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowIgnoreModal(false);
+                    setSelectedUserId(null);
+                  }}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmIgnore}
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Ignore User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
