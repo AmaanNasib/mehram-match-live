@@ -17,7 +17,7 @@ const ShimmerButton = () => (
   </div>
 );
 
-const Sidebar = ({setApiData, onClose}) => {
+const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
   const [rangeText , setRangeText]=useState('18-23');
   const [rangeText1 , setRangeText1]=useState({});
   const [userId] = useState(localStorage.getItem("userId"));
@@ -228,9 +228,12 @@ const Sidebar = ({setApiData, onClose}) => {
     setCityOptions([]);
     
     // Reset filter state and refresh all data
-    if (setApiData) {
-      // Pass null to indicate clear filters - this will reset to baseline data
-      setApiData(null);
+    if (reloadOriginalData) {
+      // Reload original data from API
+      reloadOriginalData();
+    } else if (setApiData) {
+      // Fallback: Pass empty array to indicate clear filters
+      setApiData([]);
     }
   };
 
