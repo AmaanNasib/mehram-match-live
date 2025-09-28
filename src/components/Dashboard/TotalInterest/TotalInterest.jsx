@@ -636,9 +636,8 @@ const TotalInterest = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDatePicker1, setShowDatePicker1] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
-  const [apiData, setApiData] = useState({sent_interests:[]});
+  const [apiData, setApiData] = useState({sent_interests:[], received_interests:[]});
   const [loading, setLoading] = useState(false);
-  console.log(selectedDate,"selectedDate");
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -661,14 +660,80 @@ const TotalInterest = () => {
   };
   useEffect(() => {
     if (userId) {
-      const parameter = {
-        url: `/api/user/interested/?user_id=${userId}`,
-        setterFunction: setApiData,
-        setLoading: setLoading,
-        setErrors:setErrors
-      };
-      fetchDataObjectV2(parameter);
+      // Fetch both sent and received interests
+      Promise.all([
+        // Fetch sent interests (where current user sent interest to others)
+        new Promise((resolve, reject) => {
+          const sentParameter = {
+            url: `/api/recieved/?action_by_id=${userId}`,
+            setterFunction: resolve,
+            setLoading: () => {},
+            setErrors: reject
+          };
+          fetchDataObjectV2(sentParameter);
+        }),
+        // Fetch received interests (where others sent interest to current user)
+        new Promise((resolve, reject) => {
+          const receivedParameter = {
+            url: `/api/recieved/?action_on_id=${userId}`,
+            setterFunction: resolve,
+            setLoading: () => {},
+            setErrors: reject
+          };
+          fetchDataObjectV2(receivedParameter);
+        })
+      ])
+      .then(([sentData, receivedData]) => {
+        
+        // Process sent interests (action_by_id = current user) 
+        let sentInterests = [];
+        if (Array.isArray(sentData) && sentData.length > 0) {
+          sentInterests = sentData
+            .filter(item => item.action_by_id == userId) // Ensure it's actually sent by current user
+            .map(item => ({
+              ...item,
+              status: "Sent"
+            }));
+        } else if (sentData?.results && Array.isArray(sentData.results)) {
+          sentInterests = sentData.results
+            .filter(item => item.action_by_id == userId)
+            .map(item => ({
+              ...item,
+              status: "Sent"
+            }));
+        }
+        
+        // Process received interests (action_on_id = current user)
+        let receivedInterests = [];
+        if (Array.isArray(receivedData) && receivedData.length > 0) {
+          receivedInterests = receivedData
+            .filter(item => item.action_on_id == userId) // Ensure it's actually received by current user
+            .map(item => ({
+              ...item,
+              status: "Received" // Fix the API typo
+            }));
+        } else if (receivedData?.results && Array.isArray(receivedData.results)) {
+          receivedInterests = receivedData.results
+            .filter(item => item.action_on_id == userId)
+            .map(item => ({
+              ...item,
+              status: "Received"
+            }));
+        }
+        
+        const combinedData = [...sentInterests, ...receivedInterests];
+        
+        setApiData({
+          sent_interests: combinedData
+        });
+        setLoading(false);
+      })
+      .catch(error => {
+        setErrors(error);
+        setLoading(false);
+      });
       
+      setLoading(true);
     }
   }, [userId]);
   const matchDetails = [
@@ -684,15 +749,34 @@ const TotalInterest = () => {
   ];
 
    // Pagination
-     // Extract distinct values for each filter (IDs, Names, etc.)
-  const distinctIds = [...new Set(apiData?.sent_interests?.map((match) =>  match?.user?.id))];
-  const distinctNames = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.name))];
-  const distinctCities = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.city))];
-  const distinctDobs = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.dob))];
-  const distinctSchoolInfo = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.sect_school_info))];
-  const distinctProfessions = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.profession))];
-  const distinctStatuses = [...new Set(apiData?.sent_interests?.map((match) => match?.status))];
-  const distinctMaritalStatuses = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.martial_status))];
+     // Extract distinct values for each filter (IDs, Names, etc.) - using flexible data structure
+  const getDistinctValues = (field) => {
+    return [...new Set(apiData?.sent_interests?.map((match) => {
+      const userData = match?.user || match?.action_on || match?.action_by || match;
+      const userId = userData?.id || match?.action_on_id || match?.action_by_id;
+      
+      switch(field) {
+        case 'id': return userId;
+        case 'name': return userData?.name;
+        case 'city': return userData?.city;
+        case 'dob': return userData?.dob;
+        case 'sect_school_info': return userData?.sect_school_info;
+        case 'profession': return userData?.profession;
+        case 'status': return match?.status;
+        case 'martial_status': return userData?.martial_status;
+        default: return null;
+      }
+    }).filter(Boolean))];
+  };
+  
+  const distinctIds = getDistinctValues('id');
+  const distinctNames = getDistinctValues('name');
+  const distinctCities = getDistinctValues('city');
+  const distinctDobs = getDistinctValues('dob');
+  const distinctSchoolInfo = getDistinctValues('sect_school_info');
+  const distinctProfessions = getDistinctValues('profession');
+  const distinctStatuses = getDistinctValues('status');
+  const distinctMaritalStatuses = getDistinctValues('martial_status');
 
    const [currentPage, setCurrentPage] = useState(1);
    const itemsPerPage = 5;
@@ -732,24 +816,37 @@ const TotalInterest = () => {
   };
   // Apply filters to the data based on selected filter values
   const applyFilters = (updatedFilters) => {
-    console.log(updatedFilters.id,">>>");
+    const filtered = apiData?.sent_interests?.filter((match) => {
+      let statusMatch = true;
+      if (updatedFilters.status) {
+        // Handle both "Received" and "Recieved" (typo from API)
+        const itemStatus = match?.status?.toLowerCase().trim();
+        const filterStatus = updatedFilters.status.toLowerCase().trim();
+        
+        statusMatch = itemStatus === filterStatus || 
+                     (filterStatus === "received" && itemStatus === "recieved") ||
+                     (filterStatus === "recieved" && itemStatus === "received");
+      }
+      
+      // Flexible user data access - same as in table display
+      const userData = match?.user || match?.action_on || match?.action_by || match;
+      const userId = userData?.id || match?.action_on_id || match?.action_by_id;
+      
+      return (
+        (updatedFilters.id ? userId == updatedFilters.id : true) &&
+        (updatedFilters.name ? userData?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
+        (updatedFilters.city ? userData?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
+        (updatedFilters.startDate && updatedFilters.endDate 
+          ? new Date(match?.created_at || match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.created_at || match?.date) <= new Date(updatedFilters.endDate)
+          : true) &&
+        (updatedFilters.sectSchoolInfo ? userData?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
+        (updatedFilters.profession ? userData?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
+        statusMatch &&
+        (updatedFilters.martialStatus ? userData?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
+      );
+    });
     
-    setFilteredItems(
-      apiData?.sent_interests?.filter((match) => {
-        return (
-          (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
-          (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
-          (updatedFilters.city ? match?.user?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-          (updatedFilters.startDate && updatedFilters.endDate 
-            ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
-            : true) &&
-          (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
-          (updatedFilters.profession ? match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
-          (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
-          (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
-        );
-      })
-    );
+    setFilteredItems(filtered);
   };
    const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
    // Total pages
@@ -1085,28 +1182,47 @@ const TotalInterest = () => {
             </tr>
           </thead>
           <tbody>
-            {currentItems?.map((match,index) => (
-              <tr key={index} onClick={() => navigate(`/details/${match?.user?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.user?.id ||"N/A"}</td>
-                <td>{match?.user?.name ||"N/A"}</td>
-                <td>{match?.user?.city ||"N/A"}</td>
-                <td>{match?.date ||"N/A"}</td>
-                <td>{match?.user?.sect_school_info ||"N/A"}</td>
-                <td>{match?.user?.profession ||"N/A"}</td>
-                <td>
-                  <span className={`status-badge ${match?.status?match?.status?.toLowerCase():"unspecified"}`}>{match?.status ||"Unspecified"}</span>
+            {loading ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                  Loading data...
                 </td>
-                <td>
-                  <span className={`marital-badge ${match?.user?.martial_status?match?.user?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
-                    {match?.user?.martial_status||"Not mentioned"}
-                  </span>
-                </td>
-                {/* <td>
-                  <button className="accept-btn" onClick={(e) => { e.stopPropagation(); handleAccept(match.id); }}>Accept</button>
-                  <button className="reject-btn" onClick={(e) => { e.stopPropagation(); handleReject(match.id); }}>Reject</button>
-                </td> */}
               </tr>
-            ))}
+            ) : currentItems?.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                  {filteredItems?.length === 0 && filters.status ? 
+                    `No ${filters.status.toLowerCase()} interests found` : 
+                    "No data available"
+                  }
+                </td>
+              </tr>
+            ) : (
+              currentItems?.map((match,index) => {
+                // Flexible user data access - try different possible structures
+                const userData = match?.user || match?.action_on || match?.action_by || match;
+                const userId = userData?.id || match?.action_on_id || match?.action_by_id;
+                
+                return (
+                  <tr key={index} onClick={() => navigate(`/details/${userId}`)} style={{ cursor: "pointer" }}>
+                    <td>{userId ||"N/A"}</td>
+                    <td>{userData?.name ||"N/A"}</td>
+                    <td>{userData?.city ||"N/A"}</td>
+                    <td>{match?.created_at?.split('T')[0] || match?.date ||"N/A"}</td>
+                    <td>{userData?.sect_school_info ||"N/A"}</td>
+                    <td>{userData?.profession ||"N/A"}</td>
+                    <td>
+                      <span className={`status-badge ${match?.status?match?.status?.toLowerCase():"unspecified"}`}>{match?.status ||"Unspecified"}</span>
+                    </td>
+                    <td>
+                      <span className={`marital-badge ${userData?.martial_status?userData?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
+                        {userData?.martial_status||"Not mentioned"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
 
