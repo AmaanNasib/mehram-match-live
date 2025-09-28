@@ -22,6 +22,19 @@ const ViewAllUser = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
+  const [interestStatus, setInterestStatus] = useState({}); // Track interest status for each user
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
+  // Auto-hide success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
   const [activeUser, setactiveUser] = useState({});
   const [apiMember, setApiDataMember] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -80,10 +93,16 @@ const ViewAllUser = () => {
   }, [userId]);
 
   const handleInterestClick = (actionOnId) => {
-    const url = role ? `/api/recieved/${actionOnId}/` : `/api/recieved/`;
+    // Check if interest already sent
+    if (interestStatus[actionOnId]) {
+      // Show withdraw modal
+      setSelectedUserId(actionOnId);
+      setShowWithdrawModal(true);
+      return;
+    }
 
     const parameter = {
-      url,
+      url: role === "agent" ? "/api/agent/interest/" : `/api/recieved/`,
       payload: {
         action_by_id: userId,
         action_on_id: actionOnId,
@@ -104,11 +123,51 @@ const ViewAllUser = () => {
       },
     };
 
-    if (Number(actionOnId)) {
-      putDataWithFetchV2(parameter);
-    } else {
-      postDataWithFetchV2(parameter);
-    }
+    // Update interest status immediately
+    setInterestStatus(prev => ({
+      ...prev,
+      [actionOnId]: true
+    }));
+
+    postDataWithFetchV2(parameter);
+  };
+
+  const handleWithdrawInterest = () => {
+    if (!selectedUserId) return;
+
+    const parameter = {
+      url: role === "agent" ? "/api/agent/interest/" : `/api/recieved/`,
+      payload: {
+        action_by_id: userId,
+        action_on_id: selectedUserId,
+        interest: false,
+      },
+      setErrors: setErrors,
+      tofetch: {
+        items: [
+          {
+            fetchurl: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
+            dataset: setAllUser,
+            setSuccessMessage: setSuccessMessage,
+            setErrors: setErrors,
+          },
+        ],
+        setSuccessMessage: setSuccessMessage,
+        setErrors: setErrors,
+      },
+    };
+
+    // Update interest status
+    setInterestStatus(prev => ({
+      ...prev,
+      [selectedUserId]: false
+    }));
+
+    postDataWithFetchV2(parameter);
+
+    // Close modal
+    setShowWithdrawModal(false);
+    setSelectedUserId(null);
   };
 
   const handleShortlistClick = (actionOnId) => {
@@ -235,6 +294,14 @@ const ViewAllUser = () => {
           </div>
         )}
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center mb-8">
+            <div className="text-green-600 font-semibold text-lg mb-2">Success!</div>
+            <p className="text-green-500">{successMessage}</p>
+          </div>
+        )}
+
         {/* Error State */}
       {errors && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-8">
@@ -337,7 +404,7 @@ const ViewAllUser = () => {
                     <button
                   onClick={() => handleInterestClick(profile.user.id)}
                       className={`w-full flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                        profile?.is_interested === true
+                        interestStatus[profile.user.id] || profile?.is_interested === true
                           ? 'bg-pink-100 text-pink-600 border border-pink-200'
                           : 'bg-gradient-to-r from-[#FF6B35] to-[#F7931E] text-white hover:from-[#FF5722] hover:to-[#FF9800] shadow-md hover:shadow-lg'
                       }`}
@@ -345,7 +412,7 @@ const ViewAllUser = () => {
                       <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                      {profile?.is_interested === true ? "Interested" : "Send Interest"}
+                      {interestStatus[profile.user.id] || profile?.is_interested === true ? "Interest Sent" : "Send Interest"}
                     </button>
 
                     {/* Secondary Buttons Grid */}
@@ -409,6 +476,42 @@ const ViewAllUser = () => {
       
       {/* Footer */}
       <Footer />
+
+      {/* Withdraw Interest Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-pink-100 mb-4">
+                <svg className="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Withdraw Interest</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to withdraw your interest? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowWithdrawModal(false);
+                    setSelectedUserId(null);
+                  }}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleWithdrawInterest}
+                  className="flex-1 bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-pink-700 transition-colors"
+                >
+                  Withdraw Interest
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
