@@ -7,6 +7,52 @@
   font-family: 'Poppins', sans-serif;
 }
 
+/* Navigation Layout */
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  max-width: 100%;
+}
+
+/* Dashboard page - navigation on right */
+.dashboard-nav .nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Contact page - navigation in center */
+.contact-nav .nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: linear-gradient(135deg, #FFC0E3, #FFA4D6);
+  color: #CB3B8B;
+  transform: translateY(-2px);
+}
+
+.logo {
+  flex-shrink: 0;
+}
+
 .dropdown-content {
   display: block !important;
   position: absolute;

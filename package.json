@@ -9,6 +9,7 @@
     "axios": "^1.7.8",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
+    "flowbite-react": "^0.12.9",
     "framer-motion": "^11.11.10",
     "gsap": "^3.12.5",
     "jwt-decode": "^4.0.0",
@@ -30,7 +31,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "start:home": "REACT_APP_API_URL=http://192.168.81.66:8000 react-scripts start",
-    "start:yusuf": "cross-env REACT_APP_API_URL=http://192.168.0.105:8000 react-scripts start",
+    "start:yusuf": "cross-env REACT_APP_API_URL=http://192.168.0.110:8000 react-scripts start",
     "start:extra": "REACT_APP_API_URL=http://192.168.194.66:8000 react-scripts start",
     "eject": "react-scripts eject"
   },

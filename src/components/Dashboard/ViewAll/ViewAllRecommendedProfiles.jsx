@@ -13,6 +13,7 @@ import Header from "../header/Header";
 import Sidebar from "../DSidebar/Sidebar";
 import Footer from "../../sections/Footer";
 import { useNavigate } from "react-router-dom";
+import DashboadrCard from "../dashboardCard/DashboardCard";
 
 const ViewAllRecommendedProfiles = () => {
   const userId = localStorage.getItem("userId");
@@ -252,7 +253,7 @@ const ViewAllRecommendedProfiles = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <Header
         apiData={activeUser}
         members={apiMember?.member || []}
@@ -260,7 +261,7 @@ const ViewAllRecommendedProfiles = () => {
       />
       
       {/* Main Content with Sidebar */}
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4 w-full max-w-full overflow-hidden">
         
         {/* Mobile Filter Toggle Button */}
         <div className="xl:hidden fixed top-24 right-4 z-50">
@@ -302,7 +303,7 @@ const ViewAllRecommendedProfiles = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-4 xl:ml-4">
+        <div className="flex-1 p-4 xl:ml-4 overflow-hidden">
           {/* Header Section */}
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-800 mb-1">
@@ -354,155 +355,229 @@ const ViewAllRecommendedProfiles = () => {
           </div>
         )}
 
-          {/* Profiles Grid */}
+          {/* Professional Profile Cards Grid */}
           {!loading && recommendedProfiles && recommendedProfiles.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
-        {recommendedProfiles && recommendedProfiles.filter(profile => !ignoredUsers.has(profile.user?.id)).map((profile, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] border border-gray-100 overflow-hidden w-full"
-          >
-                {/* Profile Image Section - Same as NewDashboard */}
-                <div className="profile-image" style={{ height: '30vh' }}>
-                  <img
-                    src={(() => {
-                      // Try all possible photo field combinations
-                      let photoUrl = null;
-                      
-                      if (profile?.profile_photo) {
-                        photoUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.profile_photo}`;
-                      } else if (profile?.user_profilephoto?.upload_photo) {
-                        photoUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.user_profilephoto.upload_photo}`;
-                      } else if (profile?.user?.profile_photo) {
-                        photoUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.user.profile_photo}`;
-                      } else if (profile?.user?.user_profilephoto?.upload_photo) {
-                        photoUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.user.user_profilephoto.upload_photo}`;
-                      } else if (profile?.upload_photo) {
-                        photoUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${profile.upload_photo}`;
-                      }
-                      
-                      if (!photoUrl) {
-                        photoUrl = `data:image/svg+xml;utf8,${encodeURIComponent(
-                          profile?.gender === "male"
-                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
-                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
-              </svg>`
-                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
-                          )}`;
+            <div className="space-y-8">
+            
+
+              {/* Multi-Row Profile Grid */}
+              <div className="space-y-6">
+                {(() => {
+                  const filteredProfiles = recommendedProfiles.filter(profile => {
+                    // Filter out ignored users
+                    if (ignoredUsers.has(profile.user?.id)) return false;
+                    
+                    // Gender filtering: show opposite gender
+                    const currentUserGender = activeUser?.gender;
+                    const profileGender = profile.user?.gender || profile?.gender;
+                    
+                    // If current user is male, show female profiles and vice versa
+                    if (currentUserGender === 'male' && profileGender === 'female') return true;
+                    if (currentUserGender === 'female' && profileGender === 'male') return true;
+                    
+                    // If gender is not specified, show all profiles
+                    if (!currentUserGender || !profileGender) return true;
+                    
+                    return false;
+                  });
+
+                  // Create chunks of profiles for multiple rows (5 profiles per row)
+                  const profilesPerRow = 5;
+                  const rows = [];
+                  for (let i = 0; i < filteredProfiles.length; i += profilesPerRow) {
+                    rows.push(filteredProfiles.slice(i, i + profilesPerRow));
                   }
-                      
-                      return photoUrl;
-                    })()}
-                  alt="Profile Photo"
-                  style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                    onError={(e) => {
-                      console.log('Image failed to load:', e.target.src);
-                    }}
-                  />
-            </div>
 
-            {/* Profile Details */}
-            <div className="p-4">
-              <div className="text-center mb-3">
-                <h3 className="text-base font-bold text-gray-800 mb-1">
-                  {profile.user?.name || "No Name"}
-                </h3>
-                <div className="text-gray-600 text-xs mb-3">
-                  <span className="text-pink-600 font-semibold">
-                    {profile.user?.age || "N/A"}
-                  </span>
-                  <span className="mx-1">|</span>
-                  <span>{profile.user?.martial_status || profile?.martial_status || "Never Married"}</span>
-                  <span className="mx-1">|</span>
-                  <span>{profile.user?.city || "Not Mentioned"}</span>
-            </div>
-            </div>
+                  return rows.map((rowProfiles, rowIndex) => (
+                    <div key={rowIndex} className="relative">
+                      {/* Profile Cards Frame Container */}
+                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+                        {/* Frame Header */}
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                          <div className="flex items-center space-x-3">
+                            <h4 className="text-lg font-semibold text-gray-800">Profiles</h4>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {rowProfiles.length} profiles
+                          </div>
+                        </div>
 
-                  {/* Action Buttons */}
-                  <div className="space-y-2">
-                    {/* Send Interest Button */}
-                    <button
-                  onClick={() => handleInterestClick(profile.user.id)}
-                      className={`w-full flex items-center justify-center px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                        interestStatus[profile.user.id] || profile?.is_interested === true
-                          ? 'bg-pink-100 text-pink-600 border border-pink-200'
-                          : 'bg-gradient-to-r from-[#FF6B35] to-[#F7931E] text-white hover:from-[#FF5722] hover:to-[#FF9800] shadow-md hover:shadow-lg'
-                      }`}
-                    >
-                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                      {interestStatus[profile.user.id] || profile?.is_interested === true ? "Interest Sent" : "Send Interest"}
-                    </button>
+                        {/* Horizontal Scrollable Row */}
+                        <div className="relative group">
+                        <div
+                          className="horizontal-scroll-row flex gap-12 overflow-x-auto overflow-y-hidden scroll-smooth pb-4"
+                          style={{
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                            WebkitOverflowScrolling: 'touch',
+                            maxWidth: '100%',
+                            width: '100%'
+                          }}
+                          onScroll={(e) => {
+                            e.stopPropagation();
 
-                    {/* Secondary Buttons Grid */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                  onClick={() => navigate(`/details/${profile?.user?.id}`)}
-                        className="flex items-center justify-center px-2 py-1 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 font-medium transition-all duration-200 text-xs"
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                        Profile
-                      </button>
+                            const container = e.target;
+                            const scrollLeft = container.scrollLeft;
+                            const scrollWidth = container.scrollWidth;
+                            const clientWidth = container.clientWidth;
 
-                      <button
-                  onClick={() => handleShortlistClick(profile.user.id)}
-                        className={`flex items-center justify-center px-2 py-1 rounded-md font-medium transition-all duration-200 text-xs ${
-                          shortlistStatus[profile.user.id] || profile?.is_shortlisted === true
-                            ? 'bg-green-100 text-green-600 border border-green-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 border border-gray-200'
-                        }`}
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M2.68945 3.62109V7.37109H6.43945V3.62109H2.68945ZM3.93945 4.87109H5.18945V6.12109H3.93945V4.87109ZM7.68945 4.87109V6.12109H17.0645V4.87109H7.68945ZM2.68945 8.62109V12.3711H6.43945V8.62109H2.68945ZM3.93945 9.87109H5.18945V11.1211H3.93945V9.87109ZM7.68945 9.87109V11.1211H17.0645V9.87109H7.68945ZM2.68945 13.6211V17.3711H6.43945V13.6211H2.68945ZM3.93945 14.8711H5.18945V16.1211H3.93945V14.8711ZM7.68945 14.8711V16.1211H17.0645V14.8711H7.68945Z" />
-                  </svg>
-                        {shortlistStatus[profile.user.id] || profile?.is_shortlisted === true ? "Shortlisted" : "Shortlist"}
-                      </button>
-                </div>
+                            // Show/hide navigation buttons for this row
+                            const leftBtn = container.parentElement.querySelector('.scroll-btn-left');
+                            const rightBtn = container.parentElement.querySelector('.scroll-btn-right');
 
-                    {/* Bottom Row Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                  onClick={() => handleIgnoreClick(profile.user.id)}
-                        className={`flex items-center justify-center px-2 py-1 rounded-md font-medium transition-all duration-200 text-xs ${
-                          profile?.is_blocked === true
-                            ? 'bg-red-100 text-red-600 border border-red-200'
-                            : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200'
-                        }`}
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
-                        </svg>
-                        {profile?.is_blocked === true ? "Blocked" : "Block"}
-                      </button>
+                            if (leftBtn) {
+                              leftBtn.style.opacity = scrollLeft > 0 ? '1' : '0.3';
+                              leftBtn.style.pointerEvents = scrollLeft > 0 ? 'auto' : 'none';
+                            }
 
-                      <button
-                        onClick={() => navigate(`/chat/${profile?.user?.id}`)}
-                        className="flex items-center justify-center px-2 py-1 rounded-md bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 font-medium transition-all duration-200 text-xs"
-                      >
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                        Message
-                      </button>
+                            if (rightBtn) {
+                              const canScrollRight = scrollLeft < scrollWidth - clientWidth - 10;
+                              rightBtn.style.opacity = canScrollRight ? '1' : '0.3';
+                              rightBtn.style.pointerEvents = canScrollRight ? 'auto' : 'none';
+                            }
+                          }}
+                          onWheel={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const container = e.currentTarget;
+                            const scrollAmount = e.deltaY * 1.5;
+                            container.scrollLeft += scrollAmount;
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onTouchMove={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          {rowProfiles.map((profile, index) => {
+                            const user = profile && profile.user ? profile.user : profile;
+                            const keyId = user?.id || profile?.id;
+                            return (
+                              <div key={keyId} className="flex-shrink-0 w-72 max-w-72 transform transition-all duration-300 hover:scale-105 hover:z-10">
+                                <div className="relative">
+                                  {/* Profile Number Badge */}
+                                  <div className="absolute top-3 left-3 z-10">
+                                    <span className="bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
+                                      #{rowIndex * profilesPerRow + index + 1}
+                                    </span>
+                                  </div>
+                                  
+                                  <DashboadrCard
+                                    profile={user}
+                                    url={`/api/user/recommend/?user_id=${userId}`}
+                                    interested_id={profile?.interested_id}
+                                    setApiData={setRecommendedProfiles}
+                                    IsInterested={profile?.is_interested}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Row Navigation Buttons */}
+                        <button
+                          className="scroll-btn-left absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white border border-gray-200 rounded-full p-3 shadow-xl transition-all duration-300 z-20 opacity-30 pointer-events-none group-hover:opacity-100"
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                            backdropFilter: 'blur(10px)'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const container = e.target.closest('.relative').querySelector('.horizontal-scroll-row');
+                            if (container) {
+                              container.scrollBy({ left: -320, behavior: 'smooth' });
+                            }
+                          }}
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M15 18l-6-6 6-6"/>
+                          </svg>
+                        </button>
+
+                        <button
+                          className="scroll-btn-right absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white border border-gray-200 rounded-full p-3 shadow-xl transition-all duration-300 z-20 opacity-30 pointer-events-none group-hover:opacity-100"
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
+                            backdropFilter: 'blur(10px)'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const container = e.target.closest('.relative').querySelector('.horizontal-scroll-row');
+                            if (container) {
+                              container.scrollBy({ left: 320, behavior: 'smooth' });
+                            }
+                          }}
+                        >
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 18l6-6-6-6"/>
+                          </svg>
+                        </button>
+
+                          {/* Row Scroll Indicator */}
+                          <div className="flex justify-center mt-4 space-x-2">
+                            {Array.from({ length: Math.ceil(rowProfiles.length / 4) }, (_, i) => (
+                              <div key={i} className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                </div>
+                  ));
+                })()}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-pink-600 mb-1">
+                      {recommendedProfiles.length}
+                    </div>
+                    <div className="text-gray-600">Total Profiles</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-purple-600 mb-1">
+                      {Math.ceil(recommendedProfiles.length / 4)}
+                    </div>
+                    <div className="text-gray-600">Profile Rows</div>
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Custom Styles */}
+              <style jsx>{`
+                .horizontal-scroll-row::-webkit-scrollbar {
+                  display: none;
+                }
+                .horizontal-scroll-row {
+                  -webkit-overflow-scrolling: touch;
+                }
+                
+                /* Smooth hover effects */
+                .horizontal-scroll-row > div {
+                  transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .horizontal-scroll-row > div:hover {
+                  transform: translateY(-5px);
+                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                }
+              `}</style>
             </div>
-        )}
+          )}
 
           </div>
       </div>
@@ -586,3 +661,4 @@ const ViewAllRecommendedProfiles = () => {
 };
 
 export default ViewAllRecommendedProfiles;
+

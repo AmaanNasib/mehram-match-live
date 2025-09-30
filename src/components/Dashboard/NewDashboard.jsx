@@ -83,6 +83,10 @@ const NewDashboard = () => {
   // console.log(activeUser);
 
   const updateLater = () => {
+    // Clear first-time login flag when user chooses to update later
+    localStorage.setItem("isFirstTimeLogin", "false");
+    localStorage.setItem("profileComplete", "false");
+    
     const parameters = {
       url: role == "agent" ? `/api/agent/${userId}/` : `/api/user/${userData}`,
       payload: { update_later: true },
@@ -173,25 +177,51 @@ const NewDashboard = () => {
 
   const [isOpenWindow, setIsModalOpen] = useState(false);
   const closeWindow = () => {
+    // Clear first-time login flag when popup is closed
+    localStorage.setItem("isFirstTimeLogin", "false");
     setIsModalOpen(false);
   };
 
-  // Commented out profile incomplete popup logic for now
-  // const handPopup = () => {
-  //   if (activeUser?.update_later === false) {
-  //     if (
-  //       activeUser?.profile_started === false ||
-  //       activeUser?.profile_completed === false
-  //     ) {
-  //       setIsModalOpen(true);
-  //     }
-  //   }
-  // };
+  // Profile incomplete popup logic for new users
+  const handPopup = () => {
+    // Check if user just registered/logged in for first time
+    const isFirstTimeLogin = localStorage.getItem("isFirstTimeLogin");
+    const profileComplete = localStorage.getItem("profileComplete") || activeUser?.profile_completed;
+    
+    console.log("Checking popup conditions:", {
+      isFirstTimeLogin,
+      profileComplete,
+      updateLater: activeUser?.update_later,
+      profileStarted: activeUser?.profile_started,
+      activeUser
+    });
+    
+    // Show popup for new users or users with incomplete profiles
+    if (isFirstTimeLogin === "true" || 
+        (activeUser?.update_later === false && 
+         (activeUser?.profile_started === false || 
+          activeUser?.profile_completed === false || 
+          profileComplete === false || 
+          profileComplete === "false"))) {
+      console.log("Showing profile completion popup");
+      setIsModalOpen(true);
+    }
+  };
   useEffect(() => {
-    // handPopup(); // Commented out for now
-    localStorage.setItem("gender", activeUser?.gender);
-    localStorage.setItem("profile_completed", activeUser?.profile_completed);
-  }, [activeUser]);
+    if (activeUser && Object.keys(activeUser).length > 0) {
+      handPopup(); // Check if popup should be shown
+      localStorage.setItem("gender", activeUser?.gender || "");
+      localStorage.setItem("profile_completed", activeUser?.profile_completed?.toString() || "false");
+      
+      // Auto-close popup if profile becomes complete
+      if (activeUser?.profile_completed === true && isOpenWindow) {
+        console.log("Profile completed, closing popup");
+        setIsModalOpen(false);
+        localStorage.setItem("isFirstTimeLogin", "false");
+        localStorage.setItem("profileComplete", "true");
+      }
+    }
+  }, [activeUser, isOpenWindow]);
 
   // Check if user has seen welcome section before
   useEffect(() => {
@@ -312,15 +342,15 @@ useEffect(() => {
         subNavActive={"newdashboard"}
       />
       
-      {/* User Profile Completion Modal - Commented out for now */}
-      {/* <UserPop
+      {/* User Profile Completion Modal */}
+      <UserPop
         updateLater={updateLater}
         isOpenWindow={isOpenWindow}
         closeWindow={closeWindow}
         showText={
           activeUser?.profile_started == true
-            ? "you have not completed your profile "
-            : "complete your profile first"
+            ? "You have not completed your profile"
+            : "Complete your profile first to get better matches"
         }
         navTo={
           activeUser?.profile_started == true
@@ -329,7 +359,7 @@ useEffect(() => {
             ? `/agentstepone/${userData}`
             : `/memstepone/`
         }
-      /> */}
+      />
 
       {/* Main Dashboard Container - Desktop Style */}
       <div className="w-full px-4 py-4">
@@ -448,6 +478,7 @@ useEffect(() => {
                   setIsModalOpen={setIsModalOpen}
                   isOpenWindow={isOpenWindow}
                   url={`/api/trending_profile/?user_id=${userId}`}
+                  activeUser={activeUser}
                   profiles={
                     Array.isArray(displayTrending) &&
                     displayTrending.every(
@@ -497,6 +528,7 @@ useEffect(() => {
                   setIsModalOpen={setIsModalOpen}
                   isOpenWindow={isOpenWindow}
                   url={`/api/user/recommend/?user_id=${userId}`}
+                  activeUser={activeUser}
                   profiles={
                     Array.isArray(displayRecommended) &&
                     displayRecommended.every(

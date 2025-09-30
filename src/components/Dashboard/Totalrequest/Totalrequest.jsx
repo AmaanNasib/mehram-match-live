@@ -283,7 +283,7 @@ const StatusDropdown = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState(value || []);
 
-  const statusOptions = ["Sent", "Received"];
+  const statusOptions = ["Pending", "Accepted", "Rejected"];
 
   useEffect(() => {
     if (value) {
@@ -405,13 +405,18 @@ const StatusDropdown = ({ value, onChange }) => {
             transition: all 0.3s ease;
           }
           
-          .status-option-sent:hover {
+          .status-option-pending:hover {
             background-color: #90EE90; /* Light green */
             color: #000;
           }
           
-          .status-option-received:hover {
-           background-color: #8A2BE2; /* Blueberry */
+          .status-option-accepted:hover {
+            background-color: #32CD32; /* Lime green */
+            color: #000;
+          }
+          
+          .status-option-rejected:hover {
+           background-color: #FF6347; /* Tomato red */
             color: #fff;
           }
           
@@ -516,7 +521,7 @@ const TotalRequests = () => {
     }
   }, [userId]);
 
-  // Combine all request data into a single array
+  // Combine all request data into a single array with proper status based on gender and request direction
   const combinedRequests = [
     ...matchDetails.sent_request.map((item) => ({ ...item, status: "Pending" })),
     ...matchDetails.received_request.map((item) => ({ ...item, status: "Pending" })),
@@ -538,7 +543,11 @@ const TotalRequests = () => {
             ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
             : true) &&
           (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
-          (updatedFilters.profession ? match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
+          (updatedFilters.profession ? (
+            match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) ||
+            match?.user?.profession?.toLowerCase().replace(/\s+/g, '_').includes(updatedFilters.profession.toLowerCase().replace(/\s+/g, '_')) ||
+            match?.user?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
+          ) : true) &&
           (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
           (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
         );
@@ -774,6 +783,14 @@ const TotalRequests = () => {
                     <span className={`status-badge ${user.status.toLowerCase()}`}>
                       {user.status}
                     </span>
+                    {/* Show request direction based on gender and requestType */}
+                    <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
+                      {gender === "male" ? (
+                        user.requestType === "sent" ? "Request Sent" : "Request Received"
+                      ) : (
+                        user.requestType === "received" ? "Request Received" : "Request Sent"
+                      )}
+                    </div>
                   </td>
                   {gender == "female" && <td>
                     <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -936,7 +953,7 @@ const TotalRequests = () => {
             background: #e3f7f0;
             color: #18a558;
           }
-          .status-badge.approved {
+          .status-badge.accepted {
             background: #d1f8d1;
             color: #2c7a2c;
           }

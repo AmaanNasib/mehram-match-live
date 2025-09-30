@@ -866,51 +866,53 @@ const DashboardLayout = ({
                   isActive("/user-dashboard") ? "active" : ""
                 }`}
               >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <rect
-                    x="3"
-                    y="3"
-                    width="7"
-                    height="7"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect
-                    x="14"
-                    y="3"
-                    width="7"
-                    height="7"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect
-                    x="14"
-                    y="14"
-                    width="7"
-                    height="7"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <rect
-                    x="3"
-                    y="14"
-                    width="7"
-                    height="7"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {showSidebar && "Dashboard"}
+                <div className="nav-item-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="7"
+                      height="7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <rect
+                      x="14"
+                      y="3"
+                      width="7"
+                      height="7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <rect
+                      x="14"
+                      y="14"
+                      width="7"
+                      height="7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <rect
+                      x="3"
+                      y="14"
+                      width="7"
+                      height="7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                {showSidebar && <span className="nav-item-text">Dashboard</span>}
               </Link>
 
               {role === "agent" && (
@@ -922,50 +924,46 @@ const DashboardLayout = ({
                     title={!showSidebar ? "Members" : ""}
                     onClick={handleMembersClick}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      cursor: "pointer",
                       justifyContent: "space-between",
+                      cursor: "pointer"
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                      >
-                        <path
-                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                          strokeWidth="2"
-                        />
-                      </svg>
-
-                      {showSidebar && "Members"}
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                      <div className="nav-item-icon">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                      </div>
+                      {showSidebar && <span className="nav-item-text">Members</span>}
                     </div>
 
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                      style={{
-                        transition: "transform 0.3s ease",
-                        transform: isMembersMenuOpen
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                      }}
-                    >
-                      <polyline points="6 8 10 12 14 8" strokeWidth="2" />
-                    </svg>
+                    {showSidebar && (
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        style={{
+                          transition: "transform 0.3s ease",
+                          transform: isMembersMenuOpen
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                          flexShrink: 0
+                        }}
+                      >
+                        <polyline points="6 8 10 12 14 8" strokeWidth="2" />
+                      </svg>
+                    )}
                   </div>
 
                   {/* Slide-down submenu */}
@@ -975,40 +973,36 @@ const DashboardLayout = ({
                         ? "max-h-40 opacity-100"
                         : "max-h-0 opacity-0"
                     }`}
-                    style={{ paddingLeft: "2rem" }}
                   >
                     <div
                       className="nav-item"
                       style={{
-                        display: "flex",
-                        alignItems: "center",
+                        paddingLeft: showSidebar ? "52px" : "16px",
                         cursor: "pointer",
                       }}
                       onClick={() => navigate("/my-memberss")}
                     >
-                      Add Member
+                      <span className="nav-item-text">Add Member</span>
                     </div>
                     <div
                       className="nav-item"
                       style={{
-                        display: "flex",
-                        alignItems: "center",
+                        paddingLeft: showSidebar ? "52px" : "16px",
                         cursor: "pointer",
                       }}
                       onClick={() => setShowBulkMemberPopup(true)}
                     >
-                      Add Bulk Member
+                      <span className="nav-item-text">Add Bulk Member</span>
                     </div>
                     <div
                       className="nav-item"
                       style={{
-                        display: "flex",
-                        alignItems: "center",
+                        paddingLeft: showSidebar ? "52px" : "16px",
                         cursor: "pointer",
                       }}
                       onClick={() => setShowAllMembers(true)}
                     >
-                      View All Members
+                      <span className="nav-item-text">View All Members</span>
                     </div>
                   </div>
                 </>
@@ -1046,19 +1040,21 @@ const DashboardLayout = ({
                     isActive("/total-interest") ? "active" : ""
                   }`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {showSidebar && "Total Interest"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Interest</span>}
                 </Link>
               )}
 
@@ -1070,22 +1066,24 @@ const DashboardLayout = ({
                     isActive("/total-request") ? "active" : ""
                   }`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
-                      strokeWidth="2"
-                    />
-                    <circle cx="9" cy="7" r="4" strokeWidth="2" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" strokeWidth="2" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" strokeWidth="2" />
-                  </svg>
-                  {showSidebar && "Total Request"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+                        strokeWidth="2"
+                      />
+                      <circle cx="9" cy="7" r="4" strokeWidth="2" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" strokeWidth="2" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Request</span>}
                 </Link>
               )}
 
@@ -1097,23 +1095,25 @@ const DashboardLayout = ({
                     isActive("/total-ignored") ? "active" : ""
                   }`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                    <line
-                      x1="4.93"
-                      y1="4.93"
-                      x2="19.07"
-                      y2="19.07"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {showSidebar && "Ignored User List"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                      <line
+                        x1="4.93"
+                        y1="4.93"
+                        x2="19.07"
+                        y2="19.07"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Ignored User List</span>}
                 </Link>
               )}
 
@@ -1125,19 +1125,21 @@ const DashboardLayout = ({
                     isActive("/total-shortlist") ? "active" : ""
                   }`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {showSidebar && "My Shortlist"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">My Shortlist</span>}
                 </Link>
               )}
 
@@ -1149,19 +1151,21 @@ const DashboardLayout = ({
                     isActive("/blocked-list") ? "active" : ""
                   }`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {showSidebar && "Blocked User List"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Blocked User List</span>}
                 </Link>
               )}
 
@@ -1171,20 +1175,22 @@ const DashboardLayout = ({
                   title={!showSidebar ? "Inbox" : ""}
                   className={`nav-item ${isActive("/inbox") ? "active" : ""}`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                      strokeWidth="2"
-                    />
-                    <polyline points="22,6 12,13 2,6" strokeWidth="2" />
-                  </svg>
-                  {showSidebar && "Inbox"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                        strokeWidth="2"
+                      />
+                      <polyline points="22,6 12,13 2,6" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Inbox</span>}
                 </Link>
               )}
 
@@ -1194,22 +1200,24 @@ const DashboardLayout = ({
                   title={!showSidebar ? "Matches" : ""}
                   className={`nav-item ${isActive("/matches") ? "active" : ""}`}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                      strokeWidth="2"
-                    />
-                    <circle cx="9" cy="7" r="4" strokeWidth="2" />
-                    <line x1="19" y1="8" x2="19" y2="14" strokeWidth="2" />
-                    <line x1="22" y1="11" x2="16" y2="11" strokeWidth="2" />
-                  </svg>
-                  {showSidebar && "Matches"}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                        strokeWidth="2"
+                      />
+                      <circle cx="9" cy="7" r="4" strokeWidth="2" />
+                      <line x1="19" y1="8" x2="19" y2="14" strokeWidth="2" />
+                      <line x1="22" y1="11" x2="16" y2="11" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Matches</span>}
                 </Link>
               )}
 
@@ -1220,200 +1228,89 @@ const DashboardLayout = ({
                 title={!showSidebar ? "Home" : ""}
                 className="nav-item"
               >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
-                    strokeWidth="2"
-                  />
-                  <polyline points="9 22 9 12 15 12 15 22" strokeWidth="2" />
-                </svg>
-                {showSidebar && "Home"}
+                <div className="nav-item-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                      strokeWidth="2"
+                    />
+                    <polyline points="9 22 9 12 15 12 15 22" strokeWidth="2" />
+                  </svg>
+                </div>
+                {showSidebar && <span className="nav-item-text">Home</span>}
               </Link>
 
-              <div
-                className="nav-item"
-                title={!showSidebar ? "Settings" : ""}
-                style={{
-                  display: "flex",
-                  flexDirection: showSidebar ? "row" : "column",
-                  alignItems: "center",
-                  border: "none",
-                  width:showSidebar?"100%":"auto"
-                }}
-                onClick={(e) => toggleSettingsDropdown(e)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  viewBox="0 0 24 24"
-                >
-                  <circle cx="12" cy="12" r="3" />
-                  <path
-                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 
-       1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 
-       1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 
-       1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 
-       1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 
-       2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 
-       1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 
-       2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 
-       1.65 0 0 0 9 3.6V3a2 2 0 0 1 4 0v.09c.41.2.74.52 
-       1 .91a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 
-       0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 
-       1.82v.09c.2.41.52.74.91 1H21a2 2 0 0 1 0 4h-.09a1.65 
-       1.65 0 0 0-1.51 1z"
-                  />
-                </svg>
-
-                {showSidebar && "Settings"}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  viewBox="0 0 24 24"
-                  style={{
-                    transform: isSettingsDropdownOpen
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-
-              {isSettingsDropdownOpen && (
-                <>
-                  <div
-                    className="nav-item"
-                    title={!showSidebar ? "Change Password" : ""}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                    }}
-                    onClick={() => navigate(`/${userId}/changepassword`)}
-                  >
-                    <FiKey style={{ fontSize: "24px" }} />
-                    {showSidebar && "Change Password"}
-                  </div>
-                  <div
-                    className="nav-item"
-                    title={!showSidebar ? "Manage Profile" : ""}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                    }}
-                    onClick={() => setIsManageProfileModalOpen(true)}
-                  >
-                    <FiEdit style={{ fontSize: "24px" }} />
-                    {showSidebar && "Manage Profile"}
-                  </div>
-                  <div
-                    className="nav-item"
-                    title={!showSidebar ? "Deactivate Account" : ""}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                    }}
-                    onClick={()=>setShowDeactivateMemberPopup(true)}
-                  >
-                    <FiUserMinus style={{ fontSize: "24px" }} />
-                    {showSidebar && "Deactivate Account"}
-                  </div>
-                  <div
-                    className="nav-item"
-                    title={!showSidebar ? "Delete Account" : ""}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                    }}
-                    onClick={() => setDeleteAccountPopup(true)}
-                  >
-                    <FiTrash2 style={{ fontSize: "24px" }} />
-                    {showSidebar && "Delete Account"}
-                  </div>
-                </>
-              )}
               <Link to="/guidance" 
               title={!showSidebar ? "Guidance" : ""}
               className="nav-item">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                    strokeWidth="2"
-                  />
-                  <path d="M12 8v4" strokeWidth="2" />
-                  <path d="M12 16h.01" strokeWidth="2" />
-                </svg>
-                {showSidebar && "Guidance"}
+                <div className="nav-item-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                      strokeWidth="2"
+                    />
+                    <path d="M12 8v4" strokeWidth="2" />
+                    <path d="M12 16h.01" strokeWidth="2" />
+                  </svg>
+                </div>
+                {showSidebar && <span className="nav-item-text">Guidance</span>}
               </Link>
               <Link to="" 
               title={!showSidebar ? "Contact" : ""}
               className="nav-item">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                    strokeWidth="2"
-                  />
-                </svg>
-                {showSidebar && "Contact"}
+                <div className="nav-item-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
+                {showSidebar && <span className="nav-item-text">Contact</span>}
               </Link>
               <Link to="/premium" 
               title={!showSidebar ? "Packages" : ""}
               className="nav-item">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <rect
-                    x="3"
-                    y="3"
-                    width="18"
-                    height="18"
-                    rx="2"
-                    ry="2"
-                    strokeWidth="2"
-                  />
-                  <path d="M12 8v8" strokeWidth="2" />
-                  <path d="M8 12h8" strokeWidth="2" />
-                </svg>
-                {showSidebar && "Packages"}
+                <div className="nav-item-icon">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <rect
+                      x="3"
+                      y="3"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      ry="2"
+                      strokeWidth="2"
+                    />
+                    <path d="M12 8v8" strokeWidth="2" />
+                    <path d="M8 12h8" strokeWidth="2" />
+                  </svg>
+                </div>
+                {showSidebar && <span className="nav-item-text">Packages</span>}
               </Link>
             </nav>
           </aside>

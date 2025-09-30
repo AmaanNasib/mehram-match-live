@@ -3,7 +3,7 @@ import DashboadrCard from '../dashboardCard/DashboardCard';
 import './recommendedProfiles.css';
 import { useNavigate } from 'react-router-dom';
 
-const RecommendedProfiles = ({ profiles, setApiData, url }) => {
+const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +50,20 @@ const RecommendedProfiles = ({ profiles, setApiData, url }) => {
         ) : (
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
-              profiles.map((profile) => {
+              profiles.filter(profile => {
+                // Gender filtering: show opposite gender
+                const currentUserGender = activeUser?.gender;
+                const profileGender = profile.user?.gender || profile?.gender;
+                
+                // If current user is male, show female profiles and vice versa
+                if (currentUserGender === 'male' && profileGender === 'female') return true;
+                if (currentUserGender === 'female' && profileGender === 'male') return true;
+                
+                // If gender is not specified, show all profiles
+                if (!currentUserGender || !profileGender) return true;
+                
+                return false;
+              }).map((profile) => {
                 const user = profile && profile.user ? profile.user : profile;
                 const keyId = user?.id || profile?.id;
                 return (

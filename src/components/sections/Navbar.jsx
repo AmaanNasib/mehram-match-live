@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom"; // Use NavLink instead of Link
-import logo from "../../images/newLogo.jpg";
+import logo from "../../images/logo.png";
 
-// Add custom CSS for smooth animations
+// Add custom CSS for smooth animations and logo styling
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideDown {
@@ -38,6 +38,50 @@ style.textContent = `
   .animate-slideUp {
     animation: slideUp 0.4s ease-in forwards;
   }
+  
+  /* Logo Styling */
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .logo-container:hover {
+    transform: scale(1.02);
+  }
+  
+  .logo-mobile {
+    height: 2.5rem;
+    width: auto;
+    max-width: 9rem;
+    object-fit: contain;
+    transition: all 0.3s ease;
+  }
+  
+  .logo-desktop {
+    height: 3.5rem;
+    width: auto;
+    max-width: 14rem;
+    object-fit: contain;
+    transition: all 0.3s ease;
+  }
+  
+  /* Responsive Logo */
+  @media (max-width: 640px) {
+    .logo-mobile {
+      height: 2rem;
+      max-width: 7rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .logo-desktop {
+      height: 4rem;
+      max-width: 16rem;
+    }
+  }
 `;
 document.head.appendChild(style);
 
@@ -46,6 +90,9 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const registerDropdownRef = useRef(null);
   const navigate = useNavigate();
+  
+  // Check if user is logged in
+  const isUserLoggedIn = localStorage.getItem("userId");
 
   // Toggle dropdown visibility
   const toggleDropdown = () => {
@@ -96,17 +143,20 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
 
   return (
     <header className="bg-white shadow-sm">
-      <nav className="container mx-auto px-4 py-3">
+      <nav className="w-full px-0 py-3">
         {/* Mobile Layout */}
-        <div className="lg:hidden flex items-center justify-between">
-          {/* Logo on the left */}
-          <NavLink to="/" className="flex-shrink-0">
-            <div className="logo">
+        <div className="lg:hidden flex items-center justify-between px-2">
+          {/* Logo fully on the left */}
+          <NavLink to={isUserLoggedIn ? "/newdashboard" : "/"} className="flex-shrink-0">
+            <div className="logo-container">
               <img 
                 src={logo} 
-                style={{ width: "8rem", height: "2rem" }} 
                 alt="Mehram Match" 
-                className="logo-img" 
+                className="logo-mobile"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='30' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%23FF59B6'%3EMehram Match%3C/text%3E%3C/svg%3E";
+                }}
               />
             </div>
           </NavLink>
@@ -142,23 +192,26 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
         </div>
 
         {/* Desktop Layout */}
-        <div className="hidden lg:flex items-center justify-between">
-          {/* Logo on the left */}
-          <NavLink to="/" className="flex-shrink-0">
-            <div className="logo">
+        <div className="hidden lg:flex items-center justify-between px-4">
+          {/* Logo fully on the left */}
+          <NavLink to={isUserLoggedIn ? "/newdashboard" : "/"} className="flex-shrink-0">
+            <div className="logo-container">
               <img 
                 src={logo} 
-                style={{ width: "12rem", height: "3rem" }} 
                 alt="Mehram Match" 
-                className="logo-img" 
+                className="logo-desktop"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 60'%3E%3Ctext x='0' y='35' font-family='Arial, sans-serif' font-size='20' font-weight='bold' fill='%23FF59B6'%3EMehram Match%3C/text%3E%3C/svg%3E";
+                }}
               />
             </div>
           </NavLink>
 
           {/* Desktop Navigation links */}
-          <div className="nav-links space-x-8">
+          <div className="nav-links space-x-8 flex-1 justify-center">
             <NavLink
-              to="/"
+              to={isUserLoggedIn ? "/newdashboard" : "/"}
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               Home
@@ -190,51 +243,54 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
           </div>
 
           {/* Desktop Buttons */}
-          <div className="flex space-x-4">
-            {/* Login Button */}
-            <button
-              onClick={handleLoginClick}
-              className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#EE68B3] to-[#FF8DCD] shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Login
-            </button>
-
-            {/* Register Button */}
-            <div className="relative group">
+          <div className="flex space-x-4 items-center flex-shrink-0 mr-4">
+            {isUserLoggedIn ? (
+              // Show logout button if user is logged in
               <button
-                className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#833E8D] to-[#FF59B6] shadow-lg hover:shadow-xl"
-                onClick={toggleDropdown}
-              >
-                Register
-              </button>
-
-              {isDropdownVisible && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-100">
-                  <NavLink
-                    to="/individual"
-                    onClick={()=>{closeDropdown("member")}}
-                    className={({ isActive }) =>
-                      `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
-                        isActive
-                          ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
-                          : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
-                      }`
-                    }
-                  >
-                    Individual
-                  </NavLink>
-                </div>
-              )}
-            </div>
-
-            {/* Log Out Button */}
-            {isLogIn && (
-              <button
-                className="text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#833E8D] to-[#FF59B6] shadow-lg hover:shadow-xl transition-all duration-300"
                 onClick={handleLogoutClick}
+                className="text-white px-6 py-2 rounded-lg bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] shadow-lg hover:shadow-xl transition-all duration-300 font-medium text-sm"
               >
-                Log Out
+                Logout
               </button>
+            ) : (
+              // Show login/register buttons if user is not logged in
+              <>
+                {/* Login Button */}
+                <button
+                  onClick={handleLoginClick}
+                  className="text-white px-6 py-2 rounded-lg bg-gradient-to-r from-[#EE68B3] to-[#FF8DCD] shadow-lg hover:shadow-xl transition-all duration-300 font-medium text-sm"
+                >
+                  Login
+                </button>
+
+                {/* Register Button */}
+                <div className="relative group">
+                  <button
+                    className="text-white px-6 py-2 rounded-lg bg-gradient-to-r from-[#833E8D] to-[#FF59B6] shadow-lg hover:shadow-xl font-medium text-sm"
+                    onClick={toggleDropdown}
+                  >
+                    Register
+                  </button>
+
+                  {isDropdownVisible && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-100">
+                      <NavLink
+                        to="/individual"
+                        onClick={()=>{closeDropdown("member")}}
+                        className={({ isActive }) =>
+                          `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
+                            isActive
+                              ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
+                              : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
+                          }`
+                        }
+                      >
+                        Individual
+                      </NavLink>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -250,7 +306,7 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
         >
           <div className="px-4 py-4 space-y-2">
             <NavLink
-              to="/"
+              to={isUserLoggedIn ? "/newdashboard" : "/"}
               className={({ isActive }) =>
                 `flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#FF59B6]/10 hover:text-[#FF59B6] rounded-lg transition-all duration-200 font-medium ${
                   isActive ? "bg-[#FF59B6] text-white" : ""
@@ -346,15 +402,29 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
             
             {/* Mobile Buttons */}
             <div className="pt-4 border-t border-gray-200 space-y-2">
-              <button
-                onClick={() => {
-                  handleLoginClick();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#EE68B3] to-[#FF8DCD] shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
-              >
-                Login
-              </button>
+              {isUserLoggedIn ? (
+                // Show logout button if user is logged in
+                <button
+                  onClick={() => {
+                    handleLogoutClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                >
+                  Logout
+                </button>
+              ) : (
+                // Show login button if user is not logged in
+                <button
+                  onClick={() => {
+                    handleLoginClick();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-white px-4 py-2 rounded-md bg-gradient-to-r from-[#EE68B3] to-[#FF8DCD] shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                >
+                  Login
+                </button>
+              )}
 
               <NavLink
                 to="/individual"

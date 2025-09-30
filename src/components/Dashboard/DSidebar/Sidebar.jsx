@@ -164,31 +164,30 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
     { value: "other", label: "Other" },
   ]);
   const sectOptions = useMemo(() => ([
-    { value: "Ahle Qur'an", label: "Ahle Qur'an" },
-    { value: "ahle_quran", label: "ahle_quran" },
-    { value: "Ahamadi", label: "Ahamadi" },
-    { value: "Barelvi", label: "Barelvi" },
-    { value: "Bohra", label: "Bohra" },
-    { value: "Deobandi", label: "Deobandi" },
-    { value: "Hanabali", label: "Hanabali" },
-    { value: "Hanafi", label: "Hanafi" },
-    { value: "Ibadi", label: "Ibadi" },
-    { value: "Ismaili", label: "Ismaili" },
-    { value: "Jamat e Islami", label: "Jamat e Islami" },
-    { value: "Maliki", label: "Maliki" },
-    { value: "Pathan", label: "Pathan" },
-    { value: "Salafi", label: "Salafi" },
-    { value: "Salafi/Ahle Hadees", label: "Salafi/Ahle Hadees" },
-    { value: "Sayyid", label: "Sayyid" },
-    { value: "Shafi", label: "Shafi" },
-    { value: "Shia", label: "Shia" },
-    { value: "Sunni", label: "Sunni" },
-    { value: "Sufism", label: "Sufism" },
-    { value: "Tableeghi Jama'at", label: "Tableeghi Jama'at" },
-    { value: "Zahiri", label: "Zahiri" },
-    { value: "Muslim", label: "Muslim" },
-    { value: "Other", label: "Other" },
-    { value: "Prefer not to say", label: "Prefer not to say" },
+    { value: "ahle_quran", label: "Ahle Qur'an" },
+    { value: "ahamadi", label: "Ahamadi" },
+    { value: "barelvi", label: "Barelvi" },
+    { value: "bohra", label: "Bohra" },
+    { value: "deobandi", label: "Deobandi" },
+    { value: "hanabali", label: "Hanabali" },
+    { value: "hanafi", label: "Hanafi" },
+    { value: "ibadi", label: "Ibadi" },
+    { value: "ismaili", label: "Ismaili" },
+    { value: "jamat_e_islami", label: "Jamat e Islami" },
+    { value: "maliki", label: "Maliki" },
+    { value: "pathan", label: "Pathan" },
+    { value: "salafi", label: "Salafi" },
+    { value: "salafi_ahle_hadees", label: "Salafi/Ahle Hadees" },
+    { value: "sayyid", label: "Sayyid" },
+    { value: "shafi", label: "Shafi" },
+    { value: "shia", label: "Shia" },
+    { value: "sunni", label: "Sunni" },
+    { value: "sufism", label: "Sufism" },
+    { value: "tableeghi_jamaat", label: "Tableeghi Jama'at" },
+    { value: "zahiri", label: "Zahiri" },
+    { value: "muslim", label: "Muslim" },
+    { value: "other", label: "Other" },
+    { value: "prefer_not_to_say", label: "Prefer not to say" },
   ]), []);
   const [formData, setFormData] = useState({
     memberID: '',
@@ -227,7 +226,7 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
     setStateOptions([]);
     setCityOptions([]);
     
-    // Reset filter state and refresh all data
+    // Reset filter state and refresh all data from database
     if (reloadOriginalData) {
       // Reload original data from API
       reloadOriginalData();
@@ -235,6 +234,11 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
       // Fallback: Pass empty array to indicate clear filters
       setApiData([]);
     }
+    
+    // Force page refresh to get latest data from database
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   // Comprehensive location data and helpers (aligned with MemStepOne structure)
@@ -547,18 +551,16 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
   const computeMaritalOptions = (gender) => {
     const base = [
       { value: 'Single', label: 'Single' },
-      { value: 'single', label: 'single' },
       { value: 'Divorced', label: 'Divorced' },
-      { value: 'divorced', label: 'divorced' },
-      { value: 'Khula', label: 'Khula' },
-      { value: 'khula', label: 'khula' },
+      { value: 'KhulaA', label: 'Khula' },
       { value: 'Widowed', label: 'Widowed' },
-      { value: 'widowed', label: 'widowed' },
     ];
-    // Don't show "Married" option for male users
-    // if (gender === 'male') {
-    //   base.splice(1, 0, { value: 'Married', label: 'Married' });
-    // }
+    
+    // Add "MARRIED" option only for female users
+    if (gender === 'female') {
+      base.splice(1, 0, { value: 'Married', label: 'Married' });
+    }
+    
     return base;
   };
 
@@ -629,6 +631,8 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
 
   const handleSearch = () => {
     setIsSearching(true);
+    
+    // Universal search that works across all sections
     const parameter = {
       url: "/api/user/filter/",
       payload: {
@@ -646,11 +650,17 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
         sect: undefined,
         age_min: parseInt(rangeText?.split("-")?.[0]),  
         age_max: parseInt(rangeText?.split("-")?.[1]),  
-        user_id:userId
+        user_id: userId,
+        // Add section-specific filtering
+        include_trending: true,
+        include_recommended: true,
+        include_all_profiles: true
       },
       setUserId: setApiData,
       setErrors: setErrors,
     };
+    
+    // Universal search across all sections
     postDataReturnResponse(parameter);
     
     // Reset searching state after a delay

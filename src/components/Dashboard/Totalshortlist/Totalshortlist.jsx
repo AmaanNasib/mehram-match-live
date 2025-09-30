@@ -488,6 +488,9 @@ const TotalShortlist = () => {
   const [useLoading, setLoading] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
   const [filteredItems, setFilteredItems] = useState([]);
+  const [showRemovalModal, setShowRemovalModal] = useState(false);
+  const [selectedUserForRemoval, setSelectedUserForRemoval] = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
   let [filters, setFilters] = useState({
     id: '',
     name: '',
@@ -544,7 +547,11 @@ const TotalShortlist = () => {
             ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
             : true) &&
           (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
-          (updatedFilters.profession ? match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
+          (updatedFilters.profession ? (
+            match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) ||
+            match?.user?.profession?.toLowerCase().replace(/\s+/g, '_').includes(updatedFilters.profession.toLowerCase().replace(/\s+/g, '_')) ||
+            match?.user?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
+          ) : true) &&
           (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
           (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
         );
@@ -576,8 +583,55 @@ const TotalShortlist = () => {
       fetchDataObjectV2(parameter);
     }
   }, [userId])
-  const handleDelete = (id) => {
-    setMatchDetails({ shortlisted_users: matchDetails?.shortlisted_users?.filter(match => match?.user?.id !== id) });
+  const handleDelete = (user) => {
+    setSelectedUserForRemoval(user);
+    setShowRemovalModal(true);
+  };
+
+  const confirmRemoval = async () => {
+    if (!selectedUserForRemoval) return;
+    
+    setIsRemoving(true);
+    try {
+      // API call to remove from shortlist
+      const removeData = {
+        action_by_id: userId,
+        action_on_id: selectedUserForRemoval.id,
+        shortlisted: false // Set to false to remove from shortlist
+      };
+
+      const parameter = {
+        url: `/api/recieved/`,
+        method: 'POST',
+        data: removeData,
+        setLoading: setIsRemoving,
+        setErrors: setError
+      };
+
+      await fetchDataObjectV2(parameter);
+      
+      // Remove from local state after successful API call
+      setMatchDetails({ 
+        shortlisted_users: matchDetails?.shortlisted_users?.filter(
+          match => match?.user?.id !== selectedUserForRemoval.id
+        ) 
+      });
+      
+      // Close modal and reset
+      setShowRemovalModal(false);
+      setSelectedUserForRemoval(null);
+      
+    } catch (error) {
+      console.error('Error removing from shortlist:', error);
+      setError('Failed to remove from shortlist. Please try again.');
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
+  const cancelRemoval = () => {
+    setShowRemovalModal(false);
+    setSelectedUserForRemoval(null);
   };
 
   // Pagination
@@ -931,13 +985,20 @@ const TotalShortlist = () => {
                   </span>
                 </td>
                 <td>
-                  <AiOutlineDelete
-                    className="delete-icon"
+                  <div className="action-container">
+                    <button
+                      className="unshortlist-btn"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent row click event
-                      handleDelete(match?.user?.id);
-                    }}
-                  />
+                        handleDelete(match?.user);
+                      }}
+                      disabled={isRemoving}
+                      title="Remove from Shortlist"
+                    >
+                      <AiOutlineDelete className="delete-icon" />
+                      <span>Unshortlist</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -964,6 +1025,97 @@ const TotalShortlist = () => {
             Next &raquo;
           </button>
         </div>
+
+        {/* Professional Modern Modal */}
+        {showRemovalModal && (
+          <div className="modern-modal-overlay" onClick={cancelRemoval}>
+            <div className="modern-modal-container" onClick={(e) => e.stopPropagation()}>
+              
+              {/* Header Section */}
+              <div className="modern-modal-header">
+                <div className="header-icon-wrapper">
+                  <div className="warning-icon">⚠️</div>
+                </div>
+                <h2 className="modal-title">Remove from Shortlist</h2>
+                <button className="modern-close-btn" onClick={cancelRemoval}>
+                  <AiOutlineClose />
+                </button>
+              </div>
+
+              {/* Body Section */}
+              <div className="modern-modal-body">
+                <div className="confirmation-text">
+                  You're about to remove this candidate from your shortlist
+                </div>
+                
+                {selectedUserForRemoval && (
+                  <div className="candidate-preview-card">
+                    <div className="candidate-avatar">
+                      <div className="avatar-placeholder">
+                        {selectedUserForRemoval.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                    </div>
+                    <div className="candidate-info">
+                      <div className="candidate-name">{selectedUserForRemoval.name}</div>
+                      <div className="candidate-meta">
+                        <span className="meta-item">
+                          <span className="meta-label">ID:</span> 
+                          <span className="meta-value">{selectedUserForRemoval.id}</span>
+                        </span>
+                        <span className="meta-item">
+                          <span className="meta-label">Profession:</span> 
+                          <span className="meta-value">{selectedUserForRemoval.profession || 'Not specified'}</span>
+                        </span>
+                        <span className="meta-item">
+                          <span className="meta-label">Location:</span> 
+                          <span className="meta-value">{selectedUserForRemoval.city || 'Not specified'}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="modern-warning">
+                  <div className="warning-icon-small">🔒</div>
+                  <div className="warning-content">
+                    <div className="warning-title">This action cannot be undone</div>
+                    <div className="warning-subtitle">The candidate will be permanently removed from your shortlist</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Section */}
+              <div className="modern-modal-footer">
+                <button 
+                  className="modern-cancel-btn" 
+                  onClick={cancelRemoval}
+                  disabled={isRemoving}
+                >
+                  <span>Keep in Shortlist</span>
+                </button>
+                <button 
+                  className="modern-confirm-btn" 
+                  onClick={confirmRemoval}
+                  disabled={isRemoving}
+                >
+                  <span className="btn-content">
+                    {isRemoving ? (
+                      <>
+                        <div className="spinner"></div>
+                        <span>Removing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <AiOutlineDelete />
+                        <span>Remove Candidate</span>
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <style>
@@ -1136,15 +1288,366 @@ const TotalShortlist = () => {
             background: #e6ccff;
             color: #6a0dad;
           }
-          .delete-icon {
-            cursor: pointer;
-            color: #ff4d4d;
-            font-size: 18px;
-            align-items: center;
-
+          
+          .action-container {
+            display: flex;
+            justify-content: center;
           }
-          .delete-icon:hover {
-            color: #cc0000;
+          
+          .unshortlist-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #ff4d4d;
+            border-radius: 5px;
+            color: #ff4d4d;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+          
+          .unshortlist-btn:hover {
+            background: #ff4d4d;
+            color: white;
+          }
+          
+          .unshortlist-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+          
+          .delete-icon {
+            font-size: 14px;
+          }
+          
+          /* Modern Professional Modal Styles */
+          .modern-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+          }
+          
+          .modern-modal-container {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 540px;
+            box-shadow: 
+              0 25px 50px rgba(0, 0, 0, 0.15),
+              0 0 0 1px rgba(255, 255, 255, 0.8),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          
+          @keyframes modalSlideUp {
+            from {
+              opacity: 0;
+              transform: translateY(50px) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+          
+          .modern-modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+          }
+          
+          .header-icon-wrapper {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+          }
+          
+          .warning-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+          }
+          
+          .modal-title {
+            flex: 1;
+            margin: 0;
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.3px;
+          }
+          
+          .modern-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+          }
+          
+          .modern-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+          }
+          
+          .modern-modal-body {
+            padding: 32px;
+          }
+          
+          .confirmation-text {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 24px;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.5;
+          }
+          
+          .candidate-preview-card {
+            background: linear-gradient(145deg, #f8f9fa, #ffffff);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 24px 0;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+          }
+          
+          .candidate-avatar {
+            flex-shrink: 0;
+          }
+          
+          .avatar-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          }
+          
+          .candidate-info {
+            flex: 1;
+            min-width: 0;
+          }
+          
+          .candidate-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+          }
+          
+          .candidate-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+          
+          .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+          }
+          
+          .meta-label {
+            color: #7f8c8d;
+            font-weight: 500;
+            min-width: 80px;
+          }
+          
+          .meta-value {
+            color: #2c3e50;
+            font-weight: 600;
+            background: rgba(103, 126, 234, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+          }
+          
+          .modern-warning {
+            background: linear-gradient(135deg, #fff5f5, #fef2f2);
+            border: 1px solid #fecaca;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+          }
+          
+          .warning-icon-small {
+            font-size: 20px;
+            filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2));
+          }
+          
+          .warning-content {
+            flex: 1;
+          }
+          
+          .warning-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 4px;
+            letter-spacing: 0.2px;
+          }
+          
+          .warning-subtitle {
+            font-size: 14px;
+            color: #7f1d1d;
+            line-height: 1.4;
+          }
+          
+          .modern-modal-footer {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 24px 32px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+          }
+          
+          .modern-cancel-btn, .modern-confirm-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .modern-cancel-btn {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            color: #475569;
+            border: 1px solid rgba(71, 85, 105, 0.2);
+          }
+          
+          .modern-cancel-btn:hover {
+            background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(71, 85, 105, 0.15);
+          }
+          
+          .modern-confirm-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+          }
+          
+          .modern-confirm-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+          }
+          
+          .btn-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          
+          .modern-cancel-btn:disabled, .modern-confirm-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+          
+          /* Mobile responsiveness */
+          @media (max-width: 768px) {
+            .modern-modal-container {
+              width: 95%;
+              margin: 0 10px;
+            }
+            
+            .modern-modal-header {
+              padding: 20px;
+            }
+            
+            .modern-modal-body {
+              padding: 24px 20px;
+            }
+            
+            .modern-modal-footer {
+              padding: 20px;
+              flex-direction: column;
+            }
+            
+            .modern-cancel-btn, .modern-confirm-btn {
+              width: 100%;
+              min-width: auto;
+            }
+            
+            .candidate-preview-card {
+              flex-direction: column;
+              text-align: center;
+            }
+            
+            .candidate-meta {
+              align-items: center;
+            }
           }
         `}
       </style>

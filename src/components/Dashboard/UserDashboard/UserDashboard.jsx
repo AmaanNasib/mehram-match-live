@@ -184,6 +184,8 @@ const UserDashboard = () => {
     }
   };
 
+
+
    
   // Mock data for the stats
   const stats = {
@@ -996,7 +998,20 @@ const UserDashboard = () => {
                 </thead>
 
                 <tbody>
-                  {apiData6.map((match, index) => (
+                  {apiData6
+                    .filter(match => {
+                      // Debug log to see what data we're getting
+                      console.log("Match data:", match);
+                      console.log("Match percentage:", match.match_percentage);
+                      console.log("Match percentage type:", typeof match.match_percentage);
+                      
+                      // Only show matches with percentage > 0 from backend
+                      return match.match_percentage && match.match_percentage > 0;
+                    })
+                    .length > 0 ? (
+                      apiData6
+                        .filter(match => match.match_percentage && match.match_percentage > 0)
+                        .map((match, index) => (
                     <tr key={index}>
                       <td>
                         <div className="name-cell">
@@ -1043,8 +1058,13 @@ const UserDashboard = () => {
                       <td>{match.sect_school_info || "Not Mentioned"}</td>
                       <td>{match.profession || "Not Mentioned"}</td>
                       <td>
-                        <span className="status-badge never-married">
-                          {match.marital_status || "Not Mentioned"}
+                        <span 
+                          className={`status-badge ${match.martial_status ? match.martial_status.toLowerCase().replace(/\s+/g, '-') : 'not-mentioned'}`}
+                          style={{
+                            backgroundColor: getProgressBarColor(match.martial_status)
+                          }}
+                        >
+                          {match.martial_status || "Not Mentioned"}
                         </span>
                       </td>
                       <td>
@@ -1052,19 +1072,27 @@ const UserDashboard = () => {
                           <div
                             className="progress-bar"
                             style={{
-                              width: `${match.martial_status}%`,
+                              width: `${match.match_percentage || 0}%`,
                               backgroundColor: getProgressBarColor(
                                 match.martial_status
                               ),
                             }}
                           ></div>
                           <span className="progress-text">
-                            {match.match_percentage}%
+                            {match.match_percentage || 0}%
                           </span>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                          No matches found with percentage &gt; 0%
+                        </td>
+                      </tr>
+                    )
+                  }
                 </tbody>
               </table>
             </div>

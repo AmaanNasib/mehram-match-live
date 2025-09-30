@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./header.css";
-import logo from "../../../images/newLogo.jpg";
+import logo from "../../../images/logo.png";
 import bell from "../../../images/bell.svg";
 import time from "../../../images/time.svg";
 import grayHeart from "../../../images/grayHeart.svg";
@@ -632,12 +632,12 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
           </div>
         </div>
         <div className="nav-event">
-          <nav className="main-nav">
-            <div className="logo">
+          <nav className={`main-nav ${window.location.pathname === '/contact-us' ? 'contact-nav' : 'dashboard-nav'}`}>
+            <div className="logo" style={{ marginLeft: "2rem" }}>
               <img
                 href="/"
                 src={logo}
-                style={{ width: "12rem", height: "3rem" }}
+                style={{ height: "2.5rem", width: "auto" }}
                 alt="Mehram Match"
                 className="logo-img"
               />
@@ -689,7 +689,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                 <div className="flex items-center space-x-3">
                   <img
                     src={logo}
-                    style={{ width: "8rem", height: "2rem" }}
+                    style={{ height: "2.5rem", width: "auto" }}
                     alt="Mehram Match"
                     className="logo-img"
                   />
@@ -992,7 +992,7 @@ export default Header;
 
 // import React, { useState } from 'react';
 // import './header.css';
-// import logo from "../../../images/newLogo.jpg";
+// import logo from "../../../images/logo.png";
 // import bell from "../../../images/bell.svg";
 // import time from "../../../images/time.svg";
 // import grayHeart from "../../../images/grayHeart.svg";

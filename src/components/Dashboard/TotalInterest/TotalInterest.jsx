@@ -660,80 +660,14 @@ const TotalInterest = () => {
   };
   useEffect(() => {
     if (userId) {
-      // Fetch both sent and received interests
-      Promise.all([
-        // Fetch sent interests (where current user sent interest to others)
-        new Promise((resolve, reject) => {
-          const sentParameter = {
-            url: `/api/recieved/?action_by_id=${userId}`,
-            setterFunction: resolve,
-            setLoading: () => {},
-            setErrors: reject
-          };
-          fetchDataObjectV2(sentParameter);
-        }),
-        // Fetch received interests (where others sent interest to current user)
-        new Promise((resolve, reject) => {
-          const receivedParameter = {
-            url: `/api/recieved/?action_on_id=${userId}`,
-            setterFunction: resolve,
-            setLoading: () => {},
-            setErrors: reject
-          };
-          fetchDataObjectV2(receivedParameter);
-        })
-      ])
-      .then(([sentData, receivedData]) => {
-        
-        // Process sent interests (action_by_id = current user) 
-        let sentInterests = [];
-        if (Array.isArray(sentData) && sentData.length > 0) {
-          sentInterests = sentData
-            .filter(item => item.action_by_id == userId) // Ensure it's actually sent by current user
-            .map(item => ({
-              ...item,
-              status: "Sent"
-            }));
-        } else if (sentData?.results && Array.isArray(sentData.results)) {
-          sentInterests = sentData.results
-            .filter(item => item.action_by_id == userId)
-            .map(item => ({
-              ...item,
-              status: "Sent"
-            }));
-        }
-        
-        // Process received interests (action_on_id = current user)
-        let receivedInterests = [];
-        if (Array.isArray(receivedData) && receivedData.length > 0) {
-          receivedInterests = receivedData
-            .filter(item => item.action_on_id == userId) // Ensure it's actually received by current user
-            .map(item => ({
-              ...item,
-              status: "Received" // Fix the API typo
-            }));
-        } else if (receivedData?.results && Array.isArray(receivedData.results)) {
-          receivedInterests = receivedData.results
-            .filter(item => item.action_on_id == userId)
-            .map(item => ({
-              ...item,
-              status: "Received"
-            }));
-        }
-        
-        const combinedData = [...sentInterests, ...receivedInterests];
-        
-        setApiData({
-          sent_interests: combinedData
-        });
-        setLoading(false);
-      })
-      .catch(error => {
-        setErrors(error);
-        setLoading(false);
-      });
-      
-      setLoading(true);
+      // Use the same API as TotalInteraction component (working approach)
+      const parameter = {
+        url: `/api/user/interested/?user_id=${userId}`,
+        setterFunction: setApiData,
+        setLoading: setLoading,
+        setErrors: setErrors
+      };
+      fetchDataObjectV2(parameter);
     }
   }, [userId]);
   const matchDetails = [
@@ -840,7 +774,11 @@ const TotalInterest = () => {
           ? new Date(match?.created_at || match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.created_at || match?.date) <= new Date(updatedFilters.endDate)
           : true) &&
         (updatedFilters.sectSchoolInfo ? userData?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
-        (updatedFilters.profession ? userData?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
+        (updatedFilters.profession ? (
+          userData?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) ||
+          userData?.profession?.toLowerCase().replace(/\s+/g, '_').includes(updatedFilters.profession.toLowerCase().replace(/\s+/g, '_')) ||
+          userData?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
+        ) : true) &&
         statusMatch &&
         (updatedFilters.martialStatus ? userData?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
       );
