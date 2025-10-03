@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import axios from "axios";
 import { convertDateTime } from "../../../apiUtils";
+import ContextMenu from "./ContextMenu";
 import "./Inbox.css";
 
 const Inbox = () => {
@@ -36,6 +37,14 @@ const Inbox = () => {
   const [viewingImages, setViewingImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageInputRef = React.useRef(null);
+  
+  // Context Menu States
+  const [contextMenu, setContextMenu] = useState({
+    isVisible: false,
+    position: { x: 0, y: 0 },
+    message: null
+  });
+  const [replyToMessage, setReplyToMessage] = useState(null);
 
   const token = localStorage.getItem("token");
   const EMOJI_API_KEY = '855ca2a096c697a0c8e2da3a525e509acd7d1847';
@@ -202,6 +211,7 @@ const Inbox = () => {
 
       setNewMessage("");
       setSelectedImages([]);
+      setReplyToMessage(null); // Clear reply after sending
       if (imageInputRef.current) {
         imageInputRef.current.value = "";
       }
@@ -345,6 +355,89 @@ const Inbox = () => {
   const filteredUsers = recentUsers.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Context Menu Functions
+  const showContextMenu = (e, message) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    // Adjust position if menu would go off screen
+    const menuWidth = 250;
+    const menuHeight = 300;
+    const adjustedX = x + menuWidth > window.innerWidth ? x - menuWidth : x;
+    const adjustedY = y + menuHeight > window.innerHeight ? y - menuHeight : y;
+    
+    setContextMenu({
+      isVisible: true,
+      position: { x: adjustedX, y: adjustedY },
+      message: message
+    });
+  };
+
+  const hideContextMenu = () => {
+    setContextMenu({
+      isVisible: false,
+      position: { x: 0, y: 0 },
+      message: null
+    });
+  };
+
+  const handleContextMenuAction = {
+    reply: (message) => {
+      setReplyToMessage(message);
+      // Don't pre-fill message content for reply
+      setNewMessage("");
+    },
+    
+    copy: (message) => {
+      navigator.clipboard.writeText(message.content);
+      setErrors("Message copied to clipboard!");
+    },
+    
+    forward: (message) => {
+      setErrors("Forward feature coming soon!");
+    },
+    
+    star: (message) => {
+      setErrors("Star feature coming soon!");
+    },
+    
+    pin: (message) => {
+      setErrors("Pin feature coming soon!");
+    },
+    
+    delete: (message) => {
+      if (window.confirm("Are you sure you want to delete this message?")) {
+        // TODO: Implement delete message API call
+        setErrors("Delete feature coming soon!");
+      }
+    },
+    
+    select: (message) => {
+      setErrors("Select feature coming soon!");
+    },
+    
+    share: (message) => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'Shared Message',
+          text: message.content
+        });
+      } else {
+        navigator.clipboard.writeText(message.content);
+        setErrors("Message copied to clipboard!");
+      }
+    },
+    
+    emojiReact: (emoji) => {
+      // TODO: Implement emoji reaction API call
+      setErrors(`Reacted with ${emoji}!`);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -604,6 +697,23 @@ const Inbox = () => {
                             ? "inbox-message-sent"
                             : "inbox-message-received"
                         }`}
+                        onContextMenu={(e) => showContextMenu(e, msg)}
+                        onTouchStart={(e) => {
+                          // For mobile long press
+                          e.currentTarget.longPressTimer = setTimeout(() => {
+                            showContextMenu(e, msg);
+                          }, 500);
+                        }}
+                        onTouchEnd={(e) => {
+                          if (e.currentTarget.longPressTimer) {
+                            clearTimeout(e.currentTarget.longPressTimer);
+                          }
+                        }}
+                        onTouchMove={(e) => {
+                          if (e.currentTarget.longPressTimer) {
+                            clearTimeout(e.currentTarget.longPressTimer);
+                          }
+                        }}
                 >
                   {msg.sender?.id !== userId && (
                     <img
@@ -628,6 +738,36 @@ const Inbox = () => {
                           />
                         )}
                         <div className="inbox-message-content">
+                          {/* Reply Preview */}
+                          {replyToMessage && replyToMessage.id === msg.id && (
+                            <div className="reply-preview">
+                              <div className="reply-line"></div>
+                              <div className="reply-content">
+                                <div className="reply-sender">
+                                  {replyToMessage.sender?.id === userId ? 'You' : recentUsers[selectedMessage]?.name}
+                                </div>
+                                <div className="reply-text">
+                                  {(replyToMessage.file_url || replyToMessage.file) ? (
+                                    <div className="reply-image-preview">
+                                      <img 
+                                        src={
+                                          replyToMessage.file_url || 
+                                          (replyToMessage.file?.startsWith('http') 
+                                            ? replyToMessage.file 
+                                            : `${process.env.REACT_APP_API_URL}/media/${replyToMessage.file}`)
+                                        }
+                                        alt="Reply preview"
+                                        className="reply-thumbnail"
+                                      />
+                                      <span className="reply-image-text">📷 Image</span>
+                                    </div>
+                                  ) : (
+                                    replyToMessage.content || 'Message'
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           <div className="inbox-message-bubble">
                             {/* Display image if exists - Backend returns file_url */}
                             {(msg.file_url || msg.file) && (
@@ -718,6 +858,42 @@ const Inbox = () => {
                           </button>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Reply Preview */}
+                {replyToMessage && (
+                  <div className="reply-input-preview">
+                    <div className="reply-preview-content">
+                      <div className="reply-preview-header">
+                        <span className="reply-label">Replying to:</span>
+                        <button 
+                          className="reply-cancel-btn"
+                          onClick={() => setReplyToMessage(null)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="reply-preview-text">
+                        {(replyToMessage.file_url || replyToMessage.file) ? (
+                          <div className="reply-image-preview">
+                            <img 
+                              src={
+                                replyToMessage.file_url || 
+                                (replyToMessage.file?.startsWith('http') 
+                                  ? replyToMessage.file 
+                                  : `${process.env.REACT_APP_API_URL}/media/${replyToMessage.file}`)
+                              }
+                              alt="Reply preview"
+                              className="reply-thumbnail"
+                            />
+                            <span className="reply-image-text">📷 Image</span>
+                          </div>
+                        ) : (
+                          replyToMessage.content || 'Message'
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -844,6 +1020,23 @@ const Inbox = () => {
           </div>
         </div>
         </div>
+
+        {/* Context Menu */}
+        <ContextMenu
+          position={contextMenu.position}
+          isVisible={contextMenu.isVisible}
+          onClose={hideContextMenu}
+          message={contextMenu.message}
+          onReply={handleContextMenuAction.reply}
+          onCopy={handleContextMenuAction.copy}
+          onForward={handleContextMenuAction.forward}
+          onStar={handleContextMenuAction.star}
+          onPin={handleContextMenuAction.pin}
+          onDelete={handleContextMenuAction.delete}
+          onSelect={handleContextMenuAction.select}
+          onShare={handleContextMenuAction.share}
+          onEmojiReact={handleContextMenuAction.emojiReact}
+        />
       </DashboardLayout>
   );
 };
