@@ -230,23 +230,24 @@ const UserDetail = () => {
           <div className="gallert">
             <div className="secondDetail5">
               <div className="headingSecond1">
-                <h1> Photo Gallery 6</h1>
-                <h3>All photos</h3>
-
+                <h1>Photo Gallery</h1>
+                <h3>All Photos</h3>
               </div>
-              <div className="basic">
-              
-              {
-            apiData1?.map( (profile)=>{ return  <div className="img1">
-                  <img src={profile?.upload_photo} alt="photo" />
-                 
-                  
-                </div>} )}
-                <div className="img1">
-                  <img src="https://i.pinimg.com/564x/d3/43/80/d34380c5ffa97a612ed177e8434b84fe.jpg" alt="" />
+              <div className="photo-gallery">
+                {
+                  apiData1?.map((profile, index) => (
+                    <div key={index} className="img1">
+                      <img src={profile?.upload_photo} alt="photo" />
+                    </div>
+                  ))
+                }
+                <div className="img1 add-photo">
+                  <div className="add-photo-content">
+                    <span>+</span>
+                    <p>Add Photo</p>
+                  </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

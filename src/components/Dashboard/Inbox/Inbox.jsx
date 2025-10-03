@@ -8,6 +8,7 @@ import {
   FiMoreHorizontal,
   FiHeart,
   FiMessageCircle,
+  FiChevronDown,
 } from "react-icons/fi";
 import { MdEdit } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -37,6 +38,10 @@ const Inbox = () => {
   const [viewingImages, setViewingImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageInputRef = React.useRef(null);
+  const chatMessagesRef = React.useRef(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [userScrolling, setUserScrolling] = useState(false);
   
   // Context Menu States
   const [contextMenu, setContextMenu] = useState({
@@ -76,7 +81,7 @@ const Inbox = () => {
         
         // Preserve unread_count = 0 for currently open conversation
         setRecentUsers((prevUsers) => {
-          return usersWithMessages.map((newUser) => {
+          const updatedUsers = usersWithMessages.map((newUser) => {
             const existingUser = prevUsers.find((u) => u.id === newUser.id);
             // If this user was already read in current session, keep it 0
             if (existingUser && existingUser.unread_count === 0) {
@@ -84,6 +89,27 @@ const Inbox = () => {
             }
             return newUser;
           });
+          
+          // Auto-select latest conversation if no conversation is selected
+          if (selectedMessage === null && updatedUsers.length > 0) {
+            // Find the conversation with the most recent message
+            const latestConversation = updatedUsers.reduce((latest, current) => {
+              const latestTime = new Date(latest.last_message_time || 0);
+              const currentTime = new Date(current.last_message_time || 0);
+              return currentTime > latestTime ? current : latest;
+            });
+            
+            const latestIndex = updatedUsers.findIndex(user => user.id === latestConversation.id);
+            if (latestIndex !== -1) {
+              setTimeout(() => {
+                setSelectedMessage(latestIndex);
+                markMessagesAsRead(latestConversation.id);
+                fetchUserInteraction(latestConversation.id);
+              }, 100);
+            }
+          }
+          
+          return updatedUsers;
         });
     } catch (error) {
       if (error.response?.data?.detail) {
@@ -149,7 +175,32 @@ const Inbox = () => {
       if (messagesWithFiles.length > 0) {
         console.log("📸 Messages with images:", messagesWithFiles);
       }
+      
+      // Check if new messages arrived
+      const currentMessageCount = response.data.length;
+      if (currentMessageCount > lastMessageCount && lastMessageCount > 0) {
+        // New messages arrived, show scroll to bottom button
+        setShowScrollToBottom(true);
+      }
+      setLastMessageCount(currentMessageCount);
+      
       setUserInteraction(response.data);
+      
+      // Only auto scroll to bottom if user is not actively scrolling
+      setTimeout(() => {
+        if (chatMessagesRef.current && !userScrolling) {
+          const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
+          const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+          
+          // Only auto scroll if user was already at bottom and not scrolling
+          if (isAtBottom) {
+            scrollToBottom();
+          } else {
+            // User is reading old messages, just show the scroll button
+            setShowScrollToBottom(true);
+          }
+        }
+      }, 100);
     } catch (error) {
       if (error.response?.data?.detail) {
         setErrors(error.response.data.detail);
@@ -161,6 +212,63 @@ const Inbox = () => {
         setErrors("An error occurred while fetching messages.");
       }
       setUserInteraction([]);
+    }
+  };
+
+  // Scroll to bottom function with smooth animation
+  const scrollToBottom = () => {
+    if (chatMessagesRef.current) {
+      // Check if smooth scrolling is supported
+      if ('scrollBehavior' in document.documentElement.style) {
+        chatMessagesRef.current.scrollTo({
+          top: chatMessagesRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      } else {
+        // Fallback for browsers that don't support smooth scroll
+        const target = chatMessagesRef.current.scrollHeight;
+        const start = chatMessagesRef.current.scrollTop;
+        const distance = target - start;
+        const duration = 500; // milliseconds
+        let startTime = null;
+
+        const animation = (currentTime) => {
+          if (startTime === null) startTime = currentTime;
+          const timeElapsed = currentTime - startTime;
+          const progress = Math.min(timeElapsed / duration, 1);
+          
+          // Easing function for smooth animation
+          const ease = progress * (2 - progress);
+          
+          chatMessagesRef.current.scrollTop = start + distance * ease;
+          
+          if (progress < 1) {
+            requestAnimationFrame(animation);
+          }
+        };
+        
+        requestAnimationFrame(animation);
+      }
+      setShowScrollToBottom(false);
+    }
+  };
+
+  // Handle scroll events to show/hide scroll to bottom button
+  const handleScroll = () => {
+    if (chatMessagesRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+      
+      // Mark that user is actively scrolling
+      setUserScrolling(true);
+      
+      // Show/hide scroll to bottom button
+      setShowScrollToBottom(!isAtBottom);
+      
+      // Reset userScrolling after a delay
+      setTimeout(() => {
+        setUserScrolling(false);
+      }, 1000);
     }
   };
 
@@ -216,6 +324,11 @@ const Inbox = () => {
         imageInputRef.current.value = "";
       }
       fetchUserInteraction(receiverId);
+      
+      // Auto scroll to bottom after sending message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 200);
     } catch (error) {
       console.error("Failed to send message:", error);
       console.error("Error details:", error.response?.data);
@@ -552,6 +665,11 @@ const Inbox = () => {
                       
                       // Fetch messages
                       fetchUserInteraction(user.id);
+                      
+                      // Auto scroll to bottom when switching conversation
+                      setTimeout(() => {
+                        scrollToBottom();
+                      }, 300);
 
                       // Clear any existing polling
                         if (pollingIntervalId) {
@@ -681,7 +799,11 @@ const Inbox = () => {
             </div>
 
                 {/* Chat Messages */}
-                <div className="inbox-chat-messages">
+                <div 
+                  className="inbox-chat-messages"
+                  ref={chatMessagesRef}
+                  onScroll={handleScroll}
+                >
                   {userInteraction.length === 0 ? (
                     <div className="inbox-no-messages">
                       <FiMessageCircle size={48} />
@@ -747,7 +869,7 @@ const Inbox = () => {
                                   {replyToMessage.sender?.id === userId ? 'You' : recentUsers[selectedMessage]?.name}
                                 </div>
                                 <div className="reply-text">
-                                  {(replyToMessage.file_url || replyToMessage.file) ? (
+git                                   {(replyToMessage.file_url || replyToMessage.file) ? (
                                     <div className="reply-image-preview">
                                       <img 
                                         src={
@@ -822,6 +944,17 @@ const Inbox = () => {
                   </div>
                       </div>
                     ))
+                  )}
+                  
+                  {/* Scroll to Bottom Button */}
+                  {showScrollToBottom && (
+                    <button 
+                      className="scroll-to-bottom-btn"
+                      onClick={scrollToBottom}
+                      title="Scroll to latest messages"
+                    >
+                      <FiChevronDown size={20} />
+                    </button>
                   )}
                 </div>
 

@@ -17,6 +17,162 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
   const role = localStorage.getItem('role');
   const gender = localStorage.getItem('gender');
 
+  // Profile Completion Stats Function with Stepwise Breakdown
+  const getProfileCompletionStats = (userData) => {
+    if (!userData) {
+      return {
+        steps: [],
+        totalMandatory: 0,
+        totalOptional: 0,
+        totalCompleted: 0,
+        totalMissing: 0
+      };
+    }
+
+    const userGender = userData.gender?.toString().toLowerCase() || '';
+    const maritalStatus = userData.martial_status?.toString().toLowerCase() || '';
+    
+    // Helper function to check if field is completed
+    const isFieldCompleted = (field, value) => {
+      if (field.includes('number_of_') || field === 'age') {
+        return value !== null && value !== undefined && value !== '';
+      }
+      return value !== null && value !== undefined && value !== '' && value !== 0;
+    };
+
+    // Step 1: Basic Information
+    const step1Mandatory = [
+      { key: 'name', label: 'Full Name' },
+      { key: 'gender', label: 'Gender' },
+      { key: 'age', label: 'Age' },
+      { key: 'martial_status', label: 'Marital Status' },
+      { key: 'city', label: 'Current City' },
+      { key: 'state', label: 'Current State' },
+      { key: 'country', label: 'Current Country' },
+      { key: 'Education', label: 'Education' },
+      { key: 'profession', label: 'Profession' }
+    ];
+
+    const step1Optional = [
+      { key: 'height', label: 'Height' },
+      { key: 'weight', label: 'Weight' },
+      { key: 'skin_tone', label: 'Skin Tone' },
+      { key: 'about_you', label: 'About You' },
+      { key: 'income', label: 'Annual Income' },
+      { key: 'disability', label: 'Disability' },
+      { key: 'describe_job_business', label: 'Job/Business Description' }
+    ];
+
+    // Step 2: Religious Information
+    const step2Mandatory = [
+      { key: 'sect_school_info', label: 'Sect/School of Thought' },
+      { key: 'islamic_practicing_level', label: 'Islamic Practice Level' },
+      { key: 'believe_in_dargah_fatiha_niyah', label: 'Spiritual Beliefs' }
+    ];
+
+    const step2Optional = [
+      { key: 'hijab_niqab_prefer', label: 'Hijab/Niqab Preference' },
+      { key: 'perform_namaz', label: 'Namaz Performance' },
+      { key: 'recite_quran', label: 'Quran Recitation' },
+      { key: 'marriage_plan', label: 'Marriage Plan' }
+    ];
+
+    // Step 3: Family Background
+    const step3Mandatory = [
+      { key: 'father_name', label: 'Father\'s Name' },
+      { key: 'mother_name', label: 'Mother\'s Name' },
+      { key: 'family_type', label: 'Family Type' }
+    ];
+
+    const step3Optional = [
+      { key: 'father_occupation', label: 'Father\'s Occupation' },
+      { key: 'mother_occupation', label: 'Mother\'s Occupation' },
+      { key: 'family_practicing_level', label: 'Family Practice Level' },
+      { key: 'number_of_siblings', label: 'Number of Siblings' },
+      { key: 'number_of_brothers', label: 'Number of Brothers' },
+      { key: 'number_of_sisters', label: 'Number of Sisters' }
+    ];
+
+    // Gender-specific fields for females
+    if (userGender === 'female') {
+      step3Optional.push(
+        { key: 'wali_name', label: 'Wali Name' },
+        { key: 'wali_contact_number', label: 'Wali Contact' },
+        { key: 'wali_blood_relation', label: 'Wali Relation' }
+      );
+    }
+
+    // Marital status specific fields
+    if (maritalStatus === 'divorced' || maritalStatus === 'widowed' || maritalStatus === 'khula') {
+      step3Optional.push(
+        { key: 'number_of_children', label: 'Number of Children' },
+        { key: 'number_of_son', label: 'Number of Sons' },
+        { key: 'number_of_daughter', label: 'Number of Daughters' }
+      );
+    }
+
+    // Step 4: Partner Expectations
+    const step4Mandatory = [
+      { key: 'preferred_sect', label: 'Preferred Sect' },
+      { key: 'desired_practicing_level', label: 'Desired Practice Level' },
+      { key: 'preferred_city', label: 'Preferred City' },
+      { key: 'preferred_family_type', label: 'Preferred Family Type' }
+    ];
+
+    const step4Optional = [
+      { key: 'preferred_surname', label: 'Preferred Surname' },
+      { key: 'preferred_dargah_fatiha_niyah', label: 'Preferred Spiritual Beliefs' },
+      { key: 'preferred_education', label: 'Preferred Education' },
+      { key: 'preferred_occupation_profession', label: 'Preferred Profession' }
+    ];
+
+    // Calculate completion for each step
+    const steps = [
+      {
+        title: 'Step 1: Basic Information',
+        mandatory: step1Mandatory,
+        optional: step1Optional,
+        mandatoryCompleted: step1Mandatory.filter(field => isFieldCompleted(field.key, userData[field.key])).length,
+        optionalCompleted: step1Optional.filter(field => isFieldCompleted(field.key, userData[field.key])).length
+      },
+      {
+        title: 'Step 2: Religious Information',
+        mandatory: step2Mandatory,
+        optional: step2Optional,
+        mandatoryCompleted: step2Mandatory.filter(field => isFieldCompleted(field.key, userData[field.key])).length,
+        optionalCompleted: step2Optional.filter(field => isFieldCompleted(field.key, userData[field.key])).length
+      },
+      {
+        title: 'Step 3: Family Background',
+        mandatory: step3Mandatory,
+        optional: step3Optional,
+        mandatoryCompleted: step3Mandatory.filter(field => isFieldCompleted(field.key, userData[field.key])).length,
+        optionalCompleted: step3Optional.filter(field => isFieldCompleted(field.key, userData[field.key])).length
+      },
+      {
+        title: 'Step 4: Partner Expectations',
+        mandatory: step4Mandatory,
+        optional: step4Optional,
+        mandatoryCompleted: step4Mandatory.filter(field => isFieldCompleted(field.key, userData[field.key])).length,
+        optionalCompleted: step4Optional.filter(field => isFieldCompleted(field.key, userData[field.key])).length
+      }
+    ];
+
+    // Calculate totals
+    const totalMandatory = steps.reduce((sum, step) => sum + step.mandatory.length, 0);
+    const totalOptional = steps.reduce((sum, step) => sum + step.optional.length, 0);
+    const totalCompleted = steps.reduce((sum, step) => sum + step.mandatoryCompleted + step.optionalCompleted, 0);
+    const totalMissing = (totalMandatory + totalOptional) - totalCompleted;
+
+    return {
+      steps,
+      totalMandatory,
+      totalOptional,
+      totalCompleted,
+      totalMissing
+    };
+  };
+
   useEffect(() => {
     if (apiData) {
       setLoading(false);
@@ -149,33 +305,74 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
         </div> */}
         
         <div className="matchCard">
-          {/* <div className="percentMatch">
-            <h6 className="cardText">(Matched-36%)</h6>
-          </div> */}
-          
-          <div className="cardDetail">
-            {loading ? (
-              <div className="shimmer shimmer-text shimmer-info" />
-            ) : (
-              <>
-                <h5>Age: <span>{apiData?.age || "NA"}</span></h5>
-                <h5>Marital Status: <span>{apiData?.martial_status || "NA"}</span></h5>
-                <h5>Current Address: <span>{apiData?.city || "NA"}</span></h5>
-                <h5>Profession: <span>{apiData?.profession || "NA"}</span></h5>
-                <h5>Education: <span>{apiData?.education || "NA"}</span></h5>
-                <h5>Height: <span>{apiData?.height || "NA"}</span></h5>
-                <h5>Weight: <span>{apiData?.weight || "NA"}</span></h5>
-              </>
-            )}
+          <div className="percentMatch">
+            <h6 className="cardText">{apiData?.profile_percentage || "0"}% Profile Complete</h6>
           </div>
           
-          <div className='percentComplete'>
-          <h5>
-            {apiData?.profile_percentage || "0"}% Completed Profile
-          </h5>
-            <div className='filled'></div>
-            
-            <div className='matchedIcondDiv'>
+          <div className="filled"></div>
+          
+          {/* Profile Completion Details */}
+          <div className="completion-details">
+            {(() => {
+              const completionStats = getProfileCompletionStats(apiData);
+              return (
+                <>
+                  <div className="completion-summary">
+                    <div className="completion-row">
+                      <span className="completion-label">Total Progress:</span>
+                      <span className="completion-value">
+                        {completionStats.totalCompleted}/{completionStats.totalMandatory + completionStats.totalOptional} fields
+                      </span>
+                    </div>
+                    <div className="completion-row">
+                      <span className="completion-label">Remaining:</span>
+                      <span className="completion-value remaining">
+                        {completionStats.totalMissing} fields pending
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Stepwise Breakdown */}
+                  <div className="steps-breakdown">
+                    {completionStats.steps.map((step, index) => (
+                      <div key={index} className="step-card">
+                        <div className="step-header">
+                          <h4 className="step-title">{step.title}</h4>
+                          <div className="step-progress">
+                            <span className="step-percentage">
+                              {Math.round(((step.mandatoryCompleted + step.optionalCompleted) / (step.mandatory.length + step.optional.length)) * 100)}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="step-details">
+                          <div className="step-row mandatory">
+                            <span className="step-label">Mandatory:</span>
+                            <span className="step-value">
+                              {step.mandatoryCompleted}/{step.mandatory.length} completed
+                            </span>
+                          </div>
+                          <div className="step-row optional">
+                            <span className="step-label">Optional:</span>
+                            <span className="step-value">
+                              {step.optionalCompleted}/{step.optional.length} completed
+                            </span>
+                          </div>
+                          <div className="step-row remaining">
+                            <span className="step-label">Remaining:</span>
+                            <span className="step-value">
+                              {(step.mandatory.length + step.optional.length) - (step.mandatoryCompleted + step.optionalCompleted)} fields
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+          
+          <div className='matchedIcondDiv'>
               {/* Interest Button */}
               <button 
                 className='matchedIcond' 
@@ -242,14 +439,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
               </button>
             </div>
 
-            {/* <button 
-              className='matchBtn'
-              onClick={() => navigate(`/details/${apiData.id}`)}
-            >
-              View Profile
-            </button> */}
           </div>
-        </div>
       </div>
       
       <div className="planDetail">

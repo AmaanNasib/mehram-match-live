@@ -251,7 +251,7 @@ console.log(formData);
           <div className="secondDetail1">
             <div className="headingSecond" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img src={basicImg} alt="" />
-              <h1 style={{ margin: 0, paddingRight: '30px' }}>Some Basic Details</h1>
+              <h1 style={{ margin: 0, paddingRight: '30px' }}>MemStep One - Basic Information</h1>
               <svg
                 className="editIcon"
                 onClick={() => handleEditClick('basic')}
@@ -279,10 +279,44 @@ console.log(formData);
             </div>
             <div className="basic">
               <div className="basicleft">
-                <h5>Skin Tone</h5>
+                <h5>Date of Birth</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.skin_tone || "NA"}</h5>
+                <h5>{apiData?.dob || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Age</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.age || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Gender</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.gender || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Marital Status</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.martial_status || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Current Address</h5>
+              </div>
+              <div className="basicRight">
+                <h5>
+                  {apiData?.city || "NA"}, {apiData?.state || "NA"}, {apiData?.country || "NA"}
+                </h5>
               </div>
             </div>
             <div className="basic">
@@ -297,7 +331,55 @@ console.log(formData);
             </div>
             <div className="basic">
               <div className="basicleft">
-                <h5>Annual Income Range:</h5>
+                <h5>Height</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.height || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Weight</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.weight || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Education</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.Education || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Profession</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.profession || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Profile Creating For</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.onbehalf || "Self"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Skin Tone</h5>
+              </div>
+              <div className="basicRight">
+                <h5>{apiData?.skin_tone || "NA"}</h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>Annual Income Range</h5>
               </div>
               <div className="basicRight">
                 <h5>{apiData?.income || "NA"}</h5>
@@ -305,12 +387,20 @@ console.log(formData);
             </div>
             <div className="basic">
               <div className="basicleft">
-                <h5>Disability?</h5>
+                <h5>Disability</h5>
               </div>
               <div className="basicRight">
                 <h5>
-                  <span className="secondLable">{apiData?.disability }</span>
+                  <span className="secondLable">{apiData?.disability || "No"}</span>
                 </h5>
+              </div>
+            </div>
+            <div className="basic">
+              <div className="basicleft">
+                <h5>About You</h5>
+              </div>
+              <div className="basicRight">
+                <p>{apiData?.about_you || "NA"}</p>
               </div>
             </div>
             <div className="basic">
@@ -326,7 +416,7 @@ console.log(formData);
           <div className="secondDetail2">
             <div className="headingSecond" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img src={basicImg} alt="" />
-              <h1>Religious Information</h1>
+              <h1>MemStep Two - Religious Information</h1>
               <svg
                 className="editIcon"
                 onClick={() => handleEditClick('religious')}

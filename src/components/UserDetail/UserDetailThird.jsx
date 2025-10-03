@@ -110,16 +110,16 @@ const UserDetailThird = () => {
                       <div className="tHeading">
                         <div className="tLeft">
                           <h3 style={{ fontWeight: "bold" }}>{profile?.user?.name || "NA"}</h3>
-                          <h4>{profile?.user?.id || "NA"}</h4>
+                          <h4>ID: {profile?.user?.id || "NA"}</h4>
                         </div>
                         <div className="tRight">
                           <span id="NLable">{profile?.user?.martial_status || "NA"}</span>
                         </div>
                       </div>
-                      <h3>{profile?.user?.age || "NA"}</h3>
-                      <h3>{profile?.user?.sec || "NA"}</h3>
-                      <h3>{profile?.user?.Education || "NA"}</h3>
-                      <h3>{profile?.user?.profession || "NA"}</h3>
+                      <h3>Age: {profile?.user?.age || "NA"}</h3>
+                      <h3>Sect: {profile?.user?.sect_school_info || "NA"}</h3>
+                      <h3>Education: {profile?.user?.Education || "NA"}</h3>
+                      <h3>Profession: {profile?.user?.profession || "NA"}</h3>
                       <div className="fullProfile" onClick={() => navigate(`/details/${profile?.user?.id}/`)}>
                         <img src={user} alt="" />
                         <p>Full Profile</p>
@@ -174,16 +174,16 @@ const UserDetailThird = () => {
                       <div className="tHeading">
                         <div className="tLeft">
                           <h3 style={{ fontWeight: "bold" }}>{profile?.user?.name || "NA"}</h3>
-                          <h4>{profile?.user?.id || "NA"}</h4>
+                          <h4>ID: {profile?.user?.id || "NA"}</h4>
                         </div>
                         <div className="tRight">
                           <span id="NLable">{profile?.user?.martial_status || "NA"}</span>
                         </div>
                       </div>
-                      <h3>{profile?.user?.age || "NA"}</h3>
-                      <h3>{profile?.user?.sec || "NA"}</h3>
-                      <h3>{profile?.user?.Education || "NA"}</h3>
-                      <h3>{profile?.user?.profession || "NA"}</h3>
+                      <h3>Age: {profile?.user?.age || "NA"}</h3>
+                      <h3>Sect: {profile?.user?.sect_school_info || "NA"}</h3>
+                      <h3>Education: {profile?.user?.Education || "NA"}</h3>
+                      <h3>Profession: {profile?.user?.profession || "NA"}</h3>
                       <div className="fullProfile" onClick={() => navigate(`/details/${profile?.user?.id}/`)}>
                         <img src={user} alt="" />
                         <p>Full Profile</p>

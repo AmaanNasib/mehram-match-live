@@ -13,6 +13,23 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [internalDate, setInternalDate] = useState(selectedDate ? new Date(selectedDate) : null);
+  const datePickerRef = React.useRef(null);
+
+  // Close date picker when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
   // Generate calendar days for the current month/year
   const generateCalendarDays = () => {
@@ -82,7 +99,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   ];
 
   return (
-    <div className="custom-date-picker-container">
+    <div className="custom-date-picker-container" ref={datePickerRef}>
       <div 
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
@@ -91,7 +108,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
       </div>
       
       {isOpen && (
-        <div className="custom-date-picker-menu">
+        <div className="custom-date-picker-menu" style={{ zIndex: 1000 }}>
           <div className="month-navigation">
             <button 
               className="nav-button"
@@ -313,7 +330,7 @@ const StatusDropdown = ({ value, onChange }) => {
       </div>
       
       {isOpen && (
-        <div className="status-dropdown-menu">
+        <div className="status-dropdown-menu" style={{ zIndex: 1001 }}>
           <h6>Select Status</h6>
           <div className="status-options-row">
             {statusOptions.map((status) => (
@@ -686,6 +703,46 @@ const TotalRequests = () => {
   .date-filters-container {
     display: flex;
     gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .filter-container {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .filter-dropdown {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .date-picker-container {
+    position: relative;
+    z-index: 10;
+  }
+  
+  .date-picker-popup {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .status-dropdown {
+    position: relative;
+    z-index: 3;
+  }
+  
+  .status-dropdown .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1001;
   }
 `}
 </style>
@@ -699,11 +756,30 @@ const TotalRequests = () => {
             onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
           >
             <option value="">Sect</option>
-            {distinctSchoolInfo?.map((info, index) => (
-              <option key={index} value={info}>
-                {info}
-              </option>
-            ))}
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
 
           <select
@@ -712,11 +788,129 @@ const TotalRequests = () => {
             onChange={(e) => handleFilterChange('profession', e.target.value)}
           >
             <option value="">Profession</option>
-            {distinctProfessions?.map((profession, index) => (
-              <option key={index} value={profession}>
-                {profession}
-              </option>
-            ))}
+            <option value="Accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="Actor">Actor</option>
+            <option value="Administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="Air Hostess">Air Hostess</option>
+            <option value="Airline Professional">Airline Professional</option>
+            <option value="Airforce">Airforce</option>
+            <option value="Architect">Architect</option>
+            <option value="Artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="Audiologist">Audiologist</option>
+            <option value="Auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="Beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="Captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="Chemist">Chemist</option>
+            <option value="Civil Engineer">Civil Engineer</option>
+            <option value="Clerical Official">Clerical Official</option>
+            <option value="Clinical Pharmacist">Clinical Pharmacist</option>
+            <option value="Company Secretary">Company Secretary</option>
+            <option value="Computer Engineer">Computer Engineer</option>
+            <option value="Computer Programmer">Computer Programmer</option>
+            <option value="Consultant">Consultant</option>
+            <option value="Contractor">Contractor</option>
+            <option value="Content Creator">Content Creator</option>
+            <option value="Counsellor">Counsellor</option>
+            <option value="Creative Person">Creative Person</option>
+            <option value="Customer Support Professional">Customer Support Professional</option>
+            <option value="Data Analyst">Data Analyst</option>
+            <option value="Defence Employee">Defence Employee</option>
+            <option value="Dentist">Dentist</option>
+            <option value="Designer">Designer</option>
+            <option value="Director / Chairman">Director / Chairman</option>
+            <option value="Doctor">Doctor</option>
+            <option value="Economist">Economist</option>
+            <option value="Electrical Engineer">Electrical Engineer</option>
+            <option value="Engineer">Engineer</option>
+            <option value="Entertainment Professional">Entertainment Professional</option>
+            <option value="Event Manager">Event Manager</option>
+            <option value="Executive">Executive</option>
+            <option value="Factory Worker">Factory Worker</option>
+            <option value="Farmer">Farmer</option>
+            <option value="Fashion Designer">Fashion Designer</option>
+            <option value="Finance Professional">Finance Professional</option>
+            <option value="Food Technologist">Food Technologist</option>
+            <option value="Government Employee">Government Employee</option>
+            <option value="Graphic Designer">Graphic Designer</option>
+            <option value="Hair Dresser">Hair Dresser</option>
+            <option value="Health Care Professional">Health Care Professional</option>
+            <option value="Hospitality Professional">Hospitality Professional</option>
+            <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
+            <option value="Human Resource Professional">Human Resource Professional</option>
+            <option value="HSE Officer">HSE Officer</option>
+            <option value="Influencer">Influencer</option>
+            <option value="Insurance Advisor">Insurance Advisor</option>
+            <option value="Insurance Agent">Insurance Agent</option>
+            <option value="Interior Designer">Interior Designer</option>
+            <option value="Investment Professional">Investment Professional</option>
+            <option value="IT / Telecom Professional">IT / Telecom Professional</option>
+            <option value="Islamic Scholar">Islamic Scholar</option>
+            <option value="Islamic Teacher">Islamic Teacher</option>
+            <option value="Journalist">Journalist</option>
+            <option value="Lawyer">Lawyer</option>
+            <option value="Lecturer">Lecturer</option>
+            <option value="Legal Professional">Legal Professional</option>
+            <option value="Librarian">Librarian</option>
+            <option value="Logistics Professional">Logistics Professional</option>
+            <option value="Manager">Manager</option>
+            <option value="Marketing Professional">Marketing Professional</option>
+            <option value="Mechanical Engineer">Mechanical Engineer</option>
+            <option value="Medical Representative">Medical Representative</option>
+            <option value="Medical Transcriptionist">Medical Transcriptionist</option>
+            <option value="Merchant Naval Officer">Merchant Naval Officer</option>
+            <option value="Microbiologist">Microbiologist</option>
+            <option value="Military">Military</option>
+            <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
+            <option value="Navy Officer">Navy Officer</option>
+            <option value="Nurse">Nurse</option>
+            <option value="Occupational Therapist">Occupational Therapist</option>
+            <option value="Office Staff">Office Staff</option>
+            <option value="Optician">Optician</option>
+            <option value="Optometrist">Optometrist</option>
+            <option value="Pharmacist">Pharmacist</option>
+            <option value="Physician">Physician</option>
+            <option value="Physician Assistant">Physician Assistant</option>
+            <option value="Pilot">Pilot</option>
+            <option value="Police Officer">Police Officer</option>
+            <option value="Priest">Priest</option>
+            <option value="Product Manager / Professional">Product Manager / Professional</option>
+            <option value="Professor">Professor</option>
+            <option value="Project Manager">Project Manager</option>
+            <option value="Public Relations Professional">Public Relations Professional</option>
+            <option value="Real Estate Professional">Real Estate Professional</option>
+            <option value="Research Scholar">Research Scholar</option>
+            <option value="Retail Professional">Retail Professional</option>
+            <option value="Sales Professional">Sales Professional</option>
+            <option value="Scientist">Scientist</option>
+            <option value="Self-Employed">Self-Employed</option>
+            <option value="Social Worker">Social Worker</option>
+            <option value="Software Consultant">Software Consultant</option>
+            <option value="Software Developer">Software Developer</option>
+            <option value="Speech Therapist">Speech Therapist</option>
+            <option value="Sportsman">Sportsman</option>
+            <option value="Supervisor">Supervisor</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Technician">Technician</option>
+            <option value="Tour Guide">Tour Guide</option>
+            <option value="Trainer">Trainer</option>
+            <option value="Transportation Professional">Transportation Professional</option>
+            <option value="Tutor">Tutor</option>
+            <option value="Veterinary Doctor">Veterinary Doctor</option>
+            <option value="Videographer">Videographer</option>
+            <option value="Web Designer">Web Designer</option>
+            <option value="Web Developer">Web Developer</option>
+            <option value="Wholesale Businessman">Wholesale Businessman</option>
+            <option value="Writer">Writer</option>
+            <option value="Zoologist">Zoologist</option>
+            <option value="Other">Other</option>
           </select>
 
           {/* <select
@@ -733,6 +927,7 @@ const TotalRequests = () => {
         </select> */}
 
 
+<div className="status-dropdown">
 <StatusDropdown 
   value={filters.status ? filters.status.split(',') : []}
   onChange={(selectedStatuses) => {
@@ -746,6 +941,7 @@ const TotalRequests = () => {
     });
   }}
 />
+</div>
 
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
