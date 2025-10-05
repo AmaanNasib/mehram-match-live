@@ -8,6 +8,26 @@ body {
   background-color: #ffffff;
 }
 
+/* Success Message Animation */
+@keyframes slideInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
 ::selection {
   background-color: #ff9fdacb;
   color: white;

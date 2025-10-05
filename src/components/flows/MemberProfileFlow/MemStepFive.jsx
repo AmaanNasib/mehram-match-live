@@ -436,8 +436,8 @@ const MemStepFive = () => {
                             onChange={(e) => updateField("photo_upload_privacy_option", e.target.value)}
                       >
                         <option value="">Select Visibility</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                       </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -487,8 +487,8 @@ const MemStepFive = () => {
                           onChange={(e) => updateField("profile_visible", e.target.value)}
                     >
                       <option value="">Select Visibility</option>
-                      <option value="visible_to_all">Visible to all</option>
-                      <option value="visible_to_matches">Visible to only matches</option>
+                      <option value="Visible to all">Visible to all</option>
+                      <option value="Visible to only matches">Visible to only matches</option>
                     </select>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

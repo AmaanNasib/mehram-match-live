@@ -470,6 +470,7 @@ const ViewAllRecommendedProfiles = () => {
                                     interested_id={profile?.interested_id}
                                     setApiData={setRecommendedProfiles}
                                     IsInterested={profile?.is_interested}
+                                    activeUser={activeUser}
                                   />
                                 </div>
                               </div>

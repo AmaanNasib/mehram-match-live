@@ -175,6 +175,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
   const [loading, setLoading] = useState(false);
   const [error, setErrors] = useState("");
   const [role] = useState(localStorage.getItem("role"));
+  const [token] = useState(localStorage.getItem("token"));
 
   // Toggle Dropdown
   const toggleUserDropdown = (event) => {
@@ -382,6 +383,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                   ✉️
                 </span> */}
               </div>
+{token && userId && (
               <div
                 className="user-profile"
                 onClick={toggleUserDropdown}
@@ -427,7 +429,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                 >
                   &#9660;
                 </span>
-                {isDropdownOpen && (
+                {isDropdownOpen && token && userId && (
                   <div
                     className="dropdown-content"
                     style={{
@@ -628,6 +630,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                   </div>
                 )}
               </div>
+              )}
             </div>
           </div>
         </div>

@@ -504,6 +504,7 @@ const ViewAllTrendingProfiles = () => {
                                     interested_id={profile?.interested_id}
                                     setApiData={setTrendingProfiles}
                                     IsInterested={profile?.is_interested}
+                                    activeUser={activeUser}
                                   />
                                 </div>
                               </div>

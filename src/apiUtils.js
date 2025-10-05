@@ -501,6 +501,15 @@ const postDataWithFetchV2 = (parameter) => {
     .then((response) => {
       const successMessageColor = "#4285F4";
       const { status } = response;
+      
+      // Handle success callback for photo requests
+      if (status === 201 || status === 200) {
+        if (parameter?.setSuccessMessage) {
+          parameter.setSuccessMessage("Photo request sent successfully!");
+        }
+        console.log('API Success Response:', response.data);
+      }
+      
       if (parameter?.tofetch) {
         if (status === 201 || status === 200) {
           parameter?.tofetch?.setSuccessMessage(true);

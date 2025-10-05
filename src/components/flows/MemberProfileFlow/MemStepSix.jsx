@@ -192,8 +192,8 @@ const MemStepSix = () => {
       if (value === "sunni") return "Sunni";
       if (value === "shia") return "Shia";
       if (value === "ahmadi") return "Ahmadi";
-      if (value === "visible_to_all") return "Visible to all";
-      if (value === "visible_to_matches") return "Visible to only matches";
+      if (value === "Visible to all") return "Visible to all";
+      if (value === "Visible to only matches") return "Visible to only matches";
       if (value === "hijab_required") return "Hijab Required";
       if (value === "niqab_required") return "Niqab Required";
       if (value === "no_hijab") return "No Hijab Required";
@@ -1037,8 +1037,8 @@ const MemStepSix = () => {
                               <div className="space-y-3">
                                 <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Profile Visibility</label>
                                 <div className="w-full h-14 px-4 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-white flex items-center text-base font-semibold text-gray-800 shadow-sm">
-                                  {profileData.profile_visible === 'visible_to_all' ? 'Visible to all' : 
-                                   profileData.profile_visible === 'visible_to_matches' ? 'Visible to only matches' : 
+                                  {profileData.profile_visible === 'Visible to all' ? 'Visible to all' : 
+                                   profileData.profile_visible === 'Visible to only matches' ? 'Visible to only matches' : 
                                    profileData.profile_visible || "Not specified"}
                               </div>
                             </div>

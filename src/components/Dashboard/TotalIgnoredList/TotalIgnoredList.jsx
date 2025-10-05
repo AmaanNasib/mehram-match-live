@@ -183,16 +183,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
           }
           
           .custom-date-picker-menu {
-            position: absolute;
-            top: 105%;
-            left: 0;
+            position: fixed;
+            top: auto;
+            left: auto;
             width: 300px;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 15px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(0);
           }
           
           .month-navigation {
@@ -285,33 +286,23 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
 const MaritalStatusDropdown = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState(value || []);
+  const [selectedStatus, setSelectedStatus] = useState(value || "");
 
   const maritalStatusOptions = [
-    "Never-Married", "Married", "Divorced",
-    "Khula", "Awaiting Divorce", "Widowed",
-    "Separated", "Annulled"
+    "Single", "Married", "Divorced",
+    "Khula", "Widowed"
   ];
 
   useEffect(() => {
     if (value) {
-      setSelectedStatuses(Array.isArray(value) ? value : [value]);
+      setSelectedStatus(value);
     }
   }, [value]);
 
-  const toggleStatus = (status) => {
-    const newSelected = selectedStatuses.includes(status)
-      ? selectedStatuses.filter(s => s !== status)
-      : [...selectedStatuses, status];
-    
-    setSelectedStatuses(newSelected);
-    onChange(newSelected);
-  };
-
-  const removeStatus = (status) => {
-    const newSelected = selectedStatuses.filter(s => s !== status);
-    setSelectedStatuses(newSelected);
-    onChange(newSelected);
+  const selectStatus = (status) => {
+    setSelectedStatus(status);
+    onChange(status);
+    setIsOpen(false); // Close dropdown after selection
   };
 
   return (
@@ -320,7 +311,7 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
-       Marital Status
+        {selectedStatus || "Marital Status"}
       </div>
       
       {isOpen && (
@@ -331,23 +322,17 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
               <div
                 key={status}
                 className={`marital-status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
+                  selectedStatus === status ? "selected" : ""
                 }`}
-                onClick={() => toggleStatus(status)}
+                onClick={() => selectStatus(status)}
               >
                 {status}
               </div>
             ))}
           </div>
           <div className="marital-status-note">
-            *You can choose multiple Marital Status
+            *You can choose one Marital Status
           </div>
-          <button 
-            className="apply-now-btn"
-            onClick={() => setIsOpen(false)}
-          >
-            Apply Now
-          </button>
         </div>
       )}
 
@@ -357,34 +342,43 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
         {`
           .marital-status-dropdown-container {
             position: relative;
-            width: 200px;
+            width: 150px;
+            min-width: 150px;
+            flex-shrink: 0;
           }
           
           .marital-status-dropdown-toggle {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
             cursor: pointer;
             font-size: 14px;
             min-height: 36px;
             display: flex;
             align-items: center;
-             font-weight: 600; /* Bold */
-            color: #333; /* Dark gray */
+            font-weight: 500;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+          }
+          
+          .marital-status-dropdown-toggle:hover {
+            border-color: #9ca3af;
           }
           
           .marital-status-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
+            position: fixed;
+            top: auto;
+            left: auto;
             width: 400px;
             background: #fff;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 15px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(0);
           }
           
           .marital-status-grid {
@@ -610,11 +604,11 @@ const TotalIgnoredList = () => {
 
 
 
-  const handleMaritalStatusChange = (selectedStatuses) => {
+  const handleMaritalStatusChange = (selectedStatus) => {
     setFilters(prevFilters => {
       const updatedFilters = { 
         ...prevFilters, 
-        martialStatus: selectedStatuses.join(',') 
+        martialStatus: selectedStatus 
       };
       applyFilters(updatedFilters);
       return updatedFilters;
@@ -626,7 +620,7 @@ const TotalIgnoredList = () => {
   return (
     <DashboardLayout>
       <div className="total-interest-container">
-        <h1 className="page-title">Total Ignored List</h1>
+        <h1 className="page-title">Total Ignored</h1>
 
         {/* Filters Section */}
         <div className="filter-container">
@@ -638,7 +632,7 @@ const TotalIgnoredList = () => {
             type="text"
             value={filters.id}
             onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter ID"
+            placeholder="Enter Member ID"
             list="distinct-ids"
             style={{ width: '70px' }}
           />
@@ -706,7 +700,7 @@ const TotalIgnoredList = () => {
 
 {/* With this new component */}
 <MaritalStatusDropdown 
-  value={filters.martialStatus ? filters.martialStatus.split(',') : []}
+  value={filters.martialStatus || ""}
   onChange={handleMaritalStatusChange}
 />
 
@@ -820,64 +814,134 @@ const TotalIgnoredList = () => {
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
           }
           .page-title {
-            font-weight: 700;
+            color: #1f2937;
+            font-weight: 600;
             font-size: 24px;
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            line-height: 1.2;
           }
           .filter-container {
             display: flex;
-            flex-wrap:wrap;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            min-width: 0;
+            overflow: hidden;
           }
           .filter-button, .reset-filter {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           }
+          
+          .filter-button:hover, .reset-filter:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+          }
+          
           .reset-filter {
-            color: red;
+            color: #dc2626;
+            border-color: #fecaca;
+            background: #fef2f2;
+          }
+          
+          .reset-filter:hover {
+            border-color: #f87171;
+            background: #fee2e2;
           }
               .icon {
             font-size: 14px;
             
           }
           .filter-dropdown {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
             font-size: 14px;
             font-weight: 500;
-
-
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+            min-width: 120px;
+          }
+          
+          .filter-dropdown:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+          
+          .filter-dropdown:hover {
+            border-color: #9ca3af;
           }
           .interest-table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
-               .interest-table th {
-      background: #f0f0f0; /* Light Gray */
-      color: #333;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-          .interest-table th, .interest-table td {
-            padding: 12px;
+          .interest-table th {
+            background: #f9fafb;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+          }
+          
+          .interest-table th:hover {
+            background: #f3f4f6;
+          }
+          
+          .interest-table th:last-child {
+            border-right: none;
+          }
+          
+          .interest-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            border-right: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #1f2937;
+            background: #ffffff;
+          }
+          
+          .interest-table td:last-child {
+            border-right: none;
+          }
+          
+          .interest-table tr:hover {
+            background: #f9fafb;
+          }
+          
+          .interest-table tr:last-child td {
+            border-bottom: none;
           }
               .table-row {
             cursor: pointer;
@@ -930,35 +994,60 @@ const TotalIgnoredList = () => {
             color: #8e44ad;
           }
           .marital-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
-          .marital-badge.never-married {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }
-          .marital-badge.divorced {
-            background: #ffc0cb;
-            color: #c4002b;
-          }
-          .marital-badge.widowed {
-            background: #ffe4b5;
-            color: #b8860b;
+          .marital-badge.single {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
           }
           .marital-badge.married {
-            background: #ff6666;
-            color: #800000;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
           }
-          .marital-badge.awaiting-divorce {
-            background: #ffdd99;
-            color: #a35400;
+          .marital-badge.divorced {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
           }
           .marital-badge.khula {
-            background: #e6ccff;
-            color: #6a0dad;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
+          .marital-badge.widowed {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            border-color: #374151;
+          }
+          .marital-badge.not-mentioned {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #6b7280;
+            border-color: #9ca3af;
+          }
+          .marital-badge.never-married {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.unmarried {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.awaiting-divorce {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
         `}
       </style>

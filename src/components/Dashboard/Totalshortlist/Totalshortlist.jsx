@@ -199,16 +199,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
           }
           
           .custom-date-picker-menu {
-            position: absolute;
-            top: 105%;
-            left: 0;
+            position: fixed;
+            top: auto;
+            left: auto;
             width: 300px;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 15px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(0);
           }
           
           .month-navigation {
@@ -371,34 +372,43 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
         {`
           .marital-status-dropdown-container {
             position: relative;
-            width: 200px;
+            width: 150px;
+            min-width: 150px;
+            flex-shrink: 0;
           }
           
           .marital-status-dropdown-toggle {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
             cursor: pointer;
             font-size: 14px;
             min-height: 36px;
             display: flex;
             align-items: center;
-            font-weight: 600;
-            color: #333;
+            font-weight: 500;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+          }
+          
+          .marital-status-dropdown-toggle:hover {
+            border-color: #9ca3af;
           }
           
           .marital-status-dropdown-menu {
-            position: absolute;
-            top: 105%;
-            left: 0;
+            position: fixed;
+            top: auto;
+            left: auto;
             width: 400px;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 15px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(0);
           }
           
           .marital-status-grid {
@@ -721,7 +731,7 @@ const TotalShortlist = () => {
             type="text"
             value={filters.id}
             onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter ID"
+            placeholder="Enter Member ID"
             list="distinct-ids"
             style={{ width: '70px' }}
           />
@@ -958,8 +968,8 @@ const TotalShortlist = () => {
         <table className="interest-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('id')}>
-                ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('member_id')}>
+                MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
               <th>Name</th>
               <th>Location</th>
@@ -973,8 +983,50 @@ const TotalShortlist = () => {
           <tbody>
             {currentItems.map((match) => (
               <tr key={match?.user?.id} style={{ cursor: "pointer" }}>
-                <td>{match?.user?.id}</td>
-                <td>{match?.user?.name || 'NA'}</td>
+                <td>{match?.user?.member_id || "N/A"}</td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img 
+                      src={match?.user?.profile_photo
+                        ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${match.user.profile_photo}`
+                        : `data:image/svg+xml;utf8,${encodeURIComponent(
+                            match?.user?.gender === "male"
+                              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                  <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                  <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                </svg>`
+                              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                  <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                  <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                  <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                </svg>`
+                          )}`}
+                      alt={match?.user?.name || "User"} 
+                      style={{ 
+                        width: "32px", 
+                        height: "32px", 
+                        borderRadius: "50%", 
+                        objectFit: "cover",
+                        border: "2px solid #e0e0e0"
+                      }}
+                      onError={(e) => {
+                        e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                          match?.user?.gender === "male"
+                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                  <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                  <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                </svg>`
+                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                  <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                  <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                  <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                </svg>`
+                        )}`;
+                      }}
+                    />
+                    <span>{match?.user?.name || 'NA'}</span>
+                  </div>
+                </td>
                 <td>{match?.user?.city || 'NA'}</td>
                 <td>{match?.date || 'NA'}</td>
                 <td>{match?.user?.sect_school_info || 'NA'}</td>
@@ -1151,61 +1203,133 @@ const TotalShortlist = () => {
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
           }
           .page-title {
-            font-weight: 700;
+            color: #1f2937;
+            font-weight: 600;
             font-size: 24px;
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            line-height: 1.2;
           }
           .filter-container {
             display: flex;
-            flex-wrap:wrap;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            min-width: 0;
+            overflow: hidden;
           }
           .filter-button, .reset-filter {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           }
+          
+          .filter-button:hover, .reset-filter:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+          }
+          
           .reset-filter {
-            color: red;
+            color: #dc2626;
+            border-color: #fecaca;
+            background: #fef2f2;
+          }
+          
+          .reset-filter:hover {
+            border-color: #f87171;
+            background: #fee2e2;
           }
           .icon {
             font-size: 14px;
           }
           .filter-dropdown {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
             font-size: 14px;
             font-weight: 500;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+            min-width: 120px;
+          }
+          
+          .filter-dropdown:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+          
+          .filter-dropdown:hover {
+            border-color: #9ca3af;
           }
           .interest-table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
           .interest-table th {
-            background: #f0f0f0;
-            color: #333;
-            font-weight: bold;
-            text-transform: uppercase;
-          }
-          .interest-table th, .interest-table td {
-            padding: 12px;
+            background: #f9fafb;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+          }
+          
+          .interest-table th:hover {
+            background: #f3f4f6;
+          }
+          
+          .interest-table th:last-child {
+            border-right: none;
+          }
+          
+          .interest-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            border-right: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #1f2937;
+            background: #ffffff;
+          }
+          
+          .interest-table td:last-child {
+            border-right: none;
+          }
+          
+          .interest-table tr:hover {
+            background: #f9fafb;
+          }
+          
+          .interest-table tr:last-child td {
+            border-bottom: none;
           }
           .table-row {
             cursor: pointer;
@@ -1258,35 +1382,60 @@ const TotalShortlist = () => {
             color: #8e44ad;
           }
           .marital-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
-          .marital-badge.never-married {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }
-          .marital-badge.divorced {
-            background: #ffc0cb;
-            color: #c4002b;
-          }
-          .marital-badge.widowed {
-            background: #ffe4b5;
-            color: #b8860b;
+          .marital-badge.single {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
           }
           .marital-badge.married {
-            background: #ff6666;
-            color: #800000;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
           }
-          .marital-badge.awaiting-divorce {
-            background: #ffdd99;
-            color: #a35400;
+          .marital-badge.divorced {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
           }
           .marital-badge.khula {
-            background: #e6ccff;
-            color: #6a0dad;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
+          .marital-badge.widowed {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            border-color: #374151;
+          }
+          .marital-badge.not-mentioned {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #6b7280;
+            border-color: #9ca3af;
+          }
+          .marital-badge.never-married {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.unmarried {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.awaiting-divorce {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
           
           .action-container {

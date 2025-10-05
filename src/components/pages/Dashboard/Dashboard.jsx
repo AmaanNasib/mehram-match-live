@@ -127,6 +127,8 @@ const userData=localStorage.getItem("userId");
       name={user.name}
       age={user.age}
       city={user.city}
+      activeUser={activeUser}
+      profile={user}
     />
   ))}
 

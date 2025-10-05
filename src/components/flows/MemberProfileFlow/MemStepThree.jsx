@@ -26,14 +26,14 @@ const MemStepThree = () => {
     { value: "doctor", label: "Doctor" },
     { value: "teacher", label: "Teacher" },
     { value: "lawyer", label: "Lawyer" },
-    { value: "government_employee", label: "Government Employee" },
-    { value: "private_employee", label: "Private Employee" },
+    { value: "Government Employee", label: "Government Employee" },
+    { value: "Private Employee", label: "Private Employee" },
     { value: "farmer", label: "Farmer" },
     { value: "shopkeeper", label: "Shopkeeper" },
     { value: "driver", label: "Driver" },
     { value: "homemaker", label: "Homemaker" },
     { value: "retired", label: "Retired" },
-    { value: "not_working", label: "Not Working" },
+    { value: "Not Working", label: "Not Working" },
     { value: "other", label: "Other" }
   ];
   userId = localStorage.getItem("member_id") || userId;

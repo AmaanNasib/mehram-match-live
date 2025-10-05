@@ -2,7 +2,7 @@ import React from 'react';
 import DashboadrCard from "../../Dashboard/dashboardCard/DashboardCard"
 import './trendingProfiles.css';
 
-const ProfileCardList = ({ profiles, setApiData }) => {
+const ProfileCardList = ({ profiles, setApiData, activeUser }) => {
   
   return (
     <section className="trending-section">
@@ -14,7 +14,7 @@ const ProfileCardList = ({ profiles, setApiData }) => {
         <div className="profile-cards" >
           {profiles && profiles.length > 0 ? (
             profiles.map((profile) => (
-              <DashboadrCard key={profile.id} profile={profile} setApiData={setApiData} IsInterested={profile?.is_interested}/>
+              <DashboadrCard key={profile.id} profile={profile} setApiData={setApiData} IsInterested={profile?.is_interested} activeUser={activeUser}/>
             ))
           ) : (
             <p style={{ color: 'red' }}>No match found</p>

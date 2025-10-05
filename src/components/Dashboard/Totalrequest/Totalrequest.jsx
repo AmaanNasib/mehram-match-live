@@ -3,7 +3,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
@@ -463,6 +463,62 @@ const StatusDropdown = ({ value, onChange }) => {
           .apply-now-btn:hover {
             background-color: #e01180;
           }
+          
+          /* Action buttons styling */
+          .action-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-weight: bold;
+          }
+          
+          .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          }
+          
+          .approve-btn {
+            background-color: #28a745;
+            color: white;
+          }
+          
+          .approve-btn:hover {
+            background-color: #218838;
+          }
+          
+          .reject-btn {
+            background-color: #dc3545;
+            color: white;
+          }
+          
+          .reject-btn:hover {
+            background-color: #c82333;
+          }
+          
+          .block-btn {
+            background-color: #ffc107;
+            color: #212529;
+          }
+          
+          .block-btn:hover {
+            background-color: #e0a800;
+          }
+          
+          .report-btn {
+            background-color: #6f42c1;
+            color: white;
+          }
+          
+          .report-btn:hover {
+            background-color: #5a32a3;
+          }
         `}
       </style>
     </div>
@@ -512,7 +568,7 @@ const TotalRequests = () => {
   };
   const onClearFilterClick = () => {
     let clear = {
-      id: '',
+      member_id: '',
       name: '',
       city: '',
       date: '',
@@ -530,7 +586,16 @@ const TotalRequests = () => {
     if (userId) {
       const parameter = {
         url: `/api/user/requested/?user_id=${userId}`,
-        setterFunction: setMatchDetails,
+        setterFunction: (data) => {
+          setMatchDetails(data || {
+            sent_request: [],
+            received_request: [],
+            sent_request_accepted: [],
+            sent_request_rejected: [],
+            received_request_accepted: [],
+            received_request_rejected: []
+          });
+        },
         setLoading: setLoading,
         setErrors: setError,
       };
@@ -540,20 +605,54 @@ const TotalRequests = () => {
 
   // Combine all request data into a single array with proper status based on gender and request direction
   const combinedRequests = [
-    ...matchDetails.sent_request.map((item) => ({ ...item, status: "Pending" })),
-    ...matchDetails.received_request.map((item) => ({ ...item, status: "Pending" })),
-    ...matchDetails.sent_request_accepted.map((item) => ({ ...item, status: "Approved" })),
-    ...matchDetails.sent_request_rejected.map((item) => ({ ...item, status: "Rejected" })),
-    ...matchDetails.received_request_accepted.map((item) => ({ ...item, status: "Approved" })),
-    ...matchDetails.received_request_rejected.map((item) => ({ ...item, status: "Rejected" })),
+    ...matchDetails.sent_request.map((item) => ({ 
+      ...item, 
+      status: item.status || "Sent",
+      user: item.user,
+      date: item.date,
+      requestType: "sent"
+    })),
+    ...matchDetails.received_request.map((item) => ({ 
+      ...item, 
+      status: item.status || "Received",
+      user: item.user,
+      date: item.date,
+      requestType: "received"
+    })),
+    ...matchDetails.sent_request_accepted.map((item) => ({ 
+      ...item, 
+      status: "Approved",
+      user: item.user,
+      date: item.date,
+      requestType: "sent"
+    })),
+    ...matchDetails.sent_request_rejected.map((item) => ({ 
+      ...item, 
+      status: "Rejected",
+      user: item.user,
+      date: item.date,
+      requestType: "sent"
+    })),
+    ...matchDetails.received_request_accepted.map((item) => ({ 
+      ...item, 
+      status: "Approved",
+      user: item.user,
+      date: item.date,
+      requestType: "received"
+    })),
+    ...matchDetails.received_request_rejected.map((item) => ({ 
+      ...item, 
+      status: "Rejected",
+      user: item.user,
+      date: item.date,
+      requestType: "received"
+    })),
   ];
   const applyFilters = (updatedFilters) => {
-    console.log(updatedFilters.id, ">>>");
-
     setFilteredItems(
       combinedRequests?.filter((match) => {
         return (
-          (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
+          (updatedFilters.member_id ? match?.user?.member_id?.toLowerCase().includes(updatedFilters.member_id.toLowerCase()) : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.user?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
           (updatedFilters.startDate && updatedFilters.endDate
@@ -588,10 +687,90 @@ const TotalRequests = () => {
     setMatchDetails({ ...matchDetails }); // Update state to trigger re-render
   };
 
-  // Function to handle edit action
-  const handleEdit = (id) => {
-    // Add your edit logic here
-    console.log(`Edit item with ID: ${id}`);
+  // Function to handle photo request actions
+  const handleApproveRequest = (requestId, targetUserId) => {
+    const parameter = {
+      url: `/api/user/requestphoto/${requestId}/approve/`,
+      payload: { status: 'Accepted' },
+      setSuccessMessage: (message) => {
+        // Reload data
+        const reloadParameter = {
+          url: `/api/user/requested/?user_id=${userId}`,
+          setterFunction: setMatchDetails,
+          setLoading: setLoading,
+          setErrors: setError,
+        };
+        fetchDataObjectV2(reloadParameter);
+      },
+      setErrors: setError,
+    };
+    postDataWithFetchV2(parameter);
+  };
+
+  const handleRejectRequest = (requestId, targetUserId) => {
+    const parameter = {
+      url: `/api/user/requestphoto/${requestId}/approve/`,
+      payload: { status: 'Rejected' },
+      setSuccessMessage: (message) => {
+        // Reload data
+        const reloadParameter = {
+          url: `/api/user/requested/?user_id=${userId}`,
+          setterFunction: setMatchDetails,
+          setLoading: setLoading,
+          setErrors: setError,
+        };
+        fetchDataObjectV2(reloadParameter);
+      },
+      setErrors: setError,
+    };
+    postDataWithFetchV2(parameter);
+  };
+
+  const handleBlockUser = (targetUserId) => {
+    const parameter = {
+      url: `/api/recieved/block/`,
+      payload: {
+        action_by_id: Number(userId),
+        action_on_id: Number(targetUserId),
+        blocked: true
+      },
+      setSuccessMessage: (message) => {
+        // Reload data
+        const reloadParameter = {
+          url: `/api/user/requested/?user_id=${userId}`,
+          setterFunction: setMatchDetails,
+          setLoading: setLoading,
+          setErrors: setError,
+        };
+        fetchDataObjectV2(reloadParameter);
+      },
+      setErrors: setError,
+    };
+    postDataWithFetchV2(parameter);
+  };
+
+  const handleReportUser = (targetUserId) => {
+    const parameter = {
+      url: `/api/recieved/`,
+      payload: {
+        action_by_id: Number(userId),
+        action_on_id: Number(targetUserId),
+        blocked: true,
+        status: 'Reported'
+      },
+      setSuccessMessage: (message) => {
+        // Reload data
+        const reloadParameter = {
+          url: `/api/user/requested/?user_id=${userId}`,
+          setterFunction: setMatchDetails,
+          setLoading: setLoading,
+          setErrors: setError,
+        };
+        fetchDataObjectV2(reloadParameter);
+      },
+      setErrors: setError,
+    };
+    postDataWithFetchV2(parameter);
   };
 
   // Pagination for the combined table
@@ -638,8 +817,19 @@ const TotalRequests = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
+      } else if (sortConfig.key === 'member_id') {
+        // Sorting by member_id
+        const memberIdA = a.user?.member_id || '';
+        const memberIdB = b.user?.member_id || '';
+        if (memberIdA < memberIdB) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (memberIdA > memberIdB) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
       } else {
-        // Sorting by user field
+        // Sorting by other user fields
         if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
@@ -666,11 +856,25 @@ const TotalRequests = () => {
           <input
             className="filter-dropdown"
             type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter ID"
-            list="distinct-ids"
-            style={{ width: '70px' }}
+            value={filters.member_id}
+            onChange={(e) => handleFilterChange('member_id', e.target.value)}
+            placeholder="Enter Member ID"
+            style={{ 
+              width: '120px',
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '13px',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#ff6b9d';
+              e.target.style.boxShadow = '0 0 0 2px rgba(255, 107, 157, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#ddd';
+              e.target.style.boxShadow = 'none';
+            }}
           />
 
 
@@ -954,60 +1158,168 @@ const TotalRequests = () => {
           <table className="interest-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('id')}>
-                  ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <th onClick={() => handleSort('member_id')}>
+                  MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>Name</th>
+                <th>{gender === "male" ? "TARGET USER" : "REQUESTER"}</th>
                 <th>Location</th>
                 <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                 <th>Sect</th>
                 <th>Profession</th>
                 <th>Status</th>
+                <th>Marital Status</th>
                 {gender == "female" && <th>Action</th>}
               </tr>
             </thead>
             <tbody>
-              {currentItems.map((user, index) => (
+              {currentItems.length === 0 ? (
+                <tr>
+                  <td colSpan={gender === "female" ? 8 : 7} style={{ textAlign: "center", padding: "40px", color: "#666" }}>
+                    <div style={{ fontSize: "16px", marginBottom: "10px" }}>
+                      {gender === "male" ? "📤" : "📥"} 
+                    </div>
+                    <div style={{ fontSize: "18px", fontWeight: "500", marginBottom: "5px" }}>
+                      {gender === "male" ? "No Sent Requests" : "No Received Requests"}
+                    </div>
+                    <div style={{ fontSize: "14px", color: "#888" }}>
+                      {gender === "male" 
+                        ? "You haven't sent any photo requests yet." 
+                        : "You haven't received any photo requests yet."
+                      }
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                currentItems.map((user, index) => (
                 <tr key={index}>
-                  <td>{user?.user?.id}</td>
-                  <td>{user?.user?.name}</td>
-                  <td>{user?.user?.city || "-"}</td>
+                  <td>{user?.user?.member_id || "N/A"}</td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <img 
+                        src={user?.user?.profile_photo
+                          ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${user.user.profile_photo}`
+                          : `data:image/svg+xml;utf8,${encodeURIComponent(
+                              user?.user?.gender === "male"
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                    <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                    <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                  </svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                    <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                    <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                    <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                  </svg>`
+                            )}`}
+                        alt={user?.user?.name || "User"} 
+                        style={{ 
+                          width: "32px", 
+                          height: "32px", 
+                          borderRadius: "50%", 
+                          objectFit: "cover",
+                          border: "2px solid #e0e0e0"
+                        }}
+                        onError={(e) => {
+                          e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                            user?.user?.gender === "male"
+                              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                    <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                    <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                  </svg>`
+                              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                    <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                    <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                    <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                  </svg>`
+                          )}`;
+                        }}
+                      />
+                      <span>
+                        {gender === "male" ? (
+                          // Male user - show target user (female) details
+                          user?.user?.name || "-"
+                        ) : (
+                          // Female user - show requester (male) details
+                          user?.user?.name || "-"
+                        )}
+                      </span>
+                    </div>
+                  </td>
+                  <td>{user?.user?.city || user?.user?.location || "-"}</td>
                   <td>{user?.date || "-"}</td>
-                  <td>{user?.user?.sect_school_info || "-"}</td>
+                  <td>{user?.user?.sect_school_info || user?.user?.sect || "-"}</td>
                   <td>{user?.user?.profession || "-"}</td>
                   <td>
                     <span className={`status-badge ${user.status.toLowerCase()}`}>
                       {user.status}
                     </span>
-                    {/* Show request direction based on gender and requestType */}
+                    {/* Show request direction based on gender */}
                     <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
                       {gender === "male" ? (
-                        user.requestType === "sent" ? "Request Sent" : "Request Received"
+                        "Request Sent to Female User"
                       ) : (
-                        user.requestType === "received" ? "Request Received" : "Request Sent"
+                        "Request Received from Male User"
                       )}
                     </div>
                   </td>
+                  <td>
+                    <span className={`marital-badge ${user?.user?.martial_status?user?.user?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
+                      {user?.user?.martial_status || "Not mentioned"}
+                    </span>
+                  </td>
                   {gender == "female" && <td>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                      <AiOutlineEdit
-                        className="edit-icon"
+                    <div style={{ display: "flex", gap: "5px", alignItems: "center", flexWrap: "wrap" }}>
+                      {/* Only show action buttons for pending/received requests */}
+                      {(user.status === "Pending" || user.status === "Received") && (
+                        <>
+                          <button
+                            className="action-btn approve-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleApproveRequest(user?.id, user?.user?.id);
+                            }}
+                            title="Approve Request"
+                          >
+                            ✓
+                          </button>
+                          <button
+                            className="action-btn reject-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRejectRequest(user?.id, user?.user?.id);
+                            }}
+                            title="Reject Request"
+                          >
+                            ✗
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* Block and Report buttons for all requests */}
+                      <button
+                        className="action-btn block-btn"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent row click event
-                          handleEdit(user?.user?.id);
+                          e.stopPropagation();
+                          handleBlockUser(user?.user?.id);
                         }}
-                      />
-                      <AiOutlineDelete
-                        className="delete-icon"
+                        title="Block User"
+                      >
+                        🚫
+                      </button>
+                      <button
+                        className="action-btn report-btn"
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent row click event
-                          handleDelete(user?.user?.id);
+                          e.stopPropagation();
+                          handleReportUser(user?.user?.id);
                         }}
-                      />
+                        title="Report User"
+                      >
+                        ⚠️
+                      </button>
                     </div>
                   </td>}
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
 
@@ -1075,32 +1387,55 @@ const TotalRequests = () => {
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
           }
           .page-title {
-            font-weight: 700;
+            color: #1f2937;
+            font-weight: 600;
             font-size: 24px;
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            line-height: 1.2;
           }
           .filter-container {
             display: flex;
-            flex-wrap:wrap;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
           .filter-button, .reset-filter {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           }
+          
+          .filter-button:hover, .reset-filter:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+          }
+          
           .reset-filter {
-            color: red;
+            color: #dc2626;
+            border-color: #fecaca;
+            background: #fef2f2;
+          }
+          
+          .reset-filter:hover {
+            border-color: #f87171;
+            background: #fee2e2;
           }
           .icon {
             font-size: 14px;
@@ -1116,20 +1451,55 @@ const TotalRequests = () => {
           .interest-table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
+          
           .interest-table th {
-            background: #f0f0f0;
-            color: #333;
-            font-weight: bold;
-            text-transform: uppercase;
-          }
-          .interest-table th, .interest-table td {
-            padding: 12px;
+            background: #f9fafb;
+            color: #374151;
+            font-weight: 600;
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+          }
+          
+          .interest-table th:hover {
+            background: #f3f4f6;
+          }
+          
+          .interest-table th:last-child {
+            border-right: none;
+          }
+          
+          .interest-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            border-right: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #1f2937;
+            background: #ffffff;
+          }
+          
+          .interest-table td:last-child {
+            border-right: none;
+          }
+          
+          .interest-table tr:hover {
+            background: #f9fafb;
+          }
+          
+          .interest-table tr:last-child td {
+            border-bottom: none;
           }
           .table-row {
             cursor: pointer;
@@ -1138,24 +1508,96 @@ const TotalRequests = () => {
             background: #f1f1f1;
           }
           .status-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: capitalize;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          }
+          .status-badge.sent {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .status-badge.received {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
           }
           .status-badge.pending {
-            background: #e3f7f0;
-            color: #18a558;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
-          .status-badge.accepted {
-            background: #d1f8d1;
-            color: #2c7a2c;
+          .status-badge.approved, .status-badge.accepted {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #ffffff;
+            border-color: #6d28d9;
           }
           .status-badge.rejected {
-            background: #ffc0cb;
-            color: #c4002b;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
+          }
+          .marital-badge {
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          }
+          .marital-badge.single {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.married {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
+          }
+          .marital-badge.divorced {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
+          }
+          .marital-badge.khula {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
+          .marital-badge.widowed {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            border-color: #374151;
+          }
+          .marital-badge.not-mentioned {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #6b7280;
+            border-color: #9ca3af;
+          }
+          .marital-badge.never-married {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.unmarried {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.awaiting-divorce {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
           .delete-icon {
             cursor: pointer;

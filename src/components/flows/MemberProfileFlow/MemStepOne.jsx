@@ -371,245 +371,245 @@ const MemStepOne = () => {
   india: {
     label: "India",
     states: {
-      andhra_pradesh: {
+      "Andhra Pradesh": {
         label: "Andhra Pradesh",
         cities: [
-          { value: "visakhapatnam", label: "Visakhapatnam" },
-          { value: "vijayawada", label: "Vijayawada" },
-          { value: "tirupati", label: "Tirupati" },
-          { value: "guntur", label: "Guntur" },
-          { value: "nellore", label: "Nellore" }
+          { value: "Visakhapatnam", label: "Visakhapatnam" },
+          { value: "Vijayawada", label: "Vijayawada" },
+          { value: "Tirupati", label: "Tirupati" },
+          { value: "Guntur", label: "Guntur" },
+          { value: "Nellore", label: "Nellore" }
         ]
       },
-      arunachal_pradesh: {
+      "Arunachal Pradesh": {
         label: "Arunachal Pradesh",
         cities: [
-          { value: "itanagar", label: "Itanagar" },
-          { value: "pasighat", label: "Pasighat" },
-          { value: "ziro", label: "Ziro" }
+          { value: "Itanagar", label: "Itanagar" },
+          { value: "Pasighat", label: "Pasighat" },
+          { value: "Ziro", label: "Ziro" }
         ]
       },
       assam: {
         label: "Assam",
         cities: [
-          { value: "guwahati", label: "Guwahati" },
-          { value: "silchar", label: "Silchar" },
-          { value: "dibrugarh", label: "Dibrugarh" },
-          { value: "jorhat", label: "Jorhat" }
+          { value: "Guwahati", label: "Guwahati" },
+          { value: "Silchar", label: "Silchar" },
+          { value: "Dibrugarh", label: "Dibrugarh" },
+          { value: "Jorhat", label: "Jorhat" }
         ]
       },
       bihar: {
         label: "Bihar",
         cities: [
-          { value: "patna", label: "Patna" },
-          { value: "gaya", label: "Gaya" },
-          { value: "bhagalpur", label: "Bhagalpur" },
-          { value: "muzaffarpur", label: "Muzaffarpur" }
+          { value: "Patna", label: "Patna" },
+          { value: "Gaya", label: "Gaya" },
+          { value: "Bhagalpur", label: "Bhagalpur" },
+          { value: "Muzaffarpur", label: "Muzaffarpur" }
         ]
       },
       chhattisgarh: {
         label: "Chhattisgarh",
         cities: [
-          { value: "raipur", label: "Raipur" },
-          { value: "bilaspur", label: "Bilaspur" },
-          { value: "durg", label: "Durg" }
+          { value: "Raipur", label: "Raipur" },
+          { value: "Bilaspur", label: "Bilaspur" },
+          { value: "Durg", label: "Durg" }
         ]
       },
       goa: {
         label: "Goa",
         cities: [
-          { value: "panaji", label: "Panaji" },
-          { value: "margao", label: "Margao" },
-          { value: "vasco_da_gama", label: "Vasco da Gama" }
+          { value: "Panaji", label: "Panaji" },
+          { value: "Margao", label: "Margao" },
+          { value: "Vasco da Gama", label: "Vasco da Gama" }
         ]
       },
       gujarat: {
         label: "Gujarat",
         cities: [
-          { value: "ahmedabad", label: "Ahmedabad" },
-          { value: "surat", label: "Surat" },
-          { value: "vadodara", label: "Vadodara" },
-          { value: "rajkot", label: "Rajkot" },
-          { value: "bhavnagar", label: "Bhavnagar" }
+          { value: "Ahmedabad", label: "Ahmedabad" },
+          { value: "Surat", label: "Surat" },
+          { value: "Vadodara", label: "Vadodara" },
+          { value: "Rajkot", label: "Rajkot" },
+          { value: "Bhavnagar", label: "Bhavnagar" }
         ]
       },
       haryana: {
         label: "Haryana",
         cities: [
-          { value: "gurgaon", label: "Gurgaon" },
-          { value: "faridabad", label: "Faridabad" },
-          { value: "panipat", label: "Panipat" },
-          { value: "ambala", label: "Ambala" }
+          { value: "Gurgaon", label: "Gurgaon" },
+          { value: "Faridabad", label: "Faridabad" },
+          { value: "Panipat", label: "Panipat" },
+          { value: "Ambala", label: "Ambala" }
         ]
       },
-      himachal_pradesh: {
+      "Himachal Pradesh": {
         label: "Himachal Pradesh",
         cities: [
-          { value: "shimla", label: "Shimla" },
-          { value: "dharamshala", label: "Dharamshala" },
-          { value: "manali", label: "Manali" }
+          { value: "Shimla", label: "Shimla" },
+          { value: "Dharamshala", label: "Dharamshala" },
+          { value: "Manali", label: "Manali" }
         ]
       },
       jharkhand: {
         label: "Jharkhand",
         cities: [
-          { value: "ranchi", label: "Ranchi" },
-          { value: "jamshedpur", label: "Jamshedpur" },
-          { value: "dhanbad", label: "Dhanbad" }
+          { value: "Ranchi", label: "Ranchi" },
+          { value: "Jamshedpur", label: "Jamshedpur" },
+          { value: "Dhanbad", label: "Dhanbad" }
         ]
       },
       karnataka: {
         label: "Karnataka",
         cities: [
-          { value: "bangalore", label: "Bangalore" },
-          { value: "mysore", label: "Mysore" },
-          { value: "hubli", label: "Hubli" },
-          { value: "mangalore", label: "Mangalore" }
+          { value: "Bangalore", label: "Bangalore" },
+          { value: "Mysore", label: "Mysore" },
+          { value: "Hubli", label: "Hubli" },
+          { value: "Mangalore", label: "Mangalore" }
         ]
       },
       kerala: {
         label: "Kerala",
         cities: [
-          { value: "thiruvananthapuram", label: "Thiruvananthapuram" },
-          { value: "kochi", label: "Kochi" },
-          { value: "kozhikode", label: "Kozhikode" },
-          { value: "thrissur", label: "Thrissur" }
+          { value: "Thiruvananthapuram", label: "Thiruvananthapuram" },
+          { value: "Kochi", label: "Kochi" },
+          { value: "Kozhikode", label: "Kozhikode" },
+          { value: "Thrissur", label: "Thrissur" }
         ]
       },
-      madhya_pradesh: {
+      "Madhya Pradesh": {
         label: "Madhya Pradesh",
         cities: [
-          { value: "bhopal", label: "Bhopal" },
-          { value: "indore", label: "Indore" },
-          { value: "gwalior", label: "Gwalior" },
-          { value: "jabalpur", label: "Jabalpur" }
+          { value: "Bhopal", label: "Bhopal" },
+          { value: "Indore", label: "Indore" },
+          { value: "Gwalior", label: "Gwalior" },
+          { value: "Jabalpur", label: "Jabalpur" }
         ]
       },
       maharashtra: {
         label: "Maharashtra",
         cities: [
-          { value: "mumbai", label: "Mumbai" },
-          { value: "pune", label: "Pune" },
-          { value: "nagpur", label: "Nagpur" },
-          { value: "nashik", label: "Nashik" },
-          { value: "aurangabad", label: "Aurangabad" }
+          { value: "Mumbai", label: "Mumbai" },
+          { value: "Pune", label: "Pune" },
+          { value: "Nagpur", label: "Nagpur" },
+          { value: "Nashik", label: "Nashik" },
+          { value: "Aurangabad", label: "Aurangabad" }
         ]
       },
       manipur: {
         label: "Manipur",
         cities: [
-          { value: "imphal", label: "Imphal" },
-          { value: "thoubal", label: "Thoubal" }
+          { value: "Imphal", label: "Imphal" },
+          { value: "Thoubal", label: "Thoubal" }
         ]
       },
       meghalaya: {
         label: "Meghalaya",
         cities: [
-          { value: "shillong", label: "Shillong" },
-          { value: "tura", label: "Tura" }
+          { value: "Shillong", label: "Shillong" },
+          { value: "Tura", label: "Tura" }
         ]
       },
       mizoram: {
         label: "Mizoram",
         cities: [
-          { value: "aizawl", label: "Aizawl" },
-          { value: "lunglei", label: "Lunglei" }
+          { value: "Aizawl", label: "Aizawl" },
+          { value: "Lunglei", label: "Lunglei" }
         ]
       },
       nagaland: {
         label: "Nagaland",
         cities: [
-          { value: "kohima", label: "Kohima" },
-          { value: "dimapur", label: "Dimapur" }
+          { value: "Kohima", label: "Kohima" },
+          { value: "Dimapur", label: "Dimapur" }
         ]
       },
       odisha: {
         label: "Odisha",
         cities: [
-          { value: "bhubaneswar", label: "Bhubaneswar" },
-          { value: "cuttack", label: "Cuttack" },
-          { value: "rourkela", label: "Rourkela" }
+          { value: "Bhubaneswar", label: "Bhubaneswar" },
+          { value: "Cuttack", label: "Cuttack" },
+          { value: "Rourkela", label: "Rourkela" }
         ]
       },
       punjab: {
         label: "Punjab",
         cities: [
-          { value: "ludhiana", label: "Ludhiana" },
-          { value: "amritsar", label: "Amritsar" },
-          { value: "jalandhar", label: "Jalandhar" },
-          { value: "patiala", label: "Patiala" }
+          { value: "Ludhiana", label: "Ludhiana" },
+          { value: "Amritsar", label: "Amritsar" },
+          { value: "Jalandhar", label: "Jalandhar" },
+          { value: "Patiala", label: "Patiala" }
         ]
       },
       rajasthan: {
         label: "Rajasthan",
         cities: [
-          { value: "jaipur", label: "Jaipur" },
-          { value: "jodhpur", label: "Jodhpur" },
-          { value: "udaipur", label: "Udaipur" },
-          { value: "kota", label: "Kota" },
-          { value: "bikaner", label: "Bikaner" }
+          { value: "Jaipur", label: "Jaipur" },
+          { value: "Jodhpur", label: "Jodhpur" },
+          { value: "Udaipur", label: "Udaipur" },
+          { value: "Kota", label: "Kota" },
+          { value: "Bikaner", label: "Bikaner" }
         ]
       },
       sikkim: {
         label: "Sikkim",
         cities: [
-          { value: "gangtok", label: "Gangtok" },
-          { value: "namchi", label: "Namchi" }
+          { value: "Gangtok", label: "Gangtok" },
+          { value: "Namchi", label: "Namchi" }
         ]
       },
-      tamil_nadu: {
+      "Tamil Nadu": {
         label: "Tamil Nadu",
         cities: [
-          { value: "chennai", label: "Chennai" },
-          { value: "coimbatore", label: "Coimbatore" },
-          { value: "madurai", label: "Madurai" },
-          { value: "tiruchirappalli", label: "Tiruchirappalli" }
+          { value: "Chennai", label: "Chennai" },
+          { value: "Coimbatore", label: "Coimbatore" },
+          { value: "Madurai", label: "Madurai" },
+          { value: "Tiruchirappalli", label: "Tiruchirappalli" }
         ]
       },
       telangana: {
         label: "Telangana",
         cities: [
-          { value: "hyderabad", label: "Hyderabad" },
-          { value: "warangal", label: "Warangal" },
-          { value: "nizamabad", label: "Nizamabad" },
-          { value: "khammam", label: "Khammam" }
+          { value: "Hyderabad", label: "Hyderabad" },
+          { value: "Warangal", label: "Warangal" },
+          { value: "Nizamabad", label: "Nizamabad" },
+          { value: "Khammam", label: "Khammam" }
         ]
       },
       tripura: {
         label: "Tripura",
         cities: [
-          { value: "agartala", label: "Agartala" },
-          { value: "dharamnagar", label: "Dharamnagar" }
+          { value: "Agartala", label: "Agartala" },
+          { value: "Dharamnagar", label: "Dharamnagar" }
         ]
       },
-      uttar_pradesh: {
+      "Uttar Pradesh": {
         label: "Uttar Pradesh",
         cities: [
-          { value: "lucknow", label: "Lucknow" },
-          { value: "kanpur", label: "Kanpur" },
-          { value: "agra", label: "Agra" },
-          { value: "varanasi", label: "Varanasi" },
-          { value: "meerut", label: "Meerut" },
-          { value: "prayagraj", label: "Prayagraj" }
+          { value: "Lucknow", label: "Lucknow" },
+          { value: "Kanpur", label: "Kanpur" },
+          { value: "Agra", label: "Agra" },
+          { value: "Varanasi", label: "Varanasi" },
+          { value: "Meerut", label: "Meerut" },
+          { value: "Prayagraj", label: "Prayagraj" }
         ]
       },
       uttarakhand: {
         label: "Uttarakhand",
         cities: [
-          { value: "dehradun", label: "Dehradun" },
-          { value: "haridwar", label: "Haridwar" },
-          { value: "roorkee", label: "Roorkee" },
-          { value: "nainital", label: "Nainital" }
+          { value: "Dehradun", label: "Dehradun" },
+          { value: "Haridwar", label: "Haridwar" },
+          { value: "Roorkee", label: "Roorkee" },
+          { value: "Nainital", label: "Nainital" }
         ]
       },
-      west_bengal: {
+      "West Bengal": {
         label: "West Bengal",
         cities: [
-          { value: "kolkata", label: "Kolkata" },
-          { value: "asansol", label: "Asansol" },
-          { value: "siliguri", label: "Siliguri" },
-          { value: "durgapur", label: "Durgapur" },
-          { value: "howrah", label: "Howrah" }
+          { value: "Kolkata", label: "Kolkata" },
+          { value: "Asansol", label: "Asansol" },
+          { value: "Siliguri", label: "Siliguri" },
+          { value: "Durgapur", label: "Durgapur" },
+          { value: "Howrah", label: "Howrah" }
         ]
       }
     }
@@ -760,193 +760,193 @@ const MemStepOne = () => {
 
   const Professions = [
     { value: "accountant", label: "Accountant" },
-    { value: "acting_professional", label: "Acting Professional" },
+    { value: "Acting Professional", label: "Acting Professional" },
     { value: "actor", label: "Actor" },
     { value: "administrator", label: "Administrator" },
-    { value: "advertising_professional", label: "Advertising Professional" },
+    { value: "Advertising Professional", label: "Advertising Professional" },
     { value: "air_hostess", label: "Air Hostess" },
     { value: "airline_professional", label: "Airline Professional" },
     { value: "airforce", label: "Airforce" },
     { value: "architect", label: "Architect" },
     { value: "artist", label: "Artist" },
-    { value: "assistant_professor", label: "Assistant Professor" },
+    { value: "Assistant Professor", label: "Assistant Professor" },
     { value: "audiologist", label: "Audiologist" },
     { value: "auditor", label: "Auditor" },
-    { value: "bank_officer", label: "Bank Officer" },
-    { value: "bank_staff", label: "Bank Staff" },
+    { value: "Bank Officer", label: "Bank Officer" },
+    { value: "Bank Staff", label: "Bank Staff" },
     { value: "beautician", label: "Beautician" },
-    { value: "biologist_botanist", label: "Biologist / Botanist" },
-    { value: "business_person", label: "Business Person" },
+    { value: "Biologist / Botanist", label: "Biologist / Botanist" },
+    { value: "Business Person", label: "Business Person" },
     { value: "captain", label: "Captain" },
-    { value: "ceo_cto_president", label: "CEO / CTO / President" },
+    { value: "CEO / CTO / President", label: "CEO / CTO / President" },
     { value: "chemist", label: "Chemist" },
-    { value: "civil_engineer", label: "Civil Engineer" },
-    { value: "clerical_official", label: "Clerical Official" },
-    { value: "clinical_pharmacist", label: "Clinical Pharmacist" },
-    { value: "company_secretary", label: "Company Secretary" },
-    { value: "computer_engineer", label: "Computer Engineer" },
-    { value: "computer_programmer", label: "Computer Programmer" },
+    { value: "Civil Engineer", label: "Civil Engineer" },
+    { value: "Clerical Official", label: "Clerical Official" },
+    { value: "Clinical Pharmacist", label: "Clinical Pharmacist" },
+    { value: "Company Secretary", label: "Company Secretary" },
+    { value: "Computer Engineer", label: "Computer Engineer" },
+    { value: "Computer Programmer", label: "Computer Programmer" },
     { value: "consultant", label: "Consultant" },
     { value: "contractor", label: "Contractor" },
-    { value: "content_creator", label: "Content Creator" },
+    { value: "Content Creator", label: "Content Creator" },
     { value: "counsellor", label: "Counsellor" },
-    { value: "creative_person", label: "Creative Person" },
-    { value: "customer_support_professional", label: "Customer Support Professional" },
-    { value: "data_analyst", label: "Data Analyst" },
-    { value: "defence_employee", label: "Defence Employee" },
+    { value: "Creative Person", label: "Creative Person" },
+    { value: "Customer Support Professional", label: "Customer Support Professional" },
+    { value: "Data Analyst", label: "Data Analyst" },
+    { value: "Defence Employee", label: "Defence Employee" },
     { value: "dentist", label: "Dentist" },
     { value: "designer", label: "Designer" },
-    { value: "director_chairman", label: "Director / Chairman" },
+    { value: "Director / Chairman", label: "Director / Chairman" },
     { value: "doctor", label: "Doctor" },
     { value: "economist", label: "Economist" },
-    { value: "electrical_engineer", label: "Electrical Engineer" },
+    { value: "Electrical Engineer", label: "Electrical Engineer" },
     { value: "engineer", label: "Engineer" },
-    { value: "entertainment_professional", label: "Entertainment Professional" },
-    { value: "event_manager", label: "Event Manager" },
+    { value: "Entertainment Professional", label: "Entertainment Professional" },
+    { value: "Event Manager", label: "Event Manager" },
     { value: "executive", label: "Executive" },
-    { value: "factory_worker", label: "Factory Worker" },
+    { value: "Factory Worker", label: "Factory Worker" },
     { value: "farmer", label: "Farmer" },
-    { value: "fashion_designer", label: "Fashion Designer" },
-    { value: "finance_professional", label: "Finance Professional" },
-    { value: "food_technologist", label: "Food Technologist" },
-    { value: "government_employee", label: "Government Employee" },
-    { value: "graphic_designer", label: "Graphic Designer" },
-    { value: "hair_dresser", label: "Hair Dresser" },
-    { value: "health_care_professional", label: "Health Care Professional" },
-    { value: "hospitality_professional", label: "Hospitality Professional" },
-    { value: "hotel_restaurant_professional", label: "Hotel & Restaurant Professional" },
-    { value: "human_resource_professional", label: "Human Resource Professional" },
-    { value: "hse_officer", label: "HSE Officer" },
+    { value: "Fashion Designer", label: "Fashion Designer" },
+    { value: "Finance Professional", label: "Finance Professional" },
+    { value: "Food Technologist", label: "Food Technologist" },
+    { value: "Government Employee", label: "Government Employee" },
+    { value: "Graphic Designer", label: "Graphic Designer" },
+    { value: "Hair Dresser", label: "Hair Dresser" },
+    { value: "Health Care Professional", label: "Health Care Professional" },
+    { value: "Hospitality Professional", label: "Hospitality Professional" },
+    { value: "Hotel & Restaurant Professional", label: "Hotel & Restaurant Professional" },
+    { value: "Human Resource Professional", label: "Human Resource Professional" },
+    { value: "HSE Officer", label: "HSE Officer" },
     { value: "influencer", label: "Influencer" },
-    { value: "insurance_advisor", label: "Insurance Advisor" },
-    { value: "insurance_agent", label: "Insurance Agent" },
-    { value: "interior_designer", label: "Interior Designer" },
-    { value: "investment_professional", label: "Investment Professional" },
-    { value: "it_telecom_professional", label: "IT / Telecom Professional" },
-    { value: "islamic_scholar", label: "Islamic Scholar" },
-    { value: "islamic_teacher", label: "Islamic Teacher" },
+    { value: "Insurance Advisor", label: "Insurance Advisor" },
+    { value: "Insurance Agent", label: "Insurance Agent" },
+    { value: "Interior Designer", label: "Interior Designer" },
+    { value: "Investment Professional", label: "Investment Professional" },
+    { value: "IT / Telecom Professional", label: "IT / Telecom Professional" },
+    { value: "Islamic Scholar", label: "Islamic Scholar" },
+    { value: "Islamic Teacher", label: "Islamic Teacher" },
     { value: "journalist", label: "Journalist" },
     { value: "lawyer", label: "Lawyer" },
     { value: "lecturer", label: "Lecturer" },
-    { value: "legal_professional", label: "Legal Professional" },
+    { value: "Legal Professional", label: "Legal Professional" },
     { value: "librarian", label: "Librarian" },
-    { value: "logistics_professional", label: "Logistics Professional" },
+    { value: "Logistics Professional", label: "Logistics Professional" },
     { value: "manager", label: "Manager" },
-    { value: "marketing_professional", label: "Marketing Professional" },
-    { value: "mechanical_engineer", label: "Mechanical Engineer" },
-    { value: "medical_representative", label: "Medical Representative" },
-    { value: "medical_transcriptionist", label: "Medical Transcriptionist" },
-    { value: "merchant_naval_officer", label: "Merchant Naval Officer" },
+    { value: "Marketing Professional", label: "Marketing Professional" },
+    { value: "Mechanical Engineer", label: "Mechanical Engineer" },
+    { value: "Medical Representative", label: "Medical Representative" },
+    { value: "Medical Transcriptionist", label: "Medical Transcriptionist" },
+    { value: "Merchant Naval Officer", label: "Merchant Naval Officer" },
     { value: "microbiologist", label: "Microbiologist" },
     { value: "military", label: "Military" },
-    { value: "nanny_child_care_worker", label: "Nanny / Child Care Worker" },
-    { value: "navy_officer", label: "Navy Officer" },
+    { value: "Nanny / Child Care Worker", label: "Nanny / Child Care Worker" },
+    { value: "Navy Officer", label: "Navy Officer" },
     { value: "nurse", label: "Nurse" },
-    { value: "occupational_therapist", label: "Occupational Therapist" },
-    { value: "office_staff", label: "Office Staff" },
+    { value: "Occupational Therapist", label: "Occupational Therapist" },
+    { value: "Office Staff", label: "Office Staff" },
     { value: "optician", label: "Optician" },
     { value: "optometrist", label: "Optometrist" },
     { value: "pharmacist", label: "Pharmacist" },
     { value: "physician", label: "Physician" },
-    { value: "physician_assistant", label: "Physician Assistant" },
+    { value: "Physician Assistant", label: "Physician Assistant" },
     { value: "pilot", label: "Pilot" },
-    { value: "police_officer", label: "Police Officer" },
+    { value: "Police Officer", label: "Police Officer" },
     { value: "priest", label: "Priest" },
-    { value: "product_manager_professional", label: "Product Manager / Professional" },
+    { value: "Product Manager / Professional", label: "Product Manager / Professional" },
     { value: "professor", label: "Professor" },
-    { value: "project_manager", label: "Project Manager" },
-    { value: "public_relations_professional", label: "Public Relations Professional" },
-    { value: "real_estate_professional", label: "Real Estate Professional" },
-    { value: "research_scholar", label: "Research Scholar" },
-    { value: "retail_professional", label: "Retail Professional" },
-    { value: "sales_professional", label: "Sales Professional" },
+    { value: "Project Manager", label: "Project Manager" },
+    { value: "Public Relations Professional", label: "Public Relations Professional" },
+    { value: "Real Estate Professional", label: "Real Estate Professional" },
+    { value: "Research Scholar", label: "Research Scholar" },
+    { value: "Retail Professional", label: "Retail Professional" },
+    { value: "Sales Professional", label: "Sales Professional" },
     { value: "scientist", label: "Scientist" },
-    { value: "self_employed", label: "Self-Employed" },
-    { value: "social_worker", label: "Social Worker" },
-    { value: "software_consultant", label: "Software Consultant" },
-    { value: "software_developer", label: "Software Developer" },
-    { value: "speech_therapist", label: "Speech Therapist" },
+    { value: "Self-Employed", label: "Self-Employed" },
+    { value: "Social Worker", label: "Social Worker" },
+    { value: "Software Consultant", label: "Software Consultant" },
+    { value: "Software Developer", label: "Software Developer" },
+    { value: "Speech Therapist", label: "Speech Therapist" },
     { value: "sportsman", label: "Sportsman" },
     { value: "supervisor", label: "Supervisor" },
     { value: "teacher", label: "Teacher" },
     { value: "technician", label: "Technician" },
-    { value: "tour_guide", label: "Tour Guide" },
+    { value: "Tour Guide", label: "Tour Guide" },
     { value: "trainer", label: "Trainer" },
-    { value: "transportation_professional", label: "Transportation Professional" },
+    { value: "Transportation Professional", label: "Transportation Professional" },
     { value: "tutor", label: "Tutor" },
-    { value: "veterinary_doctor", label: "Veterinary Doctor" },
+    { value: "Veterinary Doctor", label: "Veterinary Doctor" },
     { value: "videographer", label: "Videographer" },
-    { value: "web_designer", label: "Web Designer" },
-    { value: "web_developer", label: "Web Developer" },
-    { value: "wholesale_businessman", label: "Wholesale Businessman" },
+    { value: "Web Designer", label: "Web Designer" },
+    { value: "Web Developer", label: "Web Developer" },
+    { value: "Wholesale Businessman", label: "Wholesale Businessman" },
     { value: "writer", label: "Writer" },
     { value: "zoologist", label: "Zoologist" },
     { value: "other", label: "Other" },
   ];
 
   const educationLevels = [
-    { value: "secondary_school_10th", label: "Secondary School (10th)" },
-    { value: "higher_secondary_12th", label: "Higher Secondary School (12th)" },
-    { value: "iti_trade_school", label: "ITI (Industrial Training Institute) / Trade School" },
-    { value: "diploma_general", label: "Diploma (General)" },
-    { value: "diploma_engineering", label: "Diploma in Engineering (Polytechnic)" },
-    { value: "diploma_computer_applications", label: "Diploma in Computer Applications (DCA)" },
-    { value: "diploma_pharmacy", label: "D.Pharm (Diploma in Pharmacy)" },
-    { value: "diploma_education", label: "D.Ed (Diploma in Education)" },
-    { value: "diploma_nursing", label: "Diploma in Nursing" },
-    { value: "diploma_hotel_management", label: "Diploma in Hotel Management" },
-    { value: "diploma_fashion_design", label: "Diploma in Fashion Design" },
-    { value: "diploma_interior_design", label: "Diploma in Interior Design" },
-    { value: "diploma_multimedia_animation", label: "Diploma in Multimedia/Animation/Design" },
-    { value: "diploma_early_childhood_education", label: "Diploma in Early Childhood Education" },
-    { value: "diploma_special_education", label: "Diploma in Special Education" },
-    { value: "diploma_culinary_arts", label: "Culinary Arts (Diploma/Degree)" },
-    { value: "diploma_event_management", label: "Event Management (Diploma/MBA Specialization)" },
-    { value: "diploma_digital_marketing", label: "Digital Marketing (PG Diploma/Certification)" },
-    { value: "diploma_cybersecurity", label: "Cybersecurity (Degree/Certification)" },
-    { value: "diploma_data_science", label: "Data Science (Degree/Certification)" },
-    { value: "diploma_artificial_intelligence", label: "Artificial Intelligence (Degree/Certification)" },
-    { value: "diploma_animation", label: "Animation (Degree/Certification)" },
-    { value: "diploma_game_development", label: "Game Development (Degree/Certification)" },
-    { value: "diploma_graphic_design", label: "Graphic Design (Degree/Certification)" },
-    { value: "diploma_robotics", label: "Robotics (Degree/Certification)" },
-    { value: "diploma_interior_design_degree", label: "Interior Design (Degree/Certification)" },
-    { value: "nursery_primary_education", label: "Nursery/Primary Education" },
-    { value: "islamic_education", label: "Islamic Education (Diploma/Degree)" },
-    { value: "aalim_aalimah", label: "Aalim / Aalimah" },
-    { value: "hafiz_hafizah", label: "Hafiz / Hafizah" },
+    { value: "Secondary School (10th)", label: "Secondary School (10th)" },
+    { value: "Higher Secondary School (12th)", label: "Higher Secondary School (12th)" },
+    { value: "ITI (Industrial Training Institute) / Trade School", label: "ITI (Industrial Training Institute) / Trade School" },
+    { value: "Diploma (General)", label: "Diploma (General)" },
+    { value: "Diploma in Engineering (Polytechnic)", label: "Diploma in Engineering (Polytechnic)" },
+    { value: "Diploma in Computer Applications (DCA)", label: "Diploma in Computer Applications (DCA)" },
+    { value: "D.Pharm (Diploma in Pharmacy)", label: "D.Pharm (Diploma in Pharmacy)" },
+    { value: "D.Ed (Diploma in Education)", label: "D.Ed (Diploma in Education)" },
+    { value: "Diploma in Nursing", label: "Diploma in Nursing" },
+    { value: "Diploma in Hotel Management", label: "Diploma in Hotel Management" },
+    { value: "Diploma in Fashion Design", label: "Diploma in Fashion Design" },
+    { value: "Diploma in Interior Design", label: "Diploma in Interior Design" },
+    { value: "Diploma in Multimedia/Animation/Design", label: "Diploma in Multimedia/Animation/Design" },
+    { value: "Diploma in Early Childhood Education", label: "Diploma in Early Childhood Education" },
+    { value: "Diploma in Special Education", label: "Diploma in Special Education" },
+    { value: "Culinary Arts (Diploma/Degree)", label: "Culinary Arts (Diploma/Degree)" },
+    { value: "Event Management (Diploma/MBA Specialization)", label: "Event Management (Diploma/MBA Specialization)" },
+    { value: "Digital Marketing (PG Diploma/Certification)", label: "Digital Marketing (PG Diploma/Certification)" },
+    { value: "Cybersecurity (Degree/Certification)", label: "Cybersecurity (Degree/Certification)" },
+    { value: "Data Science (Degree/Certification)", label: "Data Science (Degree/Certification)" },
+    { value: "Artificial Intelligence (Degree/Certification)", label: "Artificial Intelligence (Degree/Certification)" },
+    { value: "Animation (Degree/Certification)", label: "Animation (Degree/Certification)" },
+    { value: "Game Development (Degree/Certification)", label: "Game Development (Degree/Certification)" },
+    { value: "Graphic Design (Degree/Certification)", label: "Graphic Design (Degree/Certification)" },
+    { value: "Robotics (Degree/Certification)", label: "Robotics (Degree/Certification)" },
+    { value: "Interior Design (Degree/Certification)", label: "Interior Design (Degree/Certification)" },
+    { value: "Nursery/Primary Education", label: "Nursery/Primary Education" },
+    { value: "Islamic Education (Diploma/Degree)", label: "Islamic Education (Diploma/Degree)" },
+    { value: "Aalim / Aalimah", label: "Aalim / Aalimah" },
+    { value: "Hafiz / Hafizah", label: "Hafiz / Hafizah" },
     { value: "ba", label: "BA (Bachelor of Arts)" },
     { value: "bsc", label: "BSc (Bachelor of Science)" },
     { value: "bcom", label: "BCom (Bachelor of Commerce)" },
     { value: "bba", label: "BBA (Bachelor of Business Administration)" },
     { value: "bca", label: "BCA (Bachelor of Computer Applications)" },
-    { value: "btech_be", label: "BTech / BE (Bachelor of Technology / Engineering)" },
-    { value: "software_engineering", label: "Software Engineering (B.Tech/BE)" },
-    { value: "electronics_communication_engineering", label: "Electronics & Communication Engineering (B.Tech/BE)" },
-    { value: "environmental_engineering", label: "Environmental Engineering (B.Tech/BE)" },
-    { value: "robotics_engineering", label: "Robotics Engineering (B.Tech/BE)" },
+    { value: "BTech / BE (Bachelor of Technology / Engineering)", label: "BTech / BE (Bachelor of Technology / Engineering)" },
+    { value: "Software Engineering (B.Tech/BE)", label: "Software Engineering (B.Tech/BE)" },
+    { value: "Electronics & Communication Engineering (B.Tech/BE)", label: "Electronics & Communication Engineering (B.Tech/BE)" },
+    { value: "Environmental Engineering (B.Tech/BE)", label: "Environmental Engineering (B.Tech/BE)" },
+    { value: "Robotics Engineering (B.Tech/BE)", label: "Robotics Engineering (B.Tech/BE)" },
     { value: "barch", label: "B.Arch (Bachelor of Architecture)" },
     { value: "bds", label: "BDS (Bachelor of Dental Surgery)" },
     { value: "bed", label: "BEd (Bachelor of Education)" },
     { value: "bfa", label: "BFA (Bachelor of Fine Arts)" },
     { value: "bhm", label: "BHM (Bachelor of Hotel Management)" },
-    { value: "bl_llb", label: "BL / LLB (Bachelor of Law)" },
-    { value: "bot", label: "BOT (Bachelor of Occupational Therapy)" },
-    { value: "boa", label: "BOA (Bachelor of Optometry & Ophthalmic Technology)" },
+    { value: "BL / LLB (Bachelor of Law)", label: "BL / LLB (Bachelor of Law)" },
+    { value: "BOT (Bachelor of Occupational Therapy)", label: "BOT (Bachelor of Occupational Therapy)" },
+    { value: "BOA (Bachelor of Optometry & Ophthalmic Technology)", label: "BOA (Bachelor of Optometry & Ophthalmic Technology)" },
     { value: "bpharm", label: "BPharm (Bachelor of Pharmacy)" },
     { value: "bpt", label: "BPT (Bachelor of Physiotherapy)" },
     { value: "bsw", label: "BSW (Bachelor of Social Work)" },
     { value: "bttm", label: "BTTM (Bachelor of Travel & Tourism Management)" },
     { value: "bvsc", label: "BVSc (Bachelor of Veterinary Science)" },
-    { value: "hospitality_management", label: "Hospitality Management (BHM/MHM)" },
+    { value: "Hospitality Management (BHM/MHM)", label: "Hospitality Management (BHM/MHM)" },
     { value: "journalism", label: "Journalism (BA/MA Journalism & Mass Comm.)" },
     { value: "film_studies", label: "Film Studies (BA/MA)" },
-    { value: "sports_management", label: "Sports Management (BBA/MBA Specialization)" },
+    { value: "Sports Management (BBA/MBA Specialization)", label: "Sports Management (BBA/MBA Specialization)" },
     { value: "ca", label: "CA (Chartered Accountancy)" },
     { value: "cfa", label: "CFA (Chartered Financial Analyst)" },
-    { value: "cma_icwa", label: "CMA / ICWA (Cost & Management Accounting)" },
-    { value: "company_secretary", label: "Company Secretary (CS)" },
-    { value: "actuarial_science", label: "Actuarial Science (Professional Certification)" },
+    { value: "CMA / ICWA (Cost & Management Accounting)", label: "CMA / ICWA (Cost & Management Accounting)" },
+    { value: "Company Secretary (CS)", label: "Company Secretary (CS)" },
+    { value: "Actuarial Science (Professional Certification)", label: "Actuarial Science (Professional Certification)" },
     { value: "ma", label: "MA (Master of Arts)" },
     { value: "msc", label: "MSc (Master of Science)" },
     { value: "mcom", label: "MCom (Master of Commerce)" },
@@ -961,18 +961,18 @@ const MemStepOne = () => {
     { value: "mot", label: "MOT (Master of Occupational Therapy)" },
     { value: "mpharm", label: "MPharm (Master of Pharmacy)" },
     { value: "mpt", label: "MPT (Master of Physiotherapy)" },
-    { value: "msc_nursing", label: "MSc Nursing" },
+    { value: "MSc Nursing", label: "MSc Nursing" },
     { value: "msw", label: "MSW (Master of Social Work)" },
     { value: "mtm", label: "MTM (Master of Tourism Management)" },
     { value: "mvsc", label: "MVSc (Master of Veterinary Science)" },
     { value: "mphil", label: "MPhil (Master of Philosophy)" },
-    { value: "md_ms", label: "MD/MS (Doctor of Medicine / Master of Surgery)" },
+    { value: "MD/MS (Doctor of Medicine / Master of Surgery)", label: "MD/MS (Doctor of Medicine / Master of Surgery)" },
     { value: "mch", label: "MCh (Master of Chirurgiae – Super Specialty Surgery)" },
     { value: "dm", label: "DM (Doctorate of Medicine – Super Specialty)" },
     { value: "phd", label: "PhD (Doctor of Philosophy – All Subjects)" },
-    { value: "phd_islamic_studies", label: "PhD in Islamic Studies / Theology" },
-    { value: "pharm_d", label: "Pharm.D (Doctor of Pharmacy)" },
-    { value: "ed_d", label: "Ed.D (Doctor of Education)" },
+    { value: "PhD in Islamic Studies / Theology", label: "PhD in Islamic Studies / Theology" },
+    { value: "Pharm.D (Doctor of Pharmacy)", label: "Pharm.D (Doctor of Pharmacy)" },
+    { value: "Ed.D (Doctor of Education)", label: "Ed.D (Doctor of Education)" },
     { value: "other", label: "Other" },
   ];
 
@@ -1735,14 +1735,14 @@ const MemStepOne = () => {
                         }`}
                       >
                         <option value="">Select Income Range</option>
-                        <option value="below_2lac">Below ₹2,00,000</option>
-                        <option value="2lac_to_5lac">₹2,00,000 - ₹5,00,000</option>
-                        <option value="5lac_to_10lac">₹5,00,000 - ₹10,00,000</option>
-                        <option value="10lac_to_20lac">₹10,00,000 - ₹20,00,000</option>
-                        <option value="20lac_to_50lac">₹20,00,000 - ₹50,00,000</option>
-                        <option value="above_50lac">Above ₹50,00,000</option>
+                        <option value="Below ₹2,00,000">Below ₹2,00,000</option>
+                        <option value="₹2,00,000 - ₹5,00,000">₹2,00,000 - ₹5,00,000</option>
+                        <option value="₹5,00,000 - ₹10,00,000">₹5,00,000 - ₹10,00,000</option>
+                        <option value="₹10,00,000 - ₹20,00,000">₹10,00,000 - ₹20,00,000</option>
+                        <option value="₹20,00,000 - ₹50,00,000">₹20,00,000 - ₹50,00,000</option>
+                        <option value="Above ₹50,00,000">Above ₹50,00,000</option>
                         <option value="no_preference">No preference</option>
-                        <option value="prefer_not_to_say">Prefer not to say</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
                       </select>
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -474,6 +474,7 @@ const ViewAllUser = () => {
                                     interested_id={profile?.interested_id}
                                     setApiData={setAllUser}
                                     IsInterested={profile?.is_interested}
+                                    activeUser={activeUser}
                                   />
                                 </div>
                               </div>
