@@ -164,24 +164,36 @@ const UserDashboard = () => {
     
     }, []);
 
-     // Function to get progress bar color based on marital status
-  const getProgressBarColor = (maritalStatus) => {
+  // Function to get marital status badge color (matches Matches.jsx colors)
+  const getMaritalBadgeColor = (maritalStatus) => {
     switch (maritalStatus?.toLowerCase()) {
+      case "single":
       case "never married":
-        return "#d1f8d1"; // Light Green
-      case "divorced":
-        return "#ffc0cb"; // Light Pink
-      case "widowed":
-        return "#ffe4b5"; // Light Orange
+      case "unmarried":
+        return "linear-gradient(135deg, #10b981 0%, #059669 100%)";
       case "married":
-        return "#ff6666"; // Light Red
-      case "awaiting divorce":
-        return "#ffdd99"; // Light Yellow
+        return "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)";
+      case "divorced":
+        return "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)";
       case "khula":
-        return "#e6ccff"; // Light Purple
+        return "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)";
+      case "widowed":
+        return "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)";
+      case "awaiting divorce":
+        return "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)";
       default:
-        return "#76c7c0"; // Default color
+        return "linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)";
     }
+  };
+
+  // Matches page ke jaise progress bar color (percentage-based)
+  const getMatchProgressColor = (matchPercentage) => {
+    const percentage = parseFloat(matchPercentage) || 0;
+    if (percentage >= 75) return "#10b981"; // Green
+    if (percentage >= 60) return "#3b82f6"; // Blue
+    if (percentage >= 45) return "#f59e0b"; // Orange
+    if (percentage >= 30) return "#f97316"; // Dark orange
+    return "#ef4444"; // Red
   };
 
 
@@ -987,12 +999,13 @@ const UserDashboard = () => {
               <table>
                 <thead>
                   <tr>
+                    <th>Member ID</th>
                     <th>Name</th>
                     <th>Location</th>
                     <th>Age</th>
                     <th>Sect</th>
                     <th>Profession</th>
-                    <th>Status</th>
+                    <th>Marital Status</th>
                     <th>Match Per(%)</th>
                   </tr>
                 </thead>
@@ -1013,28 +1026,29 @@ const UserDashboard = () => {
                         .filter(match => match.match_percentage && match.match_percentage > 0)
                         .map((match, index) => (
                     <tr key={index}>
+                      <td>{match?.member_id || match?.id || "N/A"}</td>
                       <td>
                         <div className="name-cell">
                           <img
                             src={
                               (() => {
                                 // Try multiple possible photo sources for match
-                                const photoUrl = match?.profile_photo || 
-                                               match?.photo || 
-                                               match?.avatar || 
+                                const photoUrl = match?.profile_photo ||
+                                               match?.photo ||
+                                               match?.avatar ||
                                                match?.image ||
                                                match?.profile_image;
-                                
+
                                 console.log(`Match ${index} photo URL:`, photoUrl);
-                                
+
                                 if (photoUrl) {
-                                  const fullUrl = photoUrl.startsWith('http') 
-                                    ? photoUrl 
+                                  const fullUrl = photoUrl.startsWith('http')
+                                    ? photoUrl
                                     : `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${photoUrl}`;
                                   console.log(`Match ${index} full URL:`, fullUrl);
                                   return fullUrl;
                                 }
-                                
+
                                 console.log(`Match ${index} no photo, using fallback`);
                                 return men1;
                               })()
@@ -1053,15 +1067,13 @@ const UserDashboard = () => {
                       </td>
                       <td>{match.city || "Not Mentioned"}</td>
                       <td>{match.age || "Not Mentioned"}</td>
-
-                      {/* <td>{match.match_percentage}%</td> */}
                       <td>{match.sect_school_info || "Not Mentioned"}</td>
                       <td>{match.profession || "Not Mentioned"}</td>
                       <td>
-                        <span 
-                          className={`status-badge ${match.martial_status ? match.martial_status.toLowerCase().replace(/\s+/g, '-') : 'not-mentioned'}`}
+                        <span
+                          className={`marital-badge ${match.martial_status ? match.martial_status.toLowerCase().replace(/\s+/g, '-') : 'not-mentioned'}`}
                           style={{
-                            backgroundColor: getProgressBarColor(match.martial_status)
+                            background: getMaritalBadgeColor(match.martial_status)
                           }}
                         >
                           {match.martial_status || "Not Mentioned"}
@@ -1073,9 +1085,7 @@ const UserDashboard = () => {
                             className="progress-bar"
                             style={{
                               width: `${match.match_percentage || 0}%`,
-                              backgroundColor: getProgressBarColor(
-                                match.martial_status
-                              ),
+                              backgroundColor: getMatchProgressColor(match.match_percentage),
                             }}
                           ></div>
                           <span className="progress-text">
@@ -1242,57 +1252,86 @@ const UserDashboard = () => {
             color: #8e44ad;
           }
           .marital-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
-          .marital-badge.never-married {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }
-          .marital-badge.divorced {
-            background: #ffc0cb;
-            color: #c4002b;
-          }
-          .marital-badge.widowed {
-            background: #ffe4b5;
-            color: #b8860b;
+          .marital-badge.single {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
           }
           .marital-badge.married {
-            background: #ff6666;
-            color: #800000;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
           }
-          .marital-badge.awaiting-divorce {
-            background: #ffdd99;
-            color: #a35400;
+          .marital-badge.divorced {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
           }
           .marital-badge.khula {
-            background: #e6ccff;
-            color: #6a0dad;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
+          .marital-badge.widowed {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            border-color: #374151;
+          }
+          .marital-badge.not-mentioned {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #6b7280;
+            border-color: #9ca3af;
+          }
+          .marital-badge.never-married {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.unmarried {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.awaiting-divorce {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
           .progress-bar-container {
             width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
             overflow: hidden;
             position: relative;
-            height: 20px;
+            height: 24px;
+            border: 1px solid #e5e7eb;
           }
           .progress-bar {
             height: 100%;
-            border-radius: 5px;
-            transition: width 0.3s ease;
+            border-radius: 7px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
           }
           .progress-text {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            color: #333;
-            font-size: 12px;
-            font-weight: bold;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            z-index: 1;
           }
         `}
       </style>
