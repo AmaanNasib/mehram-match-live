@@ -9,15 +9,22 @@ import { format } from 'date-fns';
 
 
 // Add this new component for the marital status dropdown
-const MaritalStatusDropdown = ({ value, onChange }) => {
+const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState(value || []);
 
-  const maritalStatusOptions = [
-    "Never-Married", "Married", "Divorced",
-    "Khula", "Awaiting Divorce", "Widowed",
-    "Separated", "Annulled"
-  ];
+  // Gender-based marital status options
+  const getMaritalStatusOptions = (gender) => {
+    const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
+    
+    if (gender === "female") {
+      return [...baseOptions, "Married"];
+    }
+    
+    return baseOptions;
+  };
+
+  const maritalStatusOptions = getMaritalStatusOptions(userGender);
 
   useEffect(() => {
     if (value) {
@@ -606,6 +613,7 @@ const TotalInteraction = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDatePicker1, setShowDatePicker1] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
+  const [gender] = useState(localStorage.getItem("gender"));
   const [apiData, setApiData] = useState({sent_interests:[]});
   const [loading, setLoading] = useState(false);
   console.log(selectedDate,"selectedDate");
@@ -870,6 +878,7 @@ const TotalInteraction = () => {
 
   <MaritalStatusDropdown 
     value={filters.martialStatus ? filters.martialStatus.split(',') : []}
+    userGender={gender}
     onChange={handleMaritalStatusChange}
   />
 

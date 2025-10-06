@@ -9,15 +9,23 @@ import { format } from 'date-fns';
 
 
 // Add this new component for the marital status dropdown
-const MaritalStatusDropdown = ({ value, onChange }) => {
+const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(value || "");
   const maritalDropdownRef = useRef(null);
 
-  const maritalStatusOptions = [
-    "Single", "Married", "Divorced",
-    "Khula", "Widowed",
-  ];
+  // Gender-based marital status options
+  const getMaritalStatusOptions = (gender) => {
+    const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
+    
+    if (gender === "female") {
+      return [...baseOptions, "Married"];
+    }
+    
+    return baseOptions;
+  };
+
+  const maritalStatusOptions = getMaritalStatusOptions(userGender);
 
   useEffect(() => {
     if (value) {
@@ -636,6 +644,7 @@ const TotalInterest = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDatePicker1, setShowDatePicker1] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
+  const [gender] = useState(localStorage.getItem("gender"));
   const [apiData, setApiData] = useState({sent_interests:[], received_interests:[]});
   const [loading, setLoading] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
@@ -1104,6 +1113,7 @@ const TotalInterest = () => {
   <MaritalStatusDropdown 
     key={`marital-status-${resetKey}`}
     value={filters.martialStatus}
+    userGender={gender}
     onChange={handleMaritalStatusChange}
   />
 

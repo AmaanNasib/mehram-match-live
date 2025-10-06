@@ -20,6 +20,28 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   const [loadingPhotoStatus, setLoadingPhotoStatus] = useState(false);
   const role =localStorage.getItem('role');
 
+  // Function to get marital status badge color
+  const getMaritalStatusColor = (maritalStatus) => {
+    switch (maritalStatus?.toLowerCase()) {
+      case "single":
+        return { bg: "#dcfce7", text: "#166534", border: "#bbf7d0" }; // Light Green
+      case "married":
+        return { bg: "#dbeafe", text: "#1e40af", border: "#bfdbfe" }; // Light Blue
+      case "divorced":
+        return { bg: "#fef2f2", text: "#dc2626", border: "#fecaca" }; // Light Red
+      case "widowed":
+        return { bg: "#fef3c7", text: "#d97706", border: "#fde68a" }; // Light Orange
+      case "khula":
+        return { bg: "#f3e8ff", text: "#7c3aed", border: "#ddd6fe" }; // Light Purple
+      case "awaiting divorce":
+        return { bg: "#fef3c7", text: "#d97706", border: "#fde68a" }; // Light Yellow
+      case "never married":
+        return { bg: "#dcfce7", text: "#166534", border: "#bbf7d0" }; // Light Green
+      default:
+        return { bg: "#f1f5f9", text: "#475569", border: "#e2e8f0" }; // Default Gray
+    }
+  };
+
 
   const interested = ({action_on_id,interested_id}) => {
     const parameter = {
@@ -221,56 +243,38 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
       const parameter = {
         url: `/api/user/photo-request/?user_id=${profile.id}`,
         setterFunction: (data) => {
-          console.log('=== Photo Request Status Check ===');
-          console.log('API Response:', data);
-          console.log('Current photoRequestStatus before update:', photoRequestStatus);
           
           if (data && data.length > 0) {
-            console.log('All requests data:', data);
-            console.log('Looking for userId:', userId, typeof userId);
-            
             // Check if current user has sent a request to this profile
             const userRequest = data.find(request => {
-              console.log('Checking request:', request);
-              console.log('request.action_by:', request.action_by);
-              console.log('request.action_by.id:', request.action_by?.id, typeof request.action_by?.id);
-              console.log('userId:', userId, typeof userId);
-              
               return request.action_by && 
                      request.action_by.id === Number(userId);
             });
             
             if (userRequest) {
-              console.log('Found user request:', userRequest);
-              console.log('Status field:', userRequest.status);
-              
               if (userRequest.status === 'Requested') {
-                console.log('✅ Photo request found (status=Requested) - setting status to pending');
                 setPhotoRequestStatus('pending');
               } else if (userRequest.status === 'Accepted') {
-                console.log('✅ Photo request accepted - setting status to accepted');
                 setPhotoRequestStatus('accepted');
               } else if (userRequest.status === 'Rejected') {
-                console.log('❌ Photo request rejected - setting status to rejected');
                 setPhotoRequestStatus('rejected');
+              } else if (userRequest.status === 'Open') {
+                setPhotoRequestStatus('rejected');
+              } else {
+                setPhotoRequestStatus(null);
               }
             } else {
-              console.log('❌ No photo request found by current user - setting status to null');
-              console.log('Available requests:', data.map(r => ({ id: r.action_by?.id, status: r.status })));
               setPhotoRequestStatus(null);
             }
           } else {
-            console.log('❌ No photo requests found for this user - setting status to null');
             setPhotoRequestStatus(null);
           }
-          console.log('=== Status Check Complete ===');
           setLoadingPhotoStatus(false);
         },
         setErrors: setErrors,
       };
       fetchDataV2(parameter);
     } catch (error) {
-      console.error('Error checking photo request status:', error);
       setLoadingPhotoStatus(false);
     }
   };
@@ -436,24 +440,26 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                     <div
                       className="menu-item"
                       onClick={() => {
-                        if (photoRequestStatus !== 'pending' && !loadingPhotoStatus) {
+                        if (photoRequestStatus !== 'pending' && !loadingPhotoStatus && photoRequestStatus !== 'rejected') {
                           setShowMenu(false);
                           requestPhoto(profile.id);
                         }
                       }}
                       style={{
                         padding: '12px 16px',
-                        cursor: (photoRequestStatus === 'pending' || loadingPhotoStatus) ? 'not-allowed' : 'pointer',
+                        cursor: (photoRequestStatus === 'pending' || loadingPhotoStatus || photoRequestStatus === 'rejected') ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
                         fontSize: '14px',
-                        color: '#059669',
-                        opacity: (photoRequestStatus === 'pending' || loadingPhotoStatus) ? 0.5 : 1,
+                        color: photoRequestStatus === 'rejected' ? '#9ca3af' : '#059669',
+                        opacity: (photoRequestStatus === 'pending' || loadingPhotoStatus || photoRequestStatus === 'rejected') ? 0.5 : 1,
                         transition: 'background-color 0.2s ease',
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#f0fdf4';
+                        if (photoRequestStatus !== 'rejected') {
+                          e.target.style.backgroundColor = '#f0fdf4';
+                        }
                       }}
                       onMouseLeave={(e) => {
                         e.target.style.backgroundColor = 'transparent';
@@ -465,7 +471,6 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                         <polyline points="21,15 16,10 5,21"/>
                       </svg>
                     {(() => {
-                      console.log('Menu render - loadingPhotoStatus:', loadingPhotoStatus, 'photoRequestStatus:', photoRequestStatus);
                       if (loadingPhotoStatus) return 'Checking...';
                       if (photoRequestStatus === 'pending') return 'Request Sent ✓';
                       if (photoRequestStatus === 'accepted') return 'Request Accepted ✓';
@@ -638,25 +643,31 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   ? profile.name.split(" ").slice(0, 1).join(" ") + (profile.name.split(" ").length > 10 ? "..." : "")
   : "Not Mentioned"}
                 <span
-                  className="profile-id"
+                  className="marital-status-badge"
                   style={{
-                    height: "1.5rem",
-                    fontSize: "0.5rem",
-                    padding: " 0 0.5rem",
-                    backgroundColor: "#ff4081",
+                    height: "1.8rem",
+                    fontSize: "0.6rem",
+                    padding: "0.3rem 0.8rem",
+                    backgroundColor: getMaritalStatusColor(profile?.martial_status).bg,
+                    color: getMaritalStatusColor(profile?.martial_status).text,
+                    border: `1px solid ${getMaritalStatusColor(profile?.martial_status).border}`,
                     margin: "auto",
-                    color: "white",
                     display: "flex",
                     alignItems: "center",
-                    borderRadius: "1rem",
+                    borderRadius: "1.2rem",
                     whiteSpace: "nowrap",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                    transition: "all 0.2s ease",
                   }}
                 >
                 {profile?.martial_status ||"Not Mentioned"}
                 </span>
               </h3>
               <div className="profile-id-row">
-                <span className="profile-id">{profile?.id}</span>
+                <span className="profile-id">{profile?.member_id || profile?.id}</span>
               </div>
             </div>
 

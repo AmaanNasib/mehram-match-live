@@ -129,25 +129,17 @@ const Matches = () => {
   }, [userId])
 
 
-  // Function to get progress bar color based on marital status
-  const getProgressBarColor = (maritalStatus) => {
-    switch (maritalStatus?.toLowerCase()) {
-      case "never married":
-        return "#d1f8d1"; // Light Green
-      case "divorced":
-        return "#ffc0cb"; // Light Pink
-      case "widowed":
-        return "#ffe4b5"; // Light Orange
-      case "married":
-        return "#ff6666"; // Light Red
-      case "awaiting divorce":
-        return "#ffdd99"; // Light Yellow
-      case "khula":
-        return "#e6ccff"; // Light Purple
-      default:
-        return "#76c7c0"; // Default color
-    }
+
+  // Function to get progress bar color based on match percentage
+  const getProgressBarColor = (matchPercentage) => {
+    const percentage = parseFloat(matchPercentage) || 0;
+    if (percentage >= 75) return "#10b981"; // Green for high match
+    if (percentage >= 60) return "#3b82f6"; // Blue for good match
+    if (percentage >= 45) return "#f59e0b"; // Orange for moderate match
+    if (percentage >= 30) return "#f97316"; // Dark orange for low-moderate match
+    return "#ef4444"; // Red for very low match
   };
+
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -194,9 +186,9 @@ const Matches = () => {
   type="text"
   value={filters.id}
   onChange={(e) => handleFilterChange('id', e.target.value)}
-  placeholder="Enter ID"
+  placeholder="Member ID"
   list="distinct-ids"
-  style={{ width: '70px' }} 
+  style={{ width: '120px' }} 
 />
 
 {/* <datalist id="distinct-ids">
@@ -224,29 +216,31 @@ const Matches = () => {
   onChange={(e) => handleFilterChange('city', e.target.value)}
   placeholder="Location"
   list="distinct-ids"
-  style={{ width: '70px' }} 
+  style={{ width: '120px' }} 
 />
     <input
     className="filter-dropdown"
       type="number"
-      id="age"
-      name="age"
+      id="minAge"
+      name="minAge"
       value={filters.minAge || ''}
       onChange={(e) => handleFilterChange('minAge', e.target.value)}
       placeholder="Min age"
       min="18"
       max="50"
+      style={{ width: '100px' }}
     />
     <input
     className="filter-dropdown"
       type="number"
-      id="age"
-      name="age"
+      id="maxAge"
+      name="maxAge"
       value={filters.maxAge || ''}
       onChange={(e) => handleFilterChange('maxAge', e.target.value)}
       placeholder="Max age"
       min="18"
       max="50"
+      style={{ width: '100px' }}
     />
 
                {/* Date Picker Dropdown */}
@@ -308,11 +302,67 @@ const Matches = () => {
                onChange={(e) => handleFilterChange('profession', e.target.value)}
              >
                <option value="">Profession</option>
-               {distinctProfessions?.map((profession, index) => (
-                 <option key={index} value={profession}>
-                   {profession}
-                 </option>
-               ))}
+               <option value="accountant">Accountant</option>
+               <option value="Acting Professional">Acting Professional</option>
+               <option value="actor">Actor</option>
+               <option value="administrator">Administrator</option>
+               <option value="Advertising Professional">Advertising Professional</option>
+               <option value="air_hostess">Air Hostess</option>
+               <option value="airline_professional">Airline Professional</option>
+               <option value="airforce">Airforce</option>
+               <option value="architect">Architect</option>
+               <option value="artist">Artist</option>
+               <option value="Assistant Professor">Assistant Professor</option>
+               <option value="audiologist">Audiologist</option>
+               <option value="auditor">Auditor</option>
+               <option value="Bank Officer">Bank Officer</option>
+               <option value="Bank Staff">Bank Staff</option>
+               <option value="beautician">Beautician</option>
+               <option value="Biologist / Botanist">Biologist / Botanist</option>
+               <option value="Business Person">Business Person</option>
+               <option value="captain">Captain</option>
+               <option value="CEO / CTO / President">CEO / CTO / President</option>
+               <option value="chef">Chef</option>
+               <option value="civil_servant">Civil Servant</option>
+               <option value="clerk">Clerk</option>
+               <option value="coach">Coach</option>
+               <option value="consultant">Consultant</option>
+               <option value="counselor">Counselor</option>
+               <option value="dentist">Dentist</option>
+               <option value="designer">Designer</option>
+               <option value="doctor">Doctor</option>
+               <option value="engineer">Engineer</option>
+               <option value="entrepreneur">Entrepreneur</option>
+               <option value="farmer">Farmer</option>
+               <option value="fashion_designer">Fashion Designer</option>
+               <option value="freelancer">Freelancer</option>
+               <option value="government_employee">Government Employee</option>
+               <option value="graphic_designer">Graphic Designer</option>
+               <option value="homemaker">Homemaker</option>
+               <option value="interior_designer">Interior Designer</option>
+               <option value="journalist">Journalist</option>
+               <option value="lawyer">Lawyer</option>
+               <option value="manager">Manager</option>
+               <option value="marketing_professional">Marketing Professional</option>
+               <option value="nurse">Nurse</option>
+               <option value="pharmacist">Pharmacist</option>
+               <option value="photographer">Photographer</option>
+               <option value="pilot">Pilot</option>
+               <option value="police">Police</option>
+               <option value="professor">Professor</option>
+               <option value="psychologist">Psychologist</option>
+               <option value="researcher">Researcher</option>
+               <option value="sales_executive">Sales Executive</option>
+               <option value="scientist">Scientist</option>
+               <option value="social_worker">Social Worker</option>
+               <option value="software_consultant">Software Consultant</option>
+               <option value="sportsman">Sportsman</option>
+               <option value="teacher">Teacher</option>
+               <option value="technician">Technician</option>
+               <option value="therapist">Therapist</option>
+               <option value="veterinarian">Veterinarian</option>
+               <option value="writer">Writer</option>
+               <option value="other">Other</option>
              </select>
      
                <select
@@ -320,12 +370,23 @@ const Matches = () => {
                value={filters.martialStatus}
                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
              >
-               <option value="">Martial Status</option>
-               {distinctMaritalStatuses?.map((status, index) => (
-                 <option key={index} value={status}>
-                   {status}
-                 </option>
-               ))}
+               <option value="">Marital Status</option>
+               {gender === 'male' ? (
+                 <>
+                   <option value="Single">Single</option>
+                   <option value="Divorced">Divorced</option>
+                   <option value="Khula">Khula</option>
+                   <option value="Widowed">Widowed</option>
+                 </>
+               ) : (
+                 <>
+                   <option value="Single">Single</option>
+                   <option value="Married">Married</option>
+                   <option value="Divorced">Divorced</option>
+                   <option value="Khula">Khula</option>
+                   <option value="Widowed">Widowed</option>
+                 </>
+               )}
              </select>
                
            
@@ -353,7 +414,7 @@ const Matches = () => {
           <thead>
             <tr>
             <th onClick={() => handleSort('id')}>
-            ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+            Member ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
           </th>
               <th>Name</th>
               <th>Location</th>
@@ -367,15 +428,15 @@ const Matches = () => {
           <tbody>
             {currentItems.map((match) => (
               <tr key={match?.id} onClick={() => navigate(`/details/${match?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.id}</td>
+                <td>{match?.member_id || match?.id}</td>
                 <td>{match?.name||"-"}</td>
                 <td>{match?.city||"-"}</td>
                 <td>{match?.age||"-"}</td>
                 <td>{match?.sect_school_info||"-"}</td>
                 <td>{match?.profession||"-"}</td>
                 <td>
-                  <span className={`marital-badge ${match?.martial_status?match?.martial_status?.toLowerCase()?.replace(" ", "-"):''}`}>
-                    {match?.martial_status||"-"}
+                  <span className={`marital-badge ${match?.martial_status?match?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
+                    {match?.martial_status||"Not mentioned"}
                   </span>
                 </td>
                 <td>
@@ -383,11 +444,11 @@ const Matches = () => {
                     <div
                       className="progress-bar"
                       style={{
-                        width: `${match?.martial_status}%`,
-                        backgroundColor: getProgressBarColor(match?.martial_status),
+                        width: `${match?.match_percentage || 0}%`,
+                        backgroundColor: getProgressBarColor(match?.match_percentage),
                       }}
                     ></div>
-                    <span className="progress-text">{match?.match_percentage}%</span>
+                    <span className="progress-text">{match?.match_percentage || 0}%</span>
                   </div>
                 </td>
               </tr>
@@ -457,10 +518,14 @@ const Matches = () => {
           }
           .filter-container {
             display: flex;
-            flex-wrap:wrap;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
+            padding: 16px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
           .filter-button, .reset-filter {
             display: flex;
@@ -481,12 +546,23 @@ const Matches = () => {
             font-size: 14px;
           }
           .filter-dropdown {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
             background: #fff;
             font-size: 14px;
             font-weight: 500;
+            min-width: 120px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+          }
+          .filter-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+          .filter-dropdown:hover {
+            border-color: #9ca3af;
           }
           .interest-table {
             width: 100%;
@@ -557,57 +633,86 @@ const Matches = () => {
             color: #8e44ad;
           }
           .marital-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: inline-block;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
-          .marital-badge.never-married {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }
-          .marital-badge.divorced {
-            background: #ffc0cb;
-            color: #c4002b;
-          }
-          .marital-badge.widowed {
-            background: #ffe4b5;
-            color: #b8860b;
+          .marital-badge.single {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
           }
           .marital-badge.married {
-            background: #ff6666;
-            color: #800000;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-color: #1e40af;
           }
-          .marital-badge.awaiting-divorce {
-            background: #ffdd99;
-            color: #a35400;
+          .marital-badge.divorced {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-color: #b91c1c;
           }
           .marital-badge.khula {
-            background: #e6ccff;
-            color: #6a0dad;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
+          .marital-badge.widowed {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #ffffff;
+            border-color: #374151;
+          }
+          .marital-badge.not-mentioned {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            color: #6b7280;
+            border-color: #9ca3af;
+          }
+          .marital-badge.never-married {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.unmarried {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #047857;
+          }
+          .marital-badge.awaiting-divorce {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
           }
           .progress-bar-container {
             width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
             overflow: hidden;
             position: relative;
-            height: 20px;
+            height: 24px;
+            border: 1px solid #e5e7eb;
           }
           .progress-bar {
             height: 100%;
-            border-radius: 5px;
-            transition: width 0.3s ease;
+            border-radius: 7px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
           }
           .progress-text {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            color: #333;
-            font-size: 12px;
-            font-weight: bold;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+            z-index: 1;
           }
         `}
       </style>

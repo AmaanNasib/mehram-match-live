@@ -299,15 +299,23 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
 
 // Marital Status Dropdown Component
-const MaritalStatusDropdown = ({ value, onChange }) => {
+const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(value || "");
   const maritalDropdownRef = useRef(null);
 
-  const maritalStatusOptions = [
-    "Single", "Married", "Divorced",
-    "Khula", "Widowed"
-  ];
+  // Gender-based marital status options
+  const getMaritalStatusOptions = (gender) => {
+    const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
+    
+    if (gender === "female") {
+      return [...baseOptions, "Married"];
+    }
+    
+    return baseOptions;
+  };
+
+  const maritalStatusOptions = getMaritalStatusOptions(userGender);
 
   useEffect(() => {
     if (value) {
@@ -941,6 +949,7 @@ const TotalShortlist = () => {
           <MaritalStatusDropdown 
             key={`marital-status-${resetKey}`}
             value={filters.martialStatus}
+            userGender={gender}
             onChange={handleMaritalStatusChange}
           />
 

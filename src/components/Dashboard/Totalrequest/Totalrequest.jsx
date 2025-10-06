@@ -3,7 +3,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2, postDataWithFetchV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2, putDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
@@ -296,64 +296,229 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
 
 
-const StatusDropdown = ({ value, onChange }) => {
+// Marital Status Dropdown Component for single selection
+const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState(value || []);
+  const [selectedStatus, setSelectedStatus] = useState(value || "");
+  const maritalDropdownRef = React.useRef(null);
 
-  const statusOptions = ["Pending", "Accepted", "Rejected"];
+  // Gender-based marital status options
+  const getMaritalStatusOptions = (gender) => {
+    const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
+    
+    if (gender === "female") {
+      return [...baseOptions, "Married"];
+    }
+    
+    return baseOptions;
+  };
+
+  const maritalStatusOptions = getMaritalStatusOptions(userGender);
 
   useEffect(() => {
     if (value) {
-      setSelectedStatuses(Array.isArray(value) ? value : [value]);
+      setSelectedStatus(value);
     }
   }, [value]);
 
-  const toggleStatus = (status) => {
-    const newSelected = selectedStatuses.includes(status)
-      ? selectedStatuses.filter(s => s !== status)
-      : [...selectedStatuses, status];
-    
-    setSelectedStatuses(newSelected);
-    onChange(newSelected);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (maritalDropdownRef.current && !maritalDropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  const selectStatus = (status) => {
+    setSelectedStatus(status);
+    onChange(status);
+    setIsOpen(false); // Close dropdown after selection
   };
 
   return (
-    <div className="status-dropdown-container">
+    <div className="marital-status-dropdown-container" ref={maritalDropdownRef}>
+      <div 
+        className="marital-status-dropdown-toggle"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {selectedStatus || "Marital Status"}
+      </div>
+      
+      {isOpen && (
+        <div className="marital-status-dropdown-menu" style={{ zIndex: 1001 }}>
+          <h6>Select Marital Status</h6>
+          <div className="marital-status-grid">
+            {maritalStatusOptions.map((status) => (
+              <div
+                key={status}
+                className={`marital-status-option ${
+                  selectedStatus === status ? "selected" : ""
+                }`}
+                onClick={() => selectStatus(status)}
+              >
+                {status}
+              </div>
+            ))}
+          </div>
+          <div className="marital-status-note">
+            *You can choose one Marital Status
+          </div>
+        </div>
+      )}
+
+      <style>
+        {`
+          .marital-status-dropdown-container {
+            position: relative;
+            width: 150px;
+            min-width: 150px;
+            flex-shrink: 0;
+          }
+          
+          .marital-status-dropdown-toggle {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            font-size: 14px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
+          }
+          
+          .marital-status-dropdown-toggle:hover {
+            border-color: #9ca3af;
+          }
+          
+          .marital-status-dropdown-menu {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            width: 400px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+          }
+          
+          .marital-status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+          }
+          
+          .marital-status-option {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+          }
+          
+          .marital-status-option.selected {
+            background-color: #FF1493;
+            color: white;
+            border-color: #FF1493;
+          }
+
+          .marital-status-option:hover {
+            background-color: rgb(20, 255, 134);
+            border-color: rgb(20, 255, 134);
+            color: white;
+          }
+          
+          .marital-status-note {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+          }
+        `}
+      </style>
+    </div>
+  );
+};
+
+const StatusDropdown = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(value || "");
+  const statusDropdownRef = React.useRef(null);
+
+  const statusOptions = ["Pending", "Approved", "Rejected"];
+
+  useEffect(() => {
+    if (value) {
+      setSelectedStatus(value);
+    }
+  }, [value]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  const selectStatus = (status) => {
+    setSelectedStatus(status);
+    onChange(status);
+    setIsOpen(false); // Close dropdown after selection
+  };
+
+  return (
+    <div className="status-dropdown-container" ref={statusDropdownRef}>
       <div 
         className="status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
-        Status
-        {selectedStatuses.length > 0 && (
-          <span className="status-count-badge">{selectedStatuses.length}</span>
-        )}
+        {selectedStatus || "Status"}
       </div>
       
       {isOpen && (
-        <div className="status-dropdown-menu" style={{ zIndex: 1001 }}>
+        <div className="status-dropdown-menu" style={{ zIndex: 1002 }}>
           <h6>Select Status</h6>
-          <div className="status-options-row">
+          <div className="status-options-grid">
             {statusOptions.map((status) => (
               <div
                 key={status}
                 className={`status-option status-option-${status.toLowerCase()} ${
-                  selectedStatuses.includes(status) ? "selected" : ""
+                  selectedStatus === status ? "selected" : ""
                 }`}
-                onClick={() => toggleStatus(status)}
+                onClick={() => selectStatus(status)}
               >
                 {status}
               </div>
             ))}
           </div>
           <div className="status-note">
-            *You can choose multiple Statuses
+            *You can choose one Status
           </div>
-          <button 
-            className="apply-now-btn"
-            onClick={() => setIsOpen(false)}
-          >
-            Apply Now
-          </button>
         </div>
       )}
 
@@ -362,56 +527,52 @@ const StatusDropdown = ({ value, onChange }) => {
           .status-dropdown-container {
             position: relative;
             width: 150px;
+            min-width: 150px;
+            flex-shrink: 0;
           }
           
           .status-dropdown-toggle {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
             cursor: pointer;
             font-size: 14px;
             min-height: 36px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            font-weight: 600;
-            color: #333;
+            font-weight: 500;
+            color: #374151;
+            outline: none;
+            transition: all 0.2s ease;
           }
           
-          .status-count-badge {
-            background-color: #FF1493;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
+          .status-dropdown-toggle:hover {
+            border-color: #9ca3af;
           }
           
           .status-dropdown-menu {
-            position: absolute;
-            top: 105%;
-            left: 0;
-            width: 300px;
+            position: fixed;
+            top: auto;
+            left: auto;
+            width: 350px;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 15px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1002;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(0);
           }
           
-          .status-options-row {
-            display: flex;
-            gap: 8px;
+          .status-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-bottom: 10px;
           }
           
           .status-option {
-            flex: 1;
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 50px;
@@ -519,6 +680,81 @@ const StatusDropdown = ({ value, onChange }) => {
           .report-btn:hover {
             background-color: #5a32a3;
           }
+          
+          .modern-btn {
+            border-radius: 8px !important;
+            width: 36px !important;
+            height: 36px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          .modern-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          }
+          
+          .modern-btn svg {
+            transition: transform 0.2s ease;
+          }
+          
+          .modern-btn:hover svg {
+            transform: scale(1.1);
+          }
+          
+          /* Remove z-index fixes to avoid conflicts */
+          
+          /* Modern Button Styles */
+          .action-btn {
+            border: none;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+          }
+          
+          .action-btn:hover::before {
+            left: 100%;
+          }
+          
+          .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+          
+          .action-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          }
+          
+          .action-btn svg {
+            transition: transform 0.2s ease;
+            z-index: 1;
+            position: relative;
+          }
+          
+          .action-btn:hover svg {
+            transform: scale(1.1);
+          }
         `}
       </style>
     </div>
@@ -544,6 +780,7 @@ const TotalRequests = () => {
   const [useLoading, setLoading] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
   const [filteredItems, setFilteredItems] = useState([]);
+  const [resetKey, setResetKey] = useState(0);
   let [filters, setFilters] = useState({
     id: '',
     name: '',
@@ -581,12 +818,39 @@ const TotalRequests = () => {
     }
     setFilters(clear)
     applyFilters(clear)
+    // Force re-render of dropdown components by changing key
+    setResetKey(prev => prev + 1);
   };
   useEffect(() => {
     if (userId) {
       const parameter = {
         url: `/api/user/requested/?user_id=${userId}`,
         setterFunction: (data) => {
+          console.log('🚀 INITIAL API Response Data:', data);
+          console.log('📋 Received requests count:', data?.received_request?.length || 0);
+          console.log('✅ Accepted requests count:', data?.received_request_accepted?.length || 0);
+          console.log('❌ Rejected requests count:', data?.received_request_rejected?.length || 0);
+          console.log('📤 Sent requests count:', data?.sent_request?.length || 0);
+          console.log('✅ Sent accepted count:', data?.sent_request_accepted?.length || 0);
+          console.log('❌ Sent rejected count:', data?.sent_request_rejected?.length || 0);
+          
+          // Data loaded successfully
+          
+          if (data?.received_request && data.received_request.length > 0) {
+            console.log('🔍 First received request:', data.received_request[0]);
+            console.log('🔍 First received request status:', data.received_request[0]?.status);
+            console.log('🔍 Database status mapping:', {
+              'Open': 'Rejected',
+              'Requested': 'Pending', 
+              'Accepted': 'Approved'
+            });
+          }
+          
+          if (data?.received_request_rejected && data.received_request_rejected.length > 0) {
+            console.log('🔍 First rejected request:', data.received_request_rejected[0]);
+            console.log('🔍 First rejected request status:', data.received_request_rejected[0]?.status);
+          }
+          
           setMatchDetails(data || {
             sent_request: [],
             received_request: [],
@@ -603,22 +867,67 @@ const TotalRequests = () => {
     }
   }, [userId]);
 
+  // Auto-refresh data every 10 seconds to catch status updates
+  useEffect(() => {
+    if (userId) {
+      console.log('🚀 Setting up auto-refresh for user:', userId);
+      const interval = setInterval(() => {
+        console.log('🔄 Auto-refreshing data for status updates...');
+        const parameter = {
+          url: `/api/user/requested/?user_id=${userId}`,
+          setterFunction: (data) => {
+            console.log('📊 Auto-refresh data received:', data);
+            console.log('📋 Received requests:', data?.received_request?.length || 0);
+            console.log('✅ Accepted requests:', data?.received_request_accepted?.length || 0);
+            console.log('❌ Rejected requests:', data?.received_request_rejected?.length || 0);
+            console.log('📤 Sent requests:', data?.sent_request?.length || 0);
+            console.log('✅ Sent accepted:', data?.sent_request_accepted?.length || 0);
+            console.log('❌ Sent rejected:', data?.sent_request_rejected?.length || 0);
+            setMatchDetails(data || {
+              sent_request: [],
+              received_request: [],
+              sent_request_accepted: [],
+              sent_request_rejected: [],
+              received_request_accepted: [],
+              received_request_rejected: []
+            });
+          },
+          setLoading: setLoading,
+          setErrors: setError,
+        };
+        fetchDataObjectV2(parameter);
+      }, 10000); // Refresh every 10 seconds for faster updates
+
+      return () => {
+        console.log('🛑 Clearing auto-refresh interval');
+        clearInterval(interval);
+      };
+    }
+  }, [userId]);
+
   // Combine all request data into a single array with proper status based on gender and request direction
+  console.log('🔄 Processing combinedRequests with matchDetails:', matchDetails);
+  console.log('📊 Received requests for processing:', matchDetails.received_request);
+  console.log('📊 Rejected requests for processing:', matchDetails.received_request_rejected);
+  
   const combinedRequests = [
+    // Sent requests - show "Pending" for males (who sent but waiting for response)
     ...matchDetails.sent_request.map((item) => ({ 
       ...item, 
-      status: item.status || "Sent",
+      status: item.status === "Open" ? "Rejected" : (item.status === "Requested" ? "Pending" : item.status),
       user: item.user,
       date: item.date,
       requestType: "sent"
     })),
+    // Received requests - show "Pending" for females (who received but haven't responded)
     ...matchDetails.received_request.map((item) => ({ 
       ...item, 
-      status: item.status || "Received",
+      status: item.status === "Open" ? "Rejected" : (item.status === "Requested" ? "Pending" : item.status),
       user: item.user,
       date: item.date,
       requestType: "received"
     })),
+    // Accepted sent requests
     ...matchDetails.sent_request_accepted.map((item) => ({ 
       ...item, 
       status: "Approved",
@@ -626,13 +935,15 @@ const TotalRequests = () => {
       date: item.date,
       requestType: "sent"
     })),
+    // Rejected sent requests
     ...matchDetails.sent_request_rejected.map((item) => ({ 
       ...item, 
-      status: "Rejected",
+      status: item.status === "Open" ? "Rejected" : "Rejected",
       user: item.user,
       date: item.date,
       requestType: "sent"
     })),
+    // Accepted received requests
     ...matchDetails.received_request_accepted.map((item) => ({ 
       ...item, 
       status: "Approved",
@@ -640,14 +951,28 @@ const TotalRequests = () => {
       date: item.date,
       requestType: "received"
     })),
+    // Rejected received requests
     ...matchDetails.received_request_rejected.map((item) => ({ 
       ...item, 
-      status: "Rejected",
+      status: item.status === "Open" ? "Rejected" : "Rejected",
       user: item.user,
       date: item.date,
       requestType: "received"
     })),
   ];
+  
+  console.log('📋 Final combinedRequests count:', combinedRequests.length);
+  console.log('📋 Final combinedRequests:', combinedRequests);
+  
+  const statusDistribution = {
+    pending: combinedRequests.filter(r => r.status === 'Pending').length,
+    approved: combinedRequests.filter(r => r.status === 'Approved').length,
+    rejected: combinedRequests.filter(r => r.status === 'Rejected').length
+  };
+  
+  console.log('📋 Status distribution:', statusDistribution);
+  
+  // Status distribution calculated successfully
   const applyFilters = (updatedFilters) => {
     setFilteredItems(
       combinedRequests?.filter((match) => {
@@ -664,8 +989,9 @@ const TotalRequests = () => {
             match?.user?.profession?.toLowerCase().replace(/\s+/g, '_').includes(updatedFilters.profession.toLowerCase().replace(/\s+/g, '_')) ||
             match?.user?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
           ) : true) &&
-          (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
-          (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
+          (updatedFilters.status ? match?.status?.toLowerCase() === updatedFilters.status.toLowerCase() : true) &&
+          (updatedFilters.martialStatus ? 
+            match?.user?.martial_status?.toLowerCase() === updatedFilters.martialStatus.toLowerCase() : true)
         );
       })
     );
@@ -689,41 +1015,132 @@ const TotalRequests = () => {
 
   // Function to handle photo request actions
   const handleApproveRequest = (requestId, targetUserId) => {
+    console.log('Approving request:', requestId, 'for user:', targetUserId);
+    console.log('Request ID type:', typeof requestId, 'Value:', requestId);
+    
+    // No immediate UI update - let backend data fetch handle the update
+    console.log('🔄 Approving request - will fetch fresh data from backend...');
+    
     const parameter = {
       url: `/api/user/requestphoto/${requestId}/approve/`,
-      payload: { status: 'Accepted' },
+      payload: { approved: 'Accepted' },
       setSuccessMessage: (message) => {
-        // Reload data
+        console.log('Request approved successfully:', message);
+        // Force immediate data reload to ensure UI consistency
+        setTimeout(() => {
+          console.log('Force reloading data after approve...');
+          const reloadParameter = {
+            url: `/api/user/requested/?user_id=${userId}`,
+            setterFunction: (data) => {
+              console.log('Reloaded data after approve:', data);
+              console.log('Received requests after reload:', data?.received_request);
+              console.log('Accepted requests after reload:', data?.received_request_accepted);
+              setMatchDetails(data || {
+                sent_request: [],
+                received_request: [],
+                sent_request_accepted: [],
+                sent_request_rejected: [],
+                received_request_accepted: [],
+                received_request_rejected: []
+              });
+            },
+            setLoading: setLoading,
+            setErrors: setError,
+          };
+          fetchDataObjectV2(reloadParameter);
+        }, 1000); // Wait 1 second for backend to process
+      },
+      setErrors: (error) => {
+        console.error('❌ Error approving request:', error);
+        // Fetch fresh data from backend on error to ensure consistency
+        console.log('🔄 Fetching fresh data after error...');
         const reloadParameter = {
           url: `/api/user/requested/?user_id=${userId}`,
-          setterFunction: setMatchDetails,
+          setterFunction: (data) => {
+            console.log('📊 Fresh data after error:', data);
+            setMatchDetails(data || {
+              sent_request: [],
+              received_request: [],
+              sent_request_accepted: [],
+              sent_request_rejected: [],
+              received_request_accepted: [],
+              received_request_rejected: []
+            });
+          },
           setLoading: setLoading,
           setErrors: setError,
         };
         fetchDataObjectV2(reloadParameter);
+        setError(error);
       },
-      setErrors: setError,
     };
-    postDataWithFetchV2(parameter);
+    putDataWithFetchV2(parameter);
   };
 
   const handleRejectRequest = (requestId, targetUserId) => {
+    console.log('❌ REJECTING REQUEST:', requestId, 'for user:', targetUserId);
+    console.log('📊 Current matchDetails before reject:', matchDetails);
+    console.log('🔍 Received requests before reject:', matchDetails.received_request);
+    
+    // Rejecting request
+    
+    // No immediate UI update - let backend data fetch handle the update
+    console.log('🔄 Rejecting request - will fetch fresh data from backend...');
+    
     const parameter = {
       url: `/api/user/requestphoto/${requestId}/approve/`,
-      payload: { status: 'Rejected' },
+      payload: { approved: 'Rejected' },
       setSuccessMessage: (message) => {
-        // Reload data
+        console.log('Request rejected successfully:', message);
+        // Force immediate data reload to ensure UI consistency
+        setTimeout(() => {
+          console.log('Force reloading data after reject...');
+          const reloadParameter = {
+            url: `/api/user/requested/?user_id=${userId}`,
+            setterFunction: (data) => {
+              console.log('Reloaded data after reject:', data);
+              console.log('Received requests after reload:', data?.received_request);
+              console.log('Rejected requests after reload:', data?.received_request_rejected);
+              setMatchDetails(data || {
+                sent_request: [],
+                received_request: [],
+                sent_request_accepted: [],
+                sent_request_rejected: [],
+                received_request_accepted: [],
+                received_request_rejected: []
+              });
+            },
+            setLoading: setLoading,
+            setErrors: setError,
+          };
+          fetchDataObjectV2(reloadParameter);
+        }, 1000); // Wait 1 second for backend to process
+      },
+      setErrors: (error) => {
+        console.error('❌ Error rejecting request:', error);
+        // Fetch fresh data from backend on error to ensure consistency
+        console.log('🔄 Fetching fresh data after error...');
         const reloadParameter = {
           url: `/api/user/requested/?user_id=${userId}`,
-          setterFunction: setMatchDetails,
+          setterFunction: (data) => {
+            console.log('📊 Fresh data after error:', data);
+            setMatchDetails(data || {
+              sent_request: [],
+              received_request: [],
+              sent_request_accepted: [],
+              sent_request_rejected: [],
+              received_request_accepted: [],
+              received_request_rejected: []
+            });
+          },
           setLoading: setLoading,
           setErrors: setError,
         };
         fetchDataObjectV2(reloadParameter);
+        setError(error);
       },
-      setErrors: setError,
     };
-    postDataWithFetchV2(parameter);
+    putDataWithFetchV2(parameter);
   };
 
   const handleBlockUser = (targetUserId) => {
@@ -1117,28 +1534,32 @@ const TotalRequests = () => {
             <option value="Other">Other</option>
           </select>
 
-          {/* <select
-          className="filter-dropdown"
-          value={filters.martialStatus}
-          onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-        >
-          <option value="">Martial Status</option>
-          {distinctMaritalStatuses?.map((status, index) => (
-            <option key={index} value={status}>
-              {status}
-            </option>
-          ))}
-        </select> */}
-
+          {/* Marital Status Filter - Single Selection */}
+          <MaritalStatusDropdown 
+            key={`marital-status-${resetKey}`}
+            value={filters.martialStatus}
+            userGender={gender}
+            onChange={(selectedStatus) => {
+              setFilters(prevFilters => {
+                const updatedFilters = { 
+                  ...prevFilters, 
+                  martialStatus: selectedStatus 
+                };
+                applyFilters(updatedFilters);
+                return updatedFilters;
+              });
+            }}
+          />
 
 <div className="status-dropdown">
 <StatusDropdown 
-  value={filters.status ? filters.status.split(',') : []}
-  onChange={(selectedStatuses) => {
+  key={`status-${resetKey}`}
+  value={filters.status}
+  onChange={(selectedStatus) => {
     setFilters(prevFilters => {
       const updatedFilters = { 
         ...prevFilters, 
-        status: selectedStatuses.join(',') 
+        status: selectedStatus 
       };
       applyFilters(updatedFilters);
       return updatedFilters;
@@ -1249,16 +1670,31 @@ const TotalRequests = () => {
                   <td>{user?.user?.sect_school_info || user?.user?.sect || "-"}</td>
                   <td>{user?.user?.profession || "-"}</td>
                   <td>
-                    <span className={`status-badge ${user.status.toLowerCase()}`}>
-                      {user.status}
-                    </span>
-                    {/* Show request direction based on gender */}
-                    <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
-                      {gender === "male" ? (
-                        "Request Sent to Female User"
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      {/* Primary Status */}
+                      <span className={`status-badge ${user.status.toLowerCase()}`}>
+                        {user.status}
+                      </span>
+                      
+                      {/* Secondary Status based on gender and status */}
+                      {user.status === "Approved" ? null : gender === "male" ? (
+                        <span className="status-badge sent">
+                          Sent
+                        </span>
                       ) : (
-                        "Request Received from Male User"
+                        <span className="status-badge received">
+                          Received
+                        </span>
                       )}
+                      
+                      {/* Request direction info */}
+                      <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
+                        {gender === "male" ? (
+                          "Request Sent to Female User"
+                        ) : (
+                          "Request Received from Male User"
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -1272,48 +1708,68 @@ const TotalRequests = () => {
                       {(user.status === "Pending" || user.status === "Received") && (
                         <>
                           <button
-                            className="action-btn approve-btn"
+                            className="action-btn approve-btn modern-btn"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleApproveRequest(user?.id, user?.user?.id);
+                              console.log('Button clicked - Full user object:', user);
+                              console.log('User ID:', user?.id, 'Target User ID:', user?.user?.id);
+                              console.log('Available fields:', Object.keys(user));
+                              // Try different possible request ID fields
+                              const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
+                              console.log('Using request ID:', requestId);
+                              handleApproveRequest(requestId, user?.user?.id);
                             }}
                             title="Approve Request"
                           >
-                            ✓
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
                           </button>
                           <button
-                            className="action-btn reject-btn"
+                            className="action-btn reject-btn modern-btn"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleRejectRequest(user?.id, user?.user?.id);
+                              console.log('Reject button clicked - Full user object:', user);
+                              console.log('Available fields:', Object.keys(user));
+                              // Try different possible request ID fields
+                              const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
+                              console.log('Using request ID for reject:', requestId);
+                              handleRejectRequest(requestId, user?.user?.id);
                             }}
                             title="Reject Request"
                           >
-                            ✗
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
                           </button>
                         </>
                       )}
                       
                       {/* Block and Report buttons for all requests */}
                       <button
-                        className="action-btn block-btn"
+                        className="action-btn block-btn modern-btn"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleBlockUser(user?.user?.id);
                         }}
                         title="Block User"
                       >
-                        🚫
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
                       </button>
                       <button
-                        className="action-btn report-btn"
+                        className="action-btn report-btn modern-btn"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleReportUser(user?.user?.id);
                         }}
                         title="Report User"
                       >
-                        ⚠️
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
                       </button>
                     </div>
                   </td>}
@@ -1394,18 +1850,18 @@ const TotalRequests = () => {
             margin-bottom: 24px;
             line-height: 1.2;
           }
-          .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding: 20px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          }
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
           .filter-button, .reset-filter {
             display: flex;
             align-items: center;
@@ -1523,6 +1979,11 @@ const TotalRequests = () => {
             color: #ffffff;
             border-color: #047857;
           }
+          .status-badge.pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            border-color: #b45309;
+          }
           .status-badge.received {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: #ffffff;
@@ -1534,9 +1995,9 @@ const TotalRequests = () => {
             border-color: #b45309;
           }
           .status-badge.approved, .status-badge.accepted {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: #ffffff;
-            border-color: #6d28d9;
+            border-color: #047857;
           }
           .status-badge.rejected {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
