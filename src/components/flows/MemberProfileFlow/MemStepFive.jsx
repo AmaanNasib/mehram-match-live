@@ -418,7 +418,7 @@ const MemStepFive = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'photo_upload_privacy_option' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Choose whether to allow photo sharing with potential matches
+                              Control who can view your photos: All members, Only matches, or Only approved users
                               <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                             </div>
                           </div>
@@ -435,9 +435,10 @@ const MemStepFive = () => {
                             }`}
                             onChange={(e) => updateField("photo_upload_privacy_option", e.target.value)}
                       >
-                        <option value="">Select Visibility</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
+                        <option value="">Select Photo Privacy</option>
+                        <option value="All Member">All Member</option>
+                        <option value="Only Matches">Only Matches</option>
+                        <option value="Only to users whom I approve">Only to users whom I approve</option>
                       </select>
                           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

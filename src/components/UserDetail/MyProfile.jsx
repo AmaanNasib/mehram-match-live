@@ -257,49 +257,27 @@ const UserDetail = () => {
         // Draw original image
         ctx.drawImage(img, 0, 0);
 
-        // Create rounded rectangle tag like in the example
-        const tagWidth = Math.max(img.width * 0.25, 200);
-        const tagHeight = 80;
-        const padding = 20;
-        const x = img.width - tagWidth - padding;
-        const y = img.height - tagHeight - padding;
-        const cornerRadius = 15;
+        // Draw centered bottom logo watermark (natural aspect ratio), no text
+        if (logoLoaded) {
+          const paddingY = Math.max(img.height * 0.03, 20); // bottom padding
+          const maxLogoWidth = Math.min(img.width * 0.28, 600); // relative size with hard cap
+          const logoAspect = logo.width / logo.height || 3; // fallback wide look
+          const logoWidth = maxLogoWidth;
+          const logoHeight = logoWidth / logoAspect;
 
-        // Create rounded rectangle background
-        ctx.globalAlpha = 0.8;
-        ctx.fillStyle = '#EC4899'; // Pink/magenta color like in example
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        
-        // Draw rounded rectangle
-        ctx.beginPath();
-        ctx.roundRect(x, y, tagWidth, tagHeight, cornerRadius);
-        ctx.fill();
-        ctx.stroke();
+          const logoX = (img.width - logoWidth) / 2;
+          const logoY = img.height - logoHeight - paddingY;
 
-        // Add MehramMatch text
-        ctx.globalAlpha = 1.0;
-        ctx.fillStyle = 'white';
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        // Main text
-        const mainFontSize = Math.max(tagWidth * 0.08, 16);
-        ctx.font = `bold ${mainFontSize}px Arial`;
-        const mainTextX = x + (tagWidth / 2);
-        const mainTextY = y + (tagHeight / 2);
-        
-        ctx.strokeText('MehramMatch', mainTextX, mainTextY);
-        ctx.fillText('MehramMatch', mainTextX, mainTextY);
-
-        // Reset opacity
-        ctx.globalAlpha = 1.0;
+          // opacity ~0.55 to match modal
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
+          ctx.globalAlpha = 1.0;
+        }
 
         // Convert canvas to blob
         canvas.toBlob((blob) => {
-          const watermarkedFile = new File([blob], file.name, {
+          const outputBlob = blob || new Blob([canvas.toDataURL(file.type || 'image/jpeg')]);
+          const watermarkedFile = new File([outputBlob], file.name, {
             type: file.type,
             lastModified: Date.now()
           });

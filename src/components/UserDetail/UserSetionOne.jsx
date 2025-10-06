@@ -614,7 +614,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
                 className='matchedIcond' 
                 onClick={()=>handleInterest()}
           style={{ cursor: 'pointer', position: 'relative' }}
-        >
+              >
           
           
                 <svg
@@ -635,8 +635,8 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
               </button>
               
               {/* Shortlist Button */}
-              <button
-                className='matchedIcond'
+              <button 
+                className='matchedIcond' 
                 onClick={()=>handleShortlist()}
                 style={{ cursor: 'pointer', position: 'relative' }}
               >
@@ -664,8 +664,8 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
               </button>
               
               {/* Block Button */}
-              <button
-                className='matchedIcond'
+              <button 
+                className='matchedIcond' 
                 onClick={()=>handleBlock()}
                 style={{ cursor: 'pointer', position: 'relative' }}
               >

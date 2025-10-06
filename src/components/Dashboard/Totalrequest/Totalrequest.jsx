@@ -960,14 +960,37 @@ const TotalRequests = () => {
       requestType: "received"
     })),
   ];
-  
-  console.log('📋 Final combinedRequests count:', combinedRequests.length);
-  console.log('📋 Final combinedRequests:', combinedRequests);
+
+  // De-duplicate the same target user appearing in multiple buckets
+  // Prefer the most progressed status (Approved/Accepted > Pending/Sent > Rejected/Open)
+  const statusRank = {
+    Approved: 4,
+    Accepted: 4,
+    Pending: 3,
+    Sent: 3,
+    Requested: 3,
+    Rejected: 2,
+    Open: 1,
+  };
+  const combinedRequestsUnique = Object.values(
+    combinedRequests.reduce((acc, item) => {
+      const key = item?.user?.id ?? `${item?.user?.member_id}`;
+      const currentRank = statusRank[item?.status] || 0;
+      const existing = acc[key];
+      if (!existing || currentRank > (statusRank[existing.status] || 0)) {
+        acc[key] = item;
+      }
+      return acc;
+    }, {})
+  );
+
+  console.log('📋 Final combinedRequests (unique) count:', combinedRequestsUnique.length);
+  console.log('📋 Final combinedRequests (unique):', combinedRequestsUnique);
   
   const statusDistribution = {
-    pending: combinedRequests.filter(r => r.status === 'Pending').length,
-    approved: combinedRequests.filter(r => r.status === 'Approved').length,
-    rejected: combinedRequests.filter(r => r.status === 'Rejected').length
+    pending: combinedRequestsUnique.filter(r => r.status === 'Pending').length,
+    approved: combinedRequestsUnique.filter(r => r.status === 'Approved' || r.status === 'Accepted').length,
+    rejected: combinedRequestsUnique.filter(r => r.status === 'Rejected').length
   };
   
   console.log('📋 Status distribution:', statusDistribution);
@@ -975,7 +998,7 @@ const TotalRequests = () => {
   // Status distribution calculated successfully
   const applyFilters = (updatedFilters) => {
     setFilteredItems(
-      combinedRequests?.filter((match) => {
+      combinedRequestsUnique?.filter((match) => {
         return (
           (updatedFilters.member_id ? match?.user?.member_id?.toLowerCase().includes(updatedFilters.member_id.toLowerCase()) : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
@@ -996,14 +1019,14 @@ const TotalRequests = () => {
       })
     );
   };
-  const distinctIds = [...new Set(combinedRequests?.map((match) => match?.user?.id))];
-  const distinctNames = [...new Set(combinedRequests?.map((match) => match?.user?.name))];
-  const distinctCities = [...new Set(combinedRequests?.map((match) => match?.user?.city))];
-  const distinctDobs = [...new Set(combinedRequests?.map((match) => match?.user?.dob))];
-  const distinctSchoolInfo = [...new Set(combinedRequests?.map((match) => match?.user?.sect_school_info))];
-  const distinctProfessions = [...new Set(combinedRequests?.map((match) => match?.user?.profession))];
-  const distinctStatuses = [...new Set(combinedRequests?.map((match) => match?.status))];
-  const distinctMaritalStatuses = [...new Set(combinedRequests?.map((match) => match?.user?.martial_status))];
+  const distinctIds = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.id))];
+  const distinctNames = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.name))];
+  const distinctCities = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.city))];
+  const distinctDobs = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.dob))];
+  const distinctSchoolInfo = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.sect_school_info))];
+  const distinctProfessions = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.profession))];
+  const distinctStatuses = [...new Set(combinedRequestsUnique?.map((match) => match?.status))];
+  const distinctMaritalStatuses = [...new Set(combinedRequestsUnique?.map((match) => match?.user?.martial_status))];
   // Function to handle delete action
   const handleDelete = (id) => {
     // Remove the item with the given id from the data
@@ -1207,8 +1230,8 @@ const TotalRequests = () => {
     setCurrentPage(pageNumber);
   };
   useEffect(() => {
-    // Apply filters when `currentItems` or filters change
-    setFilteredItems(combinedRequests)
+    // Use unique list for rendering to avoid duplicates
+    setFilteredItems(combinedRequestsUnique)
   }, [matchDetails]);
   const handleSort = (column) => {
     let direction = 'asc';
@@ -1671,21 +1694,49 @@ const TotalRequests = () => {
                   <td>{user?.user?.profession || "-"}</td>
                   <td>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {/* Primary Status */}
-                      <span className={`status-badge ${user.status.toLowerCase()}`}>
-                        {user.status}
-                      </span>
-                      
-                      {/* Secondary Status based on gender and status */}
-                      {user.status === "Approved" ? null : gender === "male" ? (
-                        <span className="status-badge sent">
-                          Sent
-                        </span>
-                      ) : (
-                        <span className="status-badge received">
-                          Received
-                        </span>
-                      )}
+                      {/* Primary Status with gender-aware mapping */}
+                      {(() => {
+                        const raw = user.status;
+                        const isMale = gender === 'male';
+                        if (raw === 'Accepted' || raw === 'Approved') {
+                          return (
+                            <>
+                              <span className="status-badge approved">Approved</span>
+                              {isMale ? (
+                                <span className="status-badge sent">Sent</span>
+                              ) : (
+                                <span className="status-badge received">Received</span>
+                              )}
+                            </>
+                          );
+                        }
+                        if (raw === 'Requested' || raw === 'Pending') {
+                          return (
+                            <>
+                              <span className="status-badge pending">Pending</span>
+                              {isMale ? (
+                                <span className="status-badge sent">Sent</span>
+                              ) : (
+                                <span className="status-badge received">Received</span>
+                              )}
+                            </>
+                          );
+                        }
+                        // Open treated as Rejected
+                        if (raw === 'Open' || raw === 'Rejected') {
+                          return (
+                            <>
+                              <span className="status-badge rejected">Rejected</span>
+                              {isMale ? (
+                                <span className="status-badge sent">Sent</span>
+                              ) : (
+                                <span className="status-badge received">Received</span>
+                              )}
+                            </>
+                          );
+                        }
+                        return <span className={`status-badge ${(raw || '').toLowerCase()}`}>{raw || 'N/A'}</span>;
+                      })()}
                       
                       {/* Request direction info */}
                       <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
