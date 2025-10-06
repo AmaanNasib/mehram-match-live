@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { postDataWithFetchV2, putDataWithFetchV2 } from '../../apiUtils'; // Adjust import path
+import { postDataWithFetchV2, putDataWithFetchV2, fetchDataWithTokenV2 } from '../../apiUtils'; // Adjust import path
 import heart from "../../images/colorHeart.svg";
 import hamburger from "../../images/hamburger.svg";
 import notAllowed from "../../images/notAllowed.svg";
@@ -10,12 +10,22 @@ import start1 from "../../images/iconoir_star-solid.svg";
 import strat2 from "../../images/iconoir_bright-star.svg";
 import "./UserSectionOne.css";
 
-const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
+const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwnerId}) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem("userId");
   const role = localStorage.getItem('role');
   const gender = localStorage.getItem('gender');
+  const [interestStatus, setInterestStatus] = useState(false);
+  const [shortlistStatus, setShortlistStatus] = useState(false);
+  const [shortlistMessage, setShortlistMessage] = useState('');
+  const [showShortlistMessage, setShowShortlistMessage] = useState(false);
+  const [blockMessage, setBlockMessage] = useState('');
+  const [showBlockMessage, setShowBlockMessage] = useState(false);
+  const [blockStatus, setBlockStatus] = useState(false);
+  
+  // Check if current user is viewing their own profile
+  const isOwnProfile = userId && profileOwnerId && userId.toString() === profileOwnerId.toString();
 
   // Profile Completion Stats Function with Stepwise Breakdown
   const getProfileCompletionStats = (userData) => {
@@ -173,16 +183,120 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
     };
   };
 
+
+  // Set interest and shortlist status from API data
   useEffect(() => {
     if (apiData) {
       setLoading(false);
+
+      // Only set status for other users' profiles
+      if (!isOwnProfile) {
+        // Interest status detection
+        let interestValue = false;
+        if (apiData.is_interested !== undefined) {
+          interestValue = apiData.is_interested === true;
+        } else if (apiData.interested_id) {
+          interestValue = true;
+        } else {
+          interestValue = apiData.interest === true || apiData.interest === "true";
+        }
+        setInterestStatus(interestValue);
+
+        // Shortlist status detection
+        let shortlistValue = false;
+        if (apiData.is_shortlisted !== undefined) {
+          shortlistValue = apiData.is_shortlisted === true;
+        } else if (apiData.shortlisted_id) {
+          shortlistValue = true;
+        } else {
+          shortlistValue = apiData.shortlisted === true || apiData.shortlisted === "true";
+        }
+        setShortlistStatus(shortlistValue);
+
+        // Block status detection
+        let blockValue = false;
+        if (apiData.is_blocked !== undefined) {
+          blockValue = apiData.is_blocked === true;
+        } else if (apiData.blocked_id) {
+          blockValue = true;
+        } else {
+          blockValue = apiData.blocked === true || apiData.blocked === "true";
+        }
+        setBlockStatus(blockValue);
+      }
     }
-  }, [apiData]);
+  }, [apiData, isOwnProfile]);
+
+  // Manual interest status check for other users' profiles
+  useEffect(() => {
+    if (apiData && !isOwnProfile && userId) {
+      const checkInterestStatus = async () => {
+        try {
+          const response = await fetchDataWithTokenV2({
+            url: `/api/recieved/?action_by_id=${userId}&action_on_id=${apiData.id}`,
+            setterFunction: (data) => {
+              let hasInterest = false;
+
+              if (Array.isArray(data)) {
+                hasInterest = data.some(item =>
+                  (item.action_by && item.action_by.id === Number(userId)) ||
+                  (item.action_by_id === Number(userId)) &&
+                  ((item.action_on && item.action_on.id === Number(apiData.id)) ||
+                   (item.action_on_id === Number(apiData.id))) &&
+                  (item.interest === true || item.interest === "true")
+                );
+              } else if (data && typeof data === 'object') {
+                hasInterest = (data.action_by && data.action_by.id === Number(userId)) ||
+                           (data.action_by_id === Number(userId)) &&
+                           ((data.action_on && data.action_on.id === Number(apiData.id)) ||
+                            (data.action_on_id === Number(apiData.id))) &&
+                           (data.interest === true || data.interest === "true");
+              }
+
+              setInterestStatus(hasInterest);
+            },
+            setErrors: (error) => {
+              // Enhanced fallback: Check multiple possible fields
+              const fallbackInterest = apiData.interested_id ||
+                                     apiData.is_interested ||
+                                     apiData.interest ||
+                                     (apiData.received_interests && apiData.received_interests.some(item =>
+                                       item.action_by && item.action_by.id === Number(userId) && item.interest === true
+                                     ));
+
+              setInterestStatus(!!fallbackInterest);
+            }
+          });
+        } catch (error) {
+          // Enhanced fallback
+          const fallbackInterest = apiData.interested_id ||
+                                 apiData.is_interested ||
+                                 apiData.interest ||
+                                 (apiData.received_interests && apiData.received_interests.some(item =>
+                                   item.action_by && item.action_by.id === Number(userId) && item.interest === true
+                                 ));
+
+          setInterestStatus(!!fallbackInterest);
+        }
+      };
+
+      checkInterestStatus();
+    }
+  }, [apiData, isOwnProfile, userId]);
 
   const handleInterest = () => {
+    // Check if already interested using local state
+    if (interestStatus === true) {
+      // Show withdraw confirmation
+      if (window.confirm('Are you sure you want to withdraw your interest?')) {
+        handleWithdrawInterest();
+      }
+      return;
+    }
+
     const payload = {
       action_by_id: userId,
-      action_on_id:apiData.id,
+      action_on_id: apiData.id,
       interest: true
     };
 
@@ -193,15 +307,15 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
     const parameter = {
       url,
       payload,
-      setErrors:setErrors,
+      setErrors: setErrors,
       tofetch: {
         items: [{
           fetchurl: `/api/user/${userId}/`,
           dataset: setApiData,
-          setSuccessMessage:setMessage,
-          setErrors:setErrors
+          setSuccessMessage: setMessage,
+          setErrors: setErrors
         }],
-        setErrors:setErrors
+        setErrors: setErrors
       }
     };
 
@@ -210,54 +324,126 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
     } else {
       postDataWithFetchV2(parameter);
     }
+
+    // Update local state
+    setInterestStatus(true);
+  };
+
+  const handleWithdrawInterest = () => {
+    const payload = {
+      action_by_id: userId,
+      action_on_id: apiData.id,
+      interest: false
+    };
+
+    const url = apiData.interested_id 
+      ? `/api/recieved/${apiData.interested_id}/` 
+      : `/api/recieved/`;
+
+    const parameter = {
+      url,
+      payload,
+      setErrors: setErrors,
+      tofetch: {
+        items: [{
+          fetchurl: `/api/user/${userId}/`,
+          dataset: setApiData,
+          setSuccessMessage: setMessage,
+          setErrors: setErrors
+        }],
+        setErrors: setErrors
+      }
+    };
+
+    if (apiData.interested_id) {
+      putDataWithFetchV2(parameter);
+    } else {
+      postDataWithFetchV2(parameter);
+    }
+
+    // Update local state
+    setInterestStatus(false);
   };
 
   const handleShortlist = () => {
+    // Toggle shortlist status based on current state
+    const newShortlistStatus = !shortlistStatus;
+
     const parameter = {
       url: role === 'agent' ? `/api/agent/shortlist/` : `/api/recieved/`,
       payload: {
         action_by_id: userId,
         action_on_id: apiData.id,
-        shortlisted: true
+        shortlisted: newShortlistStatus
       },
-      setErrors:setErrors,
+      setErrors: setErrors,
       tofetch: {
         items: [{
           fetchurl: `/api/user/${userId}/`,
           dataset: setApiData,
-          setSuccessMessage:setMessage,
-          setErrors:setErrors
+          setSuccessMessage: setMessage,
+          setErrors: setErrors
         }],
-        setErrors:setErrors
+        setErrors: setErrors
       }
     };
+
+    // Show success message near button
+    setShortlistMessage(newShortlistStatus ? 'Added to Shortlist' : 'Removed from Shortlist');
+    setShowShortlistMessage(true);
+
+    // Update local state immediately for better UX
+    setShortlistStatus(newShortlistStatus);
+
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      setShowShortlistMessage(false);
+    }, 3000);
+
     postDataWithFetchV2(parameter);
   };
 
   const handleBlock = () => {
+    // Check if already blocked, if yes then unblock, if no then block
+    const isCurrentlyBlocked = blockStatus;
+
     const parameter = {
-      url: `/api/recieved/`,
+      url: isCurrentlyBlocked ? `/api/recieved/unblock/` : `/api/recieved/block/`,
+      
       payload: {
         action_by_id: userId,
-        action_on_id: apiData.id,
-        blocked: true
+        action_on_id: apiData.id
       },
-      setErrors:setErrors,
+      setErrors: setErrors,
       tofetch: {
         items: [{
-          fetchurl:`/api/user/${userId}/`,
+          fetchurl: `/api/user/${userId}/`,
           dataset: setApiData,
-          setSuccessMessage:setMessage,
-          setErrors:setErrors
+          setSuccessMessage: setMessage,
+          setErrors: setErrors
         }],
-        setErrors:setErrors
+        setErrors: setErrors
       }
     };
+
+    // Show success message near button
+    setBlockMessage(isCurrentlyBlocked ? 'User Unblocked' : 'User Blocked');
+    setShowBlockMessage(true);
+
+    // Update local state immediately for better UX
+    setBlockStatus(!isCurrentlyBlocked);
+
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      setShowBlockMessage(false);
+    }, 3000);
+
     postDataWithFetchV2(parameter);
   };
 
   return (
     <div className='sectionOne'>
+
       <div className='upper'>
         <div style={{ position: "relative" }}>
           <div className='blurImg'></div>
@@ -305,6 +491,9 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
         </div> */}
         
         <div className="matchCard">
+          {isOwnProfile ? (
+            // Show profile completion progress for own profile
+            <>
           <div className="percentMatch">
             <h6 className="cardText">{apiData?.profile_percentage || "0"}% Profile Complete</h6>
           </div>
@@ -371,19 +560,68 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
               );
             })()}
           </div>
+            </>
+          ) : (
+            // Show basic information for other users
+            <div className="basic-info">
+              <div className="basic-info-header">
+                <h6 className="cardText">Basic Information</h6>
+              </div>
+              
+              <div className="basic-info-content">
+                <div className="info-row">
+                  <span className="info-label">Name:</span>
+                  <span className="info-value">{apiData?.name || 'Not provided'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Age:</span>
+                  <span className="info-value">{apiData?.age || 'Not provided'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Location:</span>
+                  <span className="info-value">
+                    {apiData?.city && apiData?.state 
+                      ? `${apiData.city}, ${apiData.state}` 
+                      : apiData?.city || apiData?.state || 'Not provided'
+                    }
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Education:</span>
+                  <span className="info-value">{apiData?.Education || 'Not provided'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Profession:</span>
+                  <span className="info-value">{apiData?.profession || 'Not provided'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Marital Status:</span>
+                  <span className="info-value">{apiData?.martial_status || 'Not provided'}</span>
+                </div>
+                {apiData?.about_you && (
+                  <div className="info-row about-section">
+                    <span className="info-label">About:</span>
+                    <span className="info-value about-text">{apiData.about_you}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           <div className='matchedIcondDiv'>
               {/* Interest Button */}
               <button 
                 className='matchedIcond' 
                 onClick={()=>handleInterest()}
-                style={{ cursor: 'pointer' }}
-              >
+          style={{ cursor: 'pointer', position: 'relative' }}
+        >
+          
+          
                 <svg
                   width="24"
                   height="24"
                   viewBox="0 0 24 24"
-                  fill={apiData?.is_interested===true ? "#ff4081" : "none"}
+            fill={interestStatus === true ? "#ff4081" : "none"}
                   stroke="#ff4081"
                 >
                   <path
@@ -393,15 +631,23 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <p>Interest</p>
+          <p>{interestStatus === true ? "Withdraw" : "Interest"}</p>
               </button>
               
               {/* Shortlist Button */}
-              <button 
-                className='matchedIcond' 
+              <button
+                className='matchedIcond'
                 onClick={()=>handleShortlist()}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', position: 'relative' }}
               >
+                {/* Shortlist Success Message */}
+                {showShortlistMessage && (
+                  <div className="shortlist-message">
+                    {shortlistMessage}
+                  </div>
+                )}
+
+
                 <svg
                   width="21"
                   height="21"
@@ -414,15 +660,23 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
                     fill="#FD2C79"
                   />
                 </svg>
-                <p>{apiData?.is_shortlisted=== true ?"Shortlisted":"Shortlist"}</p>
+                <p>{shortlistStatus === true ?"Shortlisted":"Shortlist"}</p>
               </button>
               
               {/* Block Button */}
-              <button 
-                className='matchedIcond' 
+              <button
+                className='matchedIcond'
                 onClick={()=>handleBlock()}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', position: 'relative' }}
               >
+                {/* Block Success Message */}
+                {showBlockMessage && (
+                  <div className="block-message">
+                    {blockMessage}
+                  </div>
+                )}
+
+
                 <svg
                   width="21"
                   height="20"
@@ -435,7 +689,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors}) => {
                     fill="#FD2C79"
                   />
                 </svg>
-                <p>{apiData?.is_blocked===true?"Blocked":"Ignore"}</p>
+                <p>{blockStatus === true ?"Blocked":"Ignore"}</p>
               </button>
             </div>
 

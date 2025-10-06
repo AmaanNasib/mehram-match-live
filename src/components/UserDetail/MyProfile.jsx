@@ -227,16 +227,11 @@ const UserDetail = () => {
   }, [successMessage]);
 
   const addWatermarkToImage = (file) => {
-    console.log('🚀 WATERMARK FUNCTION CALLED');
     return new Promise((resolve) => {
       if (!file.type.startsWith('image/')) {
-        console.log('File is not an image, skipping watermark');
         resolve(file);
         return;
       }
-
-      console.log('🎨 Starting watermark process for:', file.name, 'Type:', file.type, 'Size:', file.size);
-      alert('Watermark function mein enter kar gaya!');
       
       const img = new Image();
       const logo = new Image();
@@ -249,14 +244,12 @@ const UserDetail = () => {
 
       const onImageLoad = () => {
         imagesLoaded++;
-        console.log(`Images loaded: ${imagesLoaded}/${totalImages}`);
         if (imagesLoaded === totalImages) {
           processImage();
         }
       };
 
       const processImage = () => {
-        console.log('Processing image with watermark...');
         // Set canvas size to image size
         canvas.width = img.width;
         canvas.height = img.height;
@@ -301,11 +294,8 @@ const UserDetail = () => {
         ctx.strokeText('MehramMatch', mainTextX, mainTextY);
         ctx.fillText('MehramMatch', mainTextX, mainTextY);
 
-        
         // Reset opacity
         ctx.globalAlpha = 1.0;
-        
-        console.log('✅ Logo watermark applied successfully');
 
         // Convert canvas to blob
         canvas.toBlob((blob) => {
@@ -313,19 +303,14 @@ const UserDetail = () => {
             type: file.type,
             lastModified: Date.now()
           });
-          console.log('✅ Watermarked file created:', watermarkedFile.name, 'Size:', watermarkedFile.size);
-          console.log('🎯 Watermark type:', logoLoaded ? 'LOGO + TEXT' : 'TEXT ONLY');
-          alert('Watermark canvas se file ban gaya! Size: ' + watermarkedFile.size);
           resolve(watermarkedFile);
         }, file.type, 0.95);
       };
 
       img.onload = () => {
-        console.log('Original image loaded successfully');
         onImageLoad();
       };
       img.onerror = () => {
-        console.error('Error loading image for watermark');
         resolve(file);
       };
 
@@ -352,13 +337,11 @@ const UserDetail = () => {
       };
       
       logo.onload = () => {
-        console.log('Logo loaded successfully from:', logoSources[logoIndex - 1]);
         logoLoaded = true;
         onImageLoad();
       };
       
       logo.onerror = () => {
-        console.log('Logo failed to load from:', logoSources[logoIndex - 1]);
         tryNextLogo();
       };
       
@@ -367,12 +350,9 @@ const UserDetail = () => {
       // Add timeout to prevent hanging
       setTimeout(() => {
         if (imagesLoaded < totalImages) {
-          console.log('⏰ Timeout reached, proceeding with available images');
           if (imagesLoaded === 1) {
-            console.log('🔄 Processing with text watermark only');
             processImage();
           } else {
-            console.log('❌ No images loaded, returning original file');
             resolve(file);
           }
         }
@@ -381,14 +361,11 @@ const UserDetail = () => {
   };
 
   const handleFileSelect = async (event) => {
-    console.log('🎯 FILE SELECT EVENT TRIGGERED');
     const files = Array.from(event.target.files);
-    console.log('📁 Selected files:', files.length);
     
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
       const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
-      console.log(`File: ${file.name}, Type: ${file.type}, Size: ${file.size}, Valid: ${isValidType && isValidSize}`);
       return isValidType && isValidSize;
     });
 
@@ -396,34 +373,25 @@ const UserDetail = () => {
       alert('Kuch files invalid hain. Sirf images aur videos allow hain aur maximum size 10MB hai.');
     }
 
-    console.log('🔄 Starting watermark processing...');
     // Add watermark to images
     setProcessingWatermark(true);
     const processedFiles = [];
     
     for (const file of validFiles) {
       if (file.type.startsWith('image/')) {
-        console.log('🖼️ Adding watermark to:', file.name, 'Type:', file.type, 'Size:', file.size);
-        alert('Watermark function call kar raha hun...');
         try {
           const watermarkedFile = await addWatermarkToImage(file);
-          console.log('✅ Watermark added successfully. New size:', watermarkedFile.size);
-          alert('Watermark successfully add ho gaya!');
           processedFiles.push(watermarkedFile);
         } catch (error) {
-          console.error('❌ Watermark failed:', error);
-          alert('Watermark failed: ' + error.message);
           processedFiles.push(file);
         }
       } else {
-        console.log('📹 Video file, no watermark needed:', file.name);
         processedFiles.push(file);
       }
     }
 
     setProcessingWatermark(false);
     setSelectedFiles(processedFiles);
-    console.log('🎉 Watermark processing complete. Files ready for upload:', processedFiles.length);
   };
 
   const handleUpload = () => {
@@ -444,8 +412,6 @@ const UserDetail = () => {
       url: '/api/user/add_photo/',
       setUserId: () => {
         // Success callback
-        console.log('File uploaded successfully');
-        
         if (selectedFiles.length > 1) {
           // Upload remaining files
           uploadRemainingFiles(1);
@@ -462,7 +428,6 @@ const UserDetail = () => {
       },
       formData: formData,
       setErrors: (error) => {
-        console.error('Upload error:', error);
         alert('Upload mein koi problem aayi. Please try again.');
         setUploading(false);
       },
@@ -493,12 +458,10 @@ const UserDetail = () => {
     const parameter = {
       url: '/api/user/add_photo/',
       setUserId: () => {
-        console.log(`File ${index + 1} uploaded successfully`);
         uploadRemainingFiles(index + 1);
       },
       formData: formData,
       setErrors: (error) => {
-        console.error(`Upload error for file ${index + 1}:`, error);
         alert('Upload mein koi problem aayi. Please try again.');
         setUploading(false);
       },
@@ -594,7 +557,7 @@ const UserDetail = () => {
     <div>
       <Header />
       <div className="section-container">
-        <UserSetionOne apiData={apiData} />
+        <UserSetionOne apiData={apiData} profileOwnerId={userId} />
         <div className="secondSection">
           <div className="extra">
             <UserDetailSecondMyProfile  formData={formData}   apiData={apiData}  updateData={updateData} handleFieldChange={handleFieldChange}/>
