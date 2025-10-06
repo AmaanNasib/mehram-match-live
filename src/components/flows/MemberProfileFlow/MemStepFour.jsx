@@ -150,19 +150,28 @@ const MemStepFour = () => {
   ];
 
   const [profileData, setProfileData] = useState({
-    preferred_surname: "",
+    preferred_surname: [],
     preferred_dargah_fatiha_niyah: [],
-    preferred_sect: "",
-    desired_practicing_level: "",
+    preferred_sect: [],
+    desired_practicing_level: [],
     preferred_city_state: "",
-    preferred_family_type: "",
+    preferred_family_type: [],
     preferred_family_background: "",
-    preferred_education: "",
-    preferred_occupation_profession: "",
+    preferred_education: [],
+    preferred_occupation_profession: [],
     preferred_city: "",
     preferred_country: "",
     preferred_state: "",
   });
+  const ensureArray = (v) => {
+    if (!v && v !== 0) return [];
+    if (Array.isArray(v)) return v;
+    if (typeof v === 'string') {
+      if (v.includes(',')) return v.split(',').map(s => s.trim()).filter(Boolean);
+      return v ? [v] : [];
+    }
+    return [String(v)];
+  };
 
   // useEffect(() => {
   //   setTimeout(() => {
@@ -183,24 +192,18 @@ const MemStepFour = () => {
   useEffect(() => {
     if (apiData) {
       setProfileData({
-        preferred_surname: apiData.preferred_surname,
-        preferred_dargah_fatiha_niyah: apiData.preferred_dargah_fatiha_niyah ? 
-          (Array.isArray(apiData.preferred_dargah_fatiha_niyah) ? 
-            apiData.preferred_dargah_fatiha_niyah : 
-            (typeof apiData.preferred_dargah_fatiha_niyah === 'string' && apiData.preferred_dargah_fatiha_niyah.includes(',')) ?
-            apiData.preferred_dargah_fatiha_niyah.split(',') :
-            [apiData.preferred_dargah_fatiha_niyah]) : [],
-        preferred_sect: apiData.preferred_sect,
-        desired_practicing_level: apiData.desired_practicing_level,
+        preferred_surname: ensureArray(apiData.preferred_surname),
+        preferred_dargah_fatiha_niyah: ensureArray(apiData.preferred_dargah_fatiha_niyah),
+        preferred_sect: ensureArray(apiData.preferred_sect),
+        desired_practicing_level: ensureArray(apiData.desired_practicing_level),
         preferred_city_state: apiData.preferred_city_state,
-        preferred_family_type: apiData.preferred_family_type,
+        preferred_family_type: ensureArray(apiData.preferred_family_type),
         preferred_family_background: apiData.preferred_family_background,
-        preferred_education: apiData.preferred_education,
+        preferred_education: ensureArray(apiData.preferred_education),
         preferred_city: apiData.preferred_city,
         preferred_country: apiData.preferred_country,
         preferred_state: apiData.preferred_state,
-        preferred_occupation_profession:
-          apiData.preferred_occupation_profession,
+        preferred_occupation_profession: ensureArray(apiData.preferred_occupation_profession),
       });
     }
   }, [apiData]);
@@ -238,19 +241,22 @@ const MemStepFour = () => {
   }, [showTooltip]);
 
   const validateForm = () => {
-    // Check if any field is filled
-    const hasAnyFieldFilled = 
-      profileData.preferred_surname?.trim() ||
-      profileData.preferred_sect?.trim() ||
-      (profileData.preferred_dargah_fatiha_niyah && profileData.preferred_dargah_fatiha_niyah.length > 0) ||
-      profileData.desired_practicing_level?.trim() ||
-      profileData.preferred_family_type?.trim() ||
-      profileData.preferred_family_background?.trim() ||
-      profileData.preferred_education?.trim() ||
-      profileData.preferred_occupation_profession?.trim() ||
-      profileData.preferred_country?.trim() ||
-      profileData.preferred_state?.trim() ||
-      profileData.preferred_city?.trim();
+    const isNonEmptyArray = (v) => ensureArray(v).length > 0;
+    const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
+
+    // Check if any field is filled (arrays or strings)
+    const hasAnyFieldFilled =
+      isNonEmptyArray(profileData.preferred_surname) ||
+      isNonEmptyArray(profileData.preferred_sect) ||
+      isNonEmptyArray(profileData.preferred_dargah_fatiha_niyah) ||
+      isNonEmptyArray(profileData.desired_practicing_level) ||
+      isNonEmptyArray(profileData.preferred_family_type) ||
+      isNonEmptyString(profileData.preferred_family_background) ||
+      isNonEmptyArray(profileData.preferred_education) ||
+      isNonEmptyArray(profileData.preferred_occupation_profession) ||
+      isNonEmptyString(profileData.preferred_country) ||
+      isNonEmptyString(profileData.preferred_state) ||
+      isNonEmptyString(profileData.preferred_city);
 
     // If no field is filled, show skip popup
     if (!hasAnyFieldFilled) {
@@ -277,18 +283,16 @@ const MemStepFour = () => {
     const parameters = {
       url: `/api/user/${userId}`,
       payload: {
-        preferred_surname: profileData.preferred_surname,
-        preferred_dargah_fatiha_niyah: Array.isArray(profileData.preferred_dargah_fatiha_niyah) 
-          ? profileData.preferred_dargah_fatiha_niyah.join(',') 
-          : profileData.preferred_dargah_fatiha_niyah,
-        preferred_sect: profileData.preferred_sect,
-        desired_practicing_level: profileData.desired_practicing_level,
+        preferred_surname: ensureArray(profileData.preferred_surname),
+        preferred_dargah_fatiha_niyah: ensureArray(profileData.preferred_dargah_fatiha_niyah),
+        preferred_sect: ensureArray(profileData.preferred_sect),
+        desired_practicing_level: ensureArray(profileData.desired_practicing_level),
         preferred_city_state: profileData.preferred_city_state,
-        preferred_family_type: profileData.preferred_family_type,
+        preferred_family_type: ensureArray(profileData.preferred_family_type),
         preferred_family_background: profileData.preferred_family_background,
-        preferred_education: profileData.preferred_education,
+        preferred_education: ensureArray(profileData.preferred_education),
         preferred_occupation_profession:
-          profileData.preferred_occupation_profession,
+          ensureArray(profileData.preferred_occupation_profession),
         preferred_city: profileData.preferred_city,
         preferred_country: profileData.preferred_country,
         preferred_state: profileData.preferred_state,
@@ -308,8 +312,8 @@ const MemStepFour = () => {
   const updateField = (field, value) => {
     setProfileData((prevState) => {
       const newState = {
-      ...prevState,
-      [field]: value,
+        ...prevState,
+        [field]: value,
       };
 
       // Handle cascading dropdown logic for preferred location
@@ -338,7 +342,7 @@ const MemStepFour = () => {
 
   const handleMultiSelectChange = (field, value) => {
     setProfileData((prevState) => {
-      const currentValues = prevState[field] || [];
+      const currentValues = Array.isArray(prevState[field]) ? prevState[field] : ensureArray(prevState[field]);
       const newValues = currentValues.includes(value)
         ? currentValues.filter(item => item !== value)
         : [...currentValues, value];
@@ -373,32 +377,115 @@ const MemStepFour = () => {
   };
 
   // Dropdown component
-  const Dropdown = ({ options, name, value, onChange, disabled = false }) => {
+  const Dropdown = ({ options, name, value, onChange, disabled = false, multiple = false, hint }) => {
   return (
       <div className="relative">
         <select
           name={name}
-          value={value || ""}
-          onChange={onChange}
+          value={multiple ? ensureArray(value) : (value || "")}
+          onChange={(e) => {
+            if (multiple) {
+              const selected = Array.from(e.target.selectedOptions).map(o => o.value);
+              onChange({ target: { name, value: selected } });
+            } else {
+              onChange(e);
+            }
+          }}
           disabled={disabled}
-          className={`w-full h-12 px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none ${
+          multiple={multiple}
+          size={multiple ? 6 : undefined}
+          className={`w-full ${multiple ? 'h-24' : 'h-12'} px-4 pr-10 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium ${multiple ? '' : 'appearance-none'} ${
             disabled 
               ? "bg-gray-100 cursor-not-allowed" 
               : "bg-white cursor-pointer"
           }`}
         >
-          <option value="">Select an option</option>
+          {!multiple && <option value="">Select an option</option>}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-</svg>
-</div>
+        {!multiple && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        )}
+        {hint && <p className="text-xs text-gray-500 mt-1">{hint}</p>}
+      </div>
+    );
+  };
+
+  // Selected chips renderer for a more professional look
+  const SelectedChips = ({ field, values, options }) => {
+    const pills = ensureArray(values);
+    if (pills.length === 0) return null;
+    const labelFor = (val) => {
+      if (!options || options.length === 0) return val;
+      const found = options.find(o => o.value === val);
+      return found ? found.label : val;
+    };
+    return (
+      <div className="flex flex-wrap gap-2 mt-3">
+        {pills.map((v) => (
+          <span
+            key={`${field}-${v}`}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#FFE6F3] text-[#CB3B8B] border border-[#FFC0E3] shadow-sm"
+          >
+            {labelFor(v)}
+            <button
+              type="button"
+              aria-label="Remove"
+              className="text-[#CB3B8B] hover:text-[#A72B76]"
+              onClick={() => handleMultiSelectChange(field, v)}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  // Professional multi-select with search + checkbox list
+  const MultiSelectDropdown = ({ name, values, options, placeholder = 'Search…' }) => {
+    const [query, setQuery] = useState('');
+    const normalized = ensureArray(values);
+    const filtered = options.filter(o => o.label.toLowerCase().includes(query.toLowerCase()));
+
+    const toggle = (val) => handleMultiSelectChange(name, val);
+
+    return (
+      <div className="border border-gray-300 rounded-xl p-3 bg-white shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/></svg>
+          <input
+            className="w-full text-sm px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e)=>setQuery(e.target.value)}
+          />
+        </div>
+        <div className="max-h-44 overflow-auto pr-1 custom-scrollbar">
+          {filtered.length === 0 && (
+            <div className="text-xs text-gray-500 py-2">No options</div>
+          )}
+          {filtered.map(opt => {
+            const checked = normalized.includes(opt.value);
+            return (
+              <label key={opt.value} className="flex items-center justify-between gap-3 text-sm px-2 py-1.5 rounded-lg cursor-pointer hover:bg-pink-50">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" checked={checked} onChange={()=>toggle(opt.value)} className="text-pink-600 focus:ring-[#CB3B8B] rounded"/>
+                  <span className="text-gray-700">{opt.label}</span>
+                </div>
+                {checked && <span className="text-[10px] bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full border border-pink-200">Selected</span>}
+              </label>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -1240,12 +1327,13 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <Dropdown
-                          options={surnameOptions}
+                        <MultiSelectDropdown
                           name="preferred_surname"
-                          value={profileData.preferred_surname}
-                          onChange={(e) => updateField("preferred_surname", e.target.value)}
+                          values={profileData.preferred_surname}
+                          options={surnameOptions}
+                          placeholder="Search surnames..."
                         />
+                        <SelectedChips field="preferred_surname" values={profileData.preferred_surname} options={surnameOptions} />
                 </div>
 
                       {/* Preferred Sect */}
@@ -1271,12 +1359,13 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <Dropdown
-                          options={sectOptions}
+                        <MultiSelectDropdown
                           name="preferred_sect"
-                          value={profileData.preferred_sect}
-                          onChange={(e) => updateField("preferred_sect", e.target.value)}
+                          values={profileData.preferred_sect}
+                          options={sectOptions}
+                          placeholder="Search sects..."
                         />
+                        <SelectedChips field="preferred_sect" values={profileData.preferred_sect} options={sectOptions} />
                         {formErrors.preferred_sect && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_sect}</p>
                   )}
@@ -1339,12 +1428,13 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <Dropdown
-                          options={practicingLevelOptions}
+                        <MultiSelectDropdown
                           name="desired_practicing_level"
-                          value={profileData.desired_practicing_level}
-                          onChange={(e) => updateField("desired_practicing_level", e.target.value)}
+                          values={profileData.desired_practicing_level}
+                          options={practicingLevelOptions}
+                          placeholder="Search levels..."
                         />
+                        <SelectedChips field="desired_practicing_level" values={profileData.desired_practicing_level} options={practicingLevelOptions} />
                         {formErrors.desired_practicing_level && (
                           <p className="text-red-500 text-sm">{formErrors.desired_practicing_level}</p>
                   )}
@@ -1375,12 +1465,13 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <Dropdown
-                          options={familyTypeOptions}
+                        <MultiSelectDropdown
                           name="preferred_family_type"
-                          value={profileData.preferred_family_type}
-                          onChange={(e) => updateField("preferred_family_type", e.target.value)}
+                          values={profileData.preferred_family_type}
+                          options={familyTypeOptions}
+                          placeholder="Search family types..."
                         />
+                        <SelectedChips field="preferred_family_type" values={profileData.preferred_family_type} options={familyTypeOptions} />
                         {formErrors.preferred_family_type && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_family_type}</p>
                   )}
@@ -1409,12 +1500,13 @@ const MemStepFour = () => {
                       </div>
                     </div>
                         </label>
-                        <Dropdown
-                          options={educationOptions}
+                        <MultiSelectDropdown
                           name="preferred_education"
-                          value={profileData.preferred_education}
-                          onChange={(e) => updateField("preferred_education", e.target.value)}
+                          values={profileData.preferred_education}
+                          options={educationOptions}
+                          placeholder="Search education..."
                         />
+                        <SelectedChips field="preferred_education" values={profileData.preferred_education} options={educationOptions} />
                 </div>
               </div>
 
@@ -1442,12 +1534,13 @@ const MemStepFour = () => {
                       </div>
                           </div>
                         </label>
-                        <Dropdown
-                          options={professionOptions}
+                        <MultiSelectDropdown
                           name="preferred_occupation_profession"
-                          value={profileData.preferred_occupation_profession}
-                          onChange={(e) => updateField("preferred_occupation_profession", e.target.value)}
+                          values={profileData.preferred_occupation_profession}
+                          options={professionOptions}
+                          placeholder="Search professions..."
                         />
+                        <SelectedChips field="preferred_occupation_profession" values={profileData.preferred_occupation_profession} options={professionOptions} />
                     </div>
                   </div>
                 </div>
