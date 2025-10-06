@@ -1641,7 +1641,7 @@ const TotalRequests = () => {
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <img 
                         src={user?.user?.profile_photo
-                          ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${user.user.profile_photo}`
+                          ? `${process.env.REACT_APP_API_URL}${user.user.profile_photo}`
                           : `data:image/svg+xml;utf8,${encodeURIComponent(
                               user?.user?.gender === "male"
                                 ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

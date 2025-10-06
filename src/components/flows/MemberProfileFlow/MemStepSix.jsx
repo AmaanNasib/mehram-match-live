@@ -14,6 +14,7 @@ import ProfileSection from "../../sections/ProfileSection";
 import StepTracker from "../../StepTracker/StepTracker";
 import findUser from "../../../images/findUser.svg";
 import { fetchDataObjectV2 } from "../../../apiUtils";
+import api from "../../../api";
 
 const MemStepSix = () => {
   const navigate = useNavigate();
@@ -161,14 +162,44 @@ const MemStepSix = () => {
     }));
   };
 
-  const naviagteNextStep = () => {
+  const naviagteNextStep = async () => {
     // Check if terms are accepted
     if (!termsAccepted) {
       alert("Please accept the Terms and Conditions to continue.");
       return;
     }
     
-    // Navigate to dashboard or success page
+    // Persist T&C acceptance on backend
+    try {
+      const uid = localStorage.getItem("member_id") || userId;
+      await api.put(`/api/user/${uid}/`, { terms_condition: true });
+    } catch (e) {
+      // ignore, we'll still attempt completion check
+    }
+
+    // Check backend for any remaining incomplete step before finalizing
+    try {
+      const uid = localStorage.getItem("member_id") || userId;
+      const { data } = await api.get(`/api/user/next_incomplete_step/`, { params: { user_id: uid } });
+      // Expected: null/empty if complete, or an object/string indicating next step
+      if (data && (data.step || data.path || data.url || typeof data === 'string')) {
+        const target = data.step || data.path || data.url || String(data);
+        // Basic normalization for known steps
+        const normalized = target.toLowerCase();
+        if (normalized.includes('stepfour')) return navigate(`/memstepfour/${localStorage.getItem("member_id") || userId}`);
+        if (normalized.includes('stepfive')) return navigate(`/memstepfive/${localStorage.getItem("member_id") || userId}`);
+        if (normalized.includes('stepthree')) return navigate(`/memstepthree/${localStorage.getItem("member_id") || userId}`);
+        if (normalized.includes('steptwo')) return navigate(`/memsteptwo/${localStorage.getItem("member_id") || userId}`);
+        if (normalized.includes('stepone')) return navigate(`/memstepone/${localStorage.getItem("member_id") || userId}`);
+        // Fallback: stay on current page but show hint
+        alert('Some profile details are still pending. Please review previous steps.');
+        return;
+      }
+    } catch (e) {
+      // If API not available, proceed normally
+    }
+
+    // If everything is complete, navigate to dashboard or success page
     navigate(`/newdashboard`);
   };
 

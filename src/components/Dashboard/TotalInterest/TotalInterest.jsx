@@ -1183,7 +1183,7 @@ const TotalInterest = () => {
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <img 
                           src={userData?.profile_photo
-                            ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${userData.profile_photo}`
+                            ? `${process.env.REACT_APP_API_URL}${userData.profile_photo}`
                             : `data:image/svg+xml;utf8,${encodeURIComponent(
                                 userData?.gender === "male"
                                   ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

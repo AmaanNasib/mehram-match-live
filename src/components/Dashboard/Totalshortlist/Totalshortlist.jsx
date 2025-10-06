@@ -997,7 +997,7 @@ const TotalShortlist = () => {
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <img 
                       src={match?.user?.profile_photo
-                        ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${match.user.profile_photo}`
+                        ? `${process.env.REACT_APP_API_URL}${match.user.profile_photo}`
                         : `data:image/svg+xml;utf8,${encodeURIComponent(
                             match?.user?.gender === "male"
                               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

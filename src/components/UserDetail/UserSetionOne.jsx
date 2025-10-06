@@ -454,7 +454,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
               <img 
                 src={
                     apiData?.profile_photo
-                      ? `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}${apiData.profile_photo}`
+                      ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo}`
                       : `data:image/svg+xml;utf8,${encodeURIComponent(
                           apiData?.gender === "male"
                             ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
@@ -614,7 +614,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
                 className='matchedIcond' 
                 onClick={()=>handleInterest()}
           style={{ cursor: 'pointer', position: 'relative' }}
-              >
+        >
           
           
                 <svg
@@ -635,8 +635,8 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
               </button>
               
               {/* Shortlist Button */}
-              <button 
-                className='matchedIcond' 
+              <button
+                className='matchedIcond'
                 onClick={()=>handleShortlist()}
                 style={{ cursor: 'pointer', position: 'relative' }}
               >

@@ -1138,7 +1138,7 @@ const ProfileCard = ({ profile, themeColor, onInterest, onShortlist, onChat, onP
   const [isInterested, setIsInterested] = useState(false);
   
   // API Base URL for image handling
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com';
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   // Extract profile data with fallbacks - Enhanced for database compatibility
   const profileName = profile.name || profile.first_name || profile.username || profile.full_name || "Unknown User";
@@ -1903,7 +1903,7 @@ const MobileDashboard = () => {
   const role = localStorage.getItem("role");
 
   // API Base URL
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com';
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
 
   // Debug logging
   console.log("MobileDashboard Debug:", {

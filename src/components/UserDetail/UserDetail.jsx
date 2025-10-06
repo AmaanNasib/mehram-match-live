@@ -298,7 +298,7 @@ const UserDetail = () => {
       console.log('Checking photo request status for:', { currentUserId, targetUserId });
       
       // Try multiple endpoints for photo request status
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://192.168.0.102:8000';
+      const baseUrl = process.env.REACT_APP_API_URL;
       const endpoints = [
         `${baseUrl}/api/user/photo-request/?user_id=${targetUserId}`,
         `${baseUrl}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`,
@@ -430,7 +430,7 @@ const UserDetail = () => {
     
     try {
       // Try to get data from the recieved endpoint which might have the photo request data
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://192.168.0.102:8000';
+      const baseUrl = process.env.REACT_APP_API_URL;
       const response = await fetch(`${baseUrl}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${apiData.id}`, {
         method: 'GET',
         headers: {
@@ -512,7 +512,7 @@ const UserDetail = () => {
 
     console.log('🧪 Testing all photo request APIs...');
     
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://192.168.0.102:8000';
+    const baseUrl = process.env.REACT_APP_API_URL;
     const testEndpoints = [
       `${baseUrl}/api/user/photo-request/?user_id=${apiData.id}`,
       `${baseUrl}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${apiData.id}`,
@@ -726,9 +726,24 @@ const UserDetail = () => {
   const [partnerdit, setPartnerEdit] = useState(true);
 
   const updateData = () => {
+    const toArray = (value) => {
+      if (value == null) return [];
+      if (Array.isArray(value)) return value.filter((v) => v != null && v !== "");
+      return [value];
+    };
+
+    const normalizedPayload = {
+      ...formData,
+      preferred_city: toArray(formData.preferred_city),
+      preferred_state: toArray(formData.preferred_state),
+      preferred_country: toArray(formData.preferred_country),
+      preferred_family_background:
+        formData.preferred_family_background == null ? "" : formData.preferred_family_background,
+    };
+
     const parameters = {
       url: `/api/user/${formData.id}`,
-      payload: formData,
+      payload: normalizedPayload,
       tofetch: {
         items: [
           {

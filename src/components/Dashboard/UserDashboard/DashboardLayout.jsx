@@ -743,11 +743,11 @@ const DashboardLayout = ({
               {console.log("profile_photo:", apiData?.profile_photo)}
               {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
               {console.log("user_profilephoto:", apiData?.user_profilephoto)}
-              {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
+              {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
               <img
                 src={
                   (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
-                    ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
+                    ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
                     : `data:image/svg+xml;utf8,${encodeURIComponent(
                         apiData?.gender === "male"
                           ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

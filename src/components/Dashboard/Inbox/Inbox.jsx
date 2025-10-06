@@ -13,6 +13,7 @@ import {
 import { MdEdit } from "react-icons/md";
 import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
+import api from "../../../api";
 import axios from "axios";
 import { convertDateTime } from "../../../apiUtils";
 import ContextMenu from "./ContextMenu";
@@ -155,16 +156,13 @@ const Inbox = () => {
     try {
       const receiverId = recentUsers[selectedMessage]?.id;
       if (!receiverId) return;
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/recieved/`,
+      await api.post(
+        `/api/recieved/`,
         {
           action_by_id: userId,
           action_on_id: receiverId,
           blocked: true,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       setErrors('User blocked');
     } catch (err) {
@@ -179,17 +177,14 @@ const Inbox = () => {
     try {
       const receiverId = recentUsers[selectedMessage]?.id;
       if (!receiverId) return;
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/recieved/`,
+      await api.post(
+        `/api/recieved/`,
         {
           action_by_id: userId,
           action_on_id: receiverId,
           blocked: true,
           status: 'Reported',
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       setErrors('User reported');
     } catch (err) {
@@ -217,13 +212,8 @@ const Inbox = () => {
   useEffect(() => {
   const fetchRecentUsers = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/chats/recent-users/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.get(
+        `/api/chats/recent-users/`
       );
         // Filter users who have at least one message
         let usersWithMessages = response.data.filter(
@@ -233,13 +223,8 @@ const Inbox = () => {
         // If a specific user is requested but not present in list, fetch and include them
         if (requestedOpenUserId && !usersWithMessages.some(u => u.id === Number(requestedOpenUserId))) {
           try {
-            const userResp = await axios.get(
-              `${process.env.REACT_APP_API_URL}/api/user/${requestedOpenUserId}/`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
+            const userResp = await api.get(
+              `/api/user/${requestedOpenUserId}/`
             );
             const u = userResp.data || {};
             usersWithMessages = [
@@ -351,15 +336,9 @@ const Inbox = () => {
 
     // Update on backend with PATCH method
     try {
-      const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/api/chats/${receiverId}/mark-read/`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
+      const response = await api.post(
+        `/api/chats/${receiverId}/mark-read/`,
+        {}
       );
       console.log(`✓ Backend synced: ${response.data.messages_marked_read} messages marked as read`);
     } catch (error) {
@@ -371,13 +350,8 @@ const Inbox = () => {
 
   const fetchUserInteraction = async (receiverId) => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/chats/${receiverId}/messages/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.get(
+        `/api/chats/${receiverId}/messages/`
       );
       console.log("📩 Messages received:", response.data);
       // Log to check if file field exists
@@ -490,18 +464,12 @@ const Inbox = () => {
     try {
       // If only text message, send as JSON
       if (selectedImages.length === 0) {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/user/messages/`,
+      await api.post(
+        `/api/user/messages/`,
         {
           receiver_id: receiverId,
           content: newMessage,
         },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
         );
       } else {
         // Send each image as a separate message (WhatsApp style)
@@ -513,15 +481,10 @@ const Inbox = () => {
           formData.append('content', i === 0 ? messageContent : '📷 Photo');
           formData.append('file', selectedImages[i]);
 
-          await axios.post(
-            `${process.env.REACT_APP_API_URL}/api/user/messages/`,
+          await api.post(
+            `/api/user/messages/`,
             formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        );
         }
         
         console.log(`✅ Sent ${selectedImages.length} images`);
@@ -898,10 +861,7 @@ const Inbox = () => {
                       <img
                         src={
                           user.profile_photo
-                            ? `${
-                                process.env.REACT_APP_API_URL ||
-                                "http://localhost:8000"
-                              }${user.profile_photo}`
+                            ? `${process.env.REACT_APP_API_URL}${user.profile_photo}`
                           : `data:image/svg+xml;utf8,${encodeURIComponent(
                               user?.gender === "male"
                                 ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">

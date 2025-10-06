@@ -159,9 +159,10 @@ const MemStepFour = () => {
     preferred_family_background: "",
     preferred_education: [],
     preferred_occupation_profession: [],
-    preferred_city: "",
+    preferred_city: [],
     preferred_country: "",
-    preferred_state: "",
+    preferred_state: [],
+    cultural_background: "",
   });
   const ensureArray = (v) => {
     if (!v && v !== 0) return [];
@@ -200,10 +201,11 @@ const MemStepFour = () => {
         preferred_family_type: ensureArray(apiData.preferred_family_type),
         preferred_family_background: apiData.preferred_family_background,
         preferred_education: ensureArray(apiData.preferred_education),
-        preferred_city: apiData.preferred_city,
+        preferred_city: ensureArray(apiData.preferred_city),
         preferred_country: apiData.preferred_country,
-        preferred_state: apiData.preferred_state,
+        preferred_state: ensureArray(apiData.preferred_state),
         preferred_occupation_profession: ensureArray(apiData.preferred_occupation_profession),
+        cultural_background: apiData.cultural_background || "",
       });
     }
   }, [apiData]);
@@ -255,8 +257,8 @@ const MemStepFour = () => {
       isNonEmptyArray(profileData.preferred_education) ||
       isNonEmptyArray(profileData.preferred_occupation_profession) ||
       isNonEmptyString(profileData.preferred_country) ||
-      isNonEmptyString(profileData.preferred_state) ||
-      isNonEmptyString(profileData.preferred_city);
+      isNonEmptyArray(profileData.preferred_state) ||
+      isNonEmptyArray(profileData.preferred_city);
 
     // If no field is filled, show skip popup
     if (!hasAnyFieldFilled) {
@@ -289,13 +291,14 @@ const MemStepFour = () => {
         desired_practicing_level: ensureArray(profileData.desired_practicing_level),
         preferred_city_state: profileData.preferred_city_state,
         preferred_family_type: ensureArray(profileData.preferred_family_type),
-        preferred_family_background: profileData.preferred_family_background,
+        preferred_family_background: ensureArray(profileData.preferred_family_background),
         preferred_education: ensureArray(profileData.preferred_education),
         preferred_occupation_profession:
           ensureArray(profileData.preferred_occupation_profession),
-        preferred_city: profileData.preferred_city,
-        preferred_country: profileData.preferred_country,
-        preferred_state: profileData.preferred_state,
+        preferred_city: ensureArray(profileData.preferred_city),
+        preferred_country: ensureArray(profileData.preferred_country),
+        preferred_state: ensureArray(profileData.preferred_state),
+        cultural_background: profileData.cultural_background || "",
       },
       navigate: navigate,
       navUrl: `/memstepfive`,
@@ -319,11 +322,11 @@ const MemStepFour = () => {
       // Handle cascading dropdown logic for preferred location
       if (field === 'preferred_country') {
         // Reset state and city when country changes
-        newState.preferred_state = '';
-        newState.preferred_city = '';
+        newState.preferred_state = [];
+        newState.preferred_city = [];
       } else if (field === 'preferred_state') {
         // Reset city when state changes
-        newState.preferred_city = '';
+        newState.preferred_city = [];
       }
 
       return newState;
@@ -1236,9 +1239,22 @@ const MemStepFour = () => {
     }));
   };
 
-  const getCities = (country, state) => {
-    if (!country || !state || !locationData[country] || !locationData[country].states[state]) return [];
-    return locationData[country].states[state].cities;
+  const getCities = (country, states) => {
+    if (!country || !states || !locationData[country]) return [];
+    const stateKeys = Array.isArray(states) ? states : [states];
+    const all = [];
+    for (const s of stateKeys) {
+      if (s && locationData[country].states[s]) {
+        all.push(...(locationData[country].states[s].cities || []));
+      }
+    }
+    // de-duplicate by value
+    const seen = new Set();
+    return all.filter((c) => {
+      if (seen.has(c.value)) return false;
+      seen.add(c.value);
+      return true;
+    });
   };
 
   return (
@@ -1589,7 +1605,7 @@ const MemStepFour = () => {
                         )}
                     </div>
 
-                      {/* State */}
+                      {/* State (Multi-select) */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                           <span>State</span>
@@ -1612,18 +1628,19 @@ const MemStepFour = () => {
                           </div>
                         </div>
                         </label>
-                        <Dropdown
-                          options={getStates(profileData.preferred_country)}
+                        <MultiSelectDropdown
                           name="preferred_state"
-                          value={profileData.preferred_state}
-                          onChange={(e) => updateField("preferred_state", e.target.value)}
+                          values={profileData.preferred_state}
+                          options={getStates(profileData.preferred_country)}
+                          placeholder="Search states..."
                         />
+                        <SelectedChips field="preferred_state" values={profileData.preferred_state} options={getStates(profileData.preferred_country)} />
                         {formErrors.preferred_state && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_state}</p>
                         )}
                     </div>
 
-                      {/* City */}
+                      {/* City (Multi-select) */}
                       <div className="space-y-2">
                         <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                           <span>City</span>
@@ -1646,12 +1663,13 @@ const MemStepFour = () => {
                           </div>
                         </div>
                         </label>
-                        <Dropdown
-                          options={getCities(profileData.preferred_country, profileData.preferred_state)}
+                        <MultiSelectDropdown
                           name="preferred_city"
-                          value={profileData.preferred_city}
-                          onChange={(e) => updateField("preferred_city", e.target.value)}
+                          values={profileData.preferred_city}
+                          options={getCities(profileData.preferred_country, profileData.preferred_state)}
+                          placeholder="Search cities..."
                         />
+                        <SelectedChips field="preferred_city" values={profileData.preferred_city} options={getCities(profileData.preferred_country, profileData.preferred_state)} />
                         {formErrors.preferred_city && (
                           <p className="text-red-500 text-sm">{formErrors.preferred_city}</p>
                         )}
@@ -1699,7 +1717,22 @@ const MemStepFour = () => {
                         className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
                         onChange={(e) => updateField("preferred_family_background", e.target.value)}
                       />
-                  </div>
+                </div>
+
+                {/* Cultural Background (Self) */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">Your Cultural Background</label>
+                  <input
+                    type="text"
+                    name="cultural_background"
+                    value={profileData.cultural_background || ""}
+                    placeholder="e.g., Pathan, Barelvi, etc."
+                    className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium"
+                    onChange={(e) => updateField("cultural_background", e.target.value)}
+                  />
+                </div>
+
+                
                 </div>
                   {/* Navigation Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">

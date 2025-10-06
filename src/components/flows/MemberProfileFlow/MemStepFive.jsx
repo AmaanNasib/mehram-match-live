@@ -126,9 +126,9 @@ const MemStepFive = () => {
     const formData = new FormData();
     formData.append('upload_photo', image);
     formData.append('user_id', userId);
-    let updateurl = `/api/user_profilephoto/${imagedata?.[imagedata.length - 1]?.id}/`
+    let updateurl = `/api/user/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`
     const parameter = {
-      url: `${profileData.upload_photo ? updateurl : '/api/user_profilephoto/'}`,
+      url: `${profileData.upload_photo ? updateurl : '/api/user/profile_photo/'}`,
       setUserId: setImagedateset,
       formData: formData,
       setErrors: setError,
@@ -155,7 +155,7 @@ const MemStepFive = () => {
         setLoading: setLoading,
       };
       const parameter1 = {
-        url: `/api/user_profilephoto/?user_id=${userId}`,
+        url: `/api/user/profile_photo/?user_id=${userId}`,
         setterFunction: setImagedateset,
         setErrors: setError,
         setLoading: setLoading,

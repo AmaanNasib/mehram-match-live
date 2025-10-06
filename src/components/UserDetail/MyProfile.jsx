@@ -7,6 +7,7 @@ import UserDetailThird from "./UserDetailThird";
 import men from "../../images/men1.jpg"
 
 import { useState, useEffect } from "react";
+import { deletePhoto as apiDeletePhoto } from "../../services/mmApi";
 import { justUpdateDataV2, fetchDataObjectV2, fetchDataWithTokenV2, ReturnResponseFormdataWithoutToken } from "../../apiUtils";
 import { useParams } from "react-router-dom";
 const UserDetail = () => {
@@ -196,9 +197,26 @@ const UserDetail = () => {
   const [photoToDelete, setPhotoToDelete] = useState(null);
 
   const updateData = () => {
+    const toArray = (value) => {
+      if (value == null) return [];
+      if (Array.isArray(value)) return value.filter((v) => v != null && v !== "");
+      return [value];
+    };
+
+    const normalizedPayload = {
+      ...formData,
+      preferred_city: toArray(formData.preferred_city),
+      preferred_state: toArray(formData.preferred_state),
+      preferred_country: toArray(formData.preferred_country),
+      preferred_family_background:
+        formData.preferred_family_background == null
+          ? ""
+          : formData.preferred_family_background,
+    };
+
     const parameters = {
       url: `/api/user/${formData.id}`,
-      payload: formData,
+      payload: normalizedPayload,
       tofetch: {
         items: [
           {
@@ -344,21 +362,9 @@ const UserDetail = () => {
     setShowDeleteModal(false);
     
     try {
-      const djangoServerUrl = 'http://192.168.0.102:8000';
-      const response = await fetch(`${djangoServerUrl}/api/user/add_photo/${photoToDelete.id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
-        }
-      });
-      
-      if (response.ok) {
-        refreshGallery();
-        setDeletingPhoto(null);
-      } else {
-        setDeletingPhoto(null);
-      }
+      await apiDeletePhoto(photoToDelete.id);
+      refreshGallery();
+      setDeletingPhoto(null);
     } catch (error) {
       setDeletingPhoto(null);
     }

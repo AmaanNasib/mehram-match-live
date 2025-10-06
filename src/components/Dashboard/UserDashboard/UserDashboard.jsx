@@ -342,7 +342,7 @@ const UserDashboard = () => {
                 {console.log("userProfile.user_profilephoto?.upload_photo:", userProfile?.user_profilephoto?.upload_photo)}
                 {console.log("userProfilePhoto?.upload_photo:", userProfilePhoto?.upload_photo)}
                 {console.log("Environment API URL:", process.env.REACT_APP_API_URL)}
-                {console.log("Final constructed URL:", (userProfile?.profile_photo || userProfile?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${userProfile.profile_photo || userProfile.user_profilephoto?.upload_photo}` : 'Using fallback')}
+                {console.log("Final constructed URL:", (userProfile?.profile_photo || userProfile?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${userProfile.profile_photo || userProfile.user_profilephoto?.upload_photo}` : 'Using fallback')}
                 {console.log("=== END DEBUG ===")}
                 <img
                   src={
@@ -358,7 +358,7 @@ const UserDashboard = () => {
                       if (photoUrl) {
                         const fullUrl = photoUrl.startsWith('http') 
                           ? photoUrl 
-                          : `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${photoUrl}`;
+                          : `${process.env.REACT_APP_API_URL}${photoUrl}`;
                         console.log("Full URL constructed:", fullUrl);
                         return fullUrl;
                       }
@@ -1044,7 +1044,7 @@ const UserDashboard = () => {
                                 if (photoUrl) {
                                   const fullUrl = photoUrl.startsWith('http')
                                     ? photoUrl
-                                    : `${process.env.REACT_APP_API_URL || 'https://mehram-match.onrender.com'}${photoUrl}`;
+                                    : `${process.env.REACT_APP_API_URL}${photoUrl}`;
                                   console.log(`Match ${index} full URL:`, fullUrl);
                                   return fullUrl;
                                 }

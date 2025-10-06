@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../../api";
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -44,8 +44,8 @@ const ChangePassword = () => {
     }
 
     try {
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/user/${userId}/change_password/`,
+      await api.put(
+        `/api/user/${userId}/change_password/`,
         {
           old_password: currentPassword,
           password: newPassword,
