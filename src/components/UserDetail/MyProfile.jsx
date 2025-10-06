@@ -264,37 +264,48 @@ const UserDetail = () => {
         // Draw original image
         ctx.drawImage(img, 0, 0);
 
-        // Always use text watermark for now to ensure visibility
-        const fontSize = Math.max(img.width * 0.12, 40);
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
-        ctx.lineWidth = 6;
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
+        // Create rounded rectangle tag like in the example
+        const tagWidth = Math.max(img.width * 0.25, 200);
+        const tagHeight = 80;
+        const padding = 20;
+        const x = img.width - tagWidth - padding;
+        const y = img.height - tagHeight - padding;
+        const cornerRadius = 15;
 
-        const padding = 50;
-        const x = img.width - padding;
-        const y = img.height - padding;
-
-        // Add prominent background for text
-        const textWidth = ctx.measureText('MehramMatch').width;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-        ctx.fillRect(x - textWidth - 20, y - fontSize - 20, textWidth + 40, fontSize + 40);
-
-        // Add border around background
-        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x - textWidth - 20, y - fontSize - 20, textWidth + 40, fontSize + 40);
-
-        // Draw text
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
-        ctx.lineWidth = 6;
-        ctx.strokeText('MehramMatch', x, y);
-        ctx.fillText('MehramMatch', x, y);
+        // Create rounded rectangle background
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = '#EC4899'; // Pink/magenta color like in example
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
         
-        console.log('✅ Watermark applied successfully (bottom-right only)');
+        // Draw rounded rectangle
+        ctx.beginPath();
+        ctx.roundRect(x, y, tagWidth, tagHeight, cornerRadius);
+        ctx.fill();
+        ctx.stroke();
+
+        // Add MehramMatch text
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Main text
+        const mainFontSize = Math.max(tagWidth * 0.08, 16);
+        ctx.font = `bold ${mainFontSize}px Arial`;
+        const mainTextX = x + (tagWidth / 2);
+        const mainTextY = y + (tagHeight / 2);
+        
+        ctx.strokeText('MehramMatch', mainTextX, mainTextY);
+        ctx.fillText('MehramMatch', mainTextX, mainTextY);
+
+        
+        // Reset opacity
+        ctx.globalAlpha = 1.0;
+        
+        console.log('✅ Logo watermark applied successfully');
 
         // Convert canvas to blob
         canvas.toBlob((blob) => {
