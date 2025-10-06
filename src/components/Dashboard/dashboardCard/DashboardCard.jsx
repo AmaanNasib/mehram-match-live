@@ -686,7 +686,14 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
             <p className="profession">
               {profile?.profession ? profile.profession : "Not Mentioned"}
             </p>
-            <button className="message-btn" style={{ marginTop: "0.5rem" }}>
+            <button
+              className="message-btn"
+              style={{ marginTop: "0.5rem" }}
+              onClick={() => {
+                // Navigate to inbox and request opening this user's conversation
+                navigate(`/${userId}/inbox/`, { state: { openUserId: profile.id } });
+              }}
+            >
               Message
             </button>
           </div>

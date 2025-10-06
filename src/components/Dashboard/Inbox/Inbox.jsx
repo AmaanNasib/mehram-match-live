@@ -11,7 +11,7 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 import { MdEdit } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import axios from "axios";
 import { convertDateTime } from "../../../apiUtils";
@@ -42,6 +42,84 @@ const Inbox = () => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [userScrolling, setUserScrolling] = useState(false);
+  const location = useLocation();
+  // Only honor the target user passed via navigation state; do not use route param (which is current user id)
+  const requestedOpenUserId = location.state?.openUserId ? Number(location.state.openUserId) : null;
+
+  // Format relative time like WhatsApp/Instagram
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return "Active recently";
+    const now = new Date();
+    const then = new Date(timestamp);
+    const diffMs = now - then;
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (seconds < 60) return "Active just now";
+    if (minutes < 60) return `Active ${minutes} min ago`;
+    if (hours < 24) return `Active ${hours} hr${hours > 1 ? 's' : ''} ago`;
+    if (days === 1) return "Active yesterday";
+    if (days < 7) return `Active ${days} days ago`;
+    // For older than a week, show date
+    return `Active on ${then.toLocaleDateString()}`;
+  };
+
+  const getUserStatusText = (user) => {
+    if (!user) return "";
+    if (user.is_online) return "Active now";
+    // Prefer explicit last_seen if available, else fallback to last_message_time
+    const last = user.last_seen || user.last_message_time || null;
+    return formatTimeAgo(last);
+  };
+
+  // Show only time under each message (HH:MM)
+  const formatTimeOnly = (ts) => {
+    if (!ts) return "";
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Message status helper (sent/delivered/read)
+  const getMessageStatus = (msg) => {
+    if (!msg) return 'sent';
+    if (msg.is_read === true || msg.read === true || !!msg.read_at) return 'read';
+    if (msg.delivered === true || !!msg.delivered_at) return 'delivered';
+    return 'sent';
+  };
+
+  // Chat date label helpers
+  const isSameDay = (a, b) => {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  };
+
+  const formatChatDateLabel = (ts) => {
+    if (!ts) return "";
+    const date = new Date(ts);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    if (isSameDay(date, today)) return "Today";
+    if (isSameDay(date, yesterday)) return "Yesterday";
+    return date.toLocaleDateString();
+  };
+
+  const buildChatTimeline = (messages) => {
+    const items = [];
+    let lastLabel = null;
+    for (const msg of messages) {
+      const label = formatChatDateLabel(msg.timestamp || msg.created_at || msg.time);
+      if (label && label !== lastLabel) {
+        items.push({ type: 'separator', label });
+        lastLabel = label;
+      }
+      items.push({ type: 'message', data: msg });
+    }
+    return items;
+  };
+
+  // Removed floating date chip and arrow button per request
   
   // Context Menu States
   const [contextMenu, setContextMenu] = useState({
@@ -53,6 +131,79 @@ const Inbox = () => {
 
   const token = localStorage.getItem("token");
   const EMOJI_API_KEY = '855ca2a096c697a0c8e2da3a525e509acd7d1847';
+
+  // Keep selection stable across refreshes
+  const initialSelectionDoneRef = React.useRef(false);
+  // Right-side user info panel with smooth transitions
+  const [showInfoPanel, setShowInfoPanel] = useState(false); // mounted
+  const [infoVisible, setInfoVisible] = useState(false); // for animation
+  // More menu
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreBtnRef = React.useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (showMoreMenu && moreBtnRef.current && !moreBtnRef.current.contains(e.target)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMoreMenu]);
+
+  const blockUser = async () => {
+    try {
+      const receiverId = recentUsers[selectedMessage]?.id;
+      if (!receiverId) return;
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/recieved/`,
+        {
+          action_by_id: userId,
+          action_on_id: receiverId,
+          blocked: true,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setErrors('User blocked');
+    } catch (err) {
+      console.error('Block user failed', err);
+      setErrors('Failed to block user');
+    } finally {
+      setShowMoreMenu(false);
+    }
+  };
+
+  const reportUser = async () => {
+    try {
+      const receiverId = recentUsers[selectedMessage]?.id;
+      if (!receiverId) return;
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/recieved/`,
+        {
+          action_by_id: userId,
+          action_on_id: receiverId,
+          blocked: true,
+          status: 'Reported',
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setErrors('User reported');
+    } catch (err) {
+      console.error('Report user failed', err);
+      setErrors('Failed to report');
+    } finally {
+      setShowMoreMenu(false);
+    }
+  };
+
+  const clearLocalChat = () => {
+    setUserInteraction([]);
+    setShowMoreMenu(false);
+  };
 
   useEffect(() => {
     if (errors) {
@@ -75,9 +226,52 @@ const Inbox = () => {
         }
       );
         // Filter users who have at least one message
-        const usersWithMessages = response.data.filter(
+        let usersWithMessages = response.data.filter(
           (user) => user.last_message && user.last_message.trim() !== ""
         );
+
+        // If a specific user is requested but not present in list, fetch and include them
+        if (requestedOpenUserId && !usersWithMessages.some(u => u.id === Number(requestedOpenUserId))) {
+          try {
+            const userResp = await axios.get(
+              `${process.env.REACT_APP_API_URL}/api/user/${requestedOpenUserId}/`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const u = userResp.data || {};
+            usersWithMessages = [
+              {
+                id: Number(requestedOpenUserId),
+                name: u.name || u.full_name || u.username || `User ${requestedOpenUserId}`,
+                profile_photo: u.profile_photo || u.upload_photo || null,
+                gender: u.gender || null,
+                last_message: "",
+                last_message_time: null,
+                unread_count: 0,
+                is_online: false,
+              },
+              ...usersWithMessages,
+            ];
+          } catch (e) {
+            // If user fetch fails, still allow opening empty thread by injecting minimal record
+            usersWithMessages = [
+              {
+                id: Number(requestedOpenUserId),
+                name: `User ${requestedOpenUserId}`,
+                profile_photo: null,
+                gender: null,
+                last_message: "",
+                last_message_time: null,
+                unread_count: 0,
+                is_online: false,
+              },
+              ...usersWithMessages,
+            ];
+          }
+        }
         
         // Preserve unread_count = 0 for currently open conversation
         setRecentUsers((prevUsers) => {
@@ -90,21 +284,37 @@ const Inbox = () => {
             return newUser;
           });
           
-          // Auto-select latest conversation if no conversation is selected
-          if (selectedMessage === null && updatedUsers.length > 0) {
-            // Find the conversation with the most recent message
-            const latestConversation = updatedUsers.reduce((latest, current) => {
-              const latestTime = new Date(latest.last_message_time || 0);
-              const currentTime = new Date(current.last_message_time || 0);
-              return currentTime > latestTime ? current : latest;
-            });
-            
-            const latestIndex = updatedUsers.findIndex(user => user.id === latestConversation.id);
-            if (latestIndex !== -1) {
+          // Keep currently selected user pinned even if list order changes
+          if (selectedMessage !== null && prevUsers[selectedMessage]) {
+            const selectedId = prevUsers[selectedMessage].id;
+            const newIndex = updatedUsers.findIndex(u => u.id === selectedId);
+            if (newIndex !== -1 && newIndex !== selectedMessage) {
+              setSelectedMessage(newIndex);
+            }
+          }
+
+          // Preselect requested user only once on first load
+          if (!initialSelectionDoneRef.current && selectedMessage === null && updatedUsers.length > 0) {
+            let targetIndex = -1;
+            if (requestedOpenUserId) {
+              targetIndex = updatedUsers.findIndex(u => u.id === Number(requestedOpenUserId));
+            }
+            if (targetIndex === -1) {
+              // Fallback: select latest conversation
+              const latestConversation = updatedUsers.reduce((latest, current) => {
+                const latestTime = new Date(latest.last_message_time || 0);
+                const currentTime = new Date(current.last_message_time || 0);
+                return currentTime > latestTime ? current : latest;
+              });
+              targetIndex = updatedUsers.findIndex(user => user.id === latestConversation.id);
+            }
+            if (targetIndex !== -1) {
+              const receiverId = updatedUsers[targetIndex].id;
               setTimeout(() => {
-                setSelectedMessage(latestIndex);
-                markMessagesAsRead(latestConversation.id);
-                fetchUserInteraction(latestConversation.id);
+                setSelectedMessage(targetIndex);
+                markMessagesAsRead(receiverId);
+                fetchUserInteraction(receiverId);
+                initialSelectionDoneRef.current = true;
               }, 100);
             }
           }
@@ -714,14 +924,12 @@ const Inbox = () => {
                     <div className="inbox-user-info">
                       <div className="inbox-user-name">{user.name}</div>
                       <div className="inbox-user-last-message">
-                        {user.last_message || "No messages yet"}
-                        </div>
+                        {user.last_message && user.last_message.trim() !== "" ? user.last_message : getUserStatusText(user)}
+                      </div>
                           </div>
                     <div className="inbox-user-meta">
                       <span className="inbox-user-time">
-                        {user.last_message_time
-                          ? convertDateTime(user.last_message_time)
-                          : ""}
+                        {getUserStatusText(user)}
                       </span>
                       {user.unread_count > 0 && (
                         <span className="inbox-unread-badge">
@@ -759,7 +967,7 @@ const Inbox = () => {
               <>
                 {/* Chat Header */}
                 <div className="inbox-chat-header">
-                  <div className="inbox-chat-header-left">
+                  <div className="inbox-chat-header-left" style={{ cursor: 'pointer' }} onClick={() => navigate(`/details/${recentUsers[selectedMessage]?.id}`)}>
               <img
                 src={
                   recentUsers[selectedMessage]?.profile_photo
@@ -782,7 +990,7 @@ const Inbox = () => {
                     />
                     <div className="inbox-chat-user-info">
                       <h3>{recentUsers[selectedMessage]?.name}</h3>
-                      <span className="inbox-chat-status">Active now</span>
+                      <span className="inbox-chat-status">{getUserStatusText(recentUsers[selectedMessage])}</span>
                     </div>
                   </div>
                   <div className="inbox-chat-header-actions">
@@ -792,7 +1000,7 @@ const Inbox = () => {
                     <button className="inbox-action-btn" title="Video Call">
                       <FaVideo size={18} />
                     </button>
-                    <button className="inbox-action-btn" title="User Info">
+                    <button className="inbox-action-btn" title="User Info" onClick={() => { setShowInfoPanel(true); setTimeout(() => setInfoVisible(true), 10); }}>
                       <FaInfoCircle size={18} />
                     </button>
               </div>
@@ -811,19 +1019,30 @@ const Inbox = () => {
                       <small>Send a message to start the conversation</small>
                     </div>
                   ) : (
-                    userInteraction.map((msg, idx) => (
+                    buildChatTimeline(userInteraction).map((item, idx) => (
+                      item.type === 'separator' ? (
+                        <div
+                          key={`sep-${idx}`}
+                          className="inbox-date-separator"
+                          style={{ display: 'flex', justifyContent: 'center', margin: '14px 0' }}
+                        >
+                          <span style={{ background: '#e5e7eb', color: '#374151', fontSize: '12px', fontWeight: 600, padding: '6px 10px', borderRadius: '12px' }}>
+                            {item.label}
+                          </span>
+                        </div>
+                      ) : (
                 <div
                   key={idx}
                         className={`inbox-message ${
-                          msg.sender?.id === userId
+                          item.data.sender?.id === userId
                             ? "inbox-message-sent"
                             : "inbox-message-received"
                         }`}
-                        onContextMenu={(e) => showContextMenu(e, msg)}
+                        onContextMenu={(e) => showContextMenu(e, item.data)}
                         onTouchStart={(e) => {
                           // For mobile long press
                           e.currentTarget.longPressTimer = setTimeout(() => {
-                            showContextMenu(e, msg);
+                            showContextMenu(e, item.data);
                           }, 500);
                         }}
                         onTouchEnd={(e) => {
@@ -837,7 +1056,7 @@ const Inbox = () => {
                           }
                         }}
                 >
-                  {msg.sender?.id !== userId && (
+                  {item.data.sender?.id !== userId && (
                     <img
                             src={
                               recentUsers[selectedMessage]?.profile_photo
@@ -861,7 +1080,7 @@ const Inbox = () => {
                         )}
                         <div className="inbox-message-content">
                           {/* Reply Preview */}
-                          {replyToMessage && replyToMessage.id === msg.id && (
+                          {replyToMessage && replyToMessage.id === item.data.id && (
                             <div className="reply-preview">
                               <div className="reply-line"></div>
                               <div className="reply-content">
@@ -869,7 +1088,7 @@ const Inbox = () => {
                                   {replyToMessage.sender?.id === userId ? 'You' : recentUsers[selectedMessage]?.name}
                                 </div>
                                 <div className="reply-text">
-git                                   {(replyToMessage.file_url || replyToMessage.file) ? (
+                                   {(replyToMessage.file_url || replyToMessage.file) ? (
                                     <div className="reply-image-preview">
                                       <img 
                                         src={
@@ -892,21 +1111,21 @@ git                                   {(replyToMessage.file_url || replyToMessag
                           )}
                           <div className="inbox-message-bubble">
                             {/* Display image if exists - Backend returns file_url */}
-                            {(msg.file_url || msg.file) && (
+                            {(item.data.file_url || item.data.file) && (
                               <img
                                 src={
-                                  msg.file_url || 
-                                  (msg.file?.startsWith('http') 
-                                    ? msg.file 
-                                    : `${process.env.REACT_APP_API_URL}/media/${msg.file}`)
+                                  item.data.file_url || 
+                                  (item.data.file?.startsWith('http') 
+                                    ? item.data.file 
+                                    : `${process.env.REACT_APP_API_URL}/media/${item.data.file}`)
                                 }
                                 alt="Shared image"
                                 className="inbox-message-image"
                                 onClick={() => {
-                                  const imageUrl = msg.file_url || 
-                                    (msg.file?.startsWith('http') 
-                                      ? msg.file 
-                                      : `${process.env.REACT_APP_API_URL}/media/${msg.file}`);
+                                  const imageUrl = item.data.file_url || 
+                                    (item.data.file?.startsWith('http') 
+                                      ? item.data.file 
+                                      : `${process.env.REACT_APP_API_URL}/media/${item.data.file}`);
                                   
                                   // Collect all images from current conversation
                                   const allImages = userInteraction
@@ -925,29 +1144,56 @@ git                                   {(replyToMessage.file_url || replyToMessag
                                 }}
                                 onError={(e) => {
                                   console.error("❌ Image failed to load:", {
-                                    file: msg.file,
-                                    file_url: msg.file_url,
-                                    content: msg.content
+                                    file: item.data.file,
+                                    file_url: item.data.file_url,
+                                    content: item.data.content
                                   });
                                   e.target.style.display = 'none';
                                 }}
                               />
                             )}
                             {/* Display text content */}
-                            {msg.content && msg.content !== '📷 Photo' && (
-                    <p>{msg.content}</p>
+                            {item.data.content && item.data.content !== '📷 Photo' && (
+                    <p>{item.data.content}</p>
                             )}
                           </div>
-                          <span className="inbox-message-time">
-                      {convertDateTime(msg.timestamp || "Time not available")}
-                    </span>
+                          <span className="inbox-message-time" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {formatTimeOnly(item.data.timestamp)}
+                            {item.data.sender?.id === userId && (
+                              <span
+                                className={`msg-status ${getMessageStatus(item.data)}`}
+                                title={getMessageStatus(item.data)}
+                                style={{ display: 'inline-flex', alignItems: 'center' }}
+                              >
+                                {getMessageStatus(item.data) === 'read' ? (
+                                  // double check blue
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M1 14l5 5L20 5" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 14l5 5L23 5" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                ) : getMessageStatus(item.data) === 'delivered' ? (
+                                  // double check gray
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M1 14l5 5L20 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M9 14l5 5L23 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                ) : (
+                                  // single check gray (sent)
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M1 14l5 5L20 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </span>
+                            )}
+                          </span>
                   </div>
                       </div>
+                      )
                     ))
                   )}
                   
                   {/* Scroll to Bottom Button */}
-                  {showScrollToBottom && (
+                  {false && showScrollToBottom && (
                     <button 
                       className="scroll-to-bottom-btn"
                       onClick={scrollToBottom}
@@ -957,6 +1203,96 @@ git                                   {(replyToMessage.file_url || replyToMessag
                     </button>
                   )}
                 </div>
+
+                {/* User Info Side Panel */}
+                {showInfoPanel && (
+                  <>
+                    <div
+                      onClick={() => { setInfoVisible(false); setTimeout(() => setShowInfoPanel(false), 220); }}
+                      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 40, opacity: infoVisible ? 1 : 0, transition: 'opacity 220ms ease', pointerEvents: infoVisible ? 'auto' : 'none' }}
+                    />
+                    <div
+                      style={{
+                        position: 'fixed', top: 0, right: 0, height: '100vh', width: '360px', background: '#fff',
+                        zIndex: 41, boxShadow: '-8px 0 24px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column',
+                        transform: `translateX(${infoVisible ? '0' : '100%'})`, transition: 'transform 220ms ease'
+                      }}
+                    >
+                      <div style={{ padding: '16px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700 }}>Profile Info</h3>
+                        <button onClick={() => { setInfoVisible(false); setTimeout(() => setShowInfoPanel(false), 220); }} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '18px' }}>✕</button>
+                      </div>
+                      <div style={{ padding: '16px', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <img
+                            src={
+                              recentUsers[selectedMessage]?.profile_photo
+                                ? `${process.env.REACT_APP_API_URL}${recentUsers[selectedMessage].profile_photo}`
+                                : `data:image/svg+xml;utf8,${encodeURIComponent(
+                                  recentUsers[selectedMessage]?.gender === 'male'
+                                    ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\"><circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#bfdbfe\"/><path d=\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\" fill=\"#fbcfe8\"/></svg>`
+                                    : `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#ec4899\"><circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#fbcfe8\"/><path d=\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\" fill=\"#fbcfe8\"/><circle cx=\"12\" cy=\"8\" r=\"2\" fill=\"#ec4899\"/></svg>`
+                                )}`
+                            }
+                            alt={recentUsers[selectedMessage]?.name}
+                            style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }}
+                          />
+                          <div>
+                            <div style={{ fontWeight: 700 }}>{recentUsers[selectedMessage]?.name || 'User'}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{getUserStatusText(recentUsers[selectedMessage])}</div>
+                          </div>
+                        </div>
+                        <div style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>Conversation</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div style={{ background: '#f9fafb', padding: '10px', borderRadius: '8px' }}>
+                              <div style={{ fontSize: '12px', color: '#6b7280' }}>Total messages</div>
+                              <div style={{ fontWeight: 700 }}>{userInteraction?.length || 0}</div>
+                            </div>
+                            <div style={{ background: '#f9fafb', padding: '10px', borderRadius: '8px' }}>
+                              <div style={{ fontSize: '12px', color: '#6b7280' }}>Last active</div>
+                              <div style={{ fontWeight: 700 }}>{recentUsers[selectedMessage]?.last_message_time ? new Date(recentUsers[selectedMessage].last_message_time).toLocaleString() : '-'}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Shared Media */}
+                        <div style={{ marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>Shared Media</span>
+                            <span style={{ fontSize: '11px', color: '#9ca3af' }}>{userInteraction.filter(m => m.file_url || m.file).length}</span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                            {userInteraction.filter(m => m.file_url || m.file).slice(0, 30).map((m, idx) => {
+                              const src = m.file_url || (m.file?.startsWith('http') ? m.file : `${process.env.REACT_APP_API_URL}/media/${m.file}`);
+                              return (
+                                <img
+                                  key={idx}
+                                  src={src}
+                                  alt={`media-${idx}`}
+                                  style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer' }}
+                                  onClick={() => {
+                                    const allImages = userInteraction
+                                      .filter(mm => mm.file_url || mm.file)
+                                      .map(mm => mm.file_url || (mm.file?.startsWith('http') ? mm.file : `${process.env.REACT_APP_API_URL}/media/${mm.file}`));
+                                    const currentIndex = allImages.indexOf(src);
+                                    setViewingImages(allImages);
+                                    setCurrentImageIndex(currentIndex >= 0 ? currentIndex : 0);
+                                  }}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              );
+                            })}
+                            {userInteraction.filter(m => m.file_url || m.file).length === 0 && (
+                              <div style={{ fontSize: '12px', color: '#9ca3af' }}>No media shared yet</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
 
                 {/* Multiple Images Preview */}
                 {selectedImages.length > 0 && (
@@ -1143,9 +1479,39 @@ git                                   {(replyToMessage.file_url || replyToMessag
                       {selectedImages.length > 1 ? `Send (${selectedImages.length})` : 'Send'}
                     </button>
                   ) : (
-                    <button className="inbox-input-action-btn" title="More">
-                      <FiMoreHorizontal size={20} />
-              </button>
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        className="inbox-input-action-btn"
+                        title="More"
+                        onClick={() => setShowMoreMenu((s) => !s)}
+                        ref={moreBtnRef}
+                      >
+                        <FiMoreHorizontal size={20} />
+                      </button>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          bottom: '42px',
+                          background: '#fff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                          width: '220px',
+                          transform: `translateY(${showMoreMenu ? '0' : '10px'})`,
+                          opacity: showMoreMenu ? 1 : 0,
+                          pointerEvents: showMoreMenu ? 'auto' : 'none',
+                          transition: 'opacity 160ms ease, transform 160ms ease',
+                          zIndex: 20
+                        }}
+                      >
+                        <button onClick={() => navigate(`/details/${recentUsers[selectedMessage]?.id}`)} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'transparent', cursor: 'pointer' }}>View Profile</button>
+                        <button onClick={reportUser} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'transparent', cursor: 'pointer' }}>Report</button>
+                        <button onClick={blockUser} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#dc2626' }}>Block</button>
+                        <div style={{ height: '1px', background: '#f3f4f6' }} />
+                        <button onClick={clearLocalChat} style={{ width: '100%', textAlign: 'left', padding: '10px 12px', border: 'none', background: 'transparent', cursor: 'pointer' }}>Clear Chat (local)</button>
+                      </div>
+                    </div>
                   )}
             </div>
               </>

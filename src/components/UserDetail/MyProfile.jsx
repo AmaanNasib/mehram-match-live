@@ -191,7 +191,6 @@ const UserDetail = () => {
   const [uploading, setUploading] = useState(false);
   const [viewingImages, setViewingImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [processingWatermark, setProcessingWatermark] = useState(false);
   const [deletingPhoto, setDeletingPhoto] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState(null);
@@ -226,117 +225,7 @@ const UserDetail = () => {
     }, 5000);
   }, [successMessage]);
 
-  const addWatermarkToImage = (file) => {
-    return new Promise((resolve) => {
-      if (!file.type.startsWith('image/')) {
-        resolve(file);
-        return;
-      }
-      
-      const img = new Image();
-      const logo = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      let imagesLoaded = 0;
-      const totalImages = 2;
-      let logoLoaded = false;
-
-      const onImageLoad = () => {
-        imagesLoaded++;
-        if (imagesLoaded === totalImages) {
-          processImage();
-        }
-      };
-
-      const processImage = () => {
-        // Set canvas size to image size
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        // Draw original image
-        ctx.drawImage(img, 0, 0);
-
-        // Draw centered bottom logo watermark (natural aspect ratio), no text
-        if (logoLoaded) {
-          const paddingY = Math.max(img.height * 0.03, 20); // bottom padding
-          const maxLogoWidth = Math.min(img.width * 0.28, 600); // relative size with hard cap
-          const logoAspect = logo.width / logo.height || 3; // fallback wide look
-          const logoWidth = maxLogoWidth;
-          const logoHeight = logoWidth / logoAspect;
-
-          const logoX = (img.width - logoWidth) / 2;
-          const logoY = img.height - logoHeight - paddingY;
-
-          // opacity ~0.55 to match modal
-          ctx.globalAlpha = 0.55;
-          ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
-          ctx.globalAlpha = 1.0;
-        }
-
-        // Convert canvas to blob
-        canvas.toBlob((blob) => {
-          const outputBlob = blob || new Blob([canvas.toDataURL(file.type || 'image/jpeg')]);
-          const watermarkedFile = new File([outputBlob], file.name, {
-            type: file.type,
-            lastModified: Date.now()
-          });
-          resolve(watermarkedFile);
-        }, file.type, 0.95);
-      };
-
-      img.onload = () => {
-        onImageLoad();
-      };
-      img.onerror = () => {
-        resolve(file);
-      };
-
-
-      img.src = URL.createObjectURL(file);
-      
-      // Try multiple logo sources
-      const logoSources = [
-        '/images/logo.png',
-        '/logo.png',
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRUM0ODk5Ii8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk08L3RleHQ+Cjwvc3ZnPgo='
-      ];
-      
-      let logoIndex = 0;
-      const tryNextLogo = () => {
-        if (logoIndex < logoSources.length) {
-          logo.src = logoSources[logoIndex];
-          logoIndex++;
-        } else {
-          console.log('All logo sources failed, using text watermark');
-          logoLoaded = false;
-          onImageLoad();
-        }
-      };
-      
-      logo.onload = () => {
-        logoLoaded = true;
-        onImageLoad();
-      };
-      
-      logo.onerror = () => {
-        tryNextLogo();
-      };
-      
-      tryNextLogo();
-      
-      // Add timeout to prevent hanging
-      setTimeout(() => {
-        if (imagesLoaded < totalImages) {
-          if (imagesLoaded === 1) {
-            processImage();
-          } else {
-            resolve(file);
-          }
-        }
-      }, 3000);
-    });
-  };
+  // Watermarking removed – upload original files as-is
 
   const handleFileSelect = async (event) => {
     const files = Array.from(event.target.files);
@@ -350,26 +239,8 @@ const UserDetail = () => {
     if (validFiles.length !== files.length) {
       alert('Kuch files invalid hain. Sirf images aur videos allow hain aur maximum size 10MB hai.');
     }
-
-    // Add watermark to images
-    setProcessingWatermark(true);
-    const processedFiles = [];
-    
-    for (const file of validFiles) {
-      if (file.type.startsWith('image/')) {
-        try {
-          const watermarkedFile = await addWatermarkToImage(file);
-          processedFiles.push(watermarkedFile);
-        } catch (error) {
-          processedFiles.push(file);
-        }
-      } else {
-        processedFiles.push(file);
-      }
-    }
-
-    setProcessingWatermark(false);
-    setSelectedFiles(processedFiles);
+    // Directly use original files (no watermark)
+    setSelectedFiles(validFiles);
   };
 
   const handleUpload = () => {
@@ -665,12 +536,7 @@ const UserDetail = () => {
                 </label>
               </div>
               
-              {processingWatermark && (
-                <div className="watermark-processing">
-                  <div className="processing-spinner"></div>
-                  <p>🏷️ Adding MehramMatch logo watermark to images...</p>
-                </div>
-              )}
+              {/* Watermark processing removed */}
 
               {selectedFiles.length > 0 && (
                 <div className="selected-files">
