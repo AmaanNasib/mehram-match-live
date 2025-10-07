@@ -2,6 +2,15 @@
 .about-us-page {
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Prevent zoom out on mobile */
+@media (max-width: 768px) {
+  .about-us-page {
+    min-width: 320px;
+    width: 100%;
+  }
 }
 
 /* Hero Section */
@@ -47,10 +56,29 @@
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
   line-height: 1.2;
+}
+
+/* Mobile responsive font sizes */
+@media (min-width: 640px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: 3.5rem;
+  }
 }
 
 .text-gradient {
@@ -61,12 +89,24 @@
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1rem;
   margin-bottom: 2.5rem;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   opacity: 0.95;
+}
+
+@media (min-width: 640px) {
+  .hero-subtitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.25rem;
+  }
 }
 
 .hero-buttons {
@@ -77,13 +117,21 @@
 }
 
 .btn-primary, .btn-secondary {
-  padding: 0.875rem 2rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
   display: inline-block;
   border: 2px solid transparent;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .btn-primary, .btn-secondary {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
 }
 
 .btn-primary {
@@ -114,6 +162,13 @@
   padding: 4rem 0;
 }
 
+/* Mobile responsive padding */
+@media (max-width: 768px) {
+  .mission-section, .features-section, .vision-section, .promise-section {
+    padding: 2rem 0;
+  }
+}
+
 .mission-section {
   background: #f8fafc;
 }
@@ -134,10 +189,28 @@
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 1rem;
   color: #1f2937;
+}
+
+@media (min-width: 640px) {
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-title {
+    font-size: 2.5rem;
+  }
 }
 
 .promise-section .section-title,
@@ -146,10 +219,22 @@
 }
 
 .section-subtitle {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   color: #6b7280;
   max-width: 600px;
   margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .section-subtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-subtitle {
+    font-size: 1.125rem;
+  }
 }
 
 .promise-section .section-subtitle,
@@ -159,17 +244,47 @@
 
 /* Content Styles */
 .content-title {
-  font-size: 1.875rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: #1f2937;
 }
 
+@media (min-width: 640px) {
+  .content-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .content-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-title {
+    font-size: 1.875rem;
+  }
+}
+
 .content-text {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   color: #4b5563;
   margin-bottom: 1.5rem;
   line-height: 1.7;
+}
+
+@media (min-width: 640px) {
+  .content-text {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .content-text {
+    font-size: 1.125rem;
+  }
 }
 
 /* Mission Visual */
@@ -193,15 +308,33 @@
 }
 
 .visual-title {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
   color: #1f2937;
 }
 
+@media (min-width: 640px) {
+  .visual-title {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .visual-title {
+    font-size: 1.25rem;
+  }
+}
+
 .visual-text {
   color: #6b7280;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .visual-text {
+    font-size: 0.875rem;
+  }
 }
 
 /* Features Grid */
@@ -237,15 +370,34 @@
 }
 
 .feature-title {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: #1f2937;
 }
 
+@media (min-width: 640px) {
+  .feature-title {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .feature-title {
+    font-size: 1.25rem;
+  }
+}
+
 .feature-text {
   color: #6b7280;
   line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .feature-text {
+    font-size: 1rem;
+  }
 }
 
 /* Vision Section */

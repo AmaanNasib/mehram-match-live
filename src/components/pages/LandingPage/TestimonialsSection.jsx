@@ -48,10 +48,10 @@ const TestimonialsSection = () => {
       <div className="container mx-auto">
         {/* Section Title */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Poppins'] text-[#6D6E6F]">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-['Poppins'] text-[#6D6E6F]">
             What Our Users Say
           </h2>
-          <p className="mt-4 text-base sm:text-lg lg:text-xl font-medium text-[#EC80BC] max-w-2xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base md:text-lg lg:text-xl font-medium text-[#EC80BC] max-w-2xl mx-auto">
             Hear from happy couples who found their destinies with us.
           </p>
         </div>
@@ -105,7 +105,7 @@ const TestimonialCard = ({ testimonial }) => (
     </div>
 
     {/* Comment Section */}
-    <p className="text-sm sm:text-base text-gray-600 mt-12 mb-4 italic">
+    <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-12 mb-4 italic">
       "{testimonial.quote}"
     </p>
 
@@ -116,7 +116,7 @@ const TestimonialCard = ({ testimonial }) => (
     <div className="flex justify-between items-center flex-wrap gap-3">
       {/* Name and Profession */}
       <div>
-        <h4 className="text-base lg:text-lg font-semibold text-[#6D6E6F]">
+        <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-[#6D6E6F]">
           {testimonial.name}
         </h4>
         <p className="text-xs sm:text-sm text-gray-500">

@@ -44,14 +44,14 @@ const HeroSection = ({
           {/* Hero Image/Video Section - Hidden on mobile, visible on lg+ */}
           <div className="hidden lg:block lg:w-1/2 max-w-xl">
             <div className="rounded-3xl shadow-2xl bg-white/10 backdrop-blur p-8">
-              <h1 className="text-3xl lg:text-5xl font-bold text-white leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                 Find Your Halal Partner with Confidence
               </h1>
-              <p className="mt-4 text-white/90 text-base lg:text-lg">
+              <p className="mt-4 text-white/90 text-sm sm:text-base lg:text-lg">
                 MehramMatch par apni values, preferences aur privacy ke saath profile banayein.
                 Smart recommendations aur secure communication ke through apna perfect match dhundhein.
               </p>
-              <ul className="mt-6 space-y-3 text-white/90 text-sm lg:text-base list-disc list-inside">
+              <ul className="mt-6 space-y-3 text-white/90 text-xs sm:text-sm lg:text-base list-disc list-inside">
                 <li>Faith-centered matchmaking</li>
                 <li>Privacy-first profiles & photo controls</li>
                 <li>Detailed preferences for better compatibility</li>
@@ -64,10 +64,10 @@ const HeroSection = ({
             <div
               className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 shadow-2xl border border-gray-200 w-full mx-2 sm:mx-0"
             >
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#FF28A0] text-center mb-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-[#FF28A0] text-center mb-2">
                 {!isOtpFormVisible ? "Create Your Account" : "Verify Your Account"}
               </h2>
-              <h3 className="text-sm sm:text-base text-[#6D6E6F] text-center mb-6">
+              <h3 className="text-xs sm:text-sm md:text-base text-[#6D6E6F] text-center mb-6">
                 {lastSegment === "agent" ? `Agent Registration` : `Fill out the form to get started.`}
               </h3>
 
@@ -274,7 +274,7 @@ const RegistrationForm = ({
         onChange={handleInputChange}
         checked={formData.terms_condition}
       />
-      <label htmlFor="terms_condition" className="text-sm text-[#6D6E6F]">
+      <label htmlFor="terms_condition" className="text-xs sm:text-sm text-[#6D6E6F]">
         By signing up you agree to our <a href="/terms-conditions" className="text-[#FF28A0] font-medium hover:underline cursor-pointer">terms and conditions.</a>
       </label>
     </div>
@@ -293,7 +293,7 @@ const RegistrationForm = ({
     {/* Divider */}
     <div className="flex items-center gap-4 py-2">
       <div className="flex-1 border-t border-gray-300" />
-      <span className="text-sm text-[#6D6E6F] font-medium">Or Join With</span>
+      <span className="text-xs sm:text-sm text-[#6D6E6F] font-medium">Or Join With</span>
       <div className="flex-1 border-t border-gray-300" />
     </div>
 
@@ -378,7 +378,7 @@ const OTPForm = ({ formData, setFormData, otpErrors, setOtpErrors, captchaImage,
 const FormField = ({ label, required, error, children, tooltip, showTooltip, handleTooltipClick, fieldName }) => (
   <div>
     <div className="flex items-center gap-2 mb-2">
-      <label className="text-sm font-medium text-[#6D6E6F]">
+      <label className="text-xs sm:text-sm font-medium text-[#6D6E6F]">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       {tooltip && (

@@ -4,6 +4,13 @@
   color: #333; /* Default text color */
 }
 
+/* Mobile responsive padding */
+@media (max-width: 768px) {
+  .footer {
+    padding: 20px 0;
+  }
+}
+
 .footer-logo-container {
   display: flex;
   justify-content: center;
@@ -14,12 +21,33 @@
   width: 100px; /* Adjust the width of the logo as needed */
 }
 
+/* Mobile responsive logo */
+@media (max-width: 768px) {
+  .footer-logo {
+    width: 80px;
+  }
+}
+
 .footer-text {
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.6;
   max-width: 900px;
   margin: 0 auto;
   color: #333;
+  padding: 0 15px;
+}
+
+@media (min-width: 640px) {
+  .footer-text {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 768px) {
+  .footer-text {
+    font-size: 14px;
+    padding: 0;
+  }
 }
 
 .footer-section h5 {
@@ -29,11 +57,23 @@
 }
 
 .footer-heading {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #d63384;
   margin-bottom: 5px;
   text-align: left; /* Align text to the left */
+}
+
+@media (min-width: 640px) {
+  .footer-heading {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 768px) {
+  .footer-heading {
+    font-size: 20px;
+  }
 }
 
 .footer-heading-line {
@@ -84,6 +124,15 @@
   margin-bottom: 8px;
   cursor: pointer;
   color: #333; /* Ensures menu links are #333 */
+  font-size: 14px;
+}
+
+/* Mobile responsive footer links */
+@media (max-width: 768px) {
+  .footer-section ul li {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
 }
 
 .footer-section ul li:hover {
@@ -119,28 +168,77 @@
 }
 
 .footer-bottom p {
-  font-size: 14px;
-  white-space: nowrap; /* Prevents text from wrapping */
+  font-size: 12px;
+  white-space: normal; /* Allows text to wrap on mobile */
   text-align: center;
+  line-height: 1.4;
+}
+
+@media (min-width: 640px) {
+  .footer-bottom p {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 768px) {
+  .footer-bottom p {
+    font-size: 14px;
+    white-space: nowrap; /* Prevents text from wrapping on desktop */
+  }
 }
 
 .store-badge {
-  width: 150px;
-  margin: 10px;
+  width: 120px;
+  margin: 5px;
+}
+
+@media (min-width: 640px) {
+  .store-badge {
+    width: 130px;
+    margin: 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .store-badge {
+    width: 150px;
+    margin: 10px;
+  }
 }
 
 .social-icons {
   display: flex;
-  gap: 15px;
-  justify-content: flex-end; /* Aligns the icons to the right */
-  width: 100%; /* Ensures the social icons are pushed to the far right */
+  gap: 10px;
+  justify-content: center; /* Center on mobile */
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .social-icons {
+    gap: 15px;
+    justify-content: flex-end; /* Aligns the icons to the right on desktop */
+  }
 }
 
 .social-icons .social-icon {
-  font-size: 24px;
-  margin: 0 10px;
+  font-size: 20px;
+  margin: 0 5px;
   cursor: pointer;
   color: #333; /* Default color */
+}
+
+@media (min-width: 640px) {
+  .social-icons .social-icon {
+    font-size: 22px;
+    margin: 0 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .social-icons .social-icon {
+    font-size: 24px;
+    margin: 0 10px;
+  }
 }
 
 .social-icons .social-icon:hover {

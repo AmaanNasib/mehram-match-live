@@ -7,6 +7,30 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Prevent zoom out on mobile devices */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    min-width: 320px;
+}
+
+/* Mobile viewport fixes */
+@media (max-width: 768px) {
+    body {
+        width: 100%;
+        min-width: 320px;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
 
 .button_base {
     background: radial-gradient(circle at 50% -90%, #ec4899, #ff85ca);

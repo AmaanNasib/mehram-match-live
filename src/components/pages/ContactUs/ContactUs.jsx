@@ -138,38 +138,38 @@ Sent from MehramMatch Contact Form
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white overflow-x-hidden">
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-[#FFF5FB] to-[#F8F9FA]">
+        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-[#FFF5FB] to-[#F8F9FA]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl sm:text-6xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-4 sm:mb-6">
                 Contact Us
               </h1>
-              <p className="text-xl text-[#6D6E6F] leading-relaxed mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-[#6D6E6F] leading-relaxed mb-6 sm:mb-8 px-2">
                 We'd love to hear from you. Send us a message and we'll respond as soon as possible.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-[#6D6E6F]">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-[#6D6E6F]">
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <div>
-                    <p className="font-semibold">Email</p>
-                    <p>contact@mehrammatch.com</p>
+                  <div className="text-center sm:text-left">
+                    <p className="font-semibold text-sm sm:text-base">Email</p>
+                    <p className="text-sm sm:text-base break-all sm:break-normal">contact@mehrammatch.com</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <div>
-                    <p className="font-semibold">Response Time</p>
-                    <p>Within 24 hours</p>
+                  <div className="text-center sm:text-left">
+                    <p className="font-semibold text-sm sm:text-base">Response Time</p>
+                    <p className="text-sm sm:text-base">Within 24 hours</p>
                   </div>
                 </div>
               </div>
@@ -178,13 +178,13 @@ Sent from MehramMatch Contact Form
         </section>
 
         {/* Contact Form Section */}
-        <section className="py-20 bg-white">
+        <section className="py-12 sm:py-16 lg:py-20 bg-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-              <div className="grid lg:grid-cols-2 gap-12">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
                 {/* Contact Form */}
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                  <h2 className="text-3xl font-bold text-[#2D3748] mb-6">Send us a Message</h2>
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-gray-100">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#2D3748] mb-4 sm:mb-6">Send us a Message</h2>
                   
                   {/* Status Messages */}
                   {submitStatus === 'success' && (
@@ -209,10 +209,10 @@ Sent from MehramMatch Contact Form
                     </div>
                   )}
                   
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                     {/* Name Field */}
                     <div>
-                      <label htmlFor="name" className="block text-sm font-semibold text-[#2D3748] mb-2">
+                      <label htmlFor="name" className="block text-sm sm:text-base font-semibold text-[#2D3748] mb-2">
                         Full Name *
                       </label>
                       <input
@@ -221,7 +221,7 @@ Sent from MehramMatch Contact Form
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                        className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                           errors.name 
                             ? 'border-red-500 focus:ring-red-500' 
                             : 'border-gray-300 focus:ring-[#FF59B6] focus:border-[#FF59B6]'
@@ -233,7 +233,7 @@ Sent from MehramMatch Contact Form
 
                     {/* Email Field */}
                     <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-[#2D3748] mb-2">
+                      <label htmlFor="email" className="block text-sm sm:text-base font-semibold text-[#2D3748] mb-2">
                         Email Address *
                       </label>
                       <input
@@ -242,7 +242,7 @@ Sent from MehramMatch Contact Form
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                        className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                           errors.email 
                             ? 'border-red-500 focus:ring-red-500' 
                             : 'border-gray-300 focus:ring-[#FF59B6] focus:border-[#FF59B6]'
@@ -254,7 +254,7 @@ Sent from MehramMatch Contact Form
 
                     {/* Subject Field */}
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-semibold text-[#2D3748] mb-2">
+                      <label htmlFor="subject" className="block text-sm sm:text-base font-semibold text-[#2D3748] mb-2">
                         Subject *
                       </label>
                       <input
@@ -263,7 +263,7 @@ Sent from MehramMatch Contact Form
                         name="subject"
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                        className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
                           errors.subject 
                             ? 'border-red-500 focus:ring-red-500' 
                             : 'border-gray-300 focus:ring-[#FF59B6] focus:border-[#FF59B6]'
@@ -280,7 +280,7 @@ Sent from MehramMatch Contact Form
 
                     {/* Message Field */}
                     <div>
-                      <label htmlFor="message" className="block text-sm font-semibold text-[#2D3748] mb-2">
+                      <label htmlFor="message" className="block text-sm sm:text-base font-semibold text-[#2D3748] mb-2">
                         Message *
                       </label>
                       <textarea
@@ -289,7 +289,7 @@ Sent from MehramMatch Contact Form
                         value={formData.message}
                         onChange={handleInputChange}
                         rows={6}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-none ${
+                        className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors resize-none ${
                           errors.message 
                             ? 'border-red-500 focus:ring-red-500' 
                             : 'border-gray-300 focus:ring-[#FF59B6] focus:border-[#FF59B6]'
@@ -308,7 +308,7 @@ Sent from MehramMatch Contact Form
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className={`w-full py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-300 transform ${
+                      className={`w-full py-3 sm:py-4 px-6 sm:px-8 rounded-lg font-semibold text-base sm:text-lg transition-all duration-300 transform ${
                         isSubmitting 
                           ? 'bg-gray-400 cursor-not-allowed' 
                           : 'bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-white hover:from-[#CB3B8B] hover:to-[#FF59B6] hover:scale-105'
@@ -330,10 +330,10 @@ Sent from MehramMatch Contact Form
                 </div>
 
                 {/* Contact Information */}
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#2D3748] mb-6">Get in Touch</h3>
-                    <p className="text-[#6D6E6F] leading-relaxed mb-8">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#2D3748] mb-4 sm:mb-6">Get in Touch</h3>
+                    <p className="text-sm sm:text-base text-[#6D6E6F] leading-relaxed mb-6 sm:mb-8">
                       We're here to help and answer any question you might have. 
                       We look forward to hearing from you!
                     </p>
@@ -348,9 +348,9 @@ Sent from MehramMatch Contact Form
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-[#2D3748] mb-1">Email Us</h4>
-                        <p className="text-[#6D6E6F]">contact@mehrammatch.com</p>
-                        <p className="text-sm text-[#6D6E6F] mt-1">We'll respond within 24 hours</p>
+                        <h4 className="font-semibold text-sm sm:text-base text-[#2D3748] mb-1">Email Us</h4>
+                        <p className="text-sm sm:text-base text-[#6D6E6F]">contact@mehrammatch.com</p>
+                        <p className="text-xs sm:text-sm text-[#6D6E6F] mt-1">We'll respond within 24 hours</p>
                       </div>
                     </div>
 
@@ -361,9 +361,9 @@ Sent from MehramMatch Contact Form
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-[#2D3748] mb-1">Response Time</h4>
-                        <p className="text-[#6D6E6F]">Within 24 hours</p>
-                        <p className="text-sm text-[#6D6E6F] mt-1">Monday to Friday</p>
+                        <h4 className="font-semibold text-sm sm:text-base text-[#2D3748] mb-1">Response Time</h4>
+                        <p className="text-sm sm:text-base text-[#6D6E6F]">Within 24 hours</p>
+                        <p className="text-xs sm:text-sm text-[#6D6E6F] mt-1">Monday to Friday</p>
                       </div>
                     </div>
 
@@ -374,17 +374,17 @@ Sent from MehramMatch Contact Form
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-[#2D3748] mb-1">Support</h4>
-                        <p className="text-[#6D6E6F]">Technical & General Support</p>
-                        <p className="text-sm text-[#6D6E6F] mt-1">We're here to help you succeed</p>
+                        <h4 className="font-semibold text-sm sm:text-base text-[#2D3748] mb-1">Support</h4>
+                        <p className="text-sm sm:text-base text-[#6D6E6F]">Technical & General Support</p>
+                        <p className="text-xs sm:text-sm text-[#6D6E6F] mt-1">We're here to help you succeed</p>
                       </div>
                     </div>
                   </div>
 
                   {/* FAQ Link */}
-                  <div className="bg-[#FED5EC] rounded-xl p-6">
-                    <h4 className="font-semibold text-[#d63384] mb-2">Need Quick Answers?</h4>
-                    <p className="text-[#6D6E6F] text-sm mb-4">
+                  <div className="bg-[#FED5EC] rounded-xl p-4 sm:p-6">
+                    <h4 className="font-semibold text-sm sm:text-base text-[#d63384] mb-2">Need Quick Answers?</h4>
+                    <p className="text-[#6D6E6F] text-xs sm:text-sm mb-4">
                       Check out our frequently asked questions for instant answers to common queries.
                     </p>
                     <a 

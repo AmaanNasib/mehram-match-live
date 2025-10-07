@@ -28,10 +28,10 @@ const FAQSection = () => {
     <section id="faqs" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#FFF5FB] to-[#F8F9FA]">
       <div className="container mx-auto">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-base sm:text-lg text-[#6D6E6F] max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-[#6D6E6F] max-w-2xl mx-auto">
             Get answers to common questions about MehramMatch and how our platform works.
           </p>
         </div>
@@ -46,10 +46,10 @@ const FAQSection = () => {
           {/* Contact CTA */}
           <div className="mt-12 md:mt-16">
             <div className="bg-[#FED5EC] rounded-2xl p-6 md:p-8 text-center">
-              <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#d63384]">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#d63384]">
                 Still have questions?
               </h3>
-              <p className="text-base md:text-lg mb-4 md:mb-6 text-[#6D6E6F]">
+              <p className="text-sm sm:text-base md:text-lg mb-4 md:mb-6 text-[#6D6E6F]">
                 Our support team is here to help you with any questions you might have.
               </p>
               <a 
@@ -71,10 +71,10 @@ const FAQCard = ({ faq, index }) => (
     <div className="p-6 md:p-8">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <h3 className="text-lg md:text-xl font-semibold text-[#2D3748] mb-3 md:mb-4">
+          <h3 className="text-base sm:text-lg md:text-xl font-semibold text-[#2D3748] mb-3 md:mb-4">
             {faq.question}
           </h3>
-          <p className="text-sm md:text-base text-[#6D6E6F] leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-[#6D6E6F] leading-relaxed">
             {faq.answer}
           </p>
         </div>

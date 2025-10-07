@@ -73,7 +73,7 @@ const Footer = () => {
                 </Row>
                 <Row className="text-center">
                     <Col md={12}>
-                        <p className="footer-text mt-6">
+                        <p className="footer-text mt-3 mt-md-6 px-3 px-md-0">
                             But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure. One of the India's best known brands and the world's largest matrimonial service was founded with a simple objective to help people find happiness. The company pioneered online matrimonials in 1996 and continues to lead the exciting matrimony category.
                         </p>
                     </Col>
@@ -107,7 +107,7 @@ const Footer = () => {
                     </Row> */}
 
                     <Row className="mt-4">
-                        <Col md={3} className="footer-section">
+                        <Col xs={12} sm={6} md={3} className="footer-section mb-4 mb-md-0">
                             <h5>MAIN MENU</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
@@ -118,14 +118,14 @@ const Footer = () => {
                                 <li><span onClick={() => handleSectionClick('reviews')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Real Reviews</span></li>
                             </ul>
                         </Col>
-                        <Col md={3} className="footer-section">
+                        <Col xs={12} sm={6} md={3} className="footer-section mb-4 mb-md-0">
                             <h5>Contact Details</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
                                 <li>Email: contact@mehrammatch.com</li>
                             </ul>
                         </Col>
-                        <Col md={3} className="footer-section">
+                        <Col xs={12} sm={6} md={3} className="footer-section mb-4 mb-md-0">
   <h5>USEFUL LINKS</h5>
   <div className="footer-heading-linee"></div>
   <ul className="footer-links-list">
@@ -143,20 +143,22 @@ const Footer = () => {
     </li> */}
   </ul>
 </Col>
-                        <Col md={3} className="footer-section">
+                        <Col xs={12} sm={12} md={3} className="footer-section mb-4 mb-md-0">
                             <h5>MOBILE</h5>
                             <div className="footer-heading-linee"></div>
-                            <img src={andlogo} alt="Google Play" className="store-badge" />
-                            <img src={applogo} alt="App Store" className="store-badge" />
+                            <div className="d-flex flex-column flex-sm-row gap-2">
+                                <img src={andlogo} alt="Google Play" className="store-badge" />
+                                <img src={applogo} alt="App Store" className="store-badge" />
+                            </div>
                         </Col>
                     </Row>
                 </Row>
 
                 <Row className="footer-bottom mt-4">
-                    <Col>
-                        <p>&copy; 2025 mehrammatch.com | Trademarks and brands are the property of their respective owners.</p>
+                    <Col xs={12} md={8} className="text-center text-md-start mb-3 mb-md-0">
+                        <p className="mb-0">&copy; 2025 mehrammatch.com | Trademarks and brands are the property of their respective owners.</p>
                     </Col>
-                    <Col>
+                    <Col xs={12} md={4} className="text-center text-md-end">
                         <div className="social-icons">
                             <FaFacebook className="social-icon facebook" />
                             <FaTwitter className="social-icon twitter" />

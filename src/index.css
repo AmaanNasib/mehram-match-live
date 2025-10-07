@@ -6,6 +6,23 @@
 
 body {
   background-color: #ffffff;
+  overflow-x: hidden;
+  min-width: 320px;
+  width: 100%;
+}
+
+/* Mobile viewport fixes */
+@media (max-width: 768px) {
+  body {
+    width: 100%;
+    min-width: 320px;
+    overflow-x: hidden;
+  }
+  
+  html {
+    width: 100%;
+    min-width: 320px;
+  }
 }
 
 /* Success Message Animation */

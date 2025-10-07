@@ -47,10 +47,39 @@
 
 .profile-cards {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     min-width: max-content;
     padding: 10px 5px;
     flex-wrap: nowrap;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 640px) {
+    .profile-cards {
+        gap: 12px;
+        padding: 8px 5px;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .trending-section {
+        padding: 0px 10px;
+    }
+    
+    .profile-scroll {
+        padding: 8px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .profile-cards > div {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 320px;
+        min-width: 280px;
+    }
 }
 
 

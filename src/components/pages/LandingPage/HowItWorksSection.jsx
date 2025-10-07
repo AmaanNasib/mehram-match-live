@@ -54,10 +54,10 @@ const HowItWorksSection = ({ hero3 }) => {
       <div className="container mx-auto">
         {/* Section Title */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
             How It Works
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-[#6D6E6F] mt-4 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#6D6E6F] mt-4 max-w-2xl mx-auto">
             Follow these simple steps to understand the process and get started today!
           </p>
         </div>
@@ -73,10 +73,10 @@ const HowItWorksSection = ({ hero3 }) => {
                     {step.icon}
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-[#CB3B8B] mb-2">
+                    <h4 className="text-base sm:text-lg font-semibold text-[#CB3B8B] mb-2">
                       {step.title}
                     </h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       {step.description}
                     </p>
                   </div>

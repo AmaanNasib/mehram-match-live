@@ -23,7 +23,7 @@ const WhyChooseUsSection = () => {
   return (
     <section id="premium-members" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="container mx-auto">
-        <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-12 lg:mb-20 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+        <h2 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-12 lg:mb-20 bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
           Why Choose Us?
         </h2>
 
@@ -33,10 +33,10 @@ const WhyChooseUsSection = () => {
               key={index}
               className="relative bg-[#FFF5FB] rounded-2xl p-6 lg:p-8 flex flex-col justify-end min-h-[200px] md:min-h-[250px] border border-[#898B92] hover:shadow-xl shadow-md transition-all duration-300 transform hover:scale-105"
             >
-              <h3 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-3">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text mb-3">
                 {feature.title}
               </h3>
-              <p className="text-sm lg:text-base text-[#EC80BC]">
+              <p className="text-xs sm:text-sm lg:text-base text-[#EC80BC]">
                 {feature.description}
               </p>
             </div>
