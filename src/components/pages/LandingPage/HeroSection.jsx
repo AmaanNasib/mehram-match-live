@@ -62,7 +62,7 @@ const HeroSection = ({
           {/* Registration Form Section */}
           <div className="w-full lg:w-1/2 max-w-2xl">
             <div
-              className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 shadow-2xl border border-gray-200 w-full"
+              className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 shadow-2xl border border-gray-200 w-full mx-2 sm:mx-0"
             >
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#FF28A0] text-center mb-2">
                 {!isOtpFormVisible ? "Create Your Account" : "Verify Your Account"}
@@ -120,7 +120,7 @@ const RegistrationForm = ({
   showTooltip,
   handleTooltipClick
 }) => (
-  <form className="space-y-4">
+  <form className="space-y-4 px-1 sm:px-0">
     {/* On Behalf Field */}
     {lastSegment !== 'agent' && (
       <FormField label="Profile Creating For" required tooltip="Select who this profile is for. Brother/Son will auto-set gender as Male, Daughter/Sister as Female. For Self/Friend, you'll need to select gender manually." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="on_behalf">
@@ -196,29 +196,29 @@ const RegistrationForm = ({
 
     {/* Email */}
     <FormField label="Email" required error={errors.email} tooltip="Enter a valid email address. This will be used for account verification and communication." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="email">
-      <input
-        id="email"
-        type="email"
-        className={`w-full h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.email ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-        placeholder="Enter your email"
-        onChange={handleInputChange}
-        value={formData.email}
-      />
+        <input
+          id="email"
+          type="email"
+          className={`w-full h-11 px-3 sm:px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.email ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
+          placeholder="Enter your email"
+          onChange={handleInputChange}
+          value={formData.email}
+        />
     </FormField>
 
     {/* Phone */}
     <FormField label="Phone" required error={errors.mobile_no} tooltip="Enter your 10-digit phone number. This will be used for OTP verification." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="mobile_no">
-      <div className="flex gap-2">
-        <div className="flex items-center h-11 px-2 border border-[#898B92] rounded-lg">
+      <div className="flex gap-1 sm:gap-2">
+        <div className="flex items-center h-11 px-1 sm:px-2 border border-[#898B92] rounded-lg min-w-0 flex-shrink-0">
           <ReactCountryFlag
             countryCode={countryCodes.find((country) => country.code === selectedCountryCode)?.iso}
             svg
-            style={{ width: '24px', height: '16px', marginRight: '8px' }}
+            style={{ width: '20px', height: '14px', marginRight: '4px' }}
           />
           <select
             value={selectedCountryCode}
             onChange={handleCountryCodeChange}
-            className="bg-transparent focus:outline-none text-sm"
+            className="bg-transparent focus:outline-none text-xs sm:text-sm min-w-0"
           >
             {countryCodes.map((country) => (
               <option key={country.code} value={country.code}>
@@ -231,8 +231,8 @@ const RegistrationForm = ({
           id="mobile_no"
           type="text"
           inputMode="numeric"
-          className={`flex-1 h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.mobile_no ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-          placeholder="Enter your phone number"
+          className={`flex-1 h-11 px-2 sm:px-3 text-[#6D6E6F] font-semibold rounded-lg border ${errors.mobile_no ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] min-w-0`}
+          placeholder="Phone number"
           onChange={handleInputChange}
           value={formData.mobile_no}
         />
@@ -275,7 +275,7 @@ const RegistrationForm = ({
         checked={formData.terms_condition}
       />
       <label htmlFor="terms_condition" className="text-sm text-[#6D6E6F]">
-        By signing up you agree to our <span className="text-[#FF28A0] font-medium">terms and conditions.</span>
+        By signing up you agree to our <a href="/terms-conditions" className="text-[#FF28A0] font-medium hover:underline cursor-pointer">terms and conditions.</a>
       </label>
     </div>
     {errors.terms_condition && <p className="text-red-500 text-sm">{errors.terms_condition}</p>}
