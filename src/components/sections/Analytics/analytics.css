@@ -9,29 +9,29 @@
     
     
 }
-.analyticsBottom{
-    height:33vh;
-    width: 87vw;
-    display: flex;
-    justify-content:center;
-    gap: 5vh;
+.gridWrap{
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
     position: relative;
-    margin:  4vh auto;
-    
-    
-    }
+    margin:  2rem auto 3rem;
+    max-width: 1320px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
 .analyticsImg{
     background-color:#EC80BC;
-    height: 11vh;
-    width: 11vh;
+    height: 70px;
+    width: 70px;
     border-radius: 29vh;
     position: absolute;
-    top: -15.3%;
+    top: -24px;
 }
 .analyticsBottom h1{
     color:rgb(197, 60, 197) ;
-    font-size: 4vh;
-    margin-top: 30%;
+    font-size: 22px;
+    margin-top: 32px;
     margin-bottom: 0vh;
     font-weight: 700;
     
@@ -43,16 +43,55 @@
     
 }
 
+.metricValue{ 
+  color:rgb(197,60,197);
+  font-weight:700;
+  font-size:22px;
+  margin-top: 32px;
+}
+.metricLabel{ 
+  color:#111827;
+  font-weight:600;
+  font-size:14px;
+}
+
 .analyticsCard {
     background-color: white;
-    padding: 1rem;
-    width: 24vw;
-    height: 21vh;
+    padding: 1.2rem 1rem 1rem;
+    width: 100%;
+    min-height: 160px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adds a soft shadow */
     border-radius: 8px; /* Optional: to add rounded corners */
+}
+.fancyCard{
+    background: linear-gradient(#ffffff, #ffffff) padding-box,
+               linear-gradient(135deg, #FF59B6, #CB3B8B) border-box;
+    border: 2px solid transparent;
+}
+.gradientIcon{
+    background: radial-gradient(circle at 30% 30%, #FF8DCD, #CB3B8B);
+}
+.metricIcon{ filter: brightness(0) invert(1); opacity: 0.9; }
+
+/* Responsive tweaks */
+@media (max-width: 1440px){
+  .gridWrap{ grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1024px){
+  .analyticsCard{ min-height: 150px; }
+  .gridWrap{ grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px){
+  .gridWrap{ grid-template-columns: repeat(2, 1fr); }
+  .analyticsImg{ height: 60px; width: 60px; top: -20px; }
+  .analyticsBottom h1{ font-size: 20px; margin-top: 28px; }
+}
+@media (max-width: 420px){
+  .gridWrap{ grid-template-columns: 1fr; gap: 14px; padding-left: 10px; padding-right: 10px; }
+  .analyticsCard{ max-width: 100%; }
 }
 

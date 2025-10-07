@@ -1,63 +1,45 @@
 import React from 'react';
 import "./analytics.css";
-import profile1 from "../../../images/profile1.svg"
-import people from "../../../images/people.svg"
-import user1 from "../../../images/Users1.svg"
-import user2 from "../../../images/Test1.svg"
-import user3 from "../../../images/Chat3.svg"
-import user4 from "../../../images/User4.svg"
-import user5 from "../../../images/Administrator5.svg"
-const Analytics = ({apiData}) => {
-    apiData= {
-        "active_user": 0,
-        "total_visitors": 0,
-        "profile_view": 0,
-        "message_exchange": 0,
-        "agent_interactions": 0
-    }
+import people from "../../../images/people.svg";
+import eye from "../../../images/eye.svg";
+import chat from "../../../images/Chat3.svg";
+import users from "../../../images/Users1.svg";
+import handshake from "../../../images/Handshake.svg";
+const Analytics = ({ apiData }) => {
+    const safe = {
+        active_user: apiData?.active_user ?? 0,
+        total_visitors: apiData?.total_visitors ?? 0,
+        profile_view: apiData?.profile_view ?? 0,
+        message_exchange: apiData?.message_exchange ?? 0,
+        agent_interactions: apiData?.agent_interactions ?? 0,
+    };
+
+    const cards = [
+        { key: 'total_visitors', label: 'Website Visitors', icon: people, alt: 'Website Visitors' },
+        { key: 'profile_view', label: 'Profile Viewed', icon: eye, alt: 'Profile Viewed' },
+        { key: 'message_exchange', label: 'Message Exchange', icon: chat, alt: 'Message Exchange' },
+        { key: 'active_user', label: 'Active Users', icon: users, alt: 'Active Users' },
+        { key: 'agent_interactions', label: 'Agent interactions', icon: handshake, alt: 'Agent interactions' },
+    ];
+
     return (
-        <div class="mainAnalytics">
-            <div class="analyticsTop">
-                <h2 className="text-4xl sm:text-5xl mt-32 font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text pb-10">
-                    Analytics</h2>
+        <div className="mainAnalytics px-4 sm:px-6 lg:px-8">
+            <div className="analyticsTop">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl mt-16 sm:mt-24 font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text pb-6 text-center">
+                    Analytics
+                </h2>
 
             </div>
-            <div class="analyticsBottom">
-                <div class="analyticsCard">
-                    <div class="analyticsImg" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={user1} style={{ width: "2.5rem" }} alt="" />
+            <div className="analyticsBottom gridWrap">
+                {cards.map((c) => (
+                    <div key={c.key} className="analyticsCard fancyCard" aria-label={c.label}>
+                        <div className="analyticsImg gradientIcon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <img className="metricIcon" src={c.icon} style={{ width: "2.2rem" }} alt={c.alt} />
+                        </div>
+                        <div className="metricValue">{safe[c.key]}+ </div>
+                        <div className="metricLabel">{c.label}</div>
                     </div>
-                    <h1>{apiData?.total_visitors}+</h1>
-                    <p>Website Visitors</p>
-                </div>
-                <div class="analyticsCard">
-                    <div class="analyticsImg" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={user2} style={{ width: "2.5rem" }} alt="" />
-                    </div>
-                    <h1>{apiData?.profile_view}+</h1>
-                    <p>Profile Viewed</p>
-                </div>
-                <div class="analyticsCard">
-                    <div class="analyticsImg" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={user3} style={{ width: "2.5rem" }} alt="" />
-                    </div>
-                    <h1>{apiData?.message_exchange}+</h1>
-                    <p>Message Exchange</p>
-                </div>
-                <div class="analyticsCard">
-                    <div class="analyticsImg" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={user4} style={{ width: "2.5rem" }} alt="" />
-                    </div>
-                    <h1>{apiData?.active_user}+</h1>
-                    <p>Active Users</p>
-                </div>
-                <div class="analyticsCard">
-                    <div class="analyticsImg" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <img src={user5} style={{ width: "2.5rem" }} alt="" />
-                    </div>
-                    <h1>{apiData?.agent_interactions}+</h1>
-                    <p>Agent interactions</p>
-                </div>
+                ))}
             </div>
         </div>
     )
