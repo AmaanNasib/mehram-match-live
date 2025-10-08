@@ -206,14 +206,14 @@ const TermsConditions = () => {
                     <p>If you have questions about these Terms, please contact us:</p>
                     <div className="contact-info">
                       <div className="contact-item">
-                        <strong>Email:</strong> legal@mehrammatch.com
+                        <strong>Email:</strong> contact@mehrammatch.com
                       </div>
                       <div className="contact-item">
                         <strong>Phone:</strong> +91-9876543210
                       </div>
-                      <div className="contact-item">
+                      {/* <div className="contact-item">
                         <strong>Address:</strong> MehramMatch Legal Department, Mumbai, Maharashtra, India
-                      </div>
+                      </div> */}
                     </div>
                   </section>
 
