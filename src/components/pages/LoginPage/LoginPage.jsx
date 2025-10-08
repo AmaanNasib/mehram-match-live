@@ -111,29 +111,29 @@ const LoginPage = () => {
     <>
       {errorMessage && <p className="errormessage">{errorMessage}</p>}
       <div
-        className="flex flex-col justify-center items-center min-h-screen w-full"
+        className="flex flex-col justify-center items-center min-h-screen w-full px-4 sm:px-6 lg:px-8"
         style={{
           backgroundImage: `url(${hero1})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="w-[80%] max-w-[550px] bg-white p-6 rounded-3xl shadow-2xl border-2 border-white">
-          <img src={logo} className="w-[220px] h-[120px] mx-auto" alt="Logo" />
-          <h2 className="text-center text-xl font-bold text-black mb-4">
+        <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl bg-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-white">
+          <img src={logo} className="w-32 h-16 sm:w-40 sm:h-20 md:w-48 md:h-24 lg:w-56 lg:h-28 mx-auto mb-4 sm:mb-6" alt="Logo" />
+          <h2 className="text-center text-lg sm:text-xl md:text-2xl font-bold text-black mb-4 sm:mb-6">
             Welcome Back! Please Login
           </h2>
 
-          <form className="space-y-4" onKeyDown={handleKeyDown}>
-            {/* Email Field */}
+          <form className="space-y-3 sm:space-y-4" onKeyDown={handleKeyDown}>
+            {/* Role Field */}
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-black font-[400]">
+              <label htmlFor="role" className="block text-xs sm:text-sm font-medium text-black font-[400] mb-1 sm:mb-2">
                 Role
               </label>
               <div className="relative">
                 <select
                   id="role"
-                  className={`h-12 px-3 py-1 text-sm text-black font-semibold mt-1 w-full rounded-lg border ${roleError ? "border-[#FF4646]" : "border-gray-300"
+                  className={`h-10 sm:h-12 px-3 py-1 text-xs sm:text-sm text-black font-semibold mt-1 w-full rounded-lg border ${roleError ? "border-[#FF4646]" : "border-gray-300"
                     } bg-white focus:outline-none focus:ring-1 focus:ring-gray-500`}
                   value={role}
                   onChange={(e) => {
@@ -146,7 +146,7 @@ const LoginPage = () => {
                   {/* <option value="agent">Agent</option> */}
                 </select>
                 {roleError && (
-                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-lg">
+                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-sm sm:text-lg">
                     ❗
                   </span>
                 )}
@@ -157,14 +157,14 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-black font-[400]">
+              <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-black font-[400] mb-1 sm:mb-2">
                 User Name
               </label>
               <div className="relative">
                 <input
                   id="email"
                   type="email"
-                  className={`h-12 px-3 py-1 text-sm text-black font-semibold placeholder-gray-500 mt-1 w-full rounded-lg border ${
+                  className={`h-10 sm:h-12 px-3 py-1 text-xs sm:text-sm text-black font-semibold placeholder-gray-500 mt-1 w-full rounded-lg border ${
                     emailError ? "border-[#FF4646]" : "border-gray-300"
                   } bg-white focus:outline-none focus:ring-1 focus:ring-gray-500`}
                   placeholder="Profile ID / Mobile Number / Email Address"
@@ -175,7 +175,7 @@ const LoginPage = () => {
                   }}
                 />
                 {emailError && (
-                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-lg">
+                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-sm sm:text-lg">
                     ❗
                   </span>
                 )}
@@ -187,14 +187,14 @@ const LoginPage = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-black font-[400]">
+              <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-black font-[400] mb-1 sm:mb-2">
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
                   type="password"
-                  className={`h-12 px-3 py-1 text-sm text-black font-semibold placeholder-gray-500 mt-1 w-full rounded-lg border ${
+                  className={`h-10 sm:h-12 px-3 py-1 text-xs sm:text-sm text-black font-semibold placeholder-gray-500 mt-1 w-full rounded-lg border ${
                     passwordError ? "border-[#FF4646]" : "border-gray-300"
                   } bg-white focus:outline-none focus:ring-2 focus:ring-gray-500`}
                   placeholder="Password"
@@ -205,7 +205,7 @@ const LoginPage = () => {
                   }}
                 />
                 {passwordError && (
-                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-lg">
+                  <span className="absolute inset-y-0 right-3 flex items-center text-red-500 text-sm sm:text-lg">
                     ❗
                   </span>
                 )}
@@ -217,7 +217,7 @@ const LoginPage = () => {
 
             {/* Forgot Password Link */}
             <div className="text-right">
-              <a href="#" className="text-sm text-[#ec57ac] hover:underline font-[500]">
+              <a href="#" className="text-xs sm:text-sm text-[#ec57ac] hover:underline font-[500]">
                 Forgot Password?
               </a>
             </div>
@@ -226,7 +226,7 @@ const LoginPage = () => {
             <div>
               <button
                 type="button"
-                className={`w-full py-2 rounded-[20px] shadow border-none text-white font-medium transition duration-300 hover:shadow-lg ${
+                className={`w-full py-2 sm:py-3 rounded-[20px] shadow border-none text-white font-medium transition duration-300 hover:shadow-lg text-sm sm:text-base ${
                   isFormValid ? "bg-pink-500 hover:bg-pink-600" : "bg-[#D3D3D3] hover:bg-[#C0C0C0]"
                 }`}
                 onClick={login}
@@ -238,7 +238,7 @@ const LoginPage = () => {
             {/* Divider */}
             <div className="flex items-center">
               <div className="flex-grow border-t border-gray-300"></div>
-              <span className="mx-4 text-pink-500 font-semibold">OR</span>
+              <span className="mx-2 sm:mx-4 text-pink-500 font-semibold text-xs sm:text-sm">OR</span>
               <div className="flex-grow border-t border-gray-300"></div>
             </div>
 
@@ -246,7 +246,7 @@ const LoginPage = () => {
             <div>
               <button
                 type="button"
-                className="w-full py-2 bg-white rounded-[20px] shadow border border-gray-300 text-pink-500 font-medium transition duration-300 hover:shadow-lg hover:border-pink-500"
+                className="w-full py-2 sm:py-3 bg-white rounded-[20px] shadow border border-gray-300 text-pink-500 font-medium transition duration-300 hover:shadow-lg hover:border-pink-500 text-sm sm:text-base"
                 onClick={handleOtpLogin}
               >
                 Login with Mobile OTP
@@ -255,7 +255,7 @@ const LoginPage = () => {
           </form>
 
           {/* Register Link */}
-          <div className="mt-4 font-medium text-center text-sm text-black">
+          <div className="mt-3 sm:mt-4 font-medium text-center text-xs sm:text-sm text-black">
             New Here?{" "}
             <a href="/" className="font-medium text-sky-500 no-underline font-[400]">
               Register Free
@@ -263,7 +263,7 @@ const LoginPage = () => {
           </div>
 
           {/* Help Text */}
-          <div className="mt-4 font-medium text-center text-sm text-black pb-2">
+          <div className="mt-3 sm:mt-4 font-medium text-center text-xs sm:text-sm text-black pb-2">
             Need Help in Login? Call 📞
             <a href="tel:+919898989898" className="text-sky-500 no-underline">
               +91 9898989898

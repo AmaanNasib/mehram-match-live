@@ -31,12 +31,42 @@ style.textContent = `
     }
   }
   
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes fadeOutScale {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+    }
+  }
+  
   .animate-slideDown {
     animation: slideDown 0.4s ease-out forwards;
   }
   
   .animate-slideUp {
     animation: slideUp 0.4s ease-in forwards;
+  }
+  
+  .animate-fadeInScale {
+    animation: fadeInScale 0.3s ease-out forwards;
+  }
+  
+  .animate-fadeOutScale {
+    animation: fadeOutScale 0.3s ease-in forwards;
   }
   
   /* Logo Styling */
@@ -88,7 +118,9 @@ document.head.appendChild(style);
 const Navbar = ({ isLogIn, setLogin, login }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isServicesDropdownVisible, setIsServicesDropdownVisible] = useState(false);
   const registerDropdownRef = useRef(null);
+  const servicesDropdownRef = useRef(null);
   const navigate = useNavigate();
   
   // Check if user is logged in
@@ -97,6 +129,45 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
   // Toggle dropdown visibility
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  // Toggle services dropdown visibility
+  const toggleServicesDropdown = () => {
+    setIsServicesDropdownVisible(!isServicesDropdownVisible);
+  };
+
+  // Handle matchmaking click - scroll to hero section
+  const handleMatchmakingClick = () => {
+    // Close dropdowns first
+    setIsServicesDropdownVisible(false);
+    setIsMenuOpen(false);
+    
+    // Small delay to ensure dropdown closes before navigation
+    setTimeout(() => {
+      if (window.location.pathname === '/') {
+        // If on landing page, scroll to hero section
+        const heroSection = document.querySelector('#hero-section') || 
+                           document.querySelector('.hero-section') ||
+                           document.querySelector('[class*="hero"]') ||
+                           document.querySelector('section');
+        
+        if (heroSection) {
+          heroSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        } else {
+          // Fallback: scroll to top
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+      } else {
+        // If not on landing page, navigate to landing page
+        navigate('/');
+      }
+    }, 100);
   };
 
   // Handle login button click
@@ -131,6 +202,12 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
         !registerDropdownRef.current.contains(event.target)
       ) {
         setIsDropdownVisible(false);
+      }
+      if (
+        servicesDropdownRef.current &&
+        !servicesDropdownRef.current.contains(event.target)
+      ) {
+        setIsServicesDropdownVisible(false);
       }
     };
 
@@ -228,12 +305,40 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
             >
               Guidance
             </NavLink>
-            <NavLink
-              to="/services"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Services
-            </NavLink>
+            <div className="relative group" ref={servicesDropdownRef}>
+              <button
+                onClick={toggleServicesDropdown}
+                className="flex items-center space-x-1 text-gray-700 hover:text-[#FF59B6] hover:bg-gray-50 transition-all duration-200 font-medium py-2 px-3 rounded-lg"
+              >
+                <span>Services</span>
+                <svg 
+                  className={`w-4 h-4 transition-transform duration-200 ${isServicesDropdownVisible ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div className={`absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 border border-gray-200 overflow-hidden transition-all duration-200 ease-out transform ${
+                isServicesDropdownVisible 
+                  ? 'opacity-100 translate-y-0 scale-100' 
+                  : 'opacity-0 -translate-y-1 scale-98 pointer-events-none'
+              }`}>
+                <button
+                  onClick={handleMatchmakingClick}
+                  className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF59B6] transition-all duration-200 font-medium"
+                >
+                  <div className="flex items-center space-x-3 group">
+                    <svg className="w-4 h-4 text-gray-500 group-hover:text-[#FF59B6] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span className="group-hover:text-[#FF59B6] transition-colors duration-200">Matchmaking</span>
+                  </div>
+                </button>
+              </div>
+            </div>
             <NavLink
               to="/contact-us"
               className={({ isActive }) => (isActive ? "active" : "")}
@@ -362,24 +467,45 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
               <span className="text-sm">Guidance</span>
             </NavLink>
 
-            <NavLink
-              to="/services"
-              className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#FF59B6]/10 hover:text-[#FF59B6] rounded-lg transition-all duration-200 font-medium ${
-                  isActive ? "bg-[#FF59B6] text-white" : ""
-                }`
-              }
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${
-                isMenuOpen ? "bg-[#FF59B6] text-white" : "bg-gray-100"
-              }`}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <div className="space-y-1">
+              <button
+                onClick={toggleServicesDropdown}
+                className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-[#FF59B6]/10 hover:text-[#FF59B6] rounded-lg transition-all duration-200 font-medium w-full text-left"
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+                  isMenuOpen ? "bg-[#FF59B6] text-white" : "bg-gray-100"
+                }`}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <span className="text-sm flex-1">Services</span>
+                <svg 
+                  className={`w-4 h-4 transition-transform duration-200 ${isServicesDropdownVisible ? 'rotate-180' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
+              </button>
+
+              <div className={`ml-4 space-y-1 transition-all duration-200 ease-out overflow-hidden ${
+                isServicesDropdownVisible 
+                  ? 'max-h-20 opacity-100' 
+                  : 'max-h-0 opacity-0'
+              }`}>
+                <button
+                  onClick={handleMatchmakingClick}
+                  className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-[#FF59B6]/10 hover:text-[#FF59B6] rounded-lg transition-all duration-200 font-medium w-full text-left group"
+                >
+                  <svg className="w-4 h-4 text-gray-500 group-hover:text-[#FF59B6] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  <span className="text-sm group-hover:text-[#FF59B6] transition-colors duration-200">Matchmaking</span>
+                </button>
               </div>
-              <span className="text-sm">Services</span>
-            </NavLink>
+            </div>
 
             <NavLink
               to="/contact-us"
