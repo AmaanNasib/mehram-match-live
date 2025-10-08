@@ -143,12 +143,16 @@
 .footer-link-no-underline {
   text-decoration: none !important;
   color: #333 !important;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  display: inline-block;
+  transform: translateY(0);
 }
 
 .footer-link-no-underline:hover {
   color: #d63384 !important;
   text-decoration: none !important;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
 }
 
 /* Remove default link styling */

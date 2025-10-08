@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaMapMarkerAlt, FaEnvelope, FaGlobe, FaPhone, FaFacebook, FaTwitter, FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
+import { FaMapMarkerAlt, FaEnvelope, FaGlobe, FaPhone, FaFacebook, FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Footerr.css"; // Custom CSS for additional styling
 import footerLogo from "../../images/footerLogo.png"
@@ -14,7 +14,7 @@ const Footer = () => {
 
     // Debug function to test sections
     const testSections = () => {
-        const sections = ['how-it-works', 'packages', 'reviews', 'premium-members'];
+        const sections = ['how-it-works', 'packages', 'reviews'];
         sections.forEach(sectionId => {
             const element = document.getElementById(sectionId);
             console.log(`Section ${sectionId}:`, element);
@@ -60,6 +60,20 @@ const Footer = () => {
         } else {
             // If not on landing page, navigate to landing page with hash
             navigate(`/#${sectionId}`);
+        }
+    };
+
+    const handleHomeClick = () => {
+        // Check if we're on the landing page
+        if (window.location.pathname === '/') {
+            // If on landing page, scroll to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        } else {
+            // If not on landing page, navigate to landing page
+            navigate('/');
         }
     };
 
@@ -111,9 +125,9 @@ const Footer = () => {
                             <h5>MAIN MENU</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
-                                <li><Link to="/" className="footer-link-no-underline">Home</Link></li>
+                                <li><span onClick={handleHomeClick} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Home</span></li>
                                 <li><span onClick={() => handleSectionClick('how-it-works')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>How It Works</span></li>
-                                <li><span onClick={() => handleSectionClick('premium-members')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Premium Members</span></li>
+                                {/* <li><span onClick={() => handleSectionClick('premium-members')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Premium Members</span></li> */}
                                 <li><span onClick={() => handleSectionClick('packages')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Packages</span></li>
                                 <li><span onClick={() => handleSectionClick('reviews')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Real Reviews</span></li>
                             </ul>
@@ -136,7 +150,7 @@ const Footer = () => {
       <Link to="/terms-conditions" className="footer-link-no-underline">Terms & Conditions</Link>
     </li>
     <li className="footer-link-item">
-      <Link to="/privacy-policy" className="footer-link-no-underline">Privacy Policy</Link>
+      <Link to="/privacy-policy" className="footer-link-no-underline" style={{transition: 'all 0.3s ease'}}>Privacy Policy</Link>
     </li>
     {/* <li className="footer-link-item">
       <Link to="/refund-request" className="footer-link-no-underline">Request a Refund</Link>
@@ -161,7 +175,6 @@ const Footer = () => {
                     <Col xs={12} md={4} className="text-center text-md-end">
                         <div className="social-icons">
                             <FaFacebook className="social-icon facebook" />
-                            <FaTwitter className="social-icon twitter" />
                             <a
   href="https://www.instagram.com/mehrammatch?igsh=MWpxMXh6eWRlZ3hxMw=="
   target="_blank"
@@ -171,7 +184,13 @@ const Footer = () => {
 </a>
 
                             <FaYoutube className="social-icon youtube" />
-                            <FaLinkedin className="social-icon linkedin" />
+                            <a
+  href="https://www.linkedin.com/in/mehram-match-70a197358/?originalSubdomain=in"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <FaLinkedin className="social-icon linkedin" />
+</a>
                         </div>
                     </Col>
                 </Row>

@@ -43,6 +43,7 @@ import Totalblocked from "./components/Dashboard/Totalblocked/Totalblocked";
 import PremiumPlans from "./components/Dashboard/Premiums/PremiumPlans";
 import Inbox from "./components/Dashboard/Inbox/Inbox";
 import TermsCondition from "./components/Dashboard/TermsCondition/TermsCondition";
+import TermsConditions from "./components/pages/TermsConditions/TermsConditions";
 
 import UserDetail from "./components/UserDetail/UserDetail";
 import MyProfile from "./components/UserDetail/MyProfile";
@@ -57,6 +58,7 @@ import ViewAllRecommendedProfiles from "./components/Dashboard/ViewAll/ViewAllRe
 import ViewAllUser from "./components/Dashboard/ViewAll/ViewAllUser.jsx";
 import AboutUs from "./components/pages/AboutUs/AboutUs";
 import ContactUs from "./components/pages/ContactUs/ContactUs";
+import PrivacyPolicy from "./components/pages/PrivacyPolicy/PrivacyPolicy";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -292,7 +294,8 @@ const AllRoutes = () => {
             </PrivateRoute>
           }
         />
-        <Route path="/terms-conditions" element={<TermsCondition />} />
+        <Route path="/terms-conditions" element={<TermsConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route
