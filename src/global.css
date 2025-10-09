@@ -260,3 +260,7 @@ button:disabled:hover{
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* hide scrollbars utility */
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}

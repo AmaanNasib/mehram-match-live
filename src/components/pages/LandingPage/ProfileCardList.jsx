@@ -1,20 +1,18 @@
 import React from 'react';
-import DashboadrCard from "../../Dashboard/dashboardCard/DashboardCard"
+import LiteProfileCard from '../../elements&widgets/LiteProfileCard';
 import './trendingProfiles.css';
 
-const ProfileCardList = ({ profiles, setApiData, activeUser }) => {
-  
+const ProfileCardList = ({ profiles, setApiData, activeUser, onCardClick }) => {
   return (
     <section className="trending-section">
-    <div className="narrow-gap">
-      <div className="button-container">
+      <div className="narrow-gap">
+        <div className="button-container"></div>
       </div>
-    </div>
       <div className="profile-scroll">
-        <div className="profile-cards" >
+        <div className="profile-cards">
           {profiles && profiles.length > 0 ? (
             profiles.map((profile) => (
-              <DashboadrCard key={profile.id} profile={profile} setApiData={setApiData} IsInterested={profile?.is_interested} activeUser={activeUser}/>
+              <LiteProfileCard key={profile.id} profile={profile} onClick={() => onCardClick && onCardClick(profile)} />
             ))
           ) : (
             <p style={{ color: 'red' }}>No match found</p>

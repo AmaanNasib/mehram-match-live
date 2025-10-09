@@ -279,6 +279,76 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
     }
   };
 
+  // Resolve profile photo URL robustly
+  const apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL)
+    ? import.meta.env.VITE_API_BASE_URL
+    : (process.env.REACT_APP_API_URL || '');
+
+  const buildImageUrl = (raw) => {
+    if (!raw) return null;
+    // Support objects like { url: '/media/...' }
+    let path = raw;
+    if (typeof path === 'object' && path !== null) {
+      if ('url' in path && typeof path.url === 'string') {
+        path = path.url;
+      } else {
+        return null;
+      }
+    }
+    if (typeof path !== 'string') return null;
+
+    // If already an absolute URL
+    if (/^https?:\/\//i.test(path)) return path;
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    const base = apiBase || window.location.origin;
+    return `${base}${normalized}`;
+  };
+
+  const token = localStorage.getItem('token');
+  const [photoSrc, setPhotoSrc] = useState(null);
+  const [authTried, setAuthTried] = useState(false);
+
+  useEffect(() => {
+    setPhotoSrc(buildImageUrl(profile?.profile_photo));
+    setAuthTried(false);
+    return () => {
+      // cleanup blob urls
+      if (photoSrc && photoSrc.startsWith('blob:')) {
+        URL.revokeObjectURL(photoSrc);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.profile_photo]);
+
+  const handleImgError = async () => {
+    if (authTried || !token) return; // prevent loops
+    try {
+      const url = buildImageUrl(profile?.profile_photo);
+      if (!url) return;
+      // Try with Bearer first, then Token
+      const tryFetch = async (authHeader) => {
+        const res = await fetch(url, { headers: { Authorization: authHeader } });
+        if (!res.ok) throw new Error('image fetch failed');
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        setPhotoSrc(objectUrl);
+        setAuthTried(true);
+        return true;
+      };
+      try {
+        await tryFetch(`Bearer ${token}`);
+      } catch (_) {
+        try {
+          await tryFetch(`Token ${token}`);
+        } catch (e) {
+          setAuthTried(true);
+        }
+      }
+    } catch (_) {
+      setAuthTried(true);
+    }
+  };
+
   return (
     <div className="profile-card" style={{ width: "20rem", height: "60%" }}>
       {/* Success Message */}
@@ -312,21 +382,19 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
           </svg>
         </button>
         <img
-          src={profile?.profile_photo
-                          ? `${process.env.REACT_APP_API_URL}${profile.profile_photo}`
-                          : `data:image/svg+xml;utf8,${encodeURIComponent(
-                              profile?.gender === "male"
-                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+          src={(() => {
+            const src = photoSrc || buildImageUrl(profile?.profile_photo);
+            if (src) return src;
+            // Unified blue placeholder for all users
+            return `data:image/svg+xml;utf8,${encodeURIComponent(
+              `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                 <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                 <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
               </svg>`
-                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
-                            )}`}
+            )}`;
+          })()}
           alt="Profile Photo"
+          onError={handleImgError}
           style={{
             objectFit: "cover",
           }}

@@ -7,6 +7,18 @@
   flex-shrink: 0;
 }
 
+/* Mobile improvements */
+@media (max-width: 640px) {
+  .profile-card { width: 100%; border-radius: 16px; }
+  .profile-image { height: 220px; }
+  .profile-info { padding: 12px; }
+  .profile-header h3 { font-size: 16px; }
+  .profile-id { font-size: 12px; }
+  .sect, .education, .profession { font-size: 13px; }
+  .message-btn { width: 100%; font-size: 13px; padding: 12px; }
+  .action-btn { padding: 10px; font-size: 12px; }
+}
+
 .profile-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
@@ -18,10 +30,12 @@
   height: 30vh;
 }
 
+/* Keep images neat on all devices */
 .profile-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .nav-btn {
@@ -47,13 +61,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.prev {
-  left: 12px;
-}
-
-.next {
-  right: 12px;
-}
+.prev { left: 12px; }
+.next { right: 12px; }
 
 .featured-tag {
   position: absolute;
@@ -70,9 +79,7 @@
   width: 9rem;
 }
 
-.profile-info {
-  padding: 16px;
-}
+.profile-info { padding: 16px; }
 
 .profile-header {
   display: flex;
@@ -81,113 +88,28 @@
   margin-bottom: 8px;
 }
 
-.profile-header h3 {
-  font-size: 18px;
-  color: #333;
-  margin: 0;
-  font-weight: 600;
-}
+.profile-header h3 { font-size: 18px; color: #333; margin: 0; font-weight: 600; }
 
-.like-btn {
-  background: none;
-  border: none;
-  color: #FF1493;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
-}
+.like-btn { background: none; border: none; color: #FF1493; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+.like-btn:hover { transform: scale(1.1); }
 
-.like-btn:hover {
-  transform: scale(1.1);
-}
+.profile-details { margin-bottom: 16px; }
 
-.profile-details {
-  margin-bottom: 16px;
-}
+.profile-id-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.profile-id { color: #FF1493; font-size: 14px; font-weight: 500; }
 
-.profile-id-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
+.age { color: #666; font-size: 14px; }
 
-.profile-id {
-  color: #FF1493;
-  font-size: 14px;
-  font-weight: 500;
-}
+.sect, .education, .profession { color: #666; font-size: 14px; margin: 4px 0; line-height: 1.4; }
 
-.age {
-  color: #666;
-  font-size: 14px;
-}
+.profile-actions { display: flex; flex-direction: column; gap: 12px; }
 
-.sect, .education, .profession {
-  color: #666;
-  font-size: 14px;
-  margin: 4px 0;
-  line-height: 1.4;
-}
+.message-btn { width: 60%; padding: 10px; background: #f5f5f5; border: none; border-radius: 1rem; color: #333; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+.message-btn:hover { background: #eeeeee; }
 
-.profile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.action-buttons { display: flex; gap: 8px; }
 
-.message-btn {
-  width: 60%;
-  padding: 10px;
-  background: #f5f5f5;
-  border: none;
-  border-radius: 1rem;
-  color: #333;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.message-btn:hover {
-  background: #eeeeee;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  color: #666;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.action-btn:hover {
-  background: #f5f5f5;
-  color: #FF1493;
-  
-}
-
-.action-btn svg {
-  opacity: 0.7;
-}
-
-.action-btn:hover svg {
-  opacity: 1;
-  color: #FF1493;
-}
+.action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border: none; border-radius: 6px; background: none; color: #666; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.action-btn:hover { background: #f5f5f5; color: #FF1493; }
+.action-btn svg { opacity: 0.7; }
+.action-btn:hover svg { opacity: 1; color: #FF1493; }
