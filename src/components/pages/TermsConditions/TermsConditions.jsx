@@ -23,18 +23,17 @@ const TermsConditions = () => {
               <div className="terms-conditions-content">
                 {/* Header Section */}
                 <div className="terms-header text-center mb-5">
-                  <h1 className="terms-title">Terms & Conditions</h1>
-                  <p className="terms-subtitle">Effective Date: October 1, 2025</p>
+                  <h1 className="terms-title">🕋 MehramMatch – Terms and Conditions</h1>
+                  <p className="terms-subtitle">Last Updated: October 9, 2025</p>
                   <div className="terms-intro">
                     <p>
-                      Welcome to MehramMatch! These Terms and Conditions ("Terms") govern your use of our 
-                      Muslim matrimonial platform. By accessing or using our services, you agree to be bound 
-                      by these Terms. Please read them carefully.
+                      Welcome to MehramMatch, a Shariah-compliant Muslim matrimonial platform designed to help 
+                      single Muslims find compatible life partners for Nikah (marriage) in accordance with Islamic 
+                      principles and Indian laws.
                     </p>
                     <p>
-                      If you do not agree to these Terms, please do not use our platform. We reserve the 
-                      right to modify these Terms at any time, and your continued use constitutes acceptance 
-                      of any changes.
+                      By registering or using MehramMatch ("the Platform"), you agree to these Terms and 
+                      Conditions ("Terms"). If you do not agree, please discontinue use of the Platform.
                     </p>
                   </div>
                 </div>
@@ -46,8 +45,12 @@ const TermsConditions = () => {
                    <section className="terms-section">
                      <h2 className="section-title">1. Acceptance of Terms</h2>
                      <p>
-                       By accessing or using Mehram Match, you agree to be legally bound by these Terms and Conditions 
-                       and our Privacy Policy. If you do not agree, please do not use our services.
+                       By accessing or using MehramMatch, you acknowledge that you have read, understood, and 
+                       agree to comply with these Terms and our Privacy Policy.
+                     </p>
+                     <p>
+                       MehramMatch reserves the right to update these Terms at any time, and continued use after 
+                       updates signifies your acceptance.
                      </p>
                    </section>
 
@@ -55,116 +58,166 @@ const TermsConditions = () => {
                    <section className="terms-section">
                      <h2 className="section-title">2. Eligibility</h2>
                      <ul className="terms-list">
-                       <li>You must be at least 18 years old to register</li>
-                       <li>Mehram Match is intended for Muslim individuals seeking matrimonial alliances</li>
-                       <li>Users must provide accurate, truthful, and complete information during registration</li>
+                       <li>Users must be at least 18 years old (female) and 21 years old (male) as per Indian law.</li>
+                       <li>Users must be single, married, unmarried, divorced/khula, or widowed and seeking marriage (Nikah) in accordance with Islamic teachings.</li>
+                       <li>By creating an account, you confirm that you are legally competent to marry under the laws of India and not prohibited by any existing marital contract.</li>
                      </ul>
                    </section>
 
                    {/* Section 3 */}
                    <section className="terms-section">
-                     <h2 className="section-title">3. User Conduct</h2>
-                     <ul className="terms-list">
-                       <li>You agree to use the platform in a respectful and honest manner</li>
-                       <li>Harassment, discrimination, hate speech, or any offensive behavior is strictly prohibited</li>
-                       <li>No content or behavior that violates Islamic ethics or the laws of your country is allowed</li>
-                       <li>Users should avoid sharing explicit, misleading, or fraudulent information</li>
-                     </ul>
+                     <h2 className="section-title">3. Purpose of the Platform</h2>
+                     <p>
+                       MehramMatch is a Shariah-compliant Muslim matrimonial service, not a dating or friendship website.
+                     </p>
+                     <p>
+                       All activities on the platform must align with Islamic ethics, modesty, and the sanctity of marriage.
+                     </p>
+                     <p>
+                       Any misuse of the platform for un-Islamic or unlawful purposes is strictly prohibited.
+                     </p>
                    </section>
 
                    {/* Section 4 */}
                    <section className="terms-section">
-                     <h2 className="section-title">4. Profile Information</h2>
+                     <h2 className="section-title">4. User Accounts & Responsibilities</h2>
                      <ul className="terms-list">
-                       <li>Users are responsible for maintaining the accuracy of their profile information</li>
-                       <li>Mehram Match does not verify the authenticity of user profiles but reserves the right to suspend or remove any profiles found to be fraudulent or inappropriate</li>
+                       <li>Provide accurate, current, and complete personal information during registration.</li>
+                       <li>Maintain the confidentiality of your login credentials and do not share your account with others.</li>
+                       <li>Immediately update any incorrect or outdated information on your profile.</li>
+                       <li>MehramMatch may suspend or delete any account found to contain false or misleading information.</li>
                      </ul>
                    </section>
 
                    {/* Section 5 */}
                    <section className="terms-section">
-                     <h2 className="section-title">5. Privacy</h2>
+                     <h2 className="section-title">5. Islamic Conduct & Values</h2>
+                     <p>
+                       All users must observe Islamic adab (etiquette) and Shariah compliance in communication and behavior.
+                     </p>
+                     <p><strong>The following are strictly prohibited:</strong></p>
                      <ul className="terms-list">
-                       <li>Mehram Match respects your privacy and handles your personal data in accordance with our Privacy Policy</li>
-                       <li>Personal details shared on the platform should be treated with confidentiality by all users</li>
+                       <li>Promoting or displaying indecent, un-Islamic, or vulgar content.</li>
+                       <li>Engaging in flirting, dating, or haram interactions.</li>
+                       <li>Promoting alcohol, gambling, music-related, or unlawful professions.</li>
+                       <li>Disrespecting, harassing, or defaming any member.</li>
+                       <li>Using the platform for non-marital purposes.</li>
                      </ul>
+                     <p>
+                       <strong>Violation may result in immediate termination or permanent ban from the platform.</strong>
+                     </p>
                    </section>
 
                    {/* Section 6 */}
                    <section className="terms-section">
-                     <h2 className="section-title">6. Use of Services</h2>
+                     <h2 className="section-title">6. Profile Guidelines</h2>
                      <ul className="terms-list">
-                       <li>Mehram Match provides a platform to connect Muslim singles but does not guarantee any marriage or relationship outcomes</li>
-                       <li>Users are responsible for their own interactions, meetings, and decisions</li>
-                       <li>The platform is not responsible for any disputes, damages, or losses arising from user interactions</li>
+                       <li>Profiles must be created only with genuine marital intentions.</li>
+                       <li>Married individuals seeking another marriage must clearly disclose their marital status and comply with both Islamic and Indian legal provisions.</li>
+                       <li>MehramMatch reserves the right to review, verify, or remove any profile that violates platform ethics or community standards.</li>
                      </ul>
                    </section>
 
                    {/* Section 7 */}
                    <section className="terms-section">
-                     <h2 className="section-title">7. Prohibited Activities</h2>
+                     <h2 className="section-title">7. Communication Policy</h2>
                      <ul className="terms-list">
-                       <li>Use of Mehram Match for commercial, advertising, or solicitation purposes is forbidden</li>
-                       <li>Creating fake profiles or impersonating others is strictly prohibited</li>
-                       <li>Sharing offensive, defamatory, or illegal content is forbidden</li>
+                       <li>Users may communicate only through the Platform's approved messaging tools.</li>
+                       <li>Sharing contact details publicly or before mutual interest approval is discouraged for user safety.</li>
+                       <li>MehramMatch may send emails, SMS, or WhatsApp notifications for matches, updates, or promotions.</li>
+                       <li>By registering, you consent to receive communications as part of your membership.</li>
                      </ul>
                    </section>
 
                    {/* Section 8 */}
                    <section className="terms-section">
-                     <h2 className="section-title">8. Termination and Suspension</h2>
+                     <h2 className="section-title">8. Payments, Membership & Refunds</h2>
                      <ul className="terms-list">
-                       <li>Mehram Match reserves the right to suspend or terminate accounts at its sole discretion for violating these terms or engaging in inappropriate conduct</li>
-                       <li>Users can deactivate their accounts at any time</li>
+                       <li>Some services are free; premium plans require payment of applicable fees as listed on the website.</li>
+                       <li>Payments must be made via authorized and secure methods.</li>
+                       <li>MehramMatch reserves the right to change pricing or features with prior notice.</li>
                      </ul>
                    </section>
 
                    {/* Section 9 */}
                    <section className="terms-section">
-                     <h2 className="section-title">9. Intellectual Property</h2>
+                     <h2 className="section-title">9. Privacy & Data Protection</h2>
                      <ul className="terms-list">
-                       <li>All content on Mehram Match, including logos, design, and text, is owned by Mehram Match or its licensors</li>
-                       <li>Users may not copy, reproduce, or distribute content without permission</li>
+                       <li>MehramMatch respects your privacy in accordance with Indian IT Act 2000 and GDPR standards.</li>
+                       <li>Your personal data will only be used for matchmaking and communication purposes.</li>
+                       <li>We implement strict security measures to protect your data, but users are responsible for safe interactions.</li>
+                       <li>Refer to our Privacy Policy for detailed information.</li>
                      </ul>
                    </section>
 
                    {/* Section 10 */}
                    <section className="terms-section">
-                     <h2 className="section-title">10. Disclaimer and Limitation of Liability</h2>
+                     <h2 className="section-title">10. Content Ownership & Intellectual Property</h2>
                      <ul className="terms-list">
-                       <li>Mehram Match is provided "as is" without warranties of any kind</li>
-                       <li>The platform does not guarantee the accuracy, completeness, or reliability of user-generated content</li>
-                       <li>Mehram Match is not liable for any direct or indirect damages resulting from the use of the site or interactions with other users</li>
+                       <li>All trademarks, logos, and content on the Platform belong to MehramMatch.</li>
+                       <li>Users grant MehramMatch a limited, non-exclusive license to use profile content for matchmaking display.</li>
+                       <li>Unauthorized use, duplication, or redistribution of any platform material is prohibited.</li>
                      </ul>
                    </section>
 
                    {/* Section 11 */}
                    <section className="terms-section">
-                     <h2 className="section-title">11. Changes to Terms</h2>
+                     <h2 className="section-title">11. Suspension or Termination</h2>
+                     <p><strong>MehramMatch reserves the right to:</strong></p>
+                     <ul className="terms-list">
+                       <li>Suspend or terminate any account violating these Terms or Islamic ethics.</li>
+                       <li>Delete any content found unlawful, obscene, or deceptive.</li>
+                       <li>Retain minimal data backups for record-keeping as required by law.</li>
+                     </ul>
                      <p>
-                       Mehram Match reserves the right to modify these Terms and Conditions at any time. Users will be 
-                       notified of significant changes, and continued use after updates constitutes acceptance.
+                       Users may request account deletion anytime via account settings or contact@mehrammatch.com.
                      </p>
                    </section>
 
                    {/* Section 12 */}
                    <section className="terms-section">
-                     <h2 className="section-title">12. Governing Law</h2>
-                     <p>
-                       These Terms and Conditions shall be governed by and construed in accordance with the laws of India.
-                     </p>
+                     <h2 className="section-title">12. Disclaimers & Limitations</h2>
+                     <ul className="terms-list">
+                       <li>MehramMatch does not guarantee a successful match or marriage.</li>
+                       <li>User information is self-submitted; the platform is not responsible for inaccuracies or false representations.</li>
+                       <li>The platform is not liable for offline interactions or damages resulting from member communications or meetings.</li>
+                     </ul>
                    </section>
 
                    {/* Section 13 */}
                    <section className="terms-section">
-                     <h2 className="section-title">13. Contact Us</h2>
-                     <p>For questions or concerns about these Terms, please contact us at:</p>
+                     <h2 className="section-title">13. Dispute Resolution & Governing Law</h2>
+                     <ul className="terms-list">
+                       <li>These Terms are governed by the laws of India and guided by Islamic principles of justice and ethics.</li>
+                       <li>Any dispute shall first be attempted to resolve amicably or through mediation.</li>
+                       <li>If unresolved, disputes shall be referred to arbitration in accordance with the Arbitration and Conciliation Act, 1996, held in Hyderabad, India.</li>
+                     </ul>
+                   </section>
+
+                   {/* Section 14 */}
+                   <section className="terms-section">
+                     <h2 className="section-title">14. Amendments</h2>
+                     <p>
+                       MehramMatch may revise these Terms periodically.
+                     </p>
+                     <p>
+                       Users will be notified via email or on-site notice. Continued use implies acceptance of the updated Terms.
+                     </p>
+                   </section>
+
+                   {/* Section 15 */}
+                   <section className="terms-section">
+                     <h2 className="section-title">15. Contact Information</h2>
+                     <p>For any questions, concerns, or legal notices, please contact:</p>
                      <div className="contact-info">
                        <div className="contact-item">
-                         <strong>Email:</strong> contact@mehrammatch.com
+                         📧 <strong>Email:</strong> contact@mehrammatch.com
                        </div>
                        <div className="contact-item">
-                         <strong>Address:</strong> MehramMatch, Mumbai, Maharashtra, India
+                         🌐 <strong>Website:</strong> https://www.mehrammatch.com
+                       </div>
+                       <div className="contact-item">
+                         📍 <strong>Address:</strong> Maharashtra, India
                        </div>
                      </div>
                    </section>
@@ -173,7 +226,7 @@ const TermsConditions = () => {
                    <section className="terms-section">
                      <div className="bg-gradient-to-r from-[#FFF5FB] to-[#F8F9FA] p-4 rounded-lg border-l-4 border-[#FF59B6]">
                        <p className="text-sm font-medium text-gray-700">
-                         <strong>By using Mehram Match, you acknowledge that you have read, understood, and agree to these Terms and Conditions.</strong>
+                         <strong>By using MehramMatch, you acknowledge that you have read, understood, and agree to these Terms and Conditions.</strong>
                        </p>
                      </div>
                    </section>
@@ -183,9 +236,10 @@ const TermsConditions = () => {
                 {/* Footer Note */}
                 <div className="terms-footer-note">
                   <p>
-                    <strong>Last Updated:</strong> October 1, 2025<br />
+                    <strong>Last Updated:</strong> October 9, 2025<br />
                     <strong>Version:</strong> 1.0<br />
-                    <strong>Governing Law:</strong> Indian Law
+                    <strong>Governing Law:</strong> Indian Law & Islamic Principles<br />
+                    <strong>Arbitration Venue:</strong> Maharashtra, India
                   </p>
                 </div>
 

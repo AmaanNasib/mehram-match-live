@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Carousel.css";
-import rightArrow from "../../images/rightArrow.svg";
-import leftArrow from "../../images/leftArrow.svg";
 import dua from "../../images/img2.jpg";
 
 const Carousel = ({ offers }) => {
@@ -51,34 +49,69 @@ const Carousel = ({ offers }) => {
             <div
               key={index}
               onClick={showBlog}
-              className="h-[100%] w-[100%] overflow-hidden font-sans text-gray-800"
+              className="h-full w-full overflow-hidden font-sans text-gray-800 cursor-pointer"
             >
               <div
-                className="w-full h-[100%] rounded-xl relative overflow-hidden flex justify-lest items-center text-lg text-black-600 bg-cover bg-center hover:scale-100"
+                className="w-full h-full rounded-xl relative overflow-hidden flex justify-start items-center text-lg text-black-600 bg-cover bg-center hover:scale-105 transition-transform duration-300"
                 style={{
                   backgroundImage: `url(${dua})`,
                 }}
               >
-                <div className="heads">
-                  <h4 className="text-m font-bold font-['Poppins']  mb-1 text-[#FF59B6] text-[40px] text-spacify bottom-10 w-[40rem] leading-tight m-[1rem] block " style={{ fontFamily: '"Inknut Antiqua", serif' }}>
-                    {offer.title}
-                  </h4>
-                  <h3 className="text-m   mb-1 text-[black] text-[20px] text-spacify  bottom-10  w-[40rem] leading-tight m-[1rem] " style={{ fontFamily: '"Raleway", serif' }}>
-                    {offer?.description}
-                  </h3>
+                {/* Gift Wrapper in Corner */}
+                <div className="gift-corner-wrapper">
+                  <div className="gift-bow">
+                    <div className="bow-left"></div>
+                    <div className="bow-center"></div>
+                    <div className="bow-right"></div>
+                  </div>
+                  <div className="gift-box">
+                    <span className="gift-text">Featured</span>
+                  </div>
+                </div>
+                
+                {/* Overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+                
+                {/* Content Container */}
+                <div className="relative z-10 w-full h-full flex items-center">
+                  <div className="carousel-content-wrapper mobile-fix">
+                    <h4 className="carousel-title">
+                      {offer.title}
+                    </h4>
+                    <h3 className="carousel-description">
+                      {offer?.description}
+                    </h3>
+                    <div className="carousel-meta">
+                      <span className="meta-item">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                        {offer.readTime}
+                      </span>
+                      <span className="meta-item">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                        </svg>
+                        {offer.date}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
-          <div className="crBtn">
-            <button className="carousel-btn" onClick={handlePrev}>
-              <img src={leftArrow} alt="Previous" />
-            </button>
-            <button className="carousel-btn" onClick={handleNext}>
-              <img src={rightArrow} alt="Next" />
-            </button>
-          </div>
         </div>
+      </div>
+      
+      {/* Modern Indicators */}
+      <div className="carousel-indicators">
+        {offers.slice(0, Math.min(3, offers.length)).map((_, index) => (
+          <button
+            key={index}
+            className={`indicator ${index === currentIndex ? 'active' : ''}`}
+            onClick={() => setCurrentIndex(index)}
+          />
+        ))}
       </div>
     </div>
   );

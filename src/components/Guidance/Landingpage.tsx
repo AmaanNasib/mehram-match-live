@@ -1,11 +1,9 @@
-import { React, useState, useEffect, useRef } from "react";
-
+import React, { useState, useEffect, useRef } from "react";
 
 import Footer from "../sections/Footer";
 import Navbar from "../sections/Navbar";
 import GuidanceCard from "../Guidance/GuidanceCard";
 import ReactPaginate from 'react-paginate';
-import { use } from "react";
 import Carousel from "./Carousel";
 
 
@@ -188,49 +186,57 @@ const pageCount = Math.ceil(blogData.length / itemsPerPage);
   return (
     <>
        
-      <Navbar />
+      <Navbar isLogIn={false} setLogin={() => {}} login={false} />
 
-      <div className="relative text-white overflow-hidden bg-gradient-to-r from-white to-pink-100 ">
+      <div className="relative text-white overflow-hidden bg-gradient-to-r from-white to-pink-100 min-h-screen">
 
         {/* Guidance Section */}
-        <section className="container mx-auto pt-20 pb-42 px-6 z-50 ">
+        <section className="container mx-auto pt-16 sm:pt-20 pb-16 sm:pb-20 px-4 sm:px-6 z-50">
 
           {/* Section Title */}
-          <div className="text-center">
-            <h2 className="text-4xl sm:text-5xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-['Poppins'] bg-gradient-to-r from-[#FF59B6] to-[#CB3B8B] text-transparent bg-clip-text leading-tight">
               Guidance
             </h2>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 mt-4 max-w-2xl mx-auto px-4">
+              Discover Islamic guidance, marriage advice, and spiritual insights for your journey
+            </p>
           </div>
-          <Carousel offers={blogData} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-center justify-items-center gap-10 max-w-screen-lg mx-auto  cursor-pointer">
+          {/* Carousel Section */}
+          <div className="mb-12 sm:mb-16">
+            <Carousel offers={blogData} />
+          </div>
 
-            {/* <GuidanceCard /> */}
+          {/* Blog Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 max-w-7xl mx-auto cursor-pointer">
             {paginatedData.map((item, index) => (
-           <GuidanceCard key={index} data={item} />
-      ))}
-
-
-
+              <GuidanceCard key={index} data={item} />
+            ))}
           </div>
-
 
         </section>
 
-<div className="mb-16 mt-16">
-
-        <ReactPaginate
-  previousLabel={"Previous"}
-  nextLabel={"Next"}
-  breakLabel={"..."}
-  pageCount={pageCount}
-  marginPagesDisplayed={2}
-  pageRangeDisplayed={5}
-  onPageChange={handlePageClick}
-  containerClassName="pagination-container"
-  activeClassName="selected" 
-/>
-</div>
+        {/* Pagination Section */}
+        <div className="mb-12 sm:mb-16 mt-8 sm:mt-12 px-4">
+          <div className="flex justify-center">
+            <ReactPaginate
+              previousLabel={"Previous"}
+              nextLabel={"Next"}
+              breakLabel={"..."}
+              pageCount={pageCount}
+              marginPagesDisplayed={1}
+              pageRangeDisplayed={3}
+              onPageChange={handlePageClick}
+              containerClassName="pagination-container"
+              activeClassName="selected"
+              previousClassName="pagination-btn"
+              nextClassName="pagination-btn"
+              pageClassName="pagination-page"
+              breakClassName="pagination-break"
+            />
+          </div>
+        </div>
 
 
         <Footer />

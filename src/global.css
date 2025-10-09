@@ -108,3 +108,155 @@ button:disabled{
 button:disabled:hover{
     opacity: 1;
 }
+
+/* Responsive Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.pagination-container li {
+  list-style: none;
+  margin: 0;
+}
+
+.pagination-container a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.125rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid transparent;
+}
+
+.pagination-container a:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.pagination-page a:hover {
+  background-color: #FF59B6;
+  color: white;
+  border-color: #FF59B6;
+  transform: translateY(-1px);
+}
+
+.pagination-container .selected a {
+  background-color: #FF59B6;
+  color: white;
+  border-color: #FF59B6;
+}
+
+.pagination-container .selected a:hover {
+  background-color: #CB3B8B;
+  border-color: #CB3B8B;
+}
+
+.pagination-btn a {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pagination-btn a:hover {
+  background-color: #FF59B6;
+  color: white;
+  border-color: #FF59B6;
+}
+
+.pagination-page a {
+  color: #000000;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+}
+
+.pagination-break a {
+  color: #9ca3af;
+  background-color: transparent;
+  border: none;
+  cursor: default;
+}
+
+.pagination-break a:hover {
+  background-color: transparent;
+  border: none;
+}
+
+/* Mobile Responsive Pagination */
+@media (max-width: 640px) {
+  .pagination-container {
+    gap: 0.125rem;
+    margin: 1.5rem 0;
+  }
+  
+  .pagination-container a {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+    min-width: 2rem;
+    height: 2rem;
+    font-weight: 600;
+  }
+  
+  .pagination-container .pagination-btn a {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .pagination-page a {
+    color: #000000;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-container {
+    gap: 0.125rem;
+  }
+  
+  .pagination-container a {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.6875rem;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    font-weight: 600;
+  }
+  
+  .pagination-container .pagination-btn a {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+  
+  .pagination-page a {
+    color: #000000;
+    font-weight: 600;
+  }
+}
+
+/* Line clamp utilities for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
