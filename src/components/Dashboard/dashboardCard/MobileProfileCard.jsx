@@ -13,7 +13,6 @@ const MobileProfileCard = ({ profile, setApiData, IsInterested, url, interested_
   const [showMenu, setShowMenu] = useState(false);
   const [photoRequestStatus, setPhotoRequestStatus] = useState(null);
   const [loadingPhotoStatus, setLoadingPhotoStatus] = useState(false);
-  const [isInterestSent, setIsInterestSent] = useState(false);
   const role = localStorage.getItem('role');
 
   // Function to get marital status badge color
@@ -79,22 +78,12 @@ const MobileProfileCard = ({ profile, setApiData, IsInterested, url, interested_
       },
     };
     
-    // Show immediate feedback
-    setIsInterestSent(true);
-    setSuccessMessage("Interest sent successfully!");
-    
     // Call API with correct method
     if (Number(interested_id)) {
       putDataWithFetchV2(parameter);
     } else {
       postDataWithFetchV2(parameter);
     }
-    
-    // Reset feedback after 2 seconds
-    setTimeout(() => {
-      setIsInterestSent(false);
-      setSuccessMessage("");
-    }, 2000);
   };
 
   const shortlist = (action_on_id) => {
@@ -174,11 +163,11 @@ const MobileProfileCard = ({ profile, setApiData, IsInterested, url, interested_
         {/* Action Buttons */}
         <div className="mobile-action-buttons">
           <button 
-            className={`mobile-action-btn mobile-heart-btn ${isInterestSent ? 'interest-sent' : ''}`}
+            className="mobile-action-btn mobile-heart-btn"
             onClick={() => interested({action_on_id: profile.id, interested_id: interested_id})}
-            disabled={isInterestSent}
+            title={IsInterested ? "Withdraw Interest" : "Send Interest"}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill={IsInterested || isInterestSent ? "#ff4081" : "none"} stroke="#ff4081">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={IsInterested ? "#ff4081" : "none"} stroke="#ff4081">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeWidth="2"/>
             </svg>
           </button>

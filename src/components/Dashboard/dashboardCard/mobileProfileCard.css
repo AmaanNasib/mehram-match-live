@@ -138,23 +138,15 @@
   stroke: white;
 }
 
-/* Interest Sent Feedback */
-.mobile-heart-btn.interest-sent {
-  background: #ff4081 !important;
-  color: white !important;
-  transform: scale(1.1);
-  animation: pulse 0.6s ease-in-out;
+/* Enhanced hover effects for heart button */
+.mobile-heart-btn:hover {
+  background: #ff4081;
+  color: white;
+  transform: scale(1.05);
 }
 
-.mobile-heart-btn.interest-sent svg {
-  fill: white !important;
-  stroke: white !important;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+.mobile-heart-btn:active {
+  transform: scale(0.95);
 }
 
 /* Responsive adjustments for very small screens */
