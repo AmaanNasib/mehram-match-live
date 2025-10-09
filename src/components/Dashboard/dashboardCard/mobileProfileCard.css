@@ -76,27 +76,20 @@
 
 .mobile-detail-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 1px;
-}
-
-.mobile-detail-label {
-  font-size: 8px;
-  color: #666;
-  font-weight: 500;
-  flex-shrink: 0;
 }
 
 .mobile-detail-value {
   font-size: 8px;
   color: #333;
   font-weight: 400;
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 60%;
+  width: 100%;
 }
 
 /* Action Buttons */

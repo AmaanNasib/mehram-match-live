@@ -131,15 +131,12 @@ const MobileProfileCard = ({ profile, setApiData, IsInterested, url, interested_
 
         <div className="mobile-profile-details">
           <div className="mobile-detail-row">
-            <span className="mobile-detail-label">Age:</span>
             <span className="mobile-detail-value">{profile?.age || "Not Mentioned"}</span>
           </div>
           <div className="mobile-detail-row">
-            <span className="mobile-detail-label">Education:</span>
             <span className="mobile-detail-value">{profile?.education || "Not Mentioned"}</span>
           </div>
           <div className="mobile-detail-row">
-            <span className="mobile-detail-label">Profession:</span>
             <span className="mobile-detail-value">{profile?.profession || "Not Mentioned"}</span>
           </div>
         </div>
