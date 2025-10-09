@@ -66,6 +66,34 @@
   min-width: 0;
 }
 
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding-top: 2vh;
+    flex-direction: column;
+  }
+  
+  .sidebarContainer {
+    width: 100%;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 2vh;
+  }
+  
+  .users {
+    width: 100%;
+    height: auto;
+  }
+  
+  .dashboard-header {
+    padding: 12px 16px;
+  }
+  
+  .header-content {
+    padding: 0 10px;
+  }
+}
+
 /* Shimmer Animation */
 @keyframes shimmer {
   0% {

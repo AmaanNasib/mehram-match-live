@@ -9,14 +9,52 @@
 
 /* Mobile improvements */
 @media (max-width: 640px) {
-  .profile-card { width: 100%; border-radius: 16px; }
-  .profile-image { height: 220px; }
-  .profile-info { padding: 12px; }
-  .profile-header h3 { font-size: 16px; }
-  .profile-id { font-size: 12px; }
-  .sect, .education, .profession { font-size: 13px; }
-  .message-btn { width: 100%; font-size: 13px; padding: 12px; }
-  .action-btn { padding: 10px; font-size: 12px; }
+  .profile-card { 
+    width: 200px; 
+    border-radius: 10px; 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .profile-image { 
+    height: 140px; 
+  }
+  .profile-info { 
+    padding: 8px; 
+  }
+  .profile-header h3 { 
+    font-size: 14px; 
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .profile-id { 
+    font-size: 9px; 
+    margin-bottom: 6px;
+  }
+  .sect, .education, .profession { 
+    font-size: 11px; 
+    margin: 1px 0;
+    line-height: 1.1;
+  }
+  .message-btn { 
+    width: 100%; 
+    font-size: 11px; 
+    padding: 6px 8px; 
+    margin-top: 6px;
+  }
+  .action-btn { 
+    padding: 4px 2px; 
+    font-size: 9px; 
+  }
+  .marital-status-badge {
+    font-size: 8px !important;
+    padding: 2px 4px !important;
+    height: 16px !important;
+  }
+  .profile-actions {
+    gap: 6px !important;
+  }
+  .action-buttons {
+    gap: 4px !important;
+  }
 }
 
 .profile-card:hover {
@@ -89,6 +127,57 @@
 }
 
 .profile-header h3 { font-size: 18px; color: #333; margin: 0; font-weight: 600; }
+
+/* Mobile Font Sizes */
+@media (max-width: 768px) {
+    .profile-header h3 { 
+        font-size: 16px; 
+        line-height: 1.3;
+    }
+    
+    .profile-id { 
+        font-size: 11px; 
+        font-weight: 500;
+    }
+    
+    .age { 
+        font-size: 13px; 
+        font-weight: 500;
+    }
+    
+    .sect, .education, .profession { 
+        font-size: 13px; 
+        margin: 2px 0; 
+        line-height: 1.3;
+        font-weight: 400;
+    }
+    
+    .message-btn { 
+        font-size: 13px; 
+        padding: 10px 12px; 
+        font-weight: 500;
+    }
+    
+    .action-btn { 
+        font-size: 11px; 
+        padding: 8px 6px; 
+        font-weight: 500;
+    }
+    
+    .marital-status-badge {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+        height: 20px !important;
+    }
+    
+    .profile-info {
+        padding: 12px 10px !important;
+    }
+    
+    .profile-details {
+        gap: 0.2rem !important;
+    }
+}
 
 .like-btn { background: none; border: none; color: #FF1493; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
 .like-btn:hover { transform: scale(1.1); }

@@ -14,7 +14,6 @@ import {
 import AllUser from "./AllUsers/AllUser";
 import { useLocation } from "react-router-dom";
 import UserPop from "../sections/UserPop";
-import MobileDashboard from "./MobileDashboard";
 
 // Shimmer Loading Component
 const ShimmerCard = () => (
@@ -316,22 +315,7 @@ useEffect(() => {
   //     }
   //   };
   // }, [activeUser]);
-  // Mobile responsive check
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // For mobile devices, render MobileDashboard component
-  if (isMobile) {
-    return <MobileDashboard />;
-  }
+  // Mobile responsive check removed - now using responsive design within the same component
 
   return (
     <div className="min-h-screen bg-gray-50 font-['Poppins'] overflow-x-hidden">
@@ -366,10 +350,11 @@ useEffect(() => {
         <div className="flex flex-col lg:flex-row gap-4">
           
           {/* Mobile Filter Toggle Button */}
-          <div className="xl:hidden fixed top-24 right-4 z-50">
+          <div className="xl:hidden fixed bottom-4 right-4 z-50">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 border-2 border-white"
+              title={isSidebarOpen ? "Close Filters" : "Open Filters"}
             >
               {isSidebarOpen ? (
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,10 +397,10 @@ useEffect(() => {
                 <div className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h1 className="text-xl font-bold text-white">
+                      <h1 className="text-lg sm:text-xl font-bold text-white">
                         Welcome to Your Dashboard
                       </h1>
-                      <p className="text-pink-100 text-sm mt-1">
+                      <p className="text-pink-100 text-xs sm:text-sm mt-1">
                         Discover your perfect match with Mehram Match
                       </p>
                     </div>
@@ -446,10 +431,10 @@ useEffect(() => {
               <>
                 {/* Trending Profiles Section - Exact Flutter Homepage Style */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] px-6 py-4">
+                  <div className="bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] px-4 sm:px-6 py-3 sm:py-4">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-white flex items-center">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                         Trending Profiles
@@ -457,7 +442,7 @@ useEffect(() => {
                       
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-3 sm:p-4 md:p-6">
                     {loading ? (
                       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                         {[...Array(4)].map((_, index) => (
@@ -496,10 +481,10 @@ useEffect(() => {
 
                 {/* Recommended Profiles Section - Exact Flutter Homepage Style */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-6 py-4">
+                  <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-4 sm:px-6 py-3 sm:py-4">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-bold text-white flex items-center">
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Recommended for You
@@ -507,7 +492,7 @@ useEffect(() => {
                    
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-3 sm:p-4 md:p-6">
                     {loading ? (
                       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
                         {[...Array(4)].map((_, index) => (
@@ -548,10 +533,10 @@ useEffect(() => {
 
             {/* All Users Section - Exact Flutter Homepage Style */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-[#EB53A7] to-[#FF59B6] px-6 py-4">
+              <div className="bg-gradient-to-r from-[#EB53A7] to-[#FF59B6] px-4 sm:px-6 py-3 sm:py-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-white flex items-center">
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     Browse All Profiles
@@ -559,7 +544,7 @@ useEffect(() => {
                  
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-3 sm:p-4 md:p-6">
                 {loading ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {[...Array(12)].map((_, index) => (

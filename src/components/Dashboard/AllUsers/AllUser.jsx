@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import DashboadrCard from '../dashboardCard/DashboardCard';
+import MobileProfileCard from '../dashboardCard/MobileProfileCard';
 import './alluser.css';
 import { useNavigate } from 'react-router-dom';
 
 const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -12,6 +14,17 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
     }, 2000);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
     const navigate =useNavigate();
@@ -53,6 +66,20 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
               profiles.map((profile) => {
                 const user = profile && profile.user ? profile.user : profile;
                 const keyId = user?.id || profile?.id;
+                
+                if (isMobile) {
+                  return (
+                    <MobileProfileCard
+                      key={keyId}
+                      profile={user}
+                      url={url}
+                      setApiData={setApiData}
+                      interested_id={profile?.interested_id}
+                      IsInterested={profile?.is_interested}
+                    />
+                  );
+                }
+                
                 return (
                   <DashboadrCard
                     key={keyId}

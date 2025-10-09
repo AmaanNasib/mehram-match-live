@@ -636,17 +636,18 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
         </div>
         <div className="nav-event">
           <nav className={`main-nav ${window.location.pathname === '/contact-us' ? 'contact-nav' : 'dashboard-nav'}`}>
-            <div className="logo" style={{ marginLeft: "2rem" }}>
+            {/* Logo - Left Side */}
+            <div className="logo flex-shrink-0" style={{ marginLeft: "1rem" }}>
               <img
                 href="/"
                 src={logo}
-                style={{ height: "2.5rem", width: "auto" }}
+                style={{ height: "2.5rem", width: "100%", maxWidth: "200px" }}
                 alt="Mehram Match"
                 className="logo-img"
               />
             </div>
             
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Hidden on Mobile */}
             <div className="nav-links hidden lg:flex">
               <a href="/newdashboard" className="active">
                 HOME
@@ -656,10 +657,10 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               <a href="/contact-us">CONTACT US</a>
             </div>
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button - Right Side */}
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden flex flex-col items-center justify-center w-10 h-10 space-y-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              className="lg:hidden flex flex-col items-center justify-center w-10 h-10 space-y-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 ml-auto"
               aria-label="Toggle mobile menu"
             >
               <span className={`w-6 h-0.5 bg-gray-700 transition-all duration-300 ${

@@ -160,3 +160,51 @@
 .shimmer-img::after {
   border-radius: 50%;
 }
+
+/* Mobile Font Sizes */
+@media (max-width: 768px) {
+  .recommended-section {
+    padding: 0px 15px;
+    margin-left: 10px;
+  }
+  
+  .narrow-gap h1 {
+    font-size: 16px;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+  
+  .narrow-gap p {
+    font-size: 12px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    color: #666;
+  }
+  
+  .top-right-button {
+    font-size: 11px;
+    padding: 6px 12px;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  
+  .button-container {
+    margin-bottom: 8px;
+  }
+  
+  .profile-scroll {
+    padding: 8px 0;
+  }
+  
+  .profile-cards {
+    gap: 12px;
+    padding: 8px 5px;
+  }
+  
+  .secondDetail {
+    width: 200px;
+    padding: 10px;
+  }
+}

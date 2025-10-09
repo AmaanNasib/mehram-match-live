@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import DashboadrCard from '../dashboardCard/DashboardCard';
+import MobileProfileCard from '../dashboardCard/MobileProfileCard';
 import './trendingProfiles.css';
 import {  useNavigate ,} from 'react-router-dom';
 
 const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,7 +16,18 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const navigate =useNavigate();
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+    const navigate =useNavigate();
 
 
   return (
@@ -67,6 +80,20 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
               }).map((profile) => {
                 const user = profile && profile.user ? profile.user : profile;
                 const keyId = user?.id || profile?.id;
+                
+                if (isMobile) {
+                  return (
+                    <MobileProfileCard 
+                      key={keyId}
+                      profile={user}
+                      url={url}
+                      interested_id={profile?.interested_id}
+                      setApiData={setApiData}
+                      IsInterested={profile?.is_interested}
+                    />
+                  );
+                }
+                
                 return (
                   <DashboadrCard 
                     key={keyId}

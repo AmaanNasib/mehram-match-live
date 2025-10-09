@@ -14,6 +14,7 @@
   align-items: center;
   padding: 1rem 2rem;
   max-width: 100%;
+  position: relative;
 }
 
 /* Dashboard page - navigation on right */
@@ -51,6 +52,14 @@
 
 .logo {
   flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
 }
 
 .dropdown-content {
@@ -116,14 +125,26 @@
 @media (max-width: 1024px) {
   .main-nav {
     padding: 12px 20px;
+    justify-content: space-between;
   }
   
   .nav-links {
-    display: none;
+    display: none !important;
   }
   
   .sub-nav {
-    display: none;
+    display: none !important;
+  }
+  
+  .logo {
+    margin-left: 1rem !important;
+    flex-shrink: 0;
+  }
+  
+  .logo-img {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
   }
   
   .top-bar {
