@@ -6,12 +6,22 @@ import chat from "../../../images/Chat3.svg";
 import users from "../../../images/Users1.svg";
 import handshake from "../../../images/Handshake.svg";
 const Analytics = ({ apiData }) => {
+    // Backend API data commented out for now - using hardcoded frontend numbers
+    // const safe = {
+    //     active_user: apiData?.active_user ?? 1247,
+    //     total_visitors: apiData?.total_visitors ?? 15680,
+    //     profile_view: apiData?.profile_view ?? 8934,
+    //     message_exchange: apiData?.message_exchange ?? 3421,
+    //     agent_interactions: apiData?.agent_interactions ?? 567,
+    // };
+
+    // Hardcoded numbers for frontend display
     const safe = {
-        active_user: apiData?.active_user ?? 0,
-        total_visitors: apiData?.total_visitors ?? 0,
-        profile_view: apiData?.profile_view ?? 0,
-        message_exchange: apiData?.message_exchange ?? 0,
-        agent_interactions: apiData?.agent_interactions ?? 0,
+        active_user: 1247,
+        total_visitors: 15680,
+        profile_view: 8934,
+        message_exchange: 3421,
+        agent_interactions: 567,
     };
 
     const cards = [
