@@ -580,17 +580,21 @@
 
 @media (min-width:1024px){ .mobile-native-share{ display:none; } }
 
-/* Typography refinements */
-.article-title{ font-size:2rem; }
-.section-title{ font-size:1.25rem; }
-.section-content{ font-size:0.95rem; }
+/* Mobile-first typography (BlogPage) */
+.article-title{ font-size:1.5rem; line-height:1.3; }
+.section-title{ font-size:1.125rem; margin-bottom:.5rem; }
+.section-content{ font-size:.9375rem; line-height:1.75; }
+.article-meta{ font-size:.8125rem; gap:.5rem; }
 
+/* Scale up on small screens */
 @media (min-width:640px){
-  .article-title{ font-size:2.25rem; }
+  .article-title{ font-size:2rem; }
   .section-title{ font-size:1.35rem; }
   .section-content{ font-size:1rem; }
+  .article-meta{ font-size:.9rem; gap:.75rem; }
 }
 
+/* Desktop refinements */
 @media (min-width:1024px){
   .article-title{ font-size:2.5rem; }
   .section-title{ font-size:1.5rem; }
