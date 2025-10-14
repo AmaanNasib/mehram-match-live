@@ -161,6 +161,7 @@ const DashboardLayout = ({
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
@@ -373,6 +374,20 @@ const DashboardLayout = ({
   const [allMembers, setAllMembers] = useState([]);
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Detect mobile to switch sidebar behavior to overlay drawer
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setShowSidebar(false);
+      }
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
             if (role === "individual") return; 
@@ -648,14 +663,107 @@ const DashboardLayout = ({
           style={{ padding: "12px 24px", height: "70px" }}
         >
           <div className="header-left">
-            {/* Logo */}
+            {/* Logo (hide on mobile) */}
+            {!isMobile && (
             <Link to="/" className="logo">
               <img src={logo} alt="Mehram Match" />
             </Link>
+            )}
 
             {/* Navbar Icon (Hamburger Menu) */}
+            <button
+              type="button"
+              className="hamburger-btn"
+              aria-label="Toggle menu"
+              aria-expanded={showSidebar}
+              onClick={() => setShowSidebar(prev => !prev)}
+            >
+              <span className="hamburger-bar" />
+              <span className="hamburger-bar" />
+              <span className="hamburger-bar" />
+            </button>
 
-            {/* Search Bar */}
+            {/* On mobile, show user profile next to hamburger */}
+            {isMobile && (
+              <div className="user-profile" onClick={toggleUserDropdown}>
+                {console.log("apiData:", apiData)}
+                {console.log("profile_photo:", apiData?.profile_photo)}
+                {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
+                {console.log("user_profilephoto:", apiData?.user_profilephoto)}
+                {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
+                <img
+                  src={
+                    (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
+                      ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
+                      : `data:image/svg+xml;utf8,${encodeURIComponent(
+                          apiData?.gender === "male"
+                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+              </svg>`
+                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+              </svg>`
+                        )}`
+                  }
+                  alt="User"
+                  onError={(e) => {
+                    console.log("Image failed to load, using fallback");
+                    e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                      apiData?.gender === "male"
+                        ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\">\n                <circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#bfdbfe\"/>\n                <path d=\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\" fill=\"#bfdbfe\"/>\n              </svg>`
+                        : `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#ec4899\">\n                <circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#fbcfe8\"/>\n                <path d=\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\" fill=\"#fbcfe8\"/>\n                <circle cx=\"12\" cy=\"8\" r=\"2\" fill=\"#ec4899\"/>\n              </svg>`
+                    )}`;
+                  }}
+                  onLoad={() => {
+                    console.log("Image loaded successfully");
+                  }}
+                />
+                <div className="user_role_info">
+                  <span className="username">{apiData?.name}</span>
+                  <span className="user-role">
+                    {role === "agent" ? "Agent" : "User"}
+                  </span>
+                </div>
+                <FiChevronDown style={{ fontSize: "14px" }} />
+                {showUserDropdown && (
+                  <div className="dropdown-content">
+                    <div
+                      className="dropdown-item"
+                      style={{ display: "flex", alignItems: "center" }}
+                      onClick={() => navigate(`/myprofile/${userId}`)}
+                    >
+                      <FiUser style={{ marginRight: "12px", fontSize: "16px" }} />
+                      My Profile
+                    </div>
+                    <div
+                      className="dropdown-item"
+                      style={{ display: "flex", alignItems: "center" }}
+                      onClick={() => navigate(`/user-dashboard/`)}
+                    >
+                      <FiHome style={{ marginRight: "12px", fontSize: "16px" }} />
+                      Dashboard
+                    </div>
+
+                    <div
+                      className="dropdown-item"
+                      style={{ display: "flex", alignItems: "center" }}
+                      onClick={() => handleSubNavClickLogout("/login")}
+                    >
+                      <FiLogOut
+                        style={{ marginRight: "12px", fontSize: "16px" }}
+                      />
+                      Logout
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Search Bar (desktop only; mobile moves to sidebar) */}
+            {!isMobile && (
             <div className="search-bar" ref={searchRef}>
               <form onSubmit={handleSearchSubmit}>
                 <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20">
@@ -669,8 +777,6 @@ const DashboardLayout = ({
                   onFocus={() => setShowSearchResults(true)}
                 />
               </form>
-              
-              {/* Search Results Dropdown */}
               {showSearchResults && searchSuggestions.length > 0 && (
                 <div className="search-results-dropdown">
                   {searchSuggestions.map((suggestion, index) => (
@@ -688,8 +794,11 @@ const DashboardLayout = ({
                 </div>
               )}
             </div>
+            )}
           </div>
           <div className="header-right">
+            {/* Hide notifications/language on mobile */}
+            {!isMobile && (
             <div
               className={`notifications ${
                 showNotifications ? "notification-open" : ""
@@ -722,6 +831,40 @@ const DashboardLayout = ({
               </svg>
               {showNotifications && <NotificationDropdown />}
             </div>
+            )}
+            {isMobile && (
+              <div
+                className={`notifications ${showNotifications ? "notification-open" : ""}`}
+                onClick={() => setShowNotifications(!showNotifications)}
+                aria-expanded={showNotifications}
+                aria-haspopup="true"
+                ref={notificationsRef}
+              >
+                <span className="notification-badge">{notificationCount}</span>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M13.73 21a2 2 0 0 1-3.46 0"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {showNotifications && <NotificationDropdown />}
+              </div>
+            )}
+            {!isMobile && (
             <div className="language-select" onClick={toggleLanguageDropdown}>
               <img
                 src="https://cdn.vectorstock.com/i/500p/07/62/australia-flag-blowig-in-the-wind-vector-22440762.jpg"
@@ -737,7 +880,9 @@ const DashboardLayout = ({
                 </div>
               )}
             </div>
+            )}
 
+            {!isMobile && (
             <div className="user-profile" onClick={toggleUserDropdown}>
               {console.log("apiData:", apiData)}
               {console.log("profile_photo:", apiData?.profile_photo)}
@@ -820,6 +965,7 @@ const DashboardLayout = ({
                 </div>
               )}
             </div>
+            )}
           </div>
         </header>
 
@@ -828,9 +974,51 @@ const DashboardLayout = ({
           <aside
             className={`dashboard-sidebar bg-gray-800 text-white
       transition-all duration-300 ease-in-out 
-      ${showSidebar ? "w-[250px]" : "w-[90px]"}
+      ${isMobile ? '' : (showSidebar ? "w-[250px]" : "w-[90px]")}
+      ${isMobile && showSidebar ? 'is-open' : ''}
       overflow-hidden flex flex-col`}
+            data-overlay={isMobile ? 'true' : 'false'}
+            style={isMobile ? undefined : undefined}
           >
+            {/* Mobile drawer header: logo + search */}
+            {isMobile && (
+              <div className="mobile-drawer-top">
+                <Link to="/" className="drawer-logo" onClick={() => setShowSidebar(false)}>
+                  <img src={logo} alt="Mehram Match" />
+                </Link>
+                <div className="drawer-search" ref={searchRef}>
+                  <form onSubmit={handleSearchSubmit}>
+                    <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20">
+                      <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onFocus={() => setShowSearchResults(true)}
+                    />
+                  </form>
+                  {showSearchResults && searchSuggestions.length > 0 && (
+                    <div className="search-results-dropdown">
+                      {searchSuggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className="search-suggestion-item"
+                          onClick={() => { handleSuggestionClick(suggestion); setShowSidebar(false); }}
+                        >
+                          <svg className="suggestion-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                          </svg>
+                          <span>{suggestion.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {!isMobile && (
             <div
               className="w-full p-[12px] cursor-pointer flex justify-end"
               onClick={() => setShowSidebar((prev) => !prev)}
@@ -858,6 +1046,7 @@ const DashboardLayout = ({
                 </svg>
               
             </div>
+            )}
             <nav style={{display:"flex",flexDirection:"column",alignItems:"start",overflowY:"scroll"}}>
               <Link
                 to="/user-dashboard"
@@ -1315,11 +1504,20 @@ const DashboardLayout = ({
             </nav>
           </aside>
 
+          {/* Backdrop for mobile drawer */}
+          {isMobile && (
+            <div
+              className={`sidebar-backdrop ${showSidebar ? 'active' : ''}`}
+              onClick={() => setShowSidebar(false)}
+              aria-hidden="true"
+            />
+          )}
+
           {/* Main Content */}
           <main
             className="main-content"
             style={{
-              width: showSidebar ? "calc(100% - 250px)" : "calc(100% - 90px)",
+              width: isMobile ? "100%" : (showSidebar ? "calc(100% - 250px)" : "calc(100% - 90px)"),
             }}
           >
             {children}

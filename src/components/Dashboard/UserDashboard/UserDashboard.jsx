@@ -274,6 +274,9 @@ const UserDashboard = () => {
           stepSize: 20,
           padding: 10,
           color: "#666",
+          font: {
+            size: window.innerWidth < 768 ? 10 : 12,
+          },
         },
         border: {
           display: false,
@@ -286,6 +289,11 @@ const UserDashboard = () => {
         ticks: {
           padding: 10,
           color: "#666",
+          font: {
+            size: window.innerWidth < 768 ? 9 : 12,
+          },
+          maxRotation: window.innerWidth < 480 ? 45 : 0,
+          minRotation: window.innerWidth < 480 ? 45 : 0,
         },
         border: {
           display: false,
@@ -328,7 +336,7 @@ const UserDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col p-[24px] w-[100%]">
+      <div className="flex flex-col p-3 md:p-6 w-full">
         {/* Dashboard Header with User Profile */}
         <div className="dashboard-header-section">
           <div className="header-left">
@@ -610,7 +618,7 @@ const UserDashboard = () => {
                     </span>
                   </div>
                 </div>
-                <div className="stat-details" style={{ marginTop: "1vh" }}>
+                <div className="stat-details stat-sub-details-margin">
                   <div className="stat-sub-details">
                     <span className="pending">
                       <svg
@@ -784,7 +792,7 @@ const UserDashboard = () => {
                     </span>
                   </div>
                 </div>{" "}
-                <div className="stat-details" style={{ marginTop: "1vh" }}>
+                <div className="stat-details stat-sub-details-margin">
                   <div className="stat-sub-details">
                     <span className="pending">
                       <svg
@@ -995,7 +1003,7 @@ const UserDashboard = () => {
           </div>
 
           {role != "agent" && (
-            <div className="match-details-table">
+            <div className="match-details-table overflow-x-auto">
               <table>
                 <thead>
                   <tr>

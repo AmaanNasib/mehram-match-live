@@ -367,6 +367,87 @@
   overflow-y: scroll;
 }
 
+/* Mobile overlay drawer behavior */
+@media (max-width: 1024px) {
+  .logo { display: none; }
+  .header-right .language-select { display: none; }
+  .header-right .notifications { display: inline-flex; }
+  .header-left { justify-content: flex-start; gap: 12px; }
+  /* Keep avatar below the overlay drawer */
+  .user-profile { margin-left: 0; position: relative; z-index: 500; }
+
+  .hamburger-btn {
+    position: static; /* inline to avoid overlap */
+    left: auto;
+    top: auto;
+    transform: none;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-left: 4px;
+    cursor: pointer;
+  }
+  .hamburger-bar {
+    width: 20px;
+    height: 2px;
+    background: #111827;
+    display: block;
+  }
+
+  /* Compact user profile in mobile header */
+  .dashboard-header .user-profile img { width: 32px; height: 32px; }
+  .dashboard-header .user-profile .user_role_info { display: none; }
+  .dashboard-header .user-profile { display: inline-flex; align-items: center; gap: 6px; }
+
+  .dashboard-content {
+    position: relative;
+  }
+
+  .dashboard-sidebar[data-overlay="true"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    padding: 16px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1200; /* higher than header elements */
+  }
+  .dashboard-sidebar[data-overlay="true"].is-open {
+    transform: translateX(0);
+  }
+
+  /* Drawer header (logo + search) */
+  .mobile-drawer-top { display: flex; flex-direction: column; gap: 12px; }
+  .drawer-logo img { height: 32px; }
+  .drawer-search { position: relative; }
+  .drawer-search form { display: flex; align-items: center; gap: 8px; border: 1px solid #dfe1e5; border-radius: 12px; padding: 10px 12px; background: #fff; }
+  .drawer-search input { border: none; outline: none; flex: 1; font-size: 14px; }
+}
+
+/* Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1100;
+}
+.sidebar-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .submenu-enter {
   max-height: 0;
   opacity: 0;
