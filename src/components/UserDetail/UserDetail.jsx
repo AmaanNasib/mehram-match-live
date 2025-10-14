@@ -770,7 +770,7 @@ const UserDetail = () => {
   }, [successMessage]);
 
   return (
-    <div className="h-full w-full flex flex-col justify-between gap-[20px] bg-[#f5f5f5]">
+    <div className="user-detail-container">
       <Header />
       <div className="section-container">
         <UserSetionOne
@@ -799,7 +799,7 @@ const UserDetail = () => {
                 </div>
               )}
 
-              <div className="basic">
+              <div className="photo-gallery-container">
                 {photoPrivacyLoading ? (
                   <div className="privacy-loading">Checking photo privacy...</div>
                 ) : canViewPhotos ? (

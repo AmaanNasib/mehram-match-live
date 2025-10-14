@@ -9,6 +9,68 @@ const UserDetailSecond = ({ apiData }) => {
   const [activeModal, setActiveModal] = useState(null);
   const [formData, setFormData] = useState({});
 
+  // Function to format multiple options with comma separation (only for Partner Expectations)
+  const formatMultipleOptions = (value) => {
+    if (!value || value === "NA") return "NA";
+    
+    // If it's already an array, join with commas
+    if (Array.isArray(value)) {
+      return value.filter(item => item && item.trim()).join(", ");
+    }
+    
+    // If it's a string, try to split and format
+    if (typeof value === 'string') {
+      let formattedValue = value;
+      
+      // Handle specific patterns for different types of concatenated data
+      
+      // 1. Pattern for names like "Al-HaqqAl-HakimAl-Khalifa"
+      if (/[A-Z][a-z]+[A-Z][a-z]+/.test(formattedValue)) {
+        formattedValue = formattedValue.replace(/([a-z])([A-Z])/g, '$1, $2');
+      }
+      
+      // 2. Pattern for locations like "vijayawadavisakhapatnamdibrugarhmumbaipune"
+      else if (/^[a-z]+[A-Z][a-z]+/.test(formattedValue)) {
+        formattedValue = formattedValue.replace(/([a-z])([A-Z])/g, '$1, $2');
+      }
+      
+      // 3. Pattern for religious levels like "religiousModerately ReligiousOccasionally Religious"
+      else if (/[a-z]+[A-Z][a-z]+/.test(formattedValue)) {
+        formattedValue = formattedValue.replace(/([a-z])([A-Z])/g, '$1, $2');
+      }
+      
+      // 4. Pattern for family types like "Nuclear FamilyJoint FamilyExtended Family"
+      else if (/Family[A-Z]/.test(formattedValue)) {
+        formattedValue = formattedValue.replace(/(Family)([A-Z])/g, '$1, $2');
+      }
+      
+      // 5. Pattern for sects like "bohrabarelviahmadiAhle Qur'anmuslim"
+      else if (/[a-z]+[A-Z]/.test(formattedValue)) {
+        formattedValue = formattedValue.replace(/([a-z])([A-Z])/g, '$1, $2');
+      }
+      
+      // 6. Handle Dargah/Fatiha/Niyah patterns specifically
+      if (formattedValue.includes('Yes (Only Fatiha)Yes (Only Dargah)')) {
+        formattedValue = formattedValue.replace(/Yes \(Only Fatiha\)Yes \(Only Dargah\)/g, 'Yes (Only Fatiha), Yes (Only Dargah)');
+      }
+      
+      // 7. Handle specific Dargah/Fatiha/Niyah values
+      if (formattedValue === 'No (No Dargah, No Fatiha, No Niyaz)') {
+        return formattedValue; // Return as is for this specific case
+      }
+      
+      // Clean up any double commas or trailing commas
+      formattedValue = formattedValue
+        .replace(/,\s*,/g, ',')
+        .replace(/,\s*$/, '')
+        .trim();
+      
+      return formattedValue;
+    }
+    
+    return value;
+  };
+
   useEffect(() => {
     if (apiData) {
       setFormData(apiData);
@@ -281,9 +343,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Disability?</h5>
               </div>
               <div className="basicRight">
-                <h5>
-                  <span className="secondLable">{apiData?.disability ? "Yes" : "No"}</span>
-                </h5>
+                <h5>{apiData?.disability || "NA"}</h5>
               </div>
             </div>
             <div className="basic">
@@ -323,9 +383,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Belief in Dargah/Fatiha/Niyah?</h5>
               </div>
               <div className="basicRight">
-                <h5>
-                  <span className="secondLable">{apiData?.believe_in_dargah_fatiha_niyah ? "Yes" : "No"}</span>
-                </h5>
+                <h5>{apiData?.believe_in_dargah_fatiha_niyah || "NA"}</h5>
               </div>
             </div>
           </div>
@@ -405,7 +463,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Preferred Surname:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.preferred_surname || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.preferred_surname)}</h5>
               </div>
             </div>
             <div className="basic">
@@ -413,7 +471,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Preferred Sect/School:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.preferred_sect || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.preferred_sect)}</h5>
               </div>
             </div>
             <div className="basic">
@@ -421,7 +479,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Desired Practicing Level:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.desired_practicing_level || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.desired_practicing_level)}</h5>
               </div>
             </div>
             <div className="basic">
@@ -429,7 +487,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Believes in Dargah/Fatiha/Niyah?:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.preferred_dargah_fatiha_niyah || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.preferred_dargah_fatiha_niyah)}</h5>
               </div>
             </div>
             <div className="basic">
@@ -437,7 +495,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Preferred Location:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.preferred_city || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.preferred_city)}</h5>
               </div>
             </div>
             <div className="basic">
@@ -445,7 +503,7 @@ const UserDetailSecond = ({ apiData }) => {
                 <h5>Preferred Family Type:</h5>
               </div>
               <div className="basicRight">
-                <h5>{apiData?.preferred_family_type || "NA"}</h5>
+                <h5>{formatMultipleOptions(apiData?.preferred_family_type)}</h5>
               </div>
             </div>
           </div>

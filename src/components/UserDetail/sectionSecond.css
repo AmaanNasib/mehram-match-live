@@ -1,7 +1,7 @@
 /* Existing CSS */
 .secondDetail1, .secondDetail2, .secondDetail3, .secondDetail4, .secondDetail5 {
     width: 100%;
-    background-color: white;
+    background-color: white !important;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -16,30 +16,49 @@
     margin: 0;
   }
   
-  .basic {
+.basic {
     display: flex;
     margin: 12px 0;
     padding: 8px 0;
     border-bottom: 1px solid #f8f9fa;
-  }
+    align-items: flex-start; /* Ensure multi-line values align to top */
+    gap: 12px;
+}
   
   .basic:last-child {
     border-bottom: none;
   }
   
-  .basicleft {
+.basicleft {
     width: 45%;
     font-weight: 600;
     min-width: 120px;
-  }
+}
   
-  .basicRight {
+.basicRight {
     text-align: left;
     width: 55%;
     color: #495057;
     word-wrap: break-word;
     overflow-wrap: break-word;
+}
+
+/* Mobile responsiveness for info rows */
+@media (max-width: 576px) {
+  .basic {
+    flex-direction: column;      /* Stack label above value */
+    gap: 6px;
+    padding: 10px 0;
   }
+  .basicleft {
+    width: 100%;
+    min-width: 0;
+    line-height: 1.4;
+  }
+  .basicRight {
+    width: 100%;
+  }
+}
   
   .basic h5 {
     font-size: 14px;
