@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import "./sectionSecond.css";
 import basicImg from "../../images/Kaaba.svg";
 import handShake from "../../images/Handshake.svg";
 import gene from "../../images/Genealogy.svg";
 
 const UserDetailSecondMyProfile = ({ apiData,updateData,handleFieldChange,formData }) => {
+  const navigate = useNavigate();
+  const { userId } = useParams();
   const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState(null);
   const [formData1, setFormData] = useState({});
 console.log(formData);
 
@@ -18,210 +20,10 @@ console.log(formData);
   }, [apiData]);
 
   const handleEditClick = (section) => {
-    setActiveModal(section);
+    // Navigate to dedicated edit page instead of showing modal
+    navigate(`/myprofile/${userId}/edit/${section}`);
   };
 
-  const handleCloseModal = () => {
-    setActiveModal(null);
-  };
-
-  // const handleInputChange = (e) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     [name]: type === 'checkbox' ? checked : value
-  //   }));
-  // };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Here you would typically send the updated data to your API
-    console.log("Updated data:", formData);
-    updateData()
-    handleCloseModal();
-  };
-
-   // Modal components for each section
-  const renderModal = () => {
-    if (!activeModal) return null;
-
-    const commonModalStyles = {
-      position: 'fixed',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: 'white',
-      padding: '20px',
-      borderRadius: '10px',
-      zIndex: 1000,
-      width: '80%',
-      maxWidth: '600px',
-      maxHeight: '80vh',
-      overflowY: 'auto'
-    };
-
-    const overlayStyles = {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      zIndex: 999
-    };
-
-    const closeButtonStyles = {
-      position: 'absolute',
-      top: '10px',
-      right: '10px',
-      cursor: 'pointer',
-      fontSize: '20px',
-      fontWeight: 'bold'
-    };
-
-    const renderField = (label, name, type = 'text') => (
-      
-      <div className="modal-field" style={{ marginBottom: '15px' }}>
-    
-        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-          {label}
-        </label>
-        {type === 'textarea' ? (
-          <textarea
-            name={name}
-            value={formData[name] || ''}
-            onChange={handleFieldChange}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            rows="4"
-          />
-        ) : type === 'checkbox' ? (
-          <input
-            type="checkbox"
-            name={name}
-            checked={formData[name]=='yes' }
-            onChange={handleFieldChange}
-          />
-        ) : (
-          <input
-            type={type}
-            name={name}
-            value={formData[name] || ''}
-            onChange={handleFieldChange}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-          />
-        )}
-      </div>
-    );
-
-    const modalContent = {
-      basic: (
-        <div style={commonModalStyles}>
-          <span style={closeButtonStyles} onClick={handleCloseModal}>&times;</span>
-          <h2 style={{ marginTop: '0', color: 'palevioletred' }}>Edit Basic Details</h2>
-          <form onSubmit={handleSubmit}>
-            {renderField('Skin Tone', 'skin_tone')}
-            {renderField('Native City', 'native_city')}
-            {renderField('Native State', 'native_state')}
-            {renderField('Native Country', 'native_country')}
-            {renderField('Annual Income Range', 'income')}
-            {renderField('Disability', 'disability', 'checkbox')}
-            {renderField('Job/Business Description', 'describe_job_business', 'textarea')}
-            <button type="submit" style={{ 
-              backgroundColor: 'palevioletred', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 20px', 
-              borderRadius: '5px', 
-              cursor: 'pointer',
-              marginTop: '15px'
-            }}>
-              Save Changes
-            </button>
-          </form>
-        </div>
-      ),
-      religious: (
-        <div style={commonModalStyles}>
-          <span style={closeButtonStyles} onClick={handleCloseModal}>&times;</span>
-          <h2 style={{ marginTop: '0', color: 'palevioletred' }}>Edit Religious Information</h2>
-          <form onSubmit={handleSubmit}>
-            {renderField('Sect/School of Thought', 'sect_school_info')}
-            {renderField('Islam Practicing Level', 'islamic_practicing_level')}
-            {renderField('Belief in Dargah/Fatiha/Niyah?', 'believe_in_dargah_fatiha_niyah', 'checkbox')}
-            <button type="submit" style={{ 
-              backgroundColor: 'palevioletred', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 20px', 
-              borderRadius: '5px', 
-              cursor: 'pointer',
-              marginTop: '15px'
-            }}>
-              Save Changes
-            </button>
-          </form>
-        </div>
-      ),
-      family: (
-        <div style={commonModalStyles}>
-          <span style={closeButtonStyles} onClick={handleCloseModal}>&times;</span>
-          <h2 style={{ marginTop: '0', color: 'palevioletred' }}>Edit Family Background</h2>
-          <form onSubmit={handleSubmit}>
-            {renderField('Father\'s Name', 'father_name')}
-            {renderField('Father\'s Occupation', 'father_occupation')}
-            {renderField('Mother\'s Name', 'mother_name')}
-            {renderField('Mother\'s Occupation', 'mother_occupation')}
-            {renderField('Number of Siblings', 'number_of_siblings', 'number')}
-            {renderField('Family Type', 'family_type')}
-            {renderField('Family Practicing Level', 'family_practicing_level')}
-            <button type="submit" style={{ 
-              backgroundColor: 'palevioletred', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 20px', 
-              borderRadius: '5px', 
-              cursor: 'pointer',
-              marginTop: '15px'
-            }}>
-              Save Changes
-            </button>
-          </form>
-        </div>
-      ),
-      partner: (
-        <div style={commonModalStyles}>
-          <span style={closeButtonStyles} onClick={handleCloseModal}>&times;</span>
-          <h2 style={{ marginTop: '0', color: 'palevioletred' }}>Edit Partner Expectations</h2>
-          <form onSubmit={handleSubmit}>
-            {renderField('Preferred Surname', 'preferred_surname')}
-            {renderField('Preferred Sect/School', 'preferred_sect')}
-            {renderField('Desired Practicing Level', 'desired_practicing_level')}
-            {renderField('Believes in Dargah/Fatiha/Niyah?', 'preferred_dargah_fatiha_niyah')}
-            {renderField('Preferred City', 'preferred_city')}
-            {renderField('Preferred Family Type', 'preferred_family_type')}
-            <button type="submit" style={{ 
-              backgroundColor: 'palevioletred', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 20px', 
-              borderRadius: '5px', 
-              cursor: 'pointer',
-              marginTop: '15px'
-            }}>
-              Save Changes
-            </button>
-          </form>
-        </div>
-      )
-    };
-
-    return (
-      <>
-        <div style={overlayStyles} onClick={handleCloseModal} />
-        {modalContent[activeModal]}
-      </>
-    );
-  };
 
   return (
     <div className="sectionSecond">
@@ -635,7 +437,6 @@ console.log(formData);
               </div>
             </div>
           </div>
-          {renderModal()}
         </>
       )}
     </div>

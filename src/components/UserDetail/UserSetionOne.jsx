@@ -76,12 +76,18 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
     // Step 2: Religious Information
     const step2Mandatory = [
       { key: 'sect_school_info', label: 'Sect/School of Thought' },
-      { key: 'islamic_practicing_level', label: 'Islamic Practice Level' },
-      { key: 'believe_in_dargah_fatiha_niyah', label: 'Spiritual Beliefs' }
+      { key: 'believe_in_dargah_fatiha_niyah', label: 'Belief in Dargah/Fatiha/Niyah' }
     ];
 
-    const step2Optional = [
+    // Step 2: Religious Information - Gender specific optional fields
+    const step2Optional = userData?.gender?.toLowerCase() === 'female' ? [
+      { key: 'islamic_practicing_level', label: 'Islamic Practice Level' },
       { key: 'hijab_niqab_prefer', label: 'Hijab/Niqab Preference' },
+      { key: 'perform_namaz', label: 'Namaz Performance' },
+      { key: 'recite_quran', label: 'Quran Recitation' },
+      { key: 'marriage_plan', label: 'Marriage Plan' }
+    ] : [
+      { key: 'islamic_practicing_level', label: 'Islamic Practice Level' },
       { key: 'perform_namaz', label: 'Namaz Performance' },
       { key: 'recite_quran', label: 'Quran Recitation' },
       { key: 'marriage_plan', label: 'Marriage Plan' }
