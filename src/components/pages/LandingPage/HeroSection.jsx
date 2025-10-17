@@ -60,7 +60,7 @@ const HeroSection = ({
           </div>
 
           {/* Registration Form Section */}
-          <div className="w-full lg:w-1/2 max-w-2xl">
+          <div className="w-full lg:w-1/2 max-w-2xl" id="registration-form">
             <div
               className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 shadow-2xl border border-gray-200 w-full mx-2 sm:mx-0"
             >

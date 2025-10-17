@@ -353,6 +353,33 @@ const LandingPage = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  // Handle hash navigation to registration form
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      if (window.location.hash === '#registration-form') {
+        setTimeout(() => {
+          const element = document.getElementById('registration-form');
+          if (element) {
+            element.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'center'
+            });
+          }
+        }, 100);
+      }
+    };
+
+    // Handle initial hash
+    handleHashNavigation();
+
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashNavigation);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashNavigation);
+    };
+  }, []);
+
   return (
     <>
       <Loginwindow

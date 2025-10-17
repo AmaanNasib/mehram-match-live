@@ -392,7 +392,21 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
                       >
                         Individual
                       </NavLink>
+                      <NavLink
+                        to="/agent"
+                        onClick={()=>{closeDropdown("agent")}}
+                        className={({ isActive }) =>
+                          `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
+                            isActive
+                              ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
+                              : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
+                          }`
+                        }
+                      >
+                        Agent
+                      </NavLink>
                     </div>
+                    
                   )}
                 </div>
               </>

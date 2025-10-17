@@ -30,7 +30,7 @@ const AboutUs = () => {
                 a Shariah-compliant matrimonial service for Muslims worldwide.
               </p>
               <div className="hero-buttons">
-                <Link to="/" className="btn-primary">
+                <Link to="/#registration-form" className="btn-primary">
                   Start Your Journey
                 </Link>
                 <Link to="/login" className="btn-secondary">
@@ -230,7 +230,7 @@ const AboutUs = () => {
               Join thousands of Muslims who have found their life partners through MehramMatch
             </p>
             <div className="cta-buttons">
-              <Link to="/" className="btn-primary-large">
+              <Link to="/#registration-form" className="btn-primary-large">
                 Create Your Profile
               </Link>
               <Link to="/login" className="btn-secondary-large">

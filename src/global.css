@@ -138,6 +138,7 @@ button:disabled:hover{
   min-width: 2.5rem;
   height: 2.5rem;
   border: 1px solid transparent;
+  color: #000000;
 }
 
 .pagination-container a:hover {
@@ -167,7 +168,7 @@ button:disabled:hover{
 .pagination-btn a {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
-  color: #64748b;
+  color: #64748b !important;
   font-weight: 600;
 }
 
@@ -178,7 +179,7 @@ button:disabled:hover{
 }
 
 .pagination-page a {
-  color: #000000;
+  color: #000000 !important;
   background-color: white;
   border: 1px solid #e5e7eb;
   font-weight: 600;
@@ -217,7 +218,7 @@ button:disabled:hover{
   }
   
   .pagination-page a {
-    color: #000000;
+    color: #000000 !important;
     font-weight: 600;
   }
 }
@@ -241,7 +242,7 @@ button:disabled:hover{
   }
   
   .pagination-page a {
-    color: #000000;
+    color: #000000 !important;
     font-weight: 600;
   }
 }

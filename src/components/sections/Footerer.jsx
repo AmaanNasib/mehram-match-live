@@ -6,10 +6,35 @@ import "./Footerer.css"; // Custom CSS for additional styling
 import footerLogo from "../../images/footerLogo.png"
 import andlogo from "../../images/andlogo.png"
 import applogo from "../../images/applogo.png"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 const Footer = () => {
+    const navigate = useNavigate();
+
+    const handleHomeClick = () => {
+        // Check if we're on the landing page
+        if (window.location.pathname === '/') {
+            // If on landing page, scroll to registration form
+            const registrationForm = document.getElementById('registration-form');
+            if (registrationForm) {
+                registrationForm.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } else {
+                // Fallback to top if registration form not found
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // If not on landing page, navigate to landing page with registration form hash
+            navigate('/#registration-form');
+        }
+    };
+
     return (
         <footer className="footerr text-light">
             <Container>
@@ -58,7 +83,7 @@ const Footer = () => {
                             <h5>MAIN MENU</h5>
                             <div className="footer-heading-linee"></div>
                             <ul>
-                                <li>Home</li>
+                                <li><span onClick={handleHomeClick} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Home</span></li>
                                 <li>How It Works</li>
                                 <li>Premium Members</li>
                                 <li>Packages</li>

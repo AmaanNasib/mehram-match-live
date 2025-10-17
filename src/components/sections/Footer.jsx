@@ -66,14 +66,23 @@ const Footer = () => {
     const handleHomeClick = () => {
         // Check if we're on the landing page
         if (window.location.pathname === '/') {
-            // If on landing page, scroll to top smoothly
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            // If on landing page, scroll to registration form
+            const registrationForm = document.getElementById('registration-form');
+            if (registrationForm) {
+                registrationForm.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } else {
+                // Fallback to top if registration form not found
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
         } else {
-            // If not on landing page, navigate to landing page
-            navigate('/');
+            // If not on landing page, navigate to landing page with registration form hash
+            navigate('/#registration-form');
         }
     };
 
@@ -88,7 +97,13 @@ const Footer = () => {
                 <Row className="text-center">
                     <Col md={12}>
                         <p className="footer-text mt-3 mt-md-6 px-3 px-md-0">
-                            But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure. One of the India's best known brands and the world's largest matrimonial service was founded with a simple objective to help people find happiness. The company pioneered online matrimonials in 1996 and continues to lead the exciting matrimony category.
+                        Finding a life partner should be a blessed journey, not a stressful ordeal. 
+                No more stressful or time-consuming searches through countless profiles. 
+                MehramMatch provides a safe, respectful platform where Muslims can connect 
+                with potential partners who share their values and beliefs. We understand the importance of finding a compatible partner who not only 
+                shares your faith but also your vision for a meaningful Islamic marriage. 
+                Our platform is designed to encourage Muslims to pursue marriage in a 
+                halal and dignified way.
                         </p>
                     </Col>
                 </Row>
@@ -129,7 +144,7 @@ const Footer = () => {
                                 <li><span onClick={() => handleSectionClick('how-it-works')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>How It Works</span></li>
                                 {/* <li><span onClick={() => handleSectionClick('premium-members')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Premium Members</span></li> */}
                                 <li><span onClick={() => handleSectionClick('packages')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Packages</span></li>
-                                <li><span onClick={() => handleSectionClick('reviews')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Real Reviews</span></li>
+                                <li><span onClick={() => handleSectionClick('reviews')} className="footer-link-no-underline" style={{cursor: 'pointer'}}>Reviews</span></li>
                             </ul>
                         </Col>
                         <Col xs={12} sm={6} md={3} className="footer-section mb-4 mb-md-0">
