@@ -83,13 +83,17 @@ const ViewAllRecommendedProfiles = () => {
 
   useEffect(() => {
     if (role === "individual") return; // check with backend developer for unauthorized error
-    const parameter2 = {
-      url: `/api/agent/user_agent/?agent_id=${userId}`,
-      setterFunction: setApiDataMember,
-      setErrors: setErrors,
-      setLoading: setLoading,
-    };
-    fetchDataWithTokenV2(parameter2);
+    
+    // Only fetch agent members if role is agent (not when impersonating user)
+    if (role === "agent") {
+      const parameter2 = {
+        url: `/api/agent/user_agent/?agent_id=${userId}`,
+        setterFunction: setApiDataMember,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(parameter2);
+    }
   }, []);
 
   const handleInterestClick = (actionOnId) => {

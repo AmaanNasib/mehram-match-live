@@ -209,6 +209,34 @@ const ProfileCardYLM = ({userId, name, age, city, activeUser, profile}) => {
                 </div>
             )}
             <div className="bg-[#FFF3FA] min-w-[200px] min-h-auto rounded-[12px] p-4 flex border-[1px] border-[#FFCCEA] hover:bg-[#ffeff8] transition-all cursor-pointer relative">
+                {/* Agent Verified Ribbon */}
+                {profile?.agent_id && (
+                    <div className="agent-verified-ribbon" style={{
+                        position: 'absolute',
+                        top: '8px',
+                        left: '8px',
+                        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        zIndex: 10,
+                        boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 12l2 2 4-4"/>
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                        Agent Verified
+                    </div>
+                )}
+                
                 {/* Three-dot menu button */}
                 <div className="menu-container" style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}>
                     <button 

@@ -1,12 +1,14 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { fetchDataObjectV2, updateDataV2 } from "../../../apiUtils";
 import StepTracker from "../../StepTracker/StepTracker";
 
 const MemStepFour = () => {
   const navigate = useNavigate();
-  let [userId] = useState(localStorage.getItem("userId"));
+  const { userId: paramUserId } = useParams(); // Get userId from URL params
+  
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -15,7 +17,8 @@ const MemStepFour = () => {
   const [error, setError] = useState("");
   const [errors, setErrors] = useState("");
   
-  userId = localStorage.getItem("member_id") || userId;
+  // Determine the correct userId - prioritize URL param, then member_id, then userId
+  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
 
   // Surname options from Flutter app
   const surnameOptions = [
@@ -180,16 +183,16 @@ const MemStepFour = () => {
   //   }, 5000);
   // }, [errors]);
   useEffect(() => {
-    if (userId) {
+    if (currentUserId) {
       const parameter = {
-        url: `/api/user/${userId}/`,
+        url: `/api/user/${currentUserId}/`,
         setterFunction: setApiData,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataObjectV2(parameter);
     }
-  }, [userId]);
+  }, [currentUserId]);
   useEffect(() => {
     if (apiData) {
       setProfileData({
@@ -274,7 +277,7 @@ const MemStepFour = () => {
   const handleSkipConfirm = () => {
     setShowSkipPopup(false);
     // Navigate to next step without saving any data
-    navigate(`/memstepfive`);
+    navigate(`/memstepfive/${currentUserId}`);
   };
 
   const handleSkipCancel = () => {
@@ -301,7 +304,7 @@ const MemStepFour = () => {
         cultural_background: profileData.cultural_background || "",
       },
       navigate: navigate,
-      navUrl: `/memstepfive`,
+      navUrl: `/memstepfive/${currentUserId}`,
       setErrors: setErrors,
     };
 
@@ -373,7 +376,7 @@ const MemStepFour = () => {
       profileData.desired_practicing_level &&
       profileData.preferred_family_type
     ) {
-      navigate(`/memstepfive/`);
+      navigate(`/memstepfive/${currentUserId}`);
     } else {
       setErrors("Please fill all the required fields");
     }
@@ -1738,7 +1741,7 @@ const MemStepFour = () => {
                   <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-8 border-t border-gray-200">
                     {/* Back Button */}
                 <button
-                      onClick={() => navigate("/memstepthree")}
+                      onClick={() => navigate(`/memstepthree/${currentUserId}`)}
                       type="button"
                       className="group w-full sm:w-auto bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[48px]"
                     >

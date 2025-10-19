@@ -143,7 +143,7 @@ const Matches = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 20;
 
   // Get current items
   const indexOfLastItem = currentPage * itemsPerPage;

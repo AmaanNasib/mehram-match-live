@@ -1,17 +1,19 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { updateDataV2 } from "../../../apiUtils";
 import { fetchDataObjectV2 } from "../../../apiUtils";
 import StepTracker from "../../StepTracker/StepTracker";
 
 const MemStepTwo = () => {
-  let [userId] = useState(localStorage.getItem("userId"));
-  const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { useracreate, age, member_id } = location.state || {};
+  const { userId: paramUserId } = useParams(); // Get userId from URL params
+  
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [apiData, setApiData] = useState([]);
+  const [loading, setLoading] = useState(false);
   
   const [profileData, setProfileData] = useState({
     sect_school_info: "",
@@ -27,22 +29,32 @@ const MemStepTwo = () => {
   const [error, setError] = useState("");
   const [errors, setErrors] = useState("");
   
-  userId = localStorage.getItem("member_id") || userId;
+  // Determine the correct userId - prioritize URL param, then member_id, then userId
+  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
+  
+  // Debug logging for userId resolution
+  console.log("MemStepTwo: paramUserId:", paramUserId);
+  console.log("MemStepTwo: member_id from localStorage:", localStorage.getItem("member_id"));
+  console.log("MemStepTwo: userId from state:", userId);
+  console.log("MemStepTwo: currentUserId resolved:", currentUserId);
 
   useEffect(() => {
-    if (userId) {
+    if (currentUserId) {
       const parameter = {
-        url: `/api/user/${localStorage.getItem("member_id") || userId}/`,
+        url: `/api/user/${currentUserId}/`,
         setterFunction: setApiData,
         setLoading: setLoading,
         setErrors: setErrors,
       };
       fetchDataObjectV2(parameter);
     }
-  }, [userId, useracreate]);
+  }, [currentUserId, useracreate]);
 
   useEffect(() => {
     if (apiData) {
+      console.log("MemStepTwo: Loading data for user:", currentUserId);
+      console.log("MemStepTwo: API Data:", apiData);
+      console.log("MemStepTwo: Gender from API:", apiData.gender);
       setProfileData({
         percentage: apiData.profile_percentage || null,
         gender: apiData.gender || null,
@@ -178,7 +190,7 @@ const MemStepTwo = () => {
   const naviagteNextStep = () => {
     if (validateForm()) {
       const parameters = {
-        url: `/api/user/${userId}`,
+        url: `/api/user/${currentUserId}`,
         payload: {
           sect_school_info: profileData.sect_school_info,
           islamic_practicing_level: profileData.islamic_practicing_level,
@@ -186,7 +198,7 @@ const MemStepTwo = () => {
           hijab_niqab_prefer: profileData.hijab_niqab_prefer,
         },
         navigate: navigate,
-        navUrl: `/memstepthree`,
+        navUrl: `/memstepthree/${currentUserId}`,
       };
       updateDataV2(parameters);
     } else {
@@ -631,7 +643,7 @@ const MemStepTwo = () => {
                 <button
                   onClick={() =>
                     navigate(
-                      "/memstepone",
+                      `/memstepone/${currentUserId}`,
                       member_id
                         ? {
                             state: {

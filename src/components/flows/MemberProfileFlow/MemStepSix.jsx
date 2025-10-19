@@ -19,7 +19,9 @@ import api from "../../../api";
 const MemStepSix = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  let { userId } = useParams();
+  const { userId: paramUserId } = useParams();
+  
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState();
@@ -34,7 +36,8 @@ const MemStepSix = () => {
   const [lastSegment, setLastSegment] = useState("");
   const [profileData, setProfileData] = useState({});
 
-   userId = localStorage.getItem("member_id") || userId;
+  // Determine the correct userId - prioritize URL param, then member_id, then userId
+  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
 
   useEffect(() => {
   const segments = location.pathname.split("/").filter(Boolean);
@@ -42,22 +45,22 @@ const MemStepSix = () => {
 }, [location.pathname]);
 
   useEffect(() => {
-    if (userId) {
-      console.log("MemStepSix: Fetching data for userId:", userId);
-      console.log("MemStepSix: member_id from localStorage:", localStorage.getItem("member_id"));
-      console.log("MemStepSix: Token available:", !!localStorage.getItem("token"));
+    if (currentUserId) {
+      // console.log("MemStepSix: Fetching data for userId:", currentUserId);
+      // console.log("MemStepSix: member_id from localStorage:", localStorage.getItem("member_id"));
+      // console.log("MemStepSix: Token available:", !!localStorage.getItem("token"));
       // Fetch comprehensive user data from all previous steps
       const parameter = {
-        url: `/api/user/${localStorage.getItem("member_id") || userId}/`,
+        url: `/api/user/${currentUserId}/`,
         setterFunction: setApiData,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataObjectV2(parameter);
     } else {
-      console.log("MemStepSix: No userId available");
+      // console.log("MemStepSix: No userId available");
     }
-  }, [userId]);
+  }, [currentUserId]);
 
   useEffect(() => {
     if (apiData) {
@@ -108,18 +111,18 @@ const MemStepSix = () => {
   }, [profileData]);
 
   useEffect(() => {
-    if (userId) {
-      console.log("MemStepSix: Fetching photo for userId:", userId);
-      console.log("MemStepSix: Photo URL:", `/api/user/profile_photo/${localStorage.getItem("member_id") || userId}/`);
+    if (currentUserId) {
+      // console.log("MemStepSix: Fetching photo for userId:", currentUserId);
+      // console.log("MemStepSix: Photo URL:", `/api/user/profile_photo/${currentUserId}/`);
       const parameter = {
-        url: `/api/user/profile_photo/${localStorage.getItem("member_id") || userId}/`,
+        url: `/api/user/profile_photo/${currentUserId}/`,
         setterFunction: setImagedateset,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataV2(parameter);
     }
-  }, [userId]);
+  }, [currentUserId]);
 
   useEffect(() => {
     if (imagedata) {
@@ -186,11 +189,11 @@ const MemStepSix = () => {
         const target = data.step || data.path || data.url || String(data);
         // Basic normalization for known steps
         const normalized = target.toLowerCase();
-        if (normalized.includes('stepfour')) return navigate(`/memstepfour/${localStorage.getItem("member_id") || userId}`);
-        if (normalized.includes('stepfive')) return navigate(`/memstepfive/${localStorage.getItem("member_id") || userId}`);
-        if (normalized.includes('stepthree')) return navigate(`/memstepthree/${localStorage.getItem("member_id") || userId}`);
-        if (normalized.includes('steptwo')) return navigate(`/memsteptwo/${localStorage.getItem("member_id") || userId}`);
-        if (normalized.includes('stepone')) return navigate(`/memstepone/${localStorage.getItem("member_id") || userId}`);
+        if (normalized.includes('stepfour')) return navigate(`/memstepfour/${currentUserId}`);
+        if (normalized.includes('stepfive')) return navigate(`/memstepfive/${currentUserId}`);
+        if (normalized.includes('stepthree')) return navigate(`/memstepthree/${currentUserId}`);
+        if (normalized.includes('steptwo')) return navigate(`/memsteptwo/${currentUserId}`);
+        if (normalized.includes('stepone')) return navigate(`/memstepone/${currentUserId}`);
         // Fallback: stay on current page but show hint
         alert('Some profile details are still pending. Please review previous steps.');
         return;
@@ -1222,7 +1225,7 @@ const MemStepSix = () => {
                   <div className="flex flex-col sm:flex-row justify-between sm:justify-end gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-200">
                 <button
                       type="button"
-                      onClick={() => navigate(`/memstepfive/`)}
+                      onClick={() => navigate(`/memstepfive/${currentUserId}`)}
                       className="group w-full sm:w-auto bg-white text-gray-700 px-4 sm:px-6 py-3 rounded-xl font-semibold border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transform hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 min-h-[44px] sm:min-h-[48px]"
                     >
                       <svg className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

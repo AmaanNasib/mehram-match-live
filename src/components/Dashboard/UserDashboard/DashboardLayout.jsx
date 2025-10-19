@@ -22,6 +22,7 @@ import {
   ReturnPutResponseFormdataWithoutToken,
 } from "../../../apiUtils";
 import { useNavigate, useLocation } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import ManageProfileModal from "./ManageProfileModal.jsx";
 let notificationCount = 0;
 
@@ -30,13 +31,20 @@ const NotificationDropdown = () => {
   const [apiData, setApiData] = useState([]);
   const [useError, setError] = useState(false);
   const [useLoading, setLoading] = useState(false);
-  const [userId] = useState(localStorage.getItem("userId"));
+  const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem("userId"));
   const [notifications, setNotifications] = useState([]);
   const [notificationsSingle, setNotificationsSingle] = useState([]);
   const location = useLocation();
 
   // Function to handle delete action
   notificationCount = notifications.length;
+  
+  // Update userId when localStorage changes
+  useEffect(() => {
+    const newUserId = localStorage.getItem('impersonating_user_id') || localStorage.getItem("userId");
+    setUserId(newUserId);
+  }, []);
+
   useEffect(() => {
     if (userId) {
       const parameter = {
@@ -177,10 +185,18 @@ const DashboardLayout = ({
   const [apiData, setApiData] = useState({});
   const [useLoading, setLoading] = useState({});
   const [useError, setErrors] = useState({});
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role");
+  const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem("userId"));
+  const [role, setRole] = useState(localStorage.getItem("role"));
   const location = useLocation(); // Get current location
   let route = role == "agent" ? "/total-shortlist-agent" : "/total-shortlist";
+
+  // Update userId and role when localStorage changes
+  useEffect(() => {
+    const newUserId = localStorage.getItem('impersonating_user_id') || localStorage.getItem("userId");
+    const newRole = localStorage.getItem("role");
+    setUserId(newUserId);
+    setRole(newRole);
+  }, []);
   // Helper function to determine if a nav item is active
   const isActive = (path) => {
     return location.pathname === path;
@@ -321,6 +337,44 @@ const DashboardLayout = ({
     navigate(item);
   };
 
+  const restoreAgentSession = () => {
+    try {
+      const originalAgentToken = localStorage.getItem('original_agent_token');
+      const originalAgentRole = localStorage.getItem('original_agent_role');
+      
+      if (originalAgentToken && originalAgentRole) {
+        // Restore original agent session
+        localStorage.setItem('token', originalAgentToken);
+        localStorage.setItem('role', originalAgentRole);
+        
+        // Clear impersonation data
+        localStorage.removeItem('user_access_token');
+        localStorage.removeItem('user_refresh_token');
+        localStorage.removeItem('impersonating_user_id');
+        localStorage.removeItem('is_agent_impersonating');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('agent_name');
+        localStorage.removeItem('original_agent_token');
+        localStorage.removeItem('original_agent_role');
+        
+        // Set agent userId back
+        const decoded = jwtDecode(originalAgentToken);
+        localStorage.setItem('userId', decoded.user_id || decoded.id || '');
+        
+        console.log('Successfully restored agent session');
+        alert('Successfully restored agent session');
+        
+        // Navigate back to agent dashboard
+        navigate('/dashboard');
+      } else {
+        throw new Error('No original agent session found');
+      }
+    } catch (error) {
+      console.error('Error restoring agent session:', error.message);
+      alert(`Error: ${error.message}`);
+    }
+  };
+
   const toggleLanguageDropdown = () => {
     setShowLanguageDropdown(!showLanguageDropdown);
   };
@@ -390,24 +444,51 @@ const DashboardLayout = ({
   }, []);
 
   useEffect(() => {
-            if (role === "individual") return; 
-    const parameter = {
-      url: `/api/agent/user_agent/?agent_id=${userId}`,
-      setterFunction: (data) => {
-        setAllMembers(data.member || []);
-      },
-      setErrors: setErrors,
-    };
-    fetchDataWithTokenV2(parameter);
-  }, [userId]);
+    if (role === "individual" || role === "user") return; 
+    
+    // Only fetch agent members if role is agent (not when impersonating user)
+    if (role === "agent") {
+      const parameter = {
+        url: `/api/agent/user_agent/?agent_id=${userId}`,
+        setterFunction: (data) => {
+          setAllMembers(data.member || []);
+        },
+        setErrors: setErrors,
+      };
+      fetchDataWithTokenV2(parameter);
+    }
+  }, [userId, role]);
 
   const handleExcelUpload = async (e) => {
     e.preventDefault();
 
     if (!file) {
-      alert("Please select an Excel file.");
+      alert("Please select a CSV or Excel file.");
       return;
     }
+
+    // Validate file type
+    const allowedTypes = [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const allowedExtensions = ['csv', 'xls', 'xlsx'];
+    
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+      alert("Please select a valid CSV or Excel file (.csv, .xls, .xlsx)");
+      return;
+    }
+
+    // Log file validation
+    console.log("File validation passed:", {
+      name: file.name,
+      type: file.type,
+      extension: fileExtension,
+      size: file.size
+    });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -416,6 +497,27 @@ const DashboardLayout = ({
       setIsUploading(true);
 
       const token = localStorage.getItem("token"); // or wherever you store your auth token
+
+      // Debug: Log file information
+      console.log("Uploading file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        extension: file.name.split('.').pop().toLowerCase()
+      });
+
+      // Debug: Log FormData contents
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      console.log("Environment API URL:", process.env.REACT_APP_API_URL);
+      console.log("Making API request to:", `${process.env.REACT_APP_API_URL}/api/user/user-create-from-excel/`);
+      console.log("Request headers:", {
+        Authorization: `Bearer ${token ? token.substring(0, 20) + '...' : 'No token'}`,
+        'Content-Type': 'multipart/form-data'
+      });
 
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/user/user-create-from-excel/`,
@@ -428,13 +530,67 @@ const DashboardLayout = ({
         }
       );
 
+      console.log("Response status:", res.status);
+      console.log("Response headers:", Object.fromEntries(res.headers.entries()));
+
       if (!res.ok) {
         const errorText = await res.text();
+        console.error("Upload failed with status:", res.status);
+        console.error("Error response:", errorText);
         throw new Error(errorText || "Upload failed");
       }
 
-      alert("Users uploaded successfully!");
-      setShowBulkMemberPopup(false);
+      // Parse the response
+      let responseData;
+      try {
+        responseData = await res.json();
+        console.log("Upload response:", responseData);
+      } catch (parseError) {
+        console.error("Failed to parse response as JSON:", parseError);
+        const textResponse = await res.text();
+        console.log("Raw response text:", textResponse);
+        responseData = { message: textResponse, success: true };
+      }
+
+      // Check if the response indicates actual success
+      if (responseData.success || responseData.message || (Array.isArray(responseData) && responseData.length > 0)) {
+        console.log("Upload successful:", responseData.message || responseData.success || `${responseData.length} records processed`);
+        alert(`Users uploaded successfully! ${responseData.message || (Array.isArray(responseData) ? `${responseData.length} records processed` : '')}`);
+        
+        // Refresh the members list (only for agents)
+        if (role === "agent") {
+          const refreshParameter = {
+            url: `/api/agent/user_agent/?agent_id=${userId}`,
+            setterFunction: (data) => {
+              setAllMembers(data.member || []);
+              console.log("Refreshed members list:", data.member?.length || 0, "members");
+            },
+            setErrors: setErrors,
+          };
+          fetchDataWithTokenV2(refreshParameter);
+        }
+        
+        setShowBulkMemberPopup(false);
+      } else if (Array.isArray(responseData) && responseData.length === 0) {
+        console.error("Backend returned empty array - no data was processed");
+        console.error("This usually means:");
+        console.error("1. Column names don't match exactly");
+        console.error("2. Data validation failed");
+        console.error("3. Backend processing error");
+        console.error("4. File format issue");
+        alert("Upload completed but no data was processed. This could be due to:\n1. Incorrect file format\n2. Missing required columns\n3. Backend processing error\n4. Data validation issues\n\nPlease check the console for details and contact support.");
+      } else if (responseData.error) {
+        console.error("Backend returned error:", responseData.error);
+        if (responseData.missing_fields) {
+          console.error("Missing fields:", responseData.missing_fields);
+          alert(`Upload failed: ${responseData.error}\n\nMissing fields: ${responseData.missing_fields.join(', ')}`);
+        } else {
+          alert(`Upload failed: ${responseData.error}`);
+        }
+      } else {
+        console.warn("Upload response doesn't indicate success:", responseData);
+        alert("Upload completed but may not have processed all data. Please check the console for details.");
+      }
     } catch (error) {
       console.error("Upload error:", error);
       alert("Upload failed. Please try again.");
@@ -538,73 +694,7 @@ const DashboardLayout = ({
         </div>
       )}
 
-      {showBulkMemberPopup && (
-        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-md w-96">
-            <h2 className="text-lg font-semibold mb-4">Add Bulk Members</h2>
-
-            <form onSubmit={handleExcelUpload}>
-              <div className="relative mb-4">
-                {/* Hidden file input */}
-                <input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  id="file-upload"
-                  onChange={(e) => setFile(e.target.files[0])}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  required
-                />
-
-                {/* File name display */}
-                <input
-                  type="text"
-                  value={file ? file.name : ""}
-                  placeholder="Choose Excel file"
-                  disabled
-                  className="w-full px-3 py-2 border rounded text-sm pr-20"
-                />
-
-                {/* Overlapping 'Add' button */}
-                <label
-                  htmlFor="file-upload"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 text-white text-xs px-3 py-1 rounded cursor-pointer"
-                  style={{
-                    backgroundColor: "#FF1493",
-                    hover: { backgroundColor: "#e01384" },
-                  }}
-                >
-                  Add
-                </label>
-              </div>
-
-              <div className="flex justify-start gap-2">
-                <button
-                  type="submit"
-                  disabled={isUploading}
-                  className={`text-white px-4 py-2 rounded ${
-                    isUploading ? "bg-gray-400" : ""
-                  }`}
-                  style={{
-                    backgroundColor: isUploading ? "#d1d5db" : "#FF1493",
-                    cursor: isUploading ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {isUploading ? "Uploading..." : "Upload"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowBulkMemberPopup(false)}
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-                >
-                  Close
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      
 {showDeactivateMemberPopup && (
         <div className="absolute top-0 left-0 w-full h-[120vh] flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
@@ -880,6 +970,42 @@ const DashboardLayout = ({
                 </div>
               )}
             </div>
+            )}
+
+            {/* Back to Agent Button - Show when impersonating */}
+            {role === 'user' && localStorage.getItem('is_agent_impersonating') === 'true' && (
+              <button
+                onClick={restoreAgentSession}
+                style={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginRight: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Agent
+              </button>
             )}
 
             {!isMobile && (
@@ -1179,16 +1305,6 @@ const DashboardLayout = ({
                         paddingLeft: showSidebar ? "52px" : "16px",
                         cursor: "pointer",
                       }}
-                      onClick={() => setShowBulkMemberPopup(true)}
-                    >
-                      <span className="nav-item-text">Add Bulk Member</span>
-                    </div>
-                    <div
-                      className="nav-item"
-                      style={{
-                        paddingLeft: showSidebar ? "52px" : "16px",
-                        cursor: "pointer",
-                      }}
                       onClick={() => setShowAllMembers(true)}
                     >
                       <span className="nav-item-text">View All Members</span>
@@ -1197,7 +1313,7 @@ const DashboardLayout = ({
                 </>
               )}
 {/* 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/total-interaction"
                   title={!showSidebar ? "Total Interaction" : ""}
@@ -1221,7 +1337,7 @@ const DashboardLayout = ({
                 </Link>
               )} */}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/total-interest"
                   title={!showSidebar ? "Total Interest" : ""}
@@ -1247,7 +1363,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/total-request"
                   title={!showSidebar ? "Total Request" : ""}
@@ -1276,7 +1392,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/total-ignored"
                   title={!showSidebar ? "Ignored User List" : ""}
@@ -1306,7 +1422,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to={route}
                   title={!showSidebar ? "My Shortlist" : ""}
@@ -1332,7 +1448,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/blocked-list"
                   title={!showSidebar ? "Blocked User List" : ""}
@@ -1358,7 +1474,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to={`/${userId}/inbox`}
                   title={!showSidebar ? "Inbox" : ""}
@@ -1383,7 +1499,7 @@ const DashboardLayout = ({
                 </Link>
               )}
 
-              {role === "individual" && (
+              {(role === "individual" || role === "user") && (
                 <Link
                   to="/matches"
                   title={!showSidebar ? "Matches" : ""}
@@ -1435,27 +1551,29 @@ const DashboardLayout = ({
                 {showSidebar && <span className="nav-item-text">Home</span>}
               </Link>
 
-              <Link to="/guidance" 
-              title={!showSidebar ? "Guidance" : ""}
-              className="nav-item">
-                <div className="nav-item-icon">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                      strokeWidth="2"
-                    />
-                    <path d="M12 8v4" strokeWidth="2" />
-                    <path d="M12 16h.01" strokeWidth="2" />
-                  </svg>
-                </div>
-                {showSidebar && <span className="nav-item-text">Guidance</span>}
-              </Link>
+              {role !== "agent" && (
+                <Link to="/guidance" 
+                title={!showSidebar ? "Guidance" : ""}
+                className="nav-item">
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                        strokeWidth="2"
+                      />
+                      <path d="M12 8v4" strokeWidth="2" />
+                      <path d="M12 16h.01" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Guidance</span>}
+                </Link>
+              )}
               <Link to="" 
               title={!showSidebar ? "Contact" : ""}
               className="nav-item">

@@ -1,8 +1,8 @@
 
 import axios from 'axios';
 
-
-const token = localStorage.getItem("token");
+// Dynamic token function to get current token
+const getToken = () => localStorage.getItem("token");
 
 function convertDateTime(dateTimeString) {
   if (dateTimeString) {
@@ -27,7 +27,7 @@ const postDataV2 = (parameter) => {
   axios
     .post(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -114,7 +114,7 @@ const postDataReturnId = (parameter) => {
   axios
     .post(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -201,7 +201,7 @@ const postDataReturnResponse = (parameter) => {
   axios
     .post(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -483,7 +483,7 @@ const postDataWithoutToken = (parameter) => {
 };
 
 const postDataWithFetchV2 = (parameter) => {
-  if (!token) {
+  if (!getToken()) {
     console.error("JWT token not found in local storage");
     return;
   }
@@ -494,7 +494,7 @@ const postDataWithFetchV2 = (parameter) => {
       parameter?.payload,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       }
     )
@@ -616,7 +616,7 @@ const postDataWithFetchV2 = (parameter) => {
     });
 };
 const putDataWithFetchV2 = (parameter) => {
-  if (!token) {
+  if (!getToken()) {
     console.error("JWT token not found in local storage");
     return;
   }
@@ -627,7 +627,7 @@ const putDataWithFetchV2 = (parameter) => {
       parameter?.payload,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       }
     )
@@ -1009,8 +1009,8 @@ const justpostDataWithoutToken = async (parameter) => {
 };
 
 const updateDataV2 = (parameter) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  const token = getToken();
+  if (!getToken()) {
     console.error("JWT token not found in local storage");
     return;
   }
@@ -1018,7 +1018,7 @@ const updateDataV2 = (parameter) => {
   axios
     .put(`${process.env.REACT_APP_API_URL}${parameter?.url}/`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${getToken()}`
       }
     })
     .then(() => {
@@ -1089,7 +1089,7 @@ const updateDataReturnId = (parameter) => {
   axios
     .put(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -1171,7 +1171,7 @@ const updatePostDataReturnId = (parameter) => {
   axios
     .post(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -1332,8 +1332,8 @@ const justputDataWithoutToken = (parameter) => {
 };
 
 const justUpdateDataV2 = (parameter) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  const token = getToken();
+  if (!getToken()) {
     console.error("JWT token not found in local storage");
     return;
   }
@@ -1341,7 +1341,7 @@ const justUpdateDataV2 = (parameter) => {
   axios
     .put(`${process.env.REACT_APP_API_URL}${parameter?.url}/`, parameter?.payload, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${getToken()}`
       }
     })
     .then(() => {
@@ -1416,7 +1416,7 @@ const justUpdateDataV2 = (parameter) => {
 };
 
 const deleteDataV2 = (parameter) => {
-  if (!token) {
+  if (!getToken()) {
     console.error("JWT token not found in local storage");
     return Promise.resolve();
   }
@@ -1424,7 +1424,7 @@ const deleteDataV2 = (parameter) => {
   return axios
     .delete(`${process.env.REACT_APP_API_URL}${parameter?.url}/`, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${getToken()}`
       }
     })
     .then((response) => {
@@ -1504,7 +1504,7 @@ const fetchDataV2 = (parameter) => {
   axios
     .get(`${process.env.REACT_APP_API_URL}${parameter?.url}`, {
       headers: {
-        // Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -1576,11 +1576,11 @@ const fetchDataV2 = (parameter) => {
 
 
 const fetchDataWithTokenV2 = (parameter) => {
-  if (!token) return;
+  if (!getToken()) return;
   axios
     .get(`${process.env.REACT_APP_API_URL}${parameter?.url}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
@@ -1651,14 +1651,14 @@ const fetchDataWithTokenV2 = (parameter) => {
 };
 
 const fetchDataObjectV2 = (parameter) => {
-  if (!token) return; // If token doesn't exist, exit function
+  if (!getToken()) return; // If token doesn't exist, exit function
 
   parameter?.setLoading(true); // Set loading to true before API call
 
   axios
     .get(`${process.env.REACT_APP_API_URL}${parameter?.url}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {

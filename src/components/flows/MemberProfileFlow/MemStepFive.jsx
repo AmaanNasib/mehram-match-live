@@ -9,13 +9,16 @@ import findUser from "../../../images/findUser.svg";
 
 const MemStepFive = () => {
   const navigate = useNavigate();
-  let [userId] = useState(localStorage.getItem('userId'));
+  const { userId: paramUserId } = useParams(); // Get userId from URL params
+  const [userId, setUserId] = useState(localStorage.getItem('userId'));
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [showTooltip, setShowTooltip] = useState(null);
   const [error, setError] = useState("");
-  userId=localStorage.getItem("member_id")||userId
+  
+  // Determine the correct userId - prioritize URL param, then member_id, then userId
+  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
   const [profileData, setProfileData] = useState({
     profile_visible: "",
     photo_upload_privacy_option: "",
@@ -30,23 +33,23 @@ const MemStepFive = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    console.log("Validating form with profileData:", profileData);
-    console.log("User gender:", apiData.gender);
+    // console.log("Validating form with profileData:", profileData);
+    // console.log("User gender:", apiData.gender);
 
     // Validate required fields
     // Photo Privacy Option is only required for females
     if (apiData.gender === "female" && !profileData.photo_upload_privacy_option) {
       newErrors.photo_upload_privacy_option = "Photo Privacy Option is required";
-      console.log("Photo Privacy Option is missing (female user)");
+      // console.log("Photo Privacy Option is missing (female user)");
     }
     
     // Profile Visibility is required for all users
     if (!profileData.profile_visible) {
       newErrors.profile_visible = "Profile Visibility is required";
-      console.log("Profile Visibility is missing");
+      // console.log("Profile Visibility is missing");
     }
 
-    console.log("Validation errors:", newErrors);
+    // console.log("Validation errors:", newErrors);
     setFormErrors(newErrors);
 
     // Auto-scroll to first error field
@@ -68,7 +71,7 @@ const MemStepFive = () => {
     }
 
     const isValid = Object.keys(newErrors).length === 0;
-    console.log("Form is valid:", isValid);
+    // console.log("Form is valid:", isValid);
     return isValid;
   };
   const handleImageChange = (e) => {
@@ -125,37 +128,44 @@ const MemStepFive = () => {
     }
     const formData = new FormData();
     formData.append('upload_photo', image);
-    formData.append('user_id', userId);
-    let updateurl = `/api/user/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`
+    formData.append('user_id', currentUserId);
+    
+    // Check if user already has a profile photo (for update vs create)
+    const hasExistingPhoto = imagedata && imagedata.length > 0 && imagedata[imagedata.length - 1]?.id;
+    let updateurl = `/api/user/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`;
+    
     const parameter = {
-      url: `${profileData.upload_photo ? updateurl : '/api/user/profile_photo/'}`,
+      url: hasExistingPhoto ? updateurl : '/api/user/profile_photo/',
       setUserId: setImagedateset,
       formData: formData,
       setErrors: setError,
       setLoading: setLoading,
     };
-    console.log("profileData.profile_photo", profileData.profile_photo);
+    
+    // console.log("Saving photo for userId:", currentUserId);
+    // console.log("Has existing photo:", hasExistingPhoto);
+    // console.log("Update URL:", updateurl);
 
-    if (profileData.upload_photo) {
-      ReturnPutResponseFormdataWithoutToken(parameter)
+    if (hasExistingPhoto) {
+      ReturnPutResponseFormdataWithoutToken(parameter);
     } else {
-      ReturnResponseFormdataWithoutToken(parameter)
+      ReturnResponseFormdataWithoutToken(parameter);
     }
 
     setError("");
-    console.log("Image saved:", image);
-    // alert("Image saved successfully!");
+    // console.log("Image saved:", image);
   };
   useEffect(() => {
-    if (userId) {
+    if (currentUserId) {
+      // console.log("Loading data for userId:", currentUserId);
       const parameter = {
-        url: `/api/user/${userId}/`,
+        url: `/api/user/${currentUserId}/`,
         setterFunction: setApiData,
         setErrors: setError,
         setLoading: setLoading,
       };
       const parameter1 = {
-        url: `/api/user/profile_photo/?user_id=${userId}`,
+        url: `/api/user/profile_photo/?user_id=${currentUserId}`,
         setterFunction: setImagedateset,
         setErrors: setError,
         setLoading: setLoading,
@@ -163,7 +173,7 @@ const MemStepFive = () => {
       fetchDataObjectV2(parameter);
       fetchDataV2(parameter1);
     }
-  }, [userId]);
+  }, [currentUserId]);
 
   // Tooltip handling
   useEffect(() => {
@@ -208,22 +218,26 @@ const MemStepFive = () => {
 
   }, [apiData]);
   useEffect(() => {
-    if (imagedata?.[imagedata.length - 1]?.upload_photo) {
-      setPreview(imagedata?.[imagedata.length - 1]?.upload_photo)
+    if (imagedata && imagedata.length > 0) {
+      const latestImage = imagedata[imagedata.length - 1];
+      if (latestImage?.upload_photo) {
+        // Set preview to existing photo
+        setPreview(latestImage.upload_photo);
+        // console.log("Loaded existing profile photo:", latestImage.upload_photo);
+      }
     }
-
   }, [imagedata]);
 
   const naviagteNextStep = () => {
-    console.log("naviagteNextStep called");
-    console.log("profileData:", profileData);
-    console.log("image:", image);
-    console.log("userId:", userId);
-    console.log("member_id from localStorage:", localStorage.getItem("member_id"));
-    console.log("userId from localStorage:", localStorage.getItem("userId"));
+    // console.log("naviagteNextStep called");
+    // console.log("profileData:", profileData);
+    // console.log("image:", image);
+    // console.log("currentUserId:", currentUserId);
+    // console.log("member_id from localStorage:", localStorage.getItem("member_id"));
+    // console.log("userId from localStorage:", localStorage.getItem("userId"));
     
     if (validateForm()) {
-      console.log("Form validation passed");
+      // console.log("Form validation passed");
       
       // Update the profile data and navigate
       const payload = {
@@ -236,24 +250,24 @@ const MemStepFive = () => {
       }
       
       const parameters = {
-        url: `/api/user/${userId}`,
+        url: `/api/user/${currentUserId}`,
         payload: payload,
         navigate: navigate,
-        navUrl: `/memstepsix/${userId}`,
+        navUrl: `/memstepsix/${currentUserId}`,
         setErrors: setFormErrors,
       };
 
-      console.log("Calling updateDataV2 with parameters:", parameters);
-        updateDataV2(parameters);
+      // console.log("Calling updateDataV2 with parameters:", parameters);
+      updateDataV2(parameters);
       
       // Save photo separately (don't block navigation)
       if (image) {
-        console.log("Saving photo");
+        // console.log("Saving photo for user:", currentUserId);
         handleSave();
       }
-      } else {
-      console.log("Form validation failed");
-      }
+    } else {
+      // console.log("Form validation failed");
+    }
   };
 
   const updateField = (field, value) => {
@@ -272,7 +286,7 @@ const MemStepFive = () => {
 
   const skip = () => {
     if (profileData.profile_visible && profileData.photo_upload_privacy_option) {
-      navigate(`/memstepsix/${userId}`);
+      navigate(`/memstepsix/${currentUserId}`);
     } else {
       setFormErrors("Please fill all the required fields");
     }
@@ -385,9 +399,12 @@ const MemStepFive = () => {
                         <div className="mt-6">
                       <img
                         src={preview}
-                        alt="Preview"
+                        alt="Profile Preview"
                             className="w-32 h-32 object-cover border-2 border-gray-200 rounded-lg mx-auto"
                       />
+                      <p className="text-sm text-gray-500 text-center mt-2">
+                        {image ? "New photo selected" : "Current profile photo"}
+                      </p>
                         </div>
                     )}
                   </div>

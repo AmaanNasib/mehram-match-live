@@ -8,7 +8,9 @@ import { fetchDataObjectV2 } from "../../../apiUtils";
 
 const MemStepThree = () => {
   const navigate = useNavigate();
-  let [userId] = useState(localStorage.getItem("userId"));
+  const { userId: paramUserId } = useParams(); // Get userId from URL params
+  
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,7 +38,9 @@ const MemStepThree = () => {
     { value: "Not Working", label: "Not Working" },
     { value: "other", label: "Other" }
   ];
-  userId = localStorage.getItem("member_id") || userId;
+  
+  // Determine the correct userId - prioritize URL param, then member_id, then userId
+  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
   const [profileData, setProfileData] = useState({
     father_name: "",
     father_occupation: "",
@@ -67,16 +71,16 @@ const MemStepThree = () => {
   });
 
   useEffect(() => {
-    if (userId) {
+    if (currentUserId) {
       const parameter = {
-        url: `/api/user/${userId}/`,
+        url: `/api/user/${currentUserId}/`,
         setterFunction: setApiData,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataObjectV2(parameter);
     }
-  }, [userId]);
+  }, [currentUserId]);
 
   // Tooltip click outside and escape key handling
   useEffect(() => {
@@ -333,7 +337,7 @@ const MemStepThree = () => {
           step_mother: profileData.step_mother,
         },
         navigate: navigate,
-        navUrl: `/memstepfour`,
+        navUrl: `/memstepfour/${currentUserId}`,
         setErrors: setErrors,
       };
       updateDataV2(parameters);
@@ -443,11 +447,11 @@ const MemStepThree = () => {
       console.log(hasSiblings, hasChildren, isMaritalStatusValid);
 
       if (hasSiblings) {
-        navigate(`/memstepfour/${userId}`);
+        navigate(`/memstepfour/${currentUserId}`);
       } else if (isFemaleWithWali) {
-        navigate(`/memstepfour/${userId}`);
+        navigate(`/memstepfour/${currentUserId}`);
       } else if (isMaritalStatusValid && hasChildren) {
-        navigate(`/memstepfour/${userId}`);
+        navigate(`/memstepfour/${currentUserId}`);
       } else {
         setErrors(true);
         setMessage("Please Fill the required Field");
@@ -1410,7 +1414,7 @@ const MemStepThree = () => {
                     <div className="pt-8 border-t border-gray-200">
                       <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
                         <button
-                          onClick={() => navigate("/memsteptwo")}
+                          onClick={() => navigate(`/memsteptwo/${currentUserId}`)}
                           className="w-full sm:w-auto px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2 group"
                         >
                           <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

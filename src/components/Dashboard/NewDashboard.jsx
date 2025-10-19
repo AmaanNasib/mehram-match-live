@@ -86,8 +86,13 @@ const NewDashboard = () => {
     localStorage.setItem("isFirstTimeLogin", "false");
     localStorage.setItem("profileComplete", "false");
     
+    // Use impersonated user ID if available, otherwise use current userId
+    const currentUserId = localStorage.getItem('impersonating_user_id') || userId;
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
     const parameters = {
-      url: role == "agent" ? `/api/agent/${userId}/` : `/api/user/${userData}`,
+      url: (currentRole == "agent" && !isImpersonating) ? `/api/agent/${currentUserId}/` : `/api/user/${currentUserId}/`,
       payload: { update_later: true },
       tofetch: {
         items: [
@@ -105,11 +110,16 @@ const NewDashboard = () => {
   };
 
   useEffect(() => {
+    // Use impersonated user ID if available, otherwise use current userId
+    const currentUserId = localStorage.getItem('impersonating_user_id') || userId;
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
     const parameter = {
       url:
-        role  === "agent"
-          ? `/api/agent/${userId}/`
-          : `/api/user/${userId}/`,
+        (currentRole  === "agent" && !isImpersonating)
+          ? `/api/agent/${currentUserId}/`
+          : `/api/user/${currentUserId}/`,
       setterFunction: setactiveUser,
       setErrors: setErrors,
     };
@@ -237,8 +247,11 @@ const NewDashboard = () => {
   };
 
   useEffect(() => {
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
     const parameter = {
-      url: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
+      url: (currentRole == "agent" && !isImpersonating) ? `/api/agent/user_list/` : `/api/user/`,
       setterFunction: (data) => {
         setUserDetail(data);
         if (!filterActive) setDisplayAll(data);
@@ -250,9 +263,17 @@ const NewDashboard = () => {
   }, []);
 
   useEffect(() => {
+    // Use impersonated user ID if available, otherwise use current userId
+    const currentUserId = localStorage.getItem('impersonating_user_id') || userId;
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
+    // If impersonating, use user endpoints; if agent, use agent endpoints
     const parameter = {
-      url: role==="agent"?`/api/trending_profiles_by_interest/`:`/api/trending_profile/?user_id=${userId}`,
+      url: (currentRole==="agent" && !isImpersonating) ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${currentUserId}`,
       setterFunction: (data) => {
+        console.log('Trending profiles data received:', data);
+        console.log('Trending profiles count:', Array.isArray(data) ? data.length : 'Not an array');
         setApiData(data);
         if (!filterActive) setDisplayTrending(data);
       },
@@ -263,10 +284,20 @@ const NewDashboard = () => {
     }, [userId]);
 
 useEffect(() => {
-  if (role === "agent") return;
+  const currentRole = localStorage.getItem('role');
+  const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+  
+  // Only skip if role is agent AND not impersonating
+  if (currentRole === "agent" && !isImpersonating) return;
+  
+  // Use impersonated user ID if available, otherwise use current userId
+  const currentUserId = localStorage.getItem('impersonating_user_id') || userId;
+  
     const parameter1 = {
-      url: `/api/user/recommend/?user_id=${userId}`,
+      url: `/api/user/recommend/?user_id=${currentUserId}`,
       setterFunction: (data) => {
+        console.log('Recommended profiles data received:', data);
+        console.log('Recommended profiles count:', Array.isArray(data) ? data.length : 'Not an array');
         setApiDataRecommend(data);
         if (!filterActive) setDisplayRecommended(data);
       },
@@ -277,15 +308,19 @@ useEffect(() => {
     }, [userId]);
 
     useEffect(() => {
-        if (role === "individual") return;   // check with backend developer for unauthorized error
-    const parameter2 = {
-      url: `/api/agent/user_agent/?agent_id=${userId}`,
-      setterFunction: setApiDataMember,
-      setErrors: setErrors,
-      setLoading: setLoading,
-    };
-    fetchDataWithTokenV2(parameter2);
-  }, [userId]);
+        if (role === "individual" || role === "user") return;   // check with backend developer for unauthorized error
+        
+        // Only fetch agent members if role is agent (not when impersonating user)
+        if (role === "agent") {
+          const parameter2 = {
+            url: `/api/agent/user_agent/?agent_id=${userId}`,
+            setterFunction: setApiDataMember,
+            setErrors: setErrors,
+            setLoading: setLoading,
+          };
+          fetchDataWithTokenV2(parameter2);
+        }
+  }, [userId, role]);
   // Commented out navigation prevention logic for now
   // useEffect(() => {
   //   const handleButtonClick = (event) => {
@@ -339,8 +374,8 @@ useEffect(() => {
         navTo={
           activeUser?.profile_started == true
             ? `/memstepone/`
-            : (role || lastSegment) === "agent"
-            ? `/agentstepone/${userData}`
+            : (localStorage.getItem('role') || lastSegment) === "agent"
+            ? `/agentstepone/${localStorage.getItem('impersonating_user_id') || userData}`
             : `/memstepone/`
         }
       />
@@ -462,7 +497,7 @@ useEffect(() => {
                   setApiData={setApiData}
                   setIsModalOpen={setIsModalOpen}
                   isOpenWindow={isOpenWindow}
-                  url={`/api/trending_profile/?user_id=${userId}`}
+                  url={`/api/trending_profile/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
                   activeUser={activeUser}
                   profiles={
                     Array.isArray(displayTrending) &&
@@ -512,7 +547,7 @@ useEffect(() => {
                   setApiData={setApiDataRecommend}
                   setIsModalOpen={setIsModalOpen}
                   isOpenWindow={isOpenWindow}
-                  url={`/api/user/recommend/?user_id=${userId}`}
+                  url={`/api/user/recommend/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
                   activeUser={activeUser}
                   profiles={
                     Array.isArray(displayRecommended) &&

@@ -13,6 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "./DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
 import MatchDetailsComponents from "./MatchDetails";
@@ -29,140 +30,508 @@ ChartJS.register(
 );
 
 const UserDashboard = () => {
-
+    const navigate = useNavigate();
 
     const [apiData, setApiData] = useState([]);
-    const [apiData1, setApiData1] = useState([]);
-    const [apiData2, setApiData2] = useState([]);
-    const [apiData3, setApiData3] = useState([]);
-    const [apiData4, setApiData4] = useState([]);
-    const [apiData5, setApiData5] = useState([]);
-    const [apiData6, setApiData6] = useState([]);
-    const [apiData7, setApiData7] = useState({});
-    const [apiData8, setApiData8] = useState({});
-    const [userProfile, setUserProfile] = useState({});
-    const [userProfilePhoto, setUserProfilePhoto] = useState({});
-    const [errors, setErrors] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const userId =localStorage.getItem('userId');
-    const role =localStorage.getItem('role');
+  const [apiData1, setApiData1] = useState([]);
+  const [apiData2, setApiData2] = useState([]);
+  const [apiData3, setApiData3] = useState([]);
+  const [apiData4, setApiData4] = useState([]);
+  const [apiData5, setApiData5] = useState([]);
+  const [apiData6, setApiData6] = useState([]);
+  const [apiData7, setApiData7] = useState({});
+  const [apiData8, setApiData8] = useState({});
+  const [userProfile, setUserProfile] = useState({});
+  const [userProfilePhoto, setUserProfilePhoto] = useState({});
+  const [agentProfilePhoto, setAgentProfilePhoto] = useState({});
+  const [agentProfile, setAgentProfile] = useState({});
+  const [errors, setErrors] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId'));
+  const [role, setRole] = useState(localStorage.getItem('role'));
 
-    useEffect(() => {
+  // Update userId and role when localStorage changes
+  useEffect(() => {
+    const newUserId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
+    const newRole = localStorage.getItem('role');
+    setUserId(newUserId);
+    setRole(newRole);
+  }, []);
+
+  // Function to refresh all dashboard data
+  const refreshDashboardData = () => {
+    console.log('Refreshing dashboard data...');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    const currentToken = localStorage.getItem('token');
+    console.log('UserDashboard - Role:', role, 'UserID:', userId, 'Impersonating:', isImpersonating);
+    console.log('UserDashboard - Current Token:', currentToken ? 'Token exists' : 'No token');
+
+    // For user role, use the correct API endpoint with user_id parameter
+    if (role === "user" || role === "individual") {
       const parameter = {
-        url:  role=="agent"?`/api/agent/request/count/`:`/api/requested/count/?user_id=${userId}`,
-        setterFunction: setApiData,
+        url: `/api/user/requested/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log('Request data received for user:', data);
+          // Map API response to expected format - API returns object with sent_data
+          const sentCount = data?.sent_data?.length || 0;
+          const receivedCount = data?.received_data?.length || 0;
+          const totalCount = sentCount + receivedCount;
+
+          const mappedData = {
+            total_request_count: totalCount,
+            request_sent: sentCount,
+            request_received: receivedCount
+          };
+          console.log('Mapped request data:', mappedData);
+          setApiData(mappedData);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };
+      console.log('UserDashboard - Request API URL for user:', parameter.url);
       fetchDataWithTokenV2(parameter);
-
-      const parameter1 = {
-        url: role=="agent"?`/api/agent/interest/count/`:`/api/interest/count/?user_id=${userId}`,
-        setterFunction: setApiData1,
+    } else {
+      // For agent role, use the API
+      const parameter = {
+        url: `/api/agent/request/count/`,
+        setterFunction: (data) => {
+          console.log('Request count data received for agent:', data);
+          setApiData(data);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };
-      fetchDataWithTokenV2(parameter1);
+      console.log('UserDashboard - Request API URL for agent:', parameter.url);
+      fetchDataWithTokenV2(parameter);
+    }
 
+    // For user role, use the correct API endpoint with user_id parameter
+    if (role === "user" || role === "individual") {
+      const parameter1 = {
+        url: `/api/user/interested/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log('Interest data received for user:', data);
+          console.log('Sent interests array:', data?.sent_interests);
+          console.log('Received interests array:', data?.received_interests);
+          // Map API response to expected format - API returns object with sent_interests
+          // But sent_interests array contains both sent and received items based on status
+          const allInterests = data?.sent_interests || [];
+          const receivedArray = data?.received_interests || [];
+          
+          console.log('All interests array:', allInterests);
+          console.log('Received interests array:', receivedArray);
+          
+          // Separate sent and received based on status field
+          const sentInterests = allInterests.filter(item => item.status === "Sent");
+          const receivedInterests = allInterests.filter(item => item.status === "Recieved");
+          
+          // Also include any items from received_interests array if it exists
+          const additionalReceived = receivedArray || [];
+          
+          const sentCount = sentInterests.length;
+          const receivedCount = receivedInterests.length + additionalReceived.length;
+          const totalCount = sentCount + receivedCount;
+          
+          console.log('Filtered counts - Sent:', sentCount, 'Received:', receivedCount, 'Total:', totalCount);
+          console.log('Sent interests:', sentInterests);
+          console.log('Received interests:', receivedInterests);
+          
+          const mappedData = {
+            total_interest_count: totalCount,
+            interest_sent: sentCount,
+            interest_received: receivedCount
+          };
+          console.log('Mapped interest data:', mappedData);
+          setApiData1(mappedData);
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Interest API URL for user:', parameter1.url);
+      fetchDataWithTokenV2(parameter1);
+    } else {
+      // For agent role, use the API
+      const parameter1 = {
+        url: `/api/agent/interest/count/`,
+        setterFunction: (data) => {
+          console.log('Interest count data received for agent:', data);
+          setApiData1(data);
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Interest API URL for agent:', parameter1.url);
+      fetchDataWithTokenV2(parameter1);
+    }
+
+    // For user role, use the correct API endpoint with user_id parameter
+    if (role === "user" || role === "individual") {
       const parameter2 = {
-        url:role=="agent"?'/api/agent/shortlisted/count/': `/api/shortlisted/count/?user_id=${userId}`,
+        url: `/api/user/shortlisted/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log('Shortlisted data received for user:', data);
+          console.log('Shortlisted data type:', typeof data);
+          console.log('Shortlisted data is array:', Array.isArray(data));
+          console.log('Shortlisted data length:', data?.length);
+          console.log('Shortlisted data keys:', data ? Object.keys(data) : 'No data');
+
+          // Map API response to expected format - handle different response formats
+          let shortlistCount = 0;
+
+          if (Array.isArray(data)) {
+            // If API returns array directly
+            shortlistCount = data.length;
+          } else if (data && typeof data === 'object') {
+            // If API returns object with array property
+            if (data.shortlisted && Array.isArray(data.shortlisted)) {
+              shortlistCount = data.shortlisted.length;
+            } else if (data.sent_shortlisted && Array.isArray(data.sent_shortlisted)) {
+              shortlistCount = data.sent_shortlisted.length;
+            } else if (data.total_shortlisted_count) {
+              shortlistCount = data.total_shortlisted_count;
+            } else {
+              // Try to find any array property
+              const arrayKeys = Object.keys(data).filter(key => Array.isArray(data[key]));
+              if (arrayKeys.length > 0) {
+                shortlistCount = data[arrayKeys[0]].length;
+              }
+            }
+          }
+
+          // If API returns 0 but we have userProfile data, try to calculate from there
+          if (shortlistCount === 0 && userProfile && Array.isArray(userProfile)) {
+            const shortlistFromProfile = userProfile.filter(user => user.is_shortlisted).length;
+            console.log('Shortlist count from userProfile:', shortlistFromProfile);
+            if (shortlistFromProfile > 0) {
+              shortlistCount = shortlistFromProfile;
+              console.log('Using shortlist count from userProfile:', shortlistCount);
+            }
+          }
+
+          const mappedData = {
+            total_shortlisted_count: shortlistCount
+          };
+          console.log('Final mapped shortlisted data:', mappedData);
+          setApiData2(mappedData);
+        },
+        setErrors: (error) => {
+          console.error('Shortlisted API error:', error);
+          setErrors(error);
+        },
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Shortlisted API URL for user:', parameter2.url);
+      console.log('UserDashboard - About to call shortlist API with userId:', userId);
+      fetchDataWithTokenV2(parameter2);
+
+      // Also try alternative endpoint as fallback
+      const fallbackParameter = {
+        url: `/api/shortlisted/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log('Fallback shortlisted data received:', data);
+          if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+            console.log('Fallback API returned data, using it instead');
+            const fallbackCount = Array.isArray(data) ? data.length : (data.total_shortlisted_count || 0);
+            setApiData2({ total_shortlisted_count: fallbackCount });
+          }
+        },
+        setErrors: (error) => {
+          console.log('Fallback shortlist API also failed:', error);
+        },
+        setLoading: () => { },
+      };
+      console.log('UserDashboard - Trying fallback shortlist API:', fallbackParameter.url);
+      fetchDataWithTokenV2(fallbackParameter);
+    } else {
+      // For agent role, use the API
+      const parameter2 = {
+        url: '/api/agent/shortlisted/count/',
         setterFunction: setApiData2,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataWithTokenV2(parameter2);
+    }
 
+    // For user role, use the correct API endpoint with user_id parameter
+    if (role === "user" || role === "individual") {
       const parameter3 = {
-        url:role=="agent"?'/api/agent/blocked/count/': `/api/blocked/count/?user_id=${userId}`,
+        url: `/api/user/blocked/?user_id=${userId}`,
+        setterFunction: (data) => {
+          console.log('Blocked data received for user:', data);
+          // Map API response to expected format - API returns array, count the length
+          const mappedData = {
+            total_blocked_count: data?.length || 0
+          };
+          console.log('Mapped blocked data:', mappedData);
+          setApiData3(mappedData);
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Blocked API URL for user:', parameter3.url);
+      fetchDataWithTokenV2(parameter3);
+    } else {
+      // For agent role, use the API
+      const parameter3 = {
+        url: '/api/agent/blocked/count/',
         setterFunction: setApiData3,
         setErrors: setErrors,
         setLoading: setLoading,
       };
       fetchDataWithTokenV2(parameter3);
+    }
 
-      // const parameter4 = {
-      //   url: `/api/blocked/count/?user_id=${userId}`,
-      //   setterFunction: setApiData4,
-      //   setErrors: setErrors,
-      //   setLoading: setLoading,
-      // };
-      // fetchDataWithTokenV2(parameter4);
-
-      const parameter5 = {
-        url: role=="agent"?'/api/agent/graph/?based_on=6month':`/api/user/graph/?user_id=${userId}&based_on=week`,
-        setterFunction: setApiData5,
+    // For user role, fetch matches data
+    if (role === "user" || role === "individual") {
+      const parameter4 = {
+        url: `/api/user/matches/?user_id=${userId}&min_threshold=25`,
+        setterFunction: (data) => {
+          console.log('Matches data received for user:', data);
+          // API returns direct array of matches
+          const mappedData = {
+            matches: data || [],
+            total_matches: data?.length || 0
+          };
+          console.log('Mapped matches data:', mappedData);
+          setApiData6(mappedData);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };
-      fetchDataWithTokenV2(parameter5);
-      const parameter6 = {
-        url: role=="agent"?'/api/agent/user/matches/':`/api/user/matches/?user_id=${userId}`,
+      console.log('UserDashboard - Matches API URL for user:', parameter4.url);
+      fetchDataWithTokenV2(parameter4);
+    } else {
+      // For agent role, use the agent matches API
+      const parameter4 = {
+        url: '/api/agent/matches/',
         setterFunction: (data) => {
-          console.log("Matches data received:", data);
-          console.log("Matches data type:", typeof data, "Is array:", Array.isArray(data));
+          console.log('Matches data received for agent:', data);
           setApiData6(data);
         },
         setErrors: setErrors,
         setLoading: setLoading,
       };
-      fetchDataWithTokenV2(parameter6);
-      const parameter7 = {
-        url: role=="agent"?'/api/agent/total_interaction/count/':`/api/total_interaction/count/?user_id=${userId}`,
-        setterFunction: setApiData7,
-        setErrors: setErrors,
-        setLoading: setLoading,
-      };
-      fetchDataWithTokenV2(parameter7);
+      console.log('UserDashboard - Matches API URL for agent:', parameter4.url);
+      fetchDataWithTokenV2(parameter4);
+    }
 
-      // Fetch user profile data
-      const userProfileParam = {
-        url: role === "agent" ? `/api/agent/profile/` : `/api/user/profile/?user_id=${userId}`,
-        setterFunction: setUserProfile,
-        setErrors: setErrors,
-        setLoading: setLoading,
-      };
-      fetchDataWithTokenV2(userProfileParam);
+    const parameter5 = {
+      url: role == "agent" ? '/api/agent/graph/?based_on=6month' : `/api/user/graph/?based_on=week`,
+      setterFunction: setApiData5,
+      setErrors: setErrors,
+      setLoading: setLoading,
+    };
+    fetchDataWithTokenV2(parameter5);
+    // For user role, fetch matches data (duplicate API call - removing this one)
+    // This API call is already handled above in the user role section
 
-      // Fetch user profile photo separately (same logic as Header.jsx)
-      const parameterPhoto = {
-        url: `/api/user/profile_photo/?user_id=${userId}`,
+    // Add API call for agent members count
+    if (role === "agent") {
+      const parameterMembers = {
+        url: `/api/agent/user_agent/?agent_id=${userId}`,
         setterFunction: (data) => {
-          console.log("Profile photo data:", data);
-          console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
-          if (Array.isArray(data) && data.length > 0) {
-            console.log("Setting userProfilePhoto:", data[data.length - 1]);
-            setUserProfilePhoto(data[data.length - 1]); // Get the latest photo
-            // Also update userProfile with photo data
-            setUserProfile(prev => ({
-              ...prev,
-              user_profilephoto: data[data.length - 1]
-            }));
-          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-            console.log("Setting userProfilePhoto (object):", data);
-            setUserProfilePhoto(data);
-            // Also update userProfile with photo data
-            setUserProfile(prev => ({
-              ...prev,
-              user_profilephoto: data
-            }));
-          } else {
-            console.log("No photo data found or unexpected format:", data);
-            setUserProfilePhoto(null);
-            setUserProfile(prev => ({ ...prev, user_profilephoto: null }));
+          console.log('Agent members data received:', data);
+          // Handle different data structures
+          let members = [];
+          if (Array.isArray(data)) {
+            members = data;
+          } else if (data.member && Array.isArray(data.member)) {
+            members = data.member;
+          } else if (data.members && Array.isArray(data.members)) {
+            members = data.members;
+          } else if (data.results && Array.isArray(data.results)) {
+            members = data.results;
           }
+
+          const membersCount = members.length;
+          console.log('Agent members count:', membersCount);
+
+          // Update apiData6 with members count for agents
+          setApiData6(prevData => ({
+            ...prevData,
+            total_matches: membersCount,
+            total_members: membersCount
+          }));
         },
         setErrors: setErrors,
         setLoading: setLoading,
       };
-      fetchDataWithTokenV2(parameterPhoto);
-      
-    
-    }, []);
+      console.log('UserDashboard - Agent Members API URL:', parameterMembers.url);
+      fetchDataWithTokenV2(parameterMembers);
+    }
+
+    // For user role, use the correct API endpoint with user_id parameter
+    if (role === "user" || role === "individual") {
+      const parameter7 = {
+        url: `/api/user/total_interaction/count/?user_id=${userId}`,
+        setterFunction: setApiData7,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Total Interaction API URL for user:', parameter7.url);
+      fetchDataWithTokenV2(parameter7);
+    } else {
+      // For agent role, use the agent API
+      const parameter7 = {
+        url: '/api/agent/total_interaction/count/',
+        setterFunction: setApiData7,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('UserDashboard - Total Interaction API URL for agent:', parameter7.url);
+      fetchDataWithTokenV2(parameter7);
+    }
+
+    // Fetch user profile data
+    const userProfileParam = {
+      url: role === "agent" ? `/api/agent/${userId}/` : `/api/user/`,
+      setterFunction: (data) => {
+        if (role === "agent") {
+          // For agents, this is the agent profile data
+          console.log("Agent profile data:", data);
+          console.log("Agent profile data type:", typeof data, "Is array:", Array.isArray(data));
+          if (Array.isArray(data) && data.length > 0) {
+            // If it's an array, get the first item or find by ID
+            const agentData = data.find(agent => agent.id == userId) || data[0];
+            console.log("Setting agentProfile:", agentData);
+            setAgentProfile(agentData);
+            setUserProfile(agentData); // Also set as userProfile for compatibility
+          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+            // Single object response
+            console.log("Setting agentProfile (object):", data);
+            setAgentProfile(data);
+            setUserProfile(data); // Also set as userProfile for compatibility
+          } else {
+            console.log("No agent profile data found");
+            setAgentProfile({});
+          }
+        } else {
+          // For regular users
+          setUserProfile(data);
+        }
+      },
+      setErrors: setErrors,
+      setLoading: setLoading,
+    };
+    fetchDataWithTokenV2(userProfileParam);
+
+    // Fetch user profile photo separately (same logic as Header.jsx)
+    const parameterPhoto = {
+      url: role === "agent" ? `/api/agent/profile_photo/?agent_id=${userId}` : `/api/user/profile_photo/`,
+      setterFunction: (data) => {
+        console.log("Profile photo data:", data);
+        console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
+        if (Array.isArray(data) && data.length > 0) {
+          console.log("Setting userProfilePhoto:", data[data.length - 1]);
+          setUserProfilePhoto(data[data.length - 1]); // Get the latest photo
+          // Also update userProfile with photo data
+          setUserProfile(prev => ({
+            ...prev,
+            user_profilephoto: data[data.length - 1]
+          }));
+        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+          console.log("Setting userProfilePhoto (object):", data);
+          setUserProfilePhoto(data);
+          // Also update userProfile with photo data
+          setUserProfile(prev => ({
+            ...prev,
+            user_profilephoto: data
+          }));
+        } else {
+          console.log("No photo data found or unexpected format:", data);
+          setUserProfilePhoto(null);
+          setUserProfile(prev => ({ ...prev, user_profilephoto: null }));
+        }
+      },
+      setErrors: setErrors,
+      setLoading: setLoading,
+    };
+    fetchDataWithTokenV2(parameterPhoto);
+
+    // Fetch agent profile photo if user is an agent
+    if (role === "agent") {
+      const agentPhotoParam = {
+        url: `/api/agent/profile_photo/?agent_id=${userId}`, // Try with agent_id filter first
+        setterFunction: (data) => {
+          console.log("Agent profile photo data:", data);
+          console.log("Agent photo data type:", typeof data, "Is array:", Array.isArray(data));
+          if (Array.isArray(data) && data.length > 0) {
+            // If filtered by agent_id, should return only current agent's photo
+            const currentAgentPhoto = data.find(photo => photo.agent?.id == userId) || data[0];
+            console.log("Setting agentProfilePhoto:", currentAgentPhoto);
+            setAgentProfilePhoto(currentAgentPhoto);
+          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+            // Single object response
+            console.log("Setting agentProfilePhoto (object):", data);
+            setAgentProfilePhoto(data);
+          } else {
+            console.log("No agent photo data found or unexpected format:", data);
+            setAgentProfilePhoto(null);
+          }
+        },
+        setErrors: (error) => {
+          console.log("Agent photo API error, trying fallback:", error);
+          // If the filtered API fails, try without filter
+          const fallbackParam = {
+            url: `/api/agent/profile_photo/`,
+            setterFunction: (data) => {
+              console.log("Fallback agent profile photo data:", data);
+              if (Array.isArray(data) && data.length > 0) {
+                const currentAgentPhoto = data.find(photo => photo.agent?.id == userId);
+                if (currentAgentPhoto) {
+                  console.log("Setting agentProfilePhoto from fallback:", currentAgentPhoto);
+                  setAgentProfilePhoto(currentAgentPhoto);
+                } else {
+                  console.log("No photo found for current agent in fallback");
+                  setAgentProfilePhoto(null);
+                }
+              } else {
+                setAgentProfilePhoto(null);
+              }
+            },
+            setErrors: setErrors,
+            setLoading: setLoading,
+          };
+          fetchDataWithTokenV2(fallbackParam);
+        },
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(agentPhotoParam);
+    }
+  };
+
+  // Call refresh function on component mount and when userId/role changes
+  useEffect(() => {
+    refreshDashboardData();
+  }, [userId, role]);
+
+  // Listen for interest sent events to refresh data
+  useEffect(() => {
+    const handleInterestSent = () => {
+      console.log('Interest sent event received, refreshing dashboard data...');
+      refreshDashboardData();
+    };
+
+    // Listen for custom event
+    window.addEventListener('interestSent', handleInterestSent);
+
+    // Also listen for storage changes (in case data is updated in localStorage)
+    const handleStorageChange = () => {
+      refreshDashboardData();
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('interestSent', handleInterestSent);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
 
-    useEffect(() => {
-    
-    }, []);
+  useEffect(() => {
+
+  }, []);
 
   // Function to get marital status badge color (matches Matches.jsx colors)
   const getMaritalBadgeColor = (maritalStatus) => {
@@ -198,7 +567,7 @@ const UserDashboard = () => {
 
 
 
-   
+
   // Mock data for the stats
   const stats = {
     totalInterests: { total: 50, sent: 0, received: 0 },
@@ -214,11 +583,11 @@ const UserDashboard = () => {
     totalVisitors: { total: "03" },
   };
 
-  // Chart data
+  // Chart data - using actual dashboard data
   const chartData = {
     labels: [
       "Total interest",
-      "Sent interest",
+      "Sent interest", 
       "Received interest",
       "Short listed",
       "Total requests",
@@ -227,8 +596,15 @@ const UserDashboard = () => {
     datasets: [
       {
         fill: true,
-        label: "Profile Views",
-        data: Object.values(apiData5),
+        label: "Activity Count",
+        data: [
+          apiData1?.total_interest_count || 0,
+          apiData1?.interest_sent || 0,
+          apiData1?.interest_received || 0,
+          apiData2?.total_shortlisted_count || 0,
+          apiData?.total_request_count || 0,
+          apiData?.sent_request_accepted || 0
+        ],
         borderColor: "#4318FF",
         backgroundColor: "rgba(67, 24, 255, 0.1)",
         tension: 0.4,
@@ -303,7 +679,7 @@ const UserDashboard = () => {
   };
 
   // Mock data for match details
-  let men1='https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png'
+  let men1 = 'https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png'
   const matchDetails = [
     {
       name: "Fatima",
@@ -343,34 +719,62 @@ const UserDashboard = () => {
             <div className="user-profile-info">
               <div className="user-avatar">
                 {console.log("=== USER DASHBOARD DEBUG ===")}
+                {console.log("Role:", role)}
+                {console.log("userId:", userId)}
                 {console.log("userProfile:", userProfile)}
+                {console.log("agentProfile:", agentProfile)}
+                {console.log("agentProfile.first_name:", agentProfile?.first_name)}
+                {console.log("agentProfile.last_name:", agentProfile?.last_name)}
+                {console.log("agentProfile.name:", agentProfile?.name)}
+                {console.log("userProfile.first_name:", userProfile?.first_name)}
+                {console.log("userProfile.name:", userProfile?.name)}
                 {console.log("userProfilePhoto:", userProfilePhoto)}
+                {console.log("agentProfilePhoto:", agentProfilePhoto)}
                 {console.log("userProfile.user_profilephoto:", userProfile?.user_profilephoto)}
                 {console.log("userProfile.profile_photo:", userProfile?.profile_photo)}
                 {console.log("userProfile.user_profilephoto?.upload_photo:", userProfile?.user_profilephoto?.upload_photo)}
                 {console.log("userProfilePhoto?.upload_photo:", userProfilePhoto?.upload_photo)}
+                {console.log("agentProfilePhoto?.upload_photo:", agentProfilePhoto?.upload_photo)}
                 {console.log("Environment API URL:", process.env.REACT_APP_API_URL)}
-                {console.log("Final constructed URL:", (userProfile?.profile_photo || userProfile?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${userProfile.profile_photo || userProfile.user_profilephoto?.upload_photo}` : 'Using fallback')}
                 {console.log("=== END DEBUG ===")}
                 <img
                   src={
                     (() => {
-                      // Try multiple possible photo sources
-                      const photoUrl = userProfile?.profile_photo || 
-                                     userProfile?.user_profilephoto?.upload_photo || 
-                                     userProfilePhoto?.upload_photo ||
-                                     userProfilePhoto?.profile_photo;
-                      
+                      // For agents, prioritize agent_profilephoto
+                      if (role === "agent") {
+                        const agentPhotoUrl = agentProfilePhoto?.upload_photo;
+                        console.log("Agent photo URL found:", agentPhotoUrl);
+                        console.log("Agent profile photo object:", agentProfilePhoto);
+
+                        if (agentPhotoUrl) {
+                          const fullUrl = agentPhotoUrl.startsWith('http')
+                            ? agentPhotoUrl
+                            : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
+                          console.log("Agent full URL constructed:", fullUrl);
+                          return fullUrl;
+                        }
+
+                        // For agents, use SVG placeholder if no agent photo uploaded
+                        console.log("No agent photo found, using SVG placeholder");
+                        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                      }
+
+                      // For regular users, use regular user photo sources
+                      const photoUrl = userProfile?.profile_photo ||
+                        userProfile?.user_profilephoto?.upload_photo ||
+                        userProfilePhoto?.upload_photo ||
+                        userProfilePhoto?.profile_photo;
+
                       console.log("Photo URL found:", photoUrl);
-                      
+
                       if (photoUrl) {
-                        const fullUrl = photoUrl.startsWith('http') 
-                          ? photoUrl 
+                        const fullUrl = photoUrl.startsWith('http')
+                          ? photoUrl
                           : `${process.env.REACT_APP_API_URL}${photoUrl}`;
                         console.log("Full URL constructed:", fullUrl);
                         return fullUrl;
                       }
-                      
+
                       console.log("No photo found, using fallback");
                       return "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
                     })()
@@ -378,47 +782,237 @@ const UserDashboard = () => {
                   alt="User Profile"
                   onError={(e) => {
                     console.log("Image failed to load, using fallback");
-                    e.target.src = "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
+                    if (role === "agent") {
+                      e.target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                    } else {
+                      e.target.src = "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
+                    }
                   }}
                   onLoad={() => {
                     console.log("User profile image loaded successfully");
                   }}
                 />
+                {role === "agent" && (
+                  <div className="agent-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="#FD2C79" />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div className="user-welcome">
                 <h1 className="dashboard-title">
-                  Welcome back, {userProfile?.name || userProfile?.first_name || "User"}!
+                  {role === "agent" ? (
+                    `Welcome back, Agent ${agentProfile?.first_name || userProfile?.first_name || ""} ${agentProfile?.last_name || userProfile?.last_name || ""}`.trim() + "!"
+                  ) : (
+                    `Welcome back, ${userProfile?.name || userProfile?.first_name || "User"}!`
+                  )}
                 </h1>
                 <p className="dashboard-subtitle">
-                  Here's your activity overview for today
+                  {role === "agent"
+                    ? "Manage your members and track their matching activities"
+                    : "Here's your activity overview for today"
+                  }
                 </p>
               </div>
             </div>
           </div>
           <div className="header-right">
-            <div className="user-stats-summary">
+            <button
+              onClick={() => {
+                console.log('=== MANUAL REFRESH DEBUG ===');
+                console.log('Current role:', role);
+                console.log('Current userId:', userId);
+                console.log('Current userProfile:', userProfile);
+                console.log('Current apiData2 (shortlist):', apiData2);
+                console.log('=== END DEBUG ===');
+                refreshDashboardData();
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginRight: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M3 21v-5h5" />
+              </svg>
+              Refresh Data
+            </button>
+            {/* <div className="user-stats-summary">
               <div className="stat-item">
-                <span className="stat-label">Total Matches</span>
-                <span className="stat-value">{apiData6?.length || 0}</span>
+                <span className="stat-label">
+                  {role === "agent" ? "Total Members" : "Total Matches"}
+                </span>
+                <span className="stat-value">
+                  {role === "agent" 
+                    ? (apiData6?.total_members || apiData6?.total_matches || 0)
+                    : (apiData6?.total_matches || 0)
+                  }
+                </span>
               </div>
-              <div className="stat-item">
-                <span className="stat-label">Interests</span>
-                <span className="stat-value">{apiData1?.total_interest_count || 0}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Requests</span>
-                <span className="stat-value">{apiData?.total_request_count || 0}</span>
+               
+            </div> */}
+            <div className="stat-card">
+              <div className="stat-content">
+                <div className="stat-info">
+                  <div className="dCardHeading">
+                    <h3>{role === "agent" ? "Total Members" : "Total Matches"}</h3>
+                    <svg
+                      width="58"
+                      height="52"
+                      viewBox="0 0 60 60"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        opacity="0.21"
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M0 30V37C0 49.7025 10.2975 60 23 60H30H37C49.7025 60 60 49.7025 60 37V30V23C60 10.2975 49.7025 0 37 0H30H23C10.2975 0 0 10.2975 0 23V30Z"
+                        fill="#FD2C79"
+                      />
+                      <path
+                        opacity="0.587821"
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M20.668 23.3333C20.668 26.2789 23.0558 28.6667 26.0013 28.6667C28.9468 28.6667 31.3346 26.2789 31.3346 23.3333C31.3346 20.3878 28.9468 18 26.0013 18C23.0558 18 20.668 20.3878 20.668 23.3333ZM34 28.666C34 30.8752 35.7909 32.666 38 32.666C40.2091 32.666 42 30.8752 42 28.666C42 26.4569 40.2091 24.666 38 24.666C35.7909 24.666 34 26.4569 34 28.666Z"
+                        fill="#FD2C79"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M25.9778 31.334C19.6826 31.334 14.5177 34.5693 14.0009 40.9329C13.9727 41.2796 14.6356 42.0007 14.97 42.0007H36.9956C37.9972 42.0007 38.0128 41.1946 37.9972 40.934C37.6065 34.3916 32.3616 31.334 25.9778 31.334ZM45.2739 42.002H40.1335V42.0013C40.1335 39.0004 39.1421 36.231 37.4689 34.0028C42.0103 34.0529 45.7183 36.3493 45.9973 41.202C46.0086 41.3974 45.9973 42.002 45.2739 42.002Z"
+                        fill="#FD2C79"
+                      />
+                    </svg>
+                  </div>
+                  <div className="stat-number">
+                    {role === "agent"
+                      ? (apiData6?.total_members || apiData6?.total_matches || 0)
+                      : (apiData6?.total_matches || 0)
+                    }
+                  </div>
+
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+
+
+        {/*  <div className="user-stats-summary">
+              <div className="stat-item">
+                <span className="stat-label">
+                  {role === "agent" ? "Total Members" : "Total Matches"}
+                </span>
+                <span className="stat-value">
+                  {role === "agent" 
+                    ? (apiData6?.total_members || apiData6?.total_matches || 0)
+                    : (apiData6?.total_matches || 0)
+                  }
+                </span>
+              </div> */}
+        {/* Agent Quick Actions */}
+        {role === "agent" && (
+          <div className="agent-quick-actions">
+            <div className="quick-actions-header">
+              <h3>Quick Actions</h3>
+              <p>Manage your members efficiently</p>
+            </div>
+            <div className="quick-actions-grid">
+              <div 
+                className="quick-action-card cursor-pointer hover:shadow-lg transition-all duration-200"
+                onClick={() => {
+                  navigate('/memstepone', {
+                    state: {
+                      username: "memberCreation",
+                      isNewMember: true,
+                      clearForm: true
+                    }
+                  });
+                }}
+              >
+                <div className="action-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#FD2C79" />
+                    <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#FD2C79" />
+                  </svg>
+                </div>
+                <div className="action-content">
+                  <h4>Add New Member</h4>
+                  <p>Register a new member profile</p>
+                </div>
+              </div>
+              <div 
+                className="quick-action-card cursor-pointer hover:shadow-lg transition-all duration-200"
+                onClick={() => {
+                  navigate('/my-memberss');
+                }}
+              >
+                <div className="action-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="#10B981" />
+                  </svg>
+                </div>
+                <div className="action-content">
+                  <h4>View All Members</h4>
+                  <p>Browse and manage all members</p>
+                </div>
+              </div>
+              <div 
+                className="quick-action-card cursor-pointer hover:shadow-lg transition-all duration-200"
+                onClick={() => {
+                  navigate('/member-analytics');
+                }}
+              >
+                <div className="action-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="#F59E0B" />
+                  </svg>
+                </div>
+                <div className="action-content">
+                  <h4>Member Analytics</h4>
+                  <p>View detailed member statistics</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+
+
         <div className="stats-container">
           {/* Stats Section */}
           <div className="stat-card">
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>Total Interests</h3>
+                  <h3>{role === "agent" ? "Member Interests" : "Total Interests"}</h3>
                   <svg
                     width="58"
                     height="52"
@@ -538,7 +1132,7 @@ const UserDashboard = () => {
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>Total Request</h3>
+                  <h3>{role === "agent" ? "Member Requests" : "Total Request"}</h3>
                   <svg
                     width="58"
                     height="52"
@@ -712,37 +1306,12 @@ const UserDashboard = () => {
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>Total Interaction</h3>
-                  <svg
-                    width="58"
-                    height="52"
-                    viewBox="0 0 60 60"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      opacity="0.21"
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M0 30V37C0 49.7025 10.2975 60 23 60H30H37C49.7025 60 60 49.7025 60 37V30V23C60 10.2975 49.7025 0 37 0H30H23C10.2975 0 0 10.2975 0 23V30Z"
-                      fill="#FD2C79"
-                    />
-                    <path
-                      opacity="0.587821"
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M20.668 23.3333C20.668 26.2789 23.0558 28.6667 26.0013 28.6667C28.9468 28.6667 31.3346 26.2789 31.3346 23.3333C31.3346 20.3878 28.9468 18 26.0013 18C23.0558 18 20.668 20.3878 20.668 23.3333ZM34 28.666C34 30.8752 35.7909 32.666 38 32.666C40.2091 32.666 42 30.8752 42 28.666C42 26.4569 40.2091 24.666 38 24.666C35.7909 24.666 34 26.4569 34 28.666Z"
-                      fill="#FD2C79"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M25.9778 31.334C19.6826 31.334 14.5177 34.5693 14.0009 40.9329C13.9727 41.2796 14.6356 42.0007 14.97 42.0007H36.9956C37.9972 42.0007 38.0128 41.1946 37.9972 40.934C37.6065 34.3916 32.3616 31.334 25.9778 31.334ZM45.2739 42.002H40.1335V42.0013C40.1335 39.0004 39.1421 36.231 37.4689 34.0028C42.0103 34.0529 45.7183 36.3493 45.9973 41.202C46.0086 41.3974 45.9973 42.002 45.2739 42.002Z"
-                      fill="#FD2C79"
-                    />
-                  </svg>
+                  <h3>{role === "agent" ? "Member Interactions" : "Total Interaction"}</h3>
+                  {/* <svg fill="#FD2C79" height="200px" width="200px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 490.726 490.726" xml:space="preserve" stroke="#FD2C79"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M261.526,475.713c1.7,0.1,3.4,0.2,5,0.2c18.5,0,34-6.7,46.1-19.9c0.1-0.1,0.3-0.3,0.4-0.4c4-4.8,8.6-9.2,13.5-13.9 c3.4-3.2,6.8-6.6,10.1-10.1c16.4-17.1,16.3-39.6-0.2-56.1l-42.7-42.7c-7.9-8.3-17.5-12.6-27.6-12.6c-10,0-19.7,4.3-27.8,12.5 l-23.6,23.6c-1.6-0.9-3.3-1.7-4.9-2.5c-2.7-1.4-5.3-2.7-7.5-4.1c-22.9-14.5-43.7-33.5-63.5-57.9c-9.4-11.8-15.8-21.9-20.3-31.6 c6-5.6,11.7-11.3,17.2-16.9c2.2-2.2,4.4-4.4,6.6-6.6c8.4-8.4,12.8-18.1,12.8-28.1s-4.4-19.7-12.8-28.1l-21.2-21.2 c-2.4-2.4-4.8-4.9-7.2-7.3c-4.7-4.9-9.7-9.9-14.5-14.4c-7.9-7.9-17.4-12.1-27.4-12.1c-9.9,0-19.5,4.1-27.8,12.1l-26.6,26.6 c-10.2,10.3-16.1,22.8-17.3,37.2c-1.9,23,4.9,44.4,10.1,58.5c12.6,34.1,31.6,65.8,59.7,99.7c34.2,40.8,75.4,73.1,122.4,95.8 C210.426,463.913,234.526,474.013,261.526,475.713z M88.826,343.813c-26.3-31.6-43.9-61-55.6-92.5c-7.1-19.1-9.8-33.9-8.6-47.9 c0.7-8.6,4.1-15.8,10.5-22.2l26.2-26.2c2.4-2.3,6.2-5.1,10.7-5.1c4.3,0,7.9,2.7,10.4,5.2c4.7,4.4,9.2,9,14,13.9 c2.4,2.5,4.9,5,7.4,7.5l21.2,21.2c2.6,2.6,5.6,6.5,5.6,10.8s-3.1,8.2-5.6,10.8c-2.3,2.3-4.5,4.5-6.7,6.8 c-6.5,6.6-12.7,12.9-19.4,18.9c-0.2,0.2-0.3,0.3-0.5,0.5c-7.3,7.3-6,14.6-4.4,19.4c0.1,0.3,0.2,0.5,0.3,0.8 c5.6,13.5,13.4,26.3,25.5,41.5c21.6,26.6,44.3,47.3,69.4,63.2c3.2,2.1,6.5,3.7,9.7,5.3c2.7,1.4,5.3,2.7,7.5,4.1 c0.4,0.2,0.7,0.4,1.1,0.6c7.7,3.8,15.3,2.5,21.5-3.8l26.6-26.6c2.4-2.4,6.2-5.3,10.5-5.3c4.2,0,7.7,2.8,10.1,5.3l42.9,42.9 c7.1,7.1,7.1,14.2-0.3,21.9c-2.9,3.1-6.1,6.1-9.4,9.3c-5,4.9-10.3,9.9-15.1,15.6c-7.5,8-16.3,11.7-27.9,11.7c-1.2,0-2.3,0-3.5-0.1 c-22.8-1.5-44.1-10.4-60-18C159.226,412.113,120.826,382.013,88.826,343.813z"></path> <path d="M295.426,283.013c13.4,3.3,27.2,5,41.2,5c85,0,154.1-61.3,154.1-136.6s-69.1-136.6-154.1-136.6s-154.1,61.2-154.1,136.6 c0,28.9,10.4,57.1,29.4,80.3c-3.6,6.9-8.6,12.5-14.8,16.5c-5.7,3.8-8.4,10.5-6.9,17.1s6.8,11.4,13.5,12.4 c13.1,1.8,38.5,2.8,62.2-11.5c5.8-3.5,7.7-11,4.2-16.8c-3.5-5.8-11-7.7-16.8-4.2c-8.8,5.3-18.2,7.7-26.5,8.6 c4.6-5.8,8.2-12.5,11-20c1.6-4.3,0.6-9.2-2.5-12.6c-18.5-20.1-28.3-44.2-28.3-69.9c0-61.8,58.1-112.1,129.6-112.1 s129.6,50.3,129.6,112.1s-58.1,112.1-129.6,112.1c-12,0-23.9-1.4-35.4-4.2c-6.5-1.6-13.2,2.4-14.8,9 C284.826,274.813,288.826,281.413,295.426,283.013z"></path> <circle cx="336.626" cy="151.413" r="13"></circle> <circle cx="382.926" cy="151.413" r="13"></circle> <circle cx="290.326" cy="151.413" r="13"></circle> </g> </g> </g></svg> */}
                 </div>
-                <div className="stat-number">{apiData7.total_interactions}</div>
+                <div className="stat-number">
+                  {(apiData7.total_interactions || 0) + (apiData1?.total_interest_count || 0) + (apiData?.total_request_count || 0)}
+                </div>
                 <div className="stat-details">
                   <div className="stat-row">
                     <span className="stat-label">
@@ -761,7 +1330,7 @@ const UserDashboard = () => {
                       Sent
                     </span>
                     <span className="stat-value">
-                      {apiData7.sent_interactions}
+                      {(apiData7.sent_interactions || 0) + (apiData1?.interest_sent || 0) + (apiData?.request_sent || 0)}
                     </span>
                   </div>
                   <div className="stat-row">
@@ -788,7 +1357,7 @@ const UserDashboard = () => {
                       Received
                     </span>
                     <span className="stat-value">
-                      {apiData7.received_interactions}
+                      {(apiData7.received_interactions || 0) + (apiData1?.interest_received || 0) + (apiData?.request_received || 0)}
                     </span>
                   </div>
                 </div>{" "}
@@ -886,7 +1455,7 @@ const UserDashboard = () => {
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>Total Shortlist</h3>
+                  <h3>{role === "agent" ? "Member Shortlists" : "Total Shortlist"}</h3>
                   <svg
                     width="58"
                     height="52"
@@ -954,18 +1523,18 @@ const UserDashboard = () => {
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>Total Blocked</h3>
+                  <h3>{role === "agent" ? "Blocked Members" : "Total Blocked"}</h3>
                   <div className="stat-icon heart-icon">
                     <svg
                       width="24"
                       height="24"
-                      viewBox="0 0 24 24"
+                      viewBox="0 0 21 20"
                       fill="none"
-                      stroke="#FF1493"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                        strokeWidth="2"
+                        d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
+                        fill="#FD2C79"
                       />
                     </svg>
                   </div>
@@ -983,7 +1552,7 @@ const UserDashboard = () => {
         {/* Matches Graph Section */}
         <div className="matches-section">
           <div className="section-header">
-            <h2>Matches</h2>
+            <h2>{role === "agent" ? "Member Activity" : "Matches"}</h2>
             <select className="month-select">
               <option value="1">Last week</option>
               {/* <option value="3">Last 3 Months</option>
@@ -999,7 +1568,7 @@ const UserDashboard = () => {
         {/* Match Details Table */}
         <div className="match-details-section">
           <div className="section-header">
-            <h2>Match Details</h2>
+            <h2>{role === "agent" ? "Member Details" : "Match Details"}</h2>
           </div>
 
           {role != "agent" && (
@@ -1019,104 +1588,104 @@ const UserDashboard = () => {
                 </thead>
 
                 <tbody>
-                  {apiData6
-                    .filter(match => {
+                  {apiData6?.matches
+                    ?.filter(match => {
                       // Debug log to see what data we're getting
                       console.log("Match data:", match);
                       console.log("Match percentage:", match.match_percentage);
                       console.log("Match percentage type:", typeof match.match_percentage);
-                      
+
                       // Only show matches with percentage > 0 from backend
                       return match.match_percentage && match.match_percentage > 0;
                     })
                     .length > 0 ? (
-                      apiData6
-                        .filter(match => match.match_percentage && match.match_percentage > 0)
-                        .map((match, index) => (
-                    <tr key={index}>
-                      <td>{match?.member_id || match?.id || "N/A"}</td>
-                      <td>
-                        <div className="name-cell">
-                          <img
-                            src={
-                              (() => {
-                                // Try multiple possible photo sources for match
-                                const photoUrl = match?.profile_photo ||
-                                               match?.photo ||
-                                               match?.avatar ||
-                                               match?.image ||
-                                               match?.profile_image;
+                    apiData6?.matches
+                      ?.filter(match => match.match_percentage && match.match_percentage > 0)
+                      .map((match, index) => (
+                        <tr key={index}>
+                          <td>{match?.member_id || match?.id || "N/A"}</td>
+                          <td>
+                            <div className="name-cell">
+                              <img
+                                src={
+                                  (() => {
+                                    // Try multiple possible photo sources for match
+                                    const photoUrl = match?.profile_photo ||
+                                      match?.photo ||
+                                      match?.avatar ||
+                                      match?.image ||
+                                      match?.profile_image;
 
-                                console.log(`Match ${index} photo URL:`, photoUrl);
+                                    console.log(`Match ${index} photo URL:`, photoUrl);
 
-                                if (photoUrl) {
-                                  const fullUrl = photoUrl.startsWith('http')
-                                    ? photoUrl
-                                    : `${process.env.REACT_APP_API_URL}${photoUrl}`;
-                                  console.log(`Match ${index} full URL:`, fullUrl);
-                                  return fullUrl;
+                                    if (photoUrl) {
+                                      const fullUrl = photoUrl.startsWith('http')
+                                        ? photoUrl
+                                        : `${process.env.REACT_APP_API_URL}${photoUrl}`;
+                                      console.log(`Match ${index} full URL:`, fullUrl);
+                                      return fullUrl;
+                                    }
+
+                                    console.log(`Match ${index} no photo, using fallback`);
+                                    return men1;
+                                  })()
                                 }
-
-                                console.log(`Match ${index} no photo, using fallback`);
-                                return men1;
-                              })()
-                            }
-                            alt={match.name || "Profile"}
-                            onError={(e) => {
-                              console.log(`Match ${index} image failed to load, using fallback`);
-                              e.target.src = men1;
-                            }}
-                            onLoad={() => {
-                              console.log(`Match ${index} image loaded successfully`);
-                            }}
-                          />
-                          {match.name || "Not Mentioned"}
-                        </div>
-                      </td>
-                      <td>{match.city || "Not Mentioned"}</td>
-                      <td>{match.age || "Not Mentioned"}</td>
-                      <td>{match.sect_school_info || "Not Mentioned"}</td>
-                      <td>{match.profession || "Not Mentioned"}</td>
-                      <td>
-                        <span
-                          className={`marital-badge ${match.martial_status ? match.martial_status.toLowerCase().replace(/\s+/g, '-') : 'not-mentioned'}`}
-                          style={{
-                            background: getMaritalBadgeColor(match.martial_status)
-                          }}
-                        >
-                          {match.martial_status || "Not Mentioned"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="progress-bar-container">
-                          <div
-                            className="progress-bar"
-                            style={{
-                              width: `${match.match_percentage || 0}%`,
-                              backgroundColor: getMatchProgressColor(match.match_percentage),
-                            }}
-                          ></div>
-                          <span className="progress-text">
-                            {match.match_percentage || 0}%
-                          </span>
-                        </div>
+                                alt={match.name || "Profile"}
+                                onError={(e) => {
+                                  console.log(`Match ${index} image failed to load, using fallback`);
+                                  e.target.src = men1;
+                                }}
+                                onLoad={() => {
+                                  console.log(`Match ${index} image loaded successfully`);
+                                }}
+                              />
+                              {match.name || "Not Mentioned"}
+                            </div>
+                          </td>
+                          <td>{match.city || "Not Mentioned"}</td>
+                          <td>{match.age || "Not Mentioned"}</td>
+                          <td>{match.sect_school_info || "Not Mentioned"}</td>
+                          <td>{match.profession || "Not Mentioned"}</td>
+                          <td>
+                            <span
+                              className={`marital-badge ${match.martial_status ? match.martial_status.toLowerCase().replace(/\s+/g, '-') : 'not-mentioned'}`}
+                              style={{
+                                background: getMaritalBadgeColor(match.martial_status)
+                              }}
+                            >
+                              {match.martial_status || "Not Mentioned"}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="progress-bar-container">
+                              <div
+                                className="progress-bar"
+                                style={{
+                                  width: `${match.match_percentage || 0}%`,
+                                  backgroundColor: getMatchProgressColor(match.match_percentage),
+                                }}
+                              ></div>
+                              <span className="progress-text">
+                                {match.match_percentage || 0}%
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                        No matches found with percentage &gt; 0%
                       </td>
                     </tr>
-                  ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-                          No matches found with percentage &gt; 0%
-                        </td>
-                      </tr>
-                    )
+                  )
                   }
                 </tbody>
               </table>
             </div>
           )}
           {role == "agent" && (
-            <MatchDetailsComponents apiData6={apiData6?.members || []} />
+            <MatchDetailsComponents apiData6={apiData6?.matches || []} />
           )}
         </div>
       </div>

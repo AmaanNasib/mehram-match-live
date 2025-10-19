@@ -264,7 +264,7 @@
     top: 0;
     left: 0;
     height: 100%;
-    width: 70%;
+    width: var(--progress-width, 70%);
     background: linear-gradient(to right, #51cf66, #40c057);
     border-radius: 4px;
 }

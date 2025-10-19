@@ -14,17 +14,30 @@ const MemStepOne = () => {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
-  let [userId] = useState(localStorage.getItem("userId"));
   const [formErrors, setFormErrors] = useState({});
-  const [setErrors, setsetErrors] = useState({});
-  const [member_id, setmemErrors] = useState({});
+  const [setErrors, setsetErrors] = useState(null);
+  const [member_id, setmemErrors] = useState(null);
   const location = useLocation();
-  const { username, age } = location.state || {};
+  const { username, age, isNewMember, clearForm, editMode, memberId } = location.state || {};
   console.log(username, ">>>>>>>");
-  userId =
-    username == "memberCreation" ? localStorage.getItem("member_id") : userId;
+  console.log("Edit Mode:", editMode, "Member ID:", memberId);
+  
+  // Determine userId based on the context
+  let userId;
+  if (editMode && memberId) {
+    // When editing a member, use the memberId from the state
+    userId = memberId;
+    console.log("MemStepOne: Using memberId for edit mode:", userId);
+  } else if (username == "memberCreation") {
+    userId = localStorage.getItem("member_id");
+  } else if (isNewMember && clearForm) {
+    userId = null; // This will prevent fetching existing user data
+  } else {
+    userId = localStorage.getItem("userId");
+  }
 
   useEffect(() => {
+    console.log("Current userId:", userId, "Edit Mode:", editMode, "Member ID:", memberId);
     if (userId) {
       const parameter = {
         url: `/api/user/${userId}/`,
@@ -34,25 +47,32 @@ const MemStepOne = () => {
       };
       fetchDataObjectV2(parameter);
     }
-  }, [userId]);
+  }, [userId, editMode, memberId]);
 
   useEffect(() => {
-    if (apiData) {
+    if (apiData && !(isNewMember && clearForm)) {
+      console.log("Setting form data for user:", apiData.id, "Edit Mode:", editMode);
+      // Auto-determine gender based on on_behalf if not already set
+      let autoGender = apiData.gender;
+      if (apiData.onbehalf && !apiData.gender) {
+        if (apiData.onbehalf === 'Brother' || apiData.onbehalf === 'Son') {
+          autoGender = 'male';
+        } else if (apiData.onbehalf === 'Sister' || apiData.onbehalf === 'Daughter') {
+          autoGender = 'female';
+        }
+      }
+
       setProfileData({
         first_name: apiData.first_name || null,
         last_name: apiData.last_name || null,
         dob: apiData.dob || null,
-        gender: apiData.gender || null,
+        gender: autoGender || null,
+        on_behalf: apiData.onbehalf || null,
         marital_status: apiData.martial_status || null,
-        dob: apiData.dob || null,
         city: apiData.city || false,
         state: apiData.state || false,
         country: apiData.country || null,
         native_country: apiData.native_country || null,
-        native_city: apiData.native_city || null,
-        native_state: apiData.native_state || null,
-        Education: apiData.Education || null,
-        profession: apiData.profession || null,
         native_city: apiData.native_city || null,
         native_state: apiData.native_state || null,
         Education: apiData.Education || null,
@@ -67,33 +87,66 @@ const MemStepOne = () => {
         about_you: apiData.about_you,
       });
     }
-  }, [apiData]);
+  }, [apiData, isNewMember, clearForm]);
 
   const naviagteNextStep = () => {
     if (handleValidForm()) {
       console.log(profileData.hieght, "valid");
+      console.log("Navigation context:", { username, isNewMember, editMode, memberId, userId });
+      console.log("Profile data before submission:", profileData);
       let mem = {};
-      if (username == "memberCreation") {
+      if (username == "memberCreation" || isNewMember) {
+        // Additional validation before API call
+        if (!profileData.email?.trim()) {
+          setsetErrors("Email is required for member creation. Please fill in the email field.");
+          // Auto-clear error after 5 seconds
+          setTimeout(() => setsetErrors(null), 5000);
+          return;
+        }
+        if (!profileData.password?.trim()) {
+          setsetErrors("Password is required for member creation. Please fill in the password field.");
+          setTimeout(() => setsetErrors(null), 5000);
+          return;
+        }
+        if (!profileData.phone_number?.trim()) {
+          setsetErrors("Phone number is required for member creation. Please fill in the phone number field.");
+          setTimeout(() => setsetErrors(null), 5000);
+          return;
+        }
+        if (!profileData.confirm_password?.trim()) {
+          setsetErrors("Please confirm your password before creating the member.");
+          setTimeout(() => setsetErrors(null), 5000);
+          return;
+        }
+        if (profileData.password !== profileData.confirm_password) {
+          setsetErrors("Passwords do not match. Please check your password and confirm password fields.");
+          setTimeout(() => setsetErrors(null), 5000);
+          return;
+        }
+        
         mem = {
           agent_id: localStorage.getItem("userId") || "",
           confirm_password: profileData.confirm_password || "",
           password: profileData.password || "",
           email: profileData.email || "",
+          phone_number: profileData.phone_number || "",
         };
+        console.log("Member creation payload:", mem);
       }
 
       const parameters = {
         url:
-          username == "memberCreation"
-            ? localStorage.getItem("member_id")
-              ? `/api/user/${userId}/`
-              : "/api/user/"
+          (username == "memberCreation" || isNewMember)
+            ? "/api/user/"  // Always use POST for new member creation
+            : editMode
+            ? `/api/user/${memberId}/`
             : `/api/user/${userId}/`,
         payload: {
           first_name: profileData.first_name,
           last_name: profileData.last_name,
           dob: profileData.dob,
           gender: profileData.gender,
+          onbehalf: profileData.on_behalf,
           martial_status: profileData.marital_status,
           city: profileData.city,
           state: profileData.state,
@@ -115,16 +168,22 @@ const MemStepOne = () => {
         },
         navigate: navigate,
         useracreate: "memberCreation",
-        navUrl: `/memsteptwo`,
+        navUrl: `/memsteptwo/${userId}`,
         setErrors: setsetErrors,
       };
-      if (username == "memberCreation") {
-        if (localStorage.getItem("member_id")) {
-          updateDataReturnId(parameters);
-        } else {
-          updatePostDataReturnId(parameters);
-        }
+      console.log("MemStepOne: Navigating to MemStepTwo with userId:", userId);
+      if (username == "memberCreation" || isNewMember) {
+        console.log("Creating new member - using POST request");
+        // Clear any existing member_id to ensure new member creation
+        localStorage.removeItem("member_id");
+        // Always use POST for new member creation
+        updatePostDataReturnId(parameters);
+      } else if (editMode) {
+        console.log("Editing existing member - using PUT request");
+        // Use PUT for editing existing member
+        updateDataReturnId(parameters);
       } else {
+        // Use PUT for regular user updates
         updateDataReturnId(parameters);
       }
     }
@@ -132,6 +191,11 @@ const MemStepOne = () => {
 
   const handleFieldChange = (field, value) => {
     console.log(field, value, ">>>>>");
+    
+    // Clear any existing errors when user starts typing
+    if (setErrors) {
+      setsetErrors(null);
+    }
 
     setProfileData((prevState) => {
       const newState = {
@@ -191,7 +255,8 @@ const MemStepOne = () => {
       'first_name', 'last_name', 'dob', 'gender', 'marital_status',
       'country', 'state', 'city', 'native_country', 'native_state', 'native_city',
       'Education', 'profession', 'describe_job_business',
-      'disability', 'type_of_disability', 'incomeRange', 'about_you'
+      'disability', 'type_of_disability', 'incomeRange', 'about_you',
+      'email', 'phone_number', 'password', 'confirm_password'
     ];
 
     // Validate First Name
@@ -292,6 +357,37 @@ const MemStepOne = () => {
       newErrors.about_you = "Personal Values/About You is required";
     }
 
+    // Validate email, password fields for new member creation
+    if (username === "memberCreation" || isNewMember) {
+      // Validate Email
+      if (!profileData.email?.trim()) {
+        newErrors.email = "Email is required for member creation";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+
+      // Validate Phone Number
+      if (!profileData.phone_number?.trim()) {
+        newErrors.phone_number = "Phone number is required for member creation";
+      } else if (!/^[0-9+\-\s()]{10,15}$/.test(profileData.phone_number)) {
+        newErrors.phone_number = "Please enter a valid phone number";
+      }
+
+      // Validate Password
+      if (!profileData.password?.trim()) {
+        newErrors.password = "Password is required for member creation";
+      } else if (profileData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters long";
+      }
+
+      // Validate Confirm Password
+      if (!profileData.confirm_password?.trim()) {
+        newErrors.confirm_password = "Please confirm your password";
+      } else if (profileData.password !== profileData.confirm_password) {
+        newErrors.confirm_password = "Passwords do not match";
+      }
+    }
+
     console.log("newErrors", newErrors);
 
     setFormErrors(newErrors);
@@ -325,6 +421,7 @@ const MemStepOne = () => {
     last_name: "",
     dob: "",
     gender: "",
+    on_behalf: "",
     marital_status: "",
     city: "",
     state: "",
@@ -341,7 +438,35 @@ const MemStepOne = () => {
     about_you: "",
     height: "",
     weight: "",
+    email: "",
+    phone_number: "",
+    password: "",
+    confirm_password: "",
   });
+
+  // Initialize phone number with agent's phone number for new member creation
+  useEffect(() => {
+    if ((username === "memberCreation" || isNewMember) && !profileData.phone_number) {
+      // Fetch agent's phone number and set it as default
+      const agentId = localStorage.getItem("userId");
+      if (agentId) {
+        const parameter = {
+          url: `/api/user/${agentId}/`,
+          setterFunction: (agentData) => {
+            if (agentData && agentData.phone_number) {
+              setProfileData(prev => ({
+                ...prev,
+                phone_number: agentData.phone_number
+              }));
+            }
+          },
+          setLoading: () => {},
+          setErrors: () => {},
+        };
+        fetchDataObjectV2(parameter);
+      }
+    }
+  }, [username, isNewMember, profileData.phone_number]);
 
   // Function to get marital status options based on gender
   const getMaritalStatusOptions = (gender) => {
@@ -365,6 +490,14 @@ const MemStepOne = () => {
     { value: "female", label: "Female" },
     // { value: "other", label: "Other" },
   ];
+
+  // Function to determine if gender should be readonly
+  const isGenderReadonly = () => {
+    return profileData.on_behalf === 'Brother' || 
+           profileData.on_behalf === 'Sister' || 
+           profileData.on_behalf === 'Son' || 
+           profileData.on_behalf === 'Daughter';
+  };
 
   // Comprehensive country-state-city data structure
   const locationData = {
@@ -1128,14 +1261,12 @@ const MemStepOne = () => {
                       type="text"
                       value={profileData.first_name || ""}
                           onChange={(e) => handleFieldChange("first_name", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                           formErrors.first_name
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-white"
+                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] bg-white"
                           }`}
                           placeholder="Enter your first name"
-                          disabled
-                          readOnly
                         />
                   {formErrors.first_name && (
                         <p className="text-red-500 text-sm">{formErrors.first_name}</p>
@@ -1169,14 +1300,12 @@ const MemStepOne = () => {
                       type="text"
                       value={profileData.last_name || ""}
                           onChange={(e) => handleFieldChange("last_name", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                         formErrors.last_name
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-white"
+                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] bg-white"
                           }`}
                           placeholder="Enter your last name"
-                          disabled
-                          readOnly
                         />
                   {formErrors.last_name && (
                         <p className="text-red-500 text-sm">{formErrors.last_name}</p>
@@ -1210,13 +1339,11 @@ const MemStepOne = () => {
                       type="date"
                       value={profileData.dob || ""}
                       onChange={(e) => handleFieldChange("dob", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium bg-gray-100 cursor-not-allowed ${
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
                             formErrors.dob
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500 bg-white"
+                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] bg-white"
                           }`}
-                          disabled
-                          readOnly
                         />
                   {formErrors.dob && (
                         <p className="text-red-500 text-sm">{formErrors.dob}</p>
@@ -1227,6 +1354,11 @@ const MemStepOne = () => {
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <span>Gender <span className="text-red-500">*</span></span>
+                        {isGenderReadonly() && (
+                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                            Auto-selected
+                          </span>
+                        )}
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1241,17 +1373,20 @@ const MemStepOne = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'gender' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Select your gender from the dropdown
+                            {isGenderReadonly() 
+                              ? "Gender is automatically selected based on the profile type (Brother/Son = Male, Sister/Daughter = Female)"
+                              : "Select your gender from the dropdown"
+                            }
                             <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
-                    <Dropdown
-                      options={genders}
-                      name="gender"
-                      value={profileData.gender}
+                      <Dropdown
+                        options={genders}
+                        name="gender"
+                        value={profileData.gender}
                         onChange={(e) => handleFieldChange("gender", e.target.value)}
-                        disabled={true}
+                        disabled={isGenderReadonly()}
                       />
                   {formErrors.gender && (
                         <p className="text-red-500 text-sm">{formErrors.gender}</p>
@@ -1914,7 +2049,7 @@ const MemStepOne = () => {
                 </div>
 
                 {/* Member Creation Fields */}
-                {username === "memberCreation" && (
+                {(username === "memberCreation" || isNewMember) && (
                   <div className="space-y-6">
                     <div className="border-b border-gray-200 pb-4">
                       <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -1949,6 +2084,7 @@ const MemStepOne = () => {
                         </label>
                         <input
                           type="email"
+                          name="email"
                           value={profileData?.email || ""}
                           onChange={(e) => handleFieldChange("email", e.target.value)}
                           className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
@@ -1960,6 +2096,46 @@ const MemStepOne = () => {
                         />
                         {formErrors.email && (
                           <p className="text-red-500 text-sm">{formErrors.email}</p>
+                        )}
+                      </div>
+
+                      {/* Phone Number */}
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          Phone Number <span className="text-red-500">*</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('phone_number');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'phone_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Phone number will be inherited from agent's account
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone_number"
+                          value={profileData?.phone_number || ""}
+                          onChange={(e) => handleFieldChange("phone_number", e.target.value)}
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                            formErrors.phone_number
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
+                          }`}
+                          placeholder="Enter phone number"
+                        />
+                        {formErrors.phone_number && (
+                          <p className="text-red-500 text-sm">{formErrors.phone_number}</p>
                         )}
                       </div>
 
@@ -1988,6 +2164,7 @@ const MemStepOne = () => {
                         </label>
                         <input
                           type="password"
+                          name="password"
                           value={profileData?.password || ""}
                           onChange={(e) => handleFieldChange("password", e.target.value)}
                           className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium"
@@ -2023,6 +2200,7 @@ const MemStepOne = () => {
                         </label>
                         <input
                           type="password"
+                          name="confirm_password"
                           value={profileData?.confirm_password || ""}
                           onChange={(e) => handleFieldChange("confirm_password", e.target.value)}
                           className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium"
@@ -2041,6 +2219,19 @@ const MemStepOne = () => {
                   </div>
                   <span>of 6 steps</span>
                 </div>
+                
+                {/* Error Display */}
+                {setErrors && typeof setErrors === 'string' && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-red-700 text-sm font-medium">{setErrors}</p>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Submit Button */}
                 <div className="flex justify-end pt-8 border-t border-gray-200">
                 <button

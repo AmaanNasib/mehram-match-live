@@ -174,7 +174,27 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
       }
     ];
 
-    // Calculate totals
+    // Define the 12 specific fields for match calculation
+    const matchFields = [
+      { key: 'age', label: 'Age' },
+      { key: 'gender', label: 'Gender' },
+      { key: 'martial_status', label: 'Marital Status' },
+      { key: 'city', label: 'Current City' },
+      { key: 'state', label: 'Current State' },
+      { key: 'country', label: 'Current Country' },
+      { key: 'Education', label: 'Education' },
+      { key: 'profession', label: 'Profession' },
+      { key: 'sect_school_info', label: 'Sect/School of Thought' },
+      { key: 'believe_in_dargah_fatiha_niyah', label: 'Belief in Dargah/Fatiha/Niyah' },
+      { key: 'father_name', label: 'Father\'s Name' },
+      { key: 'mother_name', label: 'Mother\'s Name' }
+    ];
+
+    // Calculate match-specific completion (12 fields total)
+    const matchFieldsCompleted = matchFields.filter(field => isFieldCompleted(field.key, userData[field.key])).length;
+    const matchPercentage = Math.round((matchFieldsCompleted / 12) * 100);
+
+    // Calculate totals for all fields (existing logic)
     const totalMandatory = steps.reduce((sum, step) => sum + step.mandatory.length, 0);
     const totalOptional = steps.reduce((sum, step) => sum + step.optional.length, 0);
     const totalCompleted = steps.reduce((sum, step) => sum + step.mandatoryCompleted + step.optionalCompleted, 0);
@@ -185,7 +205,12 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
       totalMandatory,
       totalOptional,
       totalCompleted,
-      totalMissing
+      totalMissing,
+      // New match-specific calculations
+      matchFields,
+      matchFieldsCompleted,
+      matchPercentage,
+      totalMatchFields: 12
     };
   };
 
@@ -501,10 +526,18 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
             // Show profile completion progress for own profile
             <>
           <div className="percentMatch">
-            <h6 className="cardText">{apiData?.profile_percentage || "0"}% Profile Complete</h6>
+            <h6 className="cardText">{(() => {
+              const completionStats = getProfileCompletionStats(apiData);
+              return `${completionStats.matchPercentage}% Match Complete`;
+            })()}</h6>
           </div>
           
-          <div className="filled"></div>
+          <div className="filled" style={{
+            '--progress-width': `${(() => {
+              const completionStats = getProfileCompletionStats(apiData);
+              return completionStats.matchPercentage;
+            })()}%`
+          }}></div>
           
           {/* Profile Completion Details */}
           <div className="completion-details">
@@ -514,15 +547,21 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
                 <>
                   <div className="completion-summary">
                     <div className="completion-row">
-                      <span className="completion-label">Total Progress:</span>
+                      <span className="completion-label">Match Fields:</span>
                       <span className="completion-value">
-                        {completionStats.totalCompleted}/{completionStats.totalMandatory + completionStats.totalOptional} fields
+                        {completionStats.matchFieldsCompleted}/{completionStats.totalMatchFields} fields
                       </span>
                     </div>
                     <div className="completion-row">
-                      <span className="completion-label">Remaining:</span>
-                      <span className="completion-value remaining">
-                        {completionStats.totalMissing} fields pending
+                      <span className="completion-label">Match Percentage:</span>
+                      <span className="completion-value">
+                        {completionStats.matchPercentage}%
+                      </span>
+                    </div>
+                    <div className="completion-row">
+                      <span className="completion-label">Total Profile Fields:</span>
+                      <span className="completion-value">
+                        {completionStats.totalCompleted}/{completionStats.totalMandatory + completionStats.totalOptional} fields
                       </span>
                     </div>
                   </div>

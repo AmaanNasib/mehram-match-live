@@ -67,7 +67,10 @@ const ViewAllUser = () => {
       url: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
       setterFunction: (data) => {
         console.log('ViewAllUser API Response:', data);
+        console.log('Role:', role);
+        console.log('Total profiles received:', data?.length);
         console.log('First user data structure:', data[0]);
+        console.log('API URL used:', role == "agent" ? `/api/agent/user_list/` : `/api/user/`);
         setAllUser(data);
       },
       setErrors: setErrors,
@@ -87,13 +90,17 @@ const ViewAllUser = () => {
 
   useEffect(() => {
     if (role === "individual") return; // check with backend developer for unauthorized error
-    const parameter2 = {
-      url: `/api/agent/user_agent/?agent_id=${userId}`,
-      setterFunction: setApiDataMember,
-      setErrors: setErrors,
-      setLoading: setLoading,
-    };
-    fetchDataWithTokenV2(parameter2);
+    
+    // Only fetch agent members if role is agent (not when impersonating user)
+    if (role === "agent") {
+      const parameter2 = {
+        url: `/api/agent/user_agent/?agent_id=${userId}`,
+        setterFunction: setApiDataMember,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(parameter2);
+    }
   }, [userId]);
 
   const handleInterestClick = (actionOnId) => {
@@ -113,6 +120,11 @@ const ViewAllUser = () => {
         interest: true,
       },
       setErrors: setErrors,
+      setSuccessMessage: (message) => {
+        setSuccessMessage(message);
+        // Dispatch custom event to refresh dashboard data
+        window.dispatchEvent(new CustomEvent('interestSent'));
+      },
       tofetch: {
         items: [
           {
@@ -147,6 +159,11 @@ const ViewAllUser = () => {
         interest: false,
       },
       setErrors: setErrors,
+      setSuccessMessage: (message) => {
+        setSuccessMessage(message);
+        // Dispatch custom event to refresh dashboard data
+        window.dispatchEvent(new CustomEvent('interestSent'));
+      },
       tofetch: {
         items: [
           {
@@ -367,11 +384,20 @@ const ViewAllUser = () => {
               {/* Multi-Row Profile Grid */}
               <div className="space-y-6">
                 {(() => {
+                  console.log('Filtering profiles - Role:', role);
+                  console.log('Total profiles before filtering:', allUser?.length);
+                  console.log('Ignored users:', Array.from(ignoredUsers));
+                  
                   const filteredProfiles = allUser.filter(profile => {
                     // Filter out ignored users
                     if (ignoredUsers.has(profile.user?.id)) return false;
                     
-                    // Gender filtering: show opposite gender
+                    // For agents, show all profiles without gender filtering
+                    if (role === 'agent') {
+                      return true;
+                    }
+                    
+                    // Gender filtering: show opposite gender (only for regular users)
                     const currentUserGender = activeUser?.gender;
                     const profileGender = profile.user?.gender || profile?.gender;
                     
@@ -384,6 +410,8 @@ const ViewAllUser = () => {
                     
                     return false;
                   });
+                  
+                  console.log('Total profiles after filtering:', filteredProfiles?.length);
 
                   // Create chunks of profiles for multiple rows (5 profiles per row)
                   const profilesPerRow = 5;

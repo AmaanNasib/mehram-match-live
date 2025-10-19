@@ -59,6 +59,8 @@ import ViewAllUser from "./components/Dashboard/ViewAll/ViewAllUser.jsx";
 import AboutUs from "./components/pages/AboutUs/AboutUs";
 import ContactUs from "./components/pages/ContactUs/ContactUs";
 import PrivacyPolicy from "./components/pages/PrivacyPolicy/PrivacyPolicy";
+import MemberAnalytics from "./components/Dashboard/MemberAnalytics/MemberAnalytics";
+import MemberMatches from "./components/Dashboard/MemberMatches/MemberMatches";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -68,7 +70,20 @@ const AllRoutes = () => {
       const decoded = jwtDecode(token);
       console.log("decoded : ", decoded.user_id, decoded);
       const userId = decoded.user_id || decoded.id || "";
-      localStorage.setItem("userId", userId);
+      
+      // Check if we're impersonating a user
+      const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+      const impersonatingUserId = localStorage.getItem('impersonating_user_id');
+      
+      if (isImpersonating && impersonatingUserId) {
+        // Use the impersonated user's ID
+        localStorage.setItem("userId", impersonatingUserId);
+        console.log("Using impersonated user ID:", impersonatingUserId);
+      } else {
+        // Use the actual user's ID from token
+        localStorage.setItem("userId", userId);
+      }
+      
       localStorage.setItem("user", JSON.stringify(decoded));
     } catch (err) {
       console.error("Token decoding failed:", err);
@@ -299,6 +314,22 @@ const AllRoutes = () => {
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route
+          path="/member-analytics"
+          element={
+            <PrivateRoute>
+              <MemberAnalytics />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/member-matches/:memberId"
+          element={
+            <PrivateRoute>
+              <MemberMatches />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/dashboard"
           element={
             <PrivateRoute>
@@ -401,13 +432,13 @@ const AllRoutes = () => {
           }
         />
 
-        {/* <Route path="/memstepone" element={<PrivateRoute><MemStepOne/></PrivateRoute>  }/>
+        <Route path="/memstepone/:userId" element={<PrivateRoute><MemStepOne/></PrivateRoute>  }/>
         <Route path="/memsteptwo/:userId" element={ <PrivateRoute><MemStepTwo/> </PrivateRoute>}/>
         <Route path="/memstepthree/:userId" element={<PrivateRoute> <MemStepThree/></PrivateRoute> }/>
         <Route path="/memstepfour/:userId" element={ <PrivateRoute><MemStepFour/> </PrivateRoute>}/>
         <Route path="/memstepfive/:userId" element={<PrivateRoute> <MemStepFive/></PrivateRoute> }/>
         <Route path="/memstepsix/:userId" element={ <PrivateRoute><MemStepSix/> </PrivateRoute>}/>
-        <Route path="/memstep-payment/:userId" element={<PrivateRoute> <MemStepPayment/> </PrivateRoute>}/> */}
+        <Route path="/memstep-payment/:userId" element={<PrivateRoute> <MemStepPayment/> </PrivateRoute>}/>
         <Route
           path="/admin"
           element={

@@ -2190,19 +2190,23 @@ const MobileDashboard = () => {
 
   useEffect(() => {
     if (role === "individual") return; // Skip for individual users like NewDashboard
-    const parameter4 = {
-      url: `/api/agent/user_agent/?agent_id=${userId}`,
-      setterFunction: (data) => {
-        console.log("Agent members received:", data);
-        setApiMember(data);
-      },
-      setErrors: (error) => {
-        console.error("Error fetching agent members:", error);
-        setErrors(error);
-      },
-      setLoading: () => {}, // We handle loading manually
-    };
-    fetchDataWithTokenV2(parameter4);
+    
+    // Only fetch agent members if role is agent (not when impersonating user)
+    if (role === "agent") {
+      const parameter4 = {
+        url: `/api/agent/user_agent/?agent_id=${userId}`,
+        setterFunction: (data) => {
+          console.log("Agent members received:", data);
+          setApiMember(data);
+        },
+        setErrors: (error) => {
+          console.error("Error fetching agent members:", error);
+          setErrors(error);
+        },
+        setLoading: () => {}, // We handle loading manually
+      };
+      fetchDataWithTokenV2(parameter4);
+    }
   }, [userId]);
 
   // Handle body scroll locking when drawer is open
@@ -2326,6 +2330,9 @@ const MobileDashboard = () => {
         console.log("Interest sent successfully:", result);
         // Show success message
         alert(`Interest sent to ${profile.name || profile.first_name}!`);
+        
+        // Dispatch custom event to refresh dashboard data
+        window.dispatchEvent(new CustomEvent('interestSent'));
       } else {
         console.error("Failed to send interest:", result);
         alert(result.message || "Failed to send interest. Please try again.");

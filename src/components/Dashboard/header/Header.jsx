@@ -172,6 +172,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [apiData, setApiData] = useState(propApiData || {});
+  const [agentProfilePhoto, setAgentProfilePhoto] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setErrors] = useState("");
   const [role] = useState(localStorage.getItem("role"));
@@ -201,9 +202,36 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
   useEffect(() => {
     const parameter8 = {
       url:  role  === "agent"
-          ? `/api/agent/${userId}/`
+          ? `/api/agent/`
           : `/api/user/${userId}/`,
-      setterFunction: setApiData,
+      setterFunction: (data) => {
+        if (role === "agent") {
+          // For agents, this is the agent profile data
+          console.log("Agent profile data:", data);
+          console.log("Agent profile data type:", typeof data, "Is array:", Array.isArray(data));
+          
+          // According to API docs, GET /api/agent/ returns current authenticated agent as single object
+          if (data && typeof data === 'object' && !Array.isArray(data)) {
+            // Single object response - this is the expected format
+            console.log("Setting agent profile (single object):", data);
+            console.log("Agent first_name:", data.first_name);
+            console.log("Agent last_name:", data.last_name);
+            console.log("Agent name:", data.name);
+            setApiData(data);
+          } else if (Array.isArray(data) && data.length > 0) {
+            // Fallback: if it's an array, get the first item or find by ID
+            const agentData = data.find(agent => agent.id == userId) || data[0];
+            console.log("Setting agent profile (from array):", agentData);
+            setApiData(agentData);
+          } else {
+            console.log("No agent profile data found");
+            setApiData({});
+          }
+        } else {
+          // For regular users
+          setApiData(data);
+        }
+      },
       setErrors: setErrors,
       setLoading: setLoading,
     };
@@ -236,6 +264,67 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
       setLoading: setLoading,
     };
     fetchDataV2(parameterPhoto);
+
+    // Fetch agent profile photo if user is an agent
+    if (role === "agent") {
+      // Try the specific agent photo endpoint first
+      const agentPhotoParam = {
+        url: `/api/agent/profile_photo/?agent_id=${userId}`,
+        setterFunction: (data) => {
+          console.log("Agent profile photo data (specific):", data);
+          console.log("Agent photo data type:", typeof data, "Is array:", Array.isArray(data));
+          if (Array.isArray(data) && data.length > 0) {
+            // Find the photo for the current agent
+            const currentAgentPhoto = data.find(photo => photo.agent?.id == userId);
+            if (currentAgentPhoto) {
+              console.log("Setting agentProfilePhoto:", currentAgentPhoto);
+              setAgentProfilePhoto(currentAgentPhoto);
+            } else {
+              console.log("No photo found for current agent, trying fallback");
+              // Try fallback endpoint
+              fetchAgentPhotoFallback();
+            }
+          } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+            // Single object response
+            console.log("Setting agentProfilePhoto (object):", data);
+            setAgentProfilePhoto(data);
+          } else {
+            console.log("No agent photo data found, trying fallback");
+            // Try fallback endpoint
+            fetchAgentPhotoFallback();
+          }
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(agentPhotoParam);
+      
+      // Fallback function to try general agent photo endpoint
+      const fetchAgentPhotoFallback = () => {
+        const fallbackParam = {
+          url: `/api/agent/profile_photo/`,
+          setterFunction: (data) => {
+            console.log("Agent profile photo data (fallback):", data);
+            if (Array.isArray(data) && data.length > 0) {
+              const currentAgentPhoto = data.find(photo => photo.agent?.id == userId);
+              if (currentAgentPhoto) {
+                console.log("Setting agentProfilePhoto (fallback):", currentAgentPhoto);
+                setAgentProfilePhoto(currentAgentPhoto);
+              } else {
+                console.log("No photo found in fallback either");
+                setAgentProfilePhoto(null);
+              }
+            } else {
+              console.log("No fallback photo data found");
+              setAgentProfilePhoto(null);
+            }
+          },
+          setErrors: setErrors,
+          setLoading: setLoading,
+        };
+        fetchDataWithTokenV2(fallbackParam);
+      };
+    }
 
     const handleClickOutside = (event) => {
       if (
@@ -390,34 +479,97 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                 ref={dropdownRef}
                 style={{ position: "relative", cursor: "pointer" }}
               >
-                {console.log("User profile clicked!")}
+                {console.log("=== HEADER DEBUG ===")}
+                {console.log("Role:", role)}
+                {console.log("userId:", userId)}
                 {console.log("apiData:", apiData)}
+                {console.log("apiData.first_name:", apiData?.first_name)}
+                {console.log("apiData.last_name:", apiData?.last_name)}
+                {console.log("apiData.name:", apiData?.name)}
+                {console.log("agentProfilePhoto:", agentProfilePhoto)}
                 {console.log("profile_photo:", apiData?.profile_photo)}
                 {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
                 {console.log("user_profilephoto:", apiData?.user_profilephoto)}
-                {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
+                {console.log("=== END HEADER DEBUG ===")}
                 <img
                   src={
-                    (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
-                      ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
-                      : `data:image/svg+xml;utf8,${encodeURIComponent(
-                          apiData?.gender === "male"
-                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                    (() => {
+                      // For agents, prioritize agent_profilephoto
+                      if (role === "agent") {
+                        const agentPhotoUrl = agentProfilePhoto?.upload_photo;
+                        console.log("Agent photo URL found:", agentPhotoUrl);
+                        
+                        if (agentPhotoUrl) {
+                          const fullUrl = agentPhotoUrl.startsWith('http') 
+                            ? agentPhotoUrl 
+                            : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
+                          console.log("Agent full URL constructed:", fullUrl);
+                          return fullUrl;
+                        }
+                        
+                        // For agents, use SVG placeholder if no agent photo uploaded
+                        console.log("No agent photo found, using SVG placeholder");
+                        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                      }
+                      
+                      // For regular users, use regular user photo sources
+                      const photoUrl = apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo;
+                      
+                      if (photoUrl) {
+                        const fullUrl = photoUrl.startsWith('http') 
+                          ? photoUrl 
+                          : `${process.env.REACT_APP_API_URL}${photoUrl}`;
+                        return fullUrl;
+                      }
+                      
+                      // Fallback for regular users
+                      return `data:image/svg+xml;utf8,${encodeURIComponent(
+                        apiData?.gender === "male"
+                          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                 <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                 <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
               </svg>`
-                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                          : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
                 <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
                 <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
                 <circle cx="12" cy="8" r="2" fill="#ec4899"/>
               </svg>`
-                        )}`
+                      )}`;
+                    })()
                   }
                   alt="User"
                   className="w-8 h-8 rounded-full object-cover border-2 border-white"
+                  onError={(e) => {
+                    console.log("Image failed to load, using fallback");
+                    if (role === "agent") {
+                      e.target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                    } else {
+                      e.target.src = "https://w7.pngwing.com/pngs/832/40/png-transparent-female-avatar-girl-face-woman-user-flat-classy-users-icon.png";
+                    }
+                  }}
                 />
                 <div className="user_role_info">
-                  <span className="username">{apiData?.name}</span>
+                  <span className="username">
+                    {role === "agent" 
+                      ? (() => {
+                          const firstName = apiData?.first_name || "";
+                          const lastName = apiData?.last_name || "";
+                          const fullName = `${firstName} ${lastName}`.trim();
+                          const name = apiData?.name || "";
+                          const localStorageName = localStorage.getItem("name") || "";
+                          
+                          console.log("Name resolution for agent:");
+                          console.log("firstName:", firstName);
+                          console.log("lastName:", lastName);
+                          console.log("fullName:", fullName);
+                          console.log("name:", name);
+                          console.log("localStorageName:", localStorageName);
+                          
+                          return fullName || name || localStorageName || "Agent";
+                        })()
+                      : apiData?.name || localStorage.getItem("name") || "User"
+                    }
+                  </span>
                   <span className="user-role">
                     {role === "agent" ? "Agent" : "User"}
                   </span>
@@ -866,26 +1018,65 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                     <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-lg">
                       <img
                         src={
-                          (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
-                            ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
-                            : `data:image/svg+xml;utf8,${encodeURIComponent(
-                                apiData?.gender === "male"
-                                  ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                          (() => {
+                            // For agents, prioritize agent_profilephoto
+                            if (role === "agent") {
+                              const agentPhotoUrl = agentProfilePhoto?.upload_photo;
+                              
+                              if (agentPhotoUrl) {
+                                const fullUrl = agentPhotoUrl.startsWith('http') 
+                                  ? agentPhotoUrl 
+                                  : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
+                                return fullUrl;
+                              }
+                              
+                              // For agents, use SVG placeholder if no agent photo uploaded
+                              return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                            }
+                            
+                            // For regular users, use regular user photo sources
+                            const photoUrl = apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo;
+                            
+                            if (photoUrl) {
+                              const fullUrl = photoUrl.startsWith('http') 
+                                ? photoUrl 
+                                : `${process.env.REACT_APP_API_URL}${photoUrl}`;
+                              return fullUrl;
+                            }
+                            
+                            // Fallback for regular users
+                            return `data:image/svg+xml;utf8,${encodeURIComponent(
+                              apiData?.gender === "male"
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                     <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                     <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
                   </svg>`
-                                  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
                     <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
                     <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
                     <circle cx="12" cy="8" r="2" fill="#ec4899"/>
                   </svg>`
-                              )}`
+                            )}`;
+                          })()
                         }
                         alt="User"
                         className="w-12 h-12 rounded-full border-2 border-white object-cover"
                       />
                       <div>
-                        <p className="font-semibold text-[#CB3B8B]">{apiData?.name}</p>
+                        <p className="font-semibold text-[#CB3B8B]">
+                          {role === "agent" 
+                            ? (() => {
+                                const firstName = apiData?.first_name || "";
+                                const lastName = apiData?.last_name || "";
+                                const fullName = `${firstName} ${lastName}`.trim();
+                                const name = apiData?.name || "";
+                                const localStorageName = localStorage.getItem("name") || "";
+                                
+                                return fullName || name || localStorageName || "Agent";
+                              })()
+                            : apiData?.name || localStorage.getItem("name") || "User"
+                          }
+                        </p>
                         <p className="text-sm text-gray-600">{role === "agent" ? "Agent" : "User"}</p>
                       </div>
                     </div>
