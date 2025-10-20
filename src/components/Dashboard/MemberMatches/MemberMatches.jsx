@@ -374,21 +374,71 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 <div className="header-cell match-header-cell">Match Status</div>
                 <div className="header-cell user-header-cell">Matched User</div>
               </div>
+
+              {/* Surname/Last Name Comparison (field-to-field with robust fallbacks) */}
+              <div className="comparison-row">
+                {(() => {
+                  const currentSurname = ((typeof currentMember?.name === 'string' ? currentMember.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
+                  const matchedSurname = ((typeof member?.name === 'string' ? member.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
+
+                  const showCurrent = currentSurname || 'N/A';
+                  const showMatched = matchedSurname || 'N/A';
+                  const comparableCurrent = currentSurname.toLowerCase();
+                  const comparableMatched = matchedSurname.toLowerCase();
+                  const haveValues = Boolean(currentSurname) && Boolean(matchedSurname);
+                  const isEqual = haveValues && comparableCurrent === comparableMatched;
+
+                  return (
+                    <>
+                      <div className="comparison-cell user-cell">
+                        <span className="field-label">Surname</span>
+                        <span className="field-value">{showCurrent}</span>
+                      </div>
+                      <div className="comparison-cell match-cell">
+                        {haveValues ? (
+                          <span className={`match-badge ${isEqual ? 'match' : 'no-match'}`}>
+                            {isEqual ? '✓ MATCH' : '✗ NO MATCH'}
+                          </span>
+                        ) : (
+                          <span className="match-badge unknown">? UNKNOWN</span>
+                        )}
+                      </div>
+                      <div className="comparison-cell user-cell">
+                        <span className="field-label">Surname</span>
+                        <span className="field-value">{showMatched}</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
               
-              {/* Age Comparison */}
+
+
+              {/* Age Comparison (use backend decision) */}
               <div className="comparison-row">
                 <div className="comparison-cell user-cell">
                   <span className="field-label">Age</span>
                   <span className="field-value">{currentMember?.age || "N/A"}</span>
                 </div>
                 <div className="comparison-cell match-cell">
-                  {currentMember?.age && member?.age ? (
-                    <span className={`match-badge ${Math.abs(currentMember.age - member.age) <= 5 ? 'match' : 'no-match'}`}>
-                      {Math.abs(currentMember.age - member.age) <= 5 ? '✓ MATCH' : '✗ NO MATCH'}
-                    </span>
-                  ) : (
-                    <span className="match-badge unknown">? UNKNOWN</span>
-                  )}
+                  {(() => {
+                    const ageMatch = member?.match_details?.age_match;
+                    if (ageMatch === true) {
+                      return <span className="match-badge match">✓ MATCH</span>;
+                    }
+                    if (ageMatch === false) {
+                      return <span className="match-badge no-match">✗ NO MATCH</span>;
+                    }
+                    // if (currentMember?.age && member?.age) {
+                    //   // Fallback if backend flag missing
+                    //   return (
+                    //     <span className={`match-badge ${Math.abs(currentMember.age - member.age) <= 2 ? 'match' : 'no-match'}`}>
+                    //       {Math.abs(currentMember.age - member.age) <= 2 ? '✓ MATCH' : '✗ NO MATCH'}
+                    //     </span>
+                    //   );
+                    // }
+                    return <span className="match-badge unknown">? UNKNOWN</span>;
+                  })()}
                 </div>
                 <div className="comparison-cell user-cell">
                   <span className="field-label">Age</span>
@@ -3057,164 +3107,36 @@ const MemberMatches = () => {
     }
   }, [sortConfig.direction]);
 
-  // Function to calculate match percentage based on 12 fields
+  // Function to get match percentage from API data (no frontend calculation)
   const calculateMatchPercentage = (match) => {
-    // Based on API documentation, the calculation should be:
-    // 11 preference fields + 1 age field = 12 total fields
+    // Use API data directly - no frontend calculation needed
+    // Backend already handles all matching logic including age tolerance
     
-    // First, try to calculate from field_matches if available (from API)
-    if (match && match.match_details && match.match_details.field_matches) {
-      // Define the 12 specific fields for match calculation (11 preferences + 1 age)
-      const preferenceFields = [
-        'preferred_surname',
-        'preferred_dargah_fatiha_niyah', 
-        'preferred_sect',
-        'desired_practicing_level',
-        'preferred_city',
-        'preferred_country',
-        'preferred_state',
-        'preferred_family_type',
-        'preferred_family_background',
-        'preferred_education',
-        'preferred_occupation_profession'
-      ];
-      
-      const ageField = 'age';
-      const allFields = [...preferenceFields, ageField]; // 12 total fields
-
-      const fieldMatches = match.match_details.field_matches;
-      let matchedFields = 0;
-
-      // Check each field for match using field_matches structure
-      allFields.forEach(field => {
-        if (fieldMatches[field] && fieldMatches[field].match === true) {
-          matchedFields++;
-        }
-      });
-
-      // Calculate percentage: (matched_fields / 12) * 100
-      const matchPercentage = Math.round((matchedFields / 12) * 100);
-      return matchPercentage;
-    }
+    // Use API data directly - no frontend calculation needed
     
-    // Second, try to calculate from field_breakdown if available (from API)
-    if (match && match.field_breakdown) {
-      // Define the 12 specific fields for match calculation (11 preferences + 1 age)
-      const preferenceFields = [
-        'preferred_surname',
-        'preferred_dargah_fatiha_niyah', 
-        'preferred_sect',
-        'desired_practicing_level',
-        'preferred_city',
-        'preferred_country',
-        'preferred_state',
-        'preferred_family_type',
-        'preferred_family_background',
-        'preferred_education',
-        'preferred_occupation_profession'
-      ];
-      
-      const ageField = 'age';
-      const allFields = [...preferenceFields, ageField]; // 12 total fields
-
-      const fieldBreakdown = match.field_breakdown;
-      let matchedFields = 0;
-
-      // Check each field for match using field_breakdown structure
-      allFields.forEach(field => {
-        if (fieldBreakdown[field] && fieldBreakdown[field].match === true) {
-          matchedFields++;
-        }
-      });
-
-      // Calculate percentage: (matched_fields / 12) * 100
-      const matchPercentage = Math.round((matchedFields / 12) * 100);
-      return matchPercentage;
-    }
-    
-    // Second, try to calculate from match_breakdown if available (legacy)
-    if (match && match.match_breakdown && match.match_breakdown.field_matches) {
-      // Define the 12 specific fields for match calculation (11 preferences + 1 age)
-      const preferenceFields = [
-        'preferred_surname',
-        'preferred_dargah_fatiha_niyah', 
-        'preferred_sect',
-        'desired_practicing_level',
-        'preferred_city',
-        'preferred_country',
-        'preferred_state',
-        'preferred_family_type',
-        'preferred_family_background',
-        'preferred_education',
-        'preferred_occupation_profession'
-      ];
-      
-      const ageField = 'age';
-      const allFields = [...preferenceFields, ageField]; // 12 total fields
-
-      const fieldMatches = match.match_breakdown.field_matches;
-      let matchedFields = 0;
-
-      // Check each field for match
-      allFields.forEach(field => {
-        if (fieldMatches[field] && fieldMatches[field].matched === true) {
-          matchedFields++;
-        }
-      });
-
-      // Calculate percentage: (matched_fields / 12) * 100
-      const matchPercentage = Math.round((matchedFields / 12) * 100);
-      return matchPercentage;
-    }
-    
-    // Third, try to calculate from match_details if available
-    if (match && match.match_details) {
-      // Try to calculate from match_details if available
-      const matchDetails = match.match_details;
-      let matchedFields = 0;
-      
-      // Check age match
-      if (matchDetails.age_match === true) {
-        matchedFields++;
-      }
-      
-      // Check preference field matches based on your database analysis
-      const preferenceFieldChecks = [
-        'preferred_dargah_fatiha_niyah_match', // ✅ MATCHED
-        'preferred_sect_match',                // ✅ MATCHED  
-        'desired_practicing_level_match',      // ✅ MATCHED
-        'preferred_city_match',                // ✅ MATCHED
-        'preferred_country_match',             // ✅ MATCHED
-        'preferred_state_match',               // ✅ MATCHED
-        'preferred_family_type_match',         // ✅ MATCHED
-        'preferred_education_match',           // ✅ MATCHED
-        'preferred_surname_match',             // ❌ NOT MATCHED
-        'preferred_family_background_match',   // ❌ NOT MATCHED
-        'preferred_occupation_profession_match' // ❌ NOT MATCHED
-      ];
-      
-      preferenceFieldChecks.forEach(field => {
-        if (matchDetails[field] === true) {
-          matchedFields++;
-        }
-      });
-      
-      // Calculate percentage: (matched_fields / 12) * 100
-      const matchPercentage = Math.round((matchedFields / 12) * 100);
-      return matchPercentage;
-    }
-    
-    // Fourth, try to use match_percentage directly from API if available
-    if (match && match.match_details && match.match_details.match_percentage) {
-      return Math.round(match.match_details.match_percentage);
-    }
-    
-    // Fifth, try to use compatibility_score as last resort
+    // First priority: Use compatibility_score from API (most accurate)
     if (match && match.compatibility_score) {
-      return Math.round(match.compatibility_score);
+      const percentage = Math.round(match.compatibility_score);
+      console.log('Using compatibility_score:', percentage);
+      return percentage;
     }
     
-    // If no detailed data available, return 0
+    // Second priority: Use match_percentage from match_details
+    if (match && match.match_details && match.match_details.match_percentage) {
+      const percentage = Math.round(match.match_details.match_percentage);
+      console.log('Using match_details.match_percentage:', percentage);
+      return percentage;
+    }
+    
+    // Third priority: Use match_percentage from main object
+    if (match && match.match_percentage) {
+      const percentage = Math.round(match.match_percentage);
+      console.log('Using match_percentage:', percentage);
+      return percentage;
+    }
+    
+    // If no data available, return 0
+    console.log('No match percentage data found, returning 0');
     return 0;
   };
 
@@ -3422,6 +3344,8 @@ const MemberMatches = () => {
                   
                   // Process matches with proper data structure
                   const processedMatches = matches.map(match => {
+                    // Process match data
+                    
                     // Use the compatibility score from the new API structure
                     const matchPercentage = match.compatibility_score || 
                                           match.match_percentage || 
