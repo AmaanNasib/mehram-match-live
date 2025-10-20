@@ -36,7 +36,7 @@ const MemStepSix = () => {
       };
       fetchDataObjectV2(parameter);
       const parameter1 = {
-        url: `/api/user/profile_photo/?user_id=${userId}`,
+        url: `/api/agent/profile_photo/?agent_id=${userId}`,
         setterFunction: setImagedateset,
         setErrors: setErrors,
         setLoading: setLoading,
@@ -251,6 +251,8 @@ const MemStepSix = () => {
         preferred_city: profileData.preferred_city || '',
         preferred_country: profileData.preferred_country || '',
         preferred_country: profileData.preferred_country || '',
+        profile_photo: imagedata?.[imagedata.length - 1]?.upload_photo || profileData.profile_photo || '',
+        upload_photo: imagedata?.[imagedata.length - 1]?.upload_photo || profileData.upload_photo || '',
         profile_completed	:true
        },
       navigate: navigate,
@@ -259,8 +261,16 @@ const MemStepSix = () => {
     };
 console.log(parameters.payload.profile_completed,"profile_completed");
 
+    // Save photo first, then update profile
+    if (image) {
+      handleSave();
+      // Wait a bit for photo to upload, then update profile
+      setTimeout(() => {
     updateDataV2(parameters);
-    handleSave()
+      }, 1000);
+    } else {
+      updateDataV2(parameters);
+    }
   };
 
   const updateField = (field, value) => {
@@ -335,10 +345,10 @@ console.log(parameters.payload.profile_completed,"profile_completed");
      
       const formData = new FormData();
       formData.append('upload_photo', image);
-      formData.append('user_id', userId);
-         let updateurl=`/api/user/profile_photo/${imagedata?.[imagedata.length-1]?.id}/`
+      formData.append('agent_id', userId);
+         let updateurl=`/api/agent/profile_photo/${imagedata?.[imagedata.length-1]?.id}/`
       const parameter = {
-        url:`${profileData.upload_photo?updateurl:'/api/user/profile_photo/'}`,
+        url:`${profileData.upload_photo?updateurl:'/api/agent/profile_photo/'}`,
         setUserId: setImagedateset,
         formData:formData,
         setErrors: setError,

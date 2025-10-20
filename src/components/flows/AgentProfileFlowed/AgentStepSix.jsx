@@ -102,11 +102,15 @@ const AgentStepSix = () => {
     }
     const formData = new FormData();
     formData.append('upload_photo', image);
-    formData.append('user_id', userId);
-    let updateurl = `/api/user/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`
+    formData.append('agent_id', userId);
+    let updateurl = `/api/agent/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`
     const parameter = {
-      url: `${profileData.upload_photo ? updateurl : '/api/user/profile_photo/'}`,
-      setUserId: setImagedateset,
+      url: `${profileData.upload_photo ? updateurl : '/api/agent/profile_photo/'}`,
+      setUserId: (responseData) => {
+        console.log('Photo upload response:', responseData);
+        // Convert single response to array format for imagedata
+        setImagedateset([responseData]);
+      },
       formData: formData,
       setErrors: setError,
       setLoading: setLoading,
@@ -121,6 +125,20 @@ const AgentStepSix = () => {
 
     setError("");
     console.log("Image saved:", image);
+    
+    // Update agent profile with photo URL after successful upload
+    setTimeout(() => {
+      const updateParameter = {
+        url: `/api/agent/${userId}/`,
+        payload: {
+          profile_photo: imagedata?.[imagedata.length - 1]?.upload_photo || '',
+          upload_photo: imagedata?.[imagedata.length - 1]?.upload_photo || ''
+        },
+        setErrors: setError,
+      };
+      justputDataWithoutToken(updateParameter);
+    }, 1000);
+    
     // alert("Image saved successfully!");
   };
   useEffect(() => {

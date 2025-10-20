@@ -851,7 +851,12 @@ const registration = (parameter) => {
 
       // Navigate to the specified URL
       if (parameter?.navigate) {
-        parameter.navigate(`${parameter?.navUrl}`, {
+        // For agent registration, use the response ID in the URL
+        const navUrl = parameter?.navUrl?.includes('agentstepone') 
+          ? `/agentstepone/${response?.data?.id}` 
+          : parameter?.navUrl;
+        
+        parameter.navigate(navUrl, {
           state: {
             successMessage: "Successfully Created!",
             successMessageColor: "#4285F4",

@@ -802,11 +802,17 @@ const UserDashboard = () => {
               </div>
               <div className="user-welcome">
                 <h1 className="dashboard-title">
-                  {role === "agent" ? (
-                    `Welcome back, Agent ${agentProfile?.first_name || userProfile?.first_name || ""} ${agentProfile?.last_name || userProfile?.last_name || ""}`.trim() + "!"
-                  ) : (
-                    `Welcome back, ${userProfile?.name || userProfile?.first_name || "User"}!`
-                  )}
+                  {(() => {
+                    const storedName = (localStorage.getItem('name') || '').trim();
+                    if (role === "agent") {
+                      const full = `${agentProfile?.first_name || userProfile?.first_name || ''} ${agentProfile?.last_name || userProfile?.last_name || ''}`.trim();
+                      const name = agentProfile?.name || full || storedName || 'Agent';
+                      return `Welcome back, ${name}!`;
+                    }
+                    const full = `${userProfile?.first_name || ''} ${userProfile?.last_name || ''}`.trim();
+                    const name = userProfile?.name || full || storedName || 'User';
+                    return `Welcome back, ${name}!`;
+                  })()}
                 </h1>
                 <p className="dashboard-subtitle">
                   {role === "agent"

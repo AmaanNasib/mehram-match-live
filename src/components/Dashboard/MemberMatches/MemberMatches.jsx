@@ -3354,7 +3354,20 @@ const MemberMatches = () => {
                     
                     // Extract matched user data
                     const matchedUser = match.matched_user || match.user;
-                    
+                    // Extract agent info (who added the matched user)
+                    const agentInfoRaw = match.matched_user_agent || match.agent_id || match.created_by_agent || null;
+                    if (agentInfoRaw) {
+                      try {
+                        console.log('Agent for member', matchedUser?.member_id || matchedUser?.id, {
+                          agent_id: agentInfoRaw.agent_id || agentInfoRaw.id,
+                          agent_name: agentInfoRaw.agent_name || agentInfoRaw.name,
+                          agent_email: agentInfoRaw.agent_email || agentInfoRaw.email,
+                        });
+                      } catch (e) {}
+                    }
+                    const agentInfo = agentInfoRaw || null;
+
+
                     return {
                       id: matchedUser?.member_id || matchedUser?.id || match.id,
                       member_id: matchedUser?.member_id || matchedUser?.id || match.id,
@@ -3385,7 +3398,8 @@ const MemberMatches = () => {
                       match_details: match.match_details || null, // Complete match details from API
                       field_breakdown: match.field_breakdown || null, // Field-by-field breakdown from API
                       compatibility_details: match.compatibility_details || null,
-                      match_quality: match.match_quality || null
+                      match_quality: match.match_quality || null,
+                      agent_info: agentInfo
                     };
                   });
                   
@@ -3695,7 +3709,8 @@ const MemberMatches = () => {
               <th onClick={() => handleSort('id')}>
                 Member ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Name</th>
+              <th>MEMBER Name</th>
+              <th>Agent Name</th>
               <th>Location</th>
               <th onClick={() => handleSort('age')}>Age {sortConfig.key === 'age' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th>Sect</th>
@@ -3709,7 +3724,14 @@ const MemberMatches = () => {
             {currentItems.map((match) => (
               <tr key={match?.id} onClick={() => navigate(`/details/${match?.id}`)} style={{ cursor: "pointer" }}>
                 <td>{match?.member_id || match?.id}</td>
-                <td>{match?.name || "No Name"}</td>
+                <td>{match?.name || match?.user_name || "No Name"}</td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  {match?.agent_info?.agent_name ?? match?.agent_info?.name ? (
+                    match?.agent_info?.agent_name ?? match?.agent_info?.name
+                  ) : (
+                    <span className="self-badge">Self</span>
+                  )}
+                </td>
                 <td>{match?.city || "-"}</td>
                 <td>{match?.age || "-"}</td>
                 <td>{match?.sect_school_info || "-"}</td>
@@ -3995,16 +4017,29 @@ const MemberMatches = () => {
             text-transform: uppercase;
             cursor: pointer;
             user-select: none;
+            text-align: center;
           }
           
           .matches-table th, .matches-table td {
             padding: 12px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid #ddd;
           }
           
           .matches-table tr:hover {
             background: #f1f1f1;
+          }
+
+          /* Self badge styling */
+          .self-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #0f766e;
+            background: #ccfbf1; /* teal-100 */
+            border: 1px solid #99f6e4; /* teal-200 */
           }
           
           .marital-badge {

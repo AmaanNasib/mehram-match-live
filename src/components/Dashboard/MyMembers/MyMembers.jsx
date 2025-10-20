@@ -1377,6 +1377,9 @@ const MyMembers = () => {
   const role = localStorage.getItem("role");
     const token = localStorage.getItem('token');
 
+  // Ensure this is initialized before any function that might use it
+  const [allMembers, setAllMembers] = useState([]);
+
 
   let [filters, setFilters] = useState({
     id: "",
@@ -1534,7 +1537,7 @@ const MyMembers = () => {
   ];
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Get current items
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -1565,49 +1568,72 @@ const MyMembers = () => {
   };
   // Apply filters to the data based on selected filter values
   const applyFilters = (updatedFilters) => {
-    // console.log(updatedFilters.id, ">>>");
+    // console.log("Applying filters:", updatedFilters);
+    // console.log("Total members to filter:", allMembers?.length);
 
-    setFilteredItems(
-      apiData?.member?.filter((match) => {
-        return (
-          (updatedFilters.id ? match?.id == updatedFilters.id : true) &&
-          (updatedFilters.name
-            ? match?.name
-                ?.toLowerCase()
-                .includes(updatedFilters.name.toLowerCase())
-            : true) &&
-          (updatedFilters.city
-            ? match?.city
-                ?.toLowerCase()
-                .includes(updatedFilters.city.toLowerCase())
-            : true) &&
-          (updatedFilters.startDate && updatedFilters.endDate
-            ? new Date(match?.date) >= new Date(updatedFilters.startDate) &&
-              new Date(match?.date) <= new Date(updatedFilters.endDate)
-            : true) &&
-          (updatedFilters.sectSchoolInfo
-            ? match?.sect_school_info
-                ?.toLowerCase()
-                .includes(updatedFilters.sectSchoolInfo.toLowerCase())
-            : true) &&
-          (updatedFilters.profession
-            ? match?.profession
-                ?.toLowerCase()
-                .includes(updatedFilters.profession.toLowerCase())
-            : true) &&
-          (updatedFilters.status
-            ? match?.status
-                ?.toLowerCase()
-                .includes(updatedFilters.status.toLowerCase())
-            : true) &&
-          (updatedFilters.martialStatus
-            ? match?.martial_status
-                ?.toLowerCase()
-                .includes(updatedFilters.martialStatus.toLowerCase())
-            : true)
-        );
-      })
-    );
+    const filteredResults = allMembers?.filter((match) => {
+      return (
+        (updatedFilters.id ? 
+          // Word-by-word search for id/member_id (case-insensitive now)
+          updatedFilters.id.split(' ').every(word => {
+            const w = String(word).toLowerCase();
+            const idStr = match?.id != null ? String(match.id) : '';
+            const mid = match?.member_id || '';
+            const idMatch = idStr.toLowerCase().includes(w);
+            const memberIdMatch = mid.toLowerCase().includes(w);
+            return idMatch || memberIdMatch;
+          }) : true) &&
+        (updatedFilters.name
+          ? match?.name
+              ?.toLowerCase()
+              .includes(updatedFilters.name.toLowerCase())
+          : true) &&
+        (updatedFilters.city
+          ? (() => {
+              const haystack = [
+                match?.location,
+                match?.city,
+                match?.state,
+                match?.country
+              ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+              const words = String(updatedFilters.city).trim().split(/\s+/);
+              return words.every((w) => haystack.includes(w.toLowerCase()));
+            })()
+          : true) &&
+        (updatedFilters.startDate && updatedFilters.endDate
+          ? new Date(match?.date) >= new Date(updatedFilters.startDate) &&
+            new Date(match?.date) <= new Date(updatedFilters.endDate)
+          : true) &&
+        (updatedFilters.sectSchoolInfo
+          ? match?.sect_school_info
+              ?.toLowerCase()
+              .includes(updatedFilters.sectSchoolInfo.toLowerCase())
+          : true) &&
+        (updatedFilters.profession
+          ? match?.profession
+              ?.toLowerCase()
+              .includes(updatedFilters.profession.toLowerCase())
+          : true) &&
+        (updatedFilters.status
+          ? match?.status
+              ?.toLowerCase()
+              .includes(updatedFilters.status.toLowerCase())
+          : true) &&
+        (updatedFilters.martialStatus
+          ? match?.martial_status
+              ?.toLowerCase()
+              .includes(updatedFilters.martialStatus.toLowerCase())
+          : true)
+      );
+    });
+    
+    // console.log("Filtered results:", filteredResults?.length);
+    // console.log("Filtered member IDs:", filteredResults?.map(m => ({ id: m.id, member_id: m.member_id, name: m.name })));
+    
+    setFilteredItems(filteredResults);
   };
   const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
   // Total pages
@@ -1618,11 +1644,11 @@ const MyMembers = () => {
     setCurrentPage(pageNumber);
   };
   useEffect(() => {
-    // Apply filters when `currentItems` or filters change
-    // console.log(apiData, ">>>okk");
+    // Apply filters when `allMembers` changes
+    // console.log(allMembers, ">>>okk");
 
-    setFilteredItems(apiData?.member);
-  }, [apiData]);
+    setFilteredItems(allMembers);
+  }, [allMembers]);
   // Function to handle sorting
   const handleSort = (column) => {
     let direction = "asc";
@@ -1739,7 +1765,6 @@ useEffect(() => {
 
 
   const [showAllMembers, setShowAllMembers] = useState(false);
-  const [allMembers, setAllMembers] = useState([]);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
   const [isLoading, setIsLoading] = useState(true);
   
@@ -2151,7 +2176,7 @@ useEffect(() => {
             viewMode === 'cards' ? (
             <div className="members-cards-container">
               <div className="cards-grid">
-              {allMembers.map((member) => {
+              {currentItems.map((member) => {
                 // console.log("Rendering member:", member);
                 // console.log("Member member_id:", member?.member_id);
                 // console.log("Member id:", member?.id);
@@ -2346,7 +2371,7 @@ useEffect(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    {allMembers.map((member) => (
+                    {currentItems.map((member) => (
                       <tr key={member.id} className="table-row">
                         <td>
                           <span className="member-id-badge">{member?.member_id || "N/A"}</span>

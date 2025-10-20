@@ -183,6 +183,7 @@ const DashboardLayout = ({
   const notificationsRef = useRef(null);
   const searchRef = useRef(null);
   const [apiData, setApiData] = useState({});
+  const [agentProfilePhoto, setAgentProfilePhoto] = useState(null);
   const [useLoading, setLoading] = useState({});
   const [useError, setErrors] = useState({});
   const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem("userId"));
@@ -268,10 +269,35 @@ const DashboardLayout = ({
   }, []);
 
   useEffect(() => {
-    if (role === "agent") return;
+    // Fetch profile and photo for both roles
+    if (role === "agent") {
+      const agentParam = {
+        url: `/api/agent/`, // authenticated agent profile
+        setterFunction: (data) => {
+          // API may return object or array
+          const profile = Array.isArray(data) ? (data.find(a => a.id == userId) || data[0]) : data;
+          setApiData(profile || {});
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(agentParam);
 
+      const agentPhotoParam = {
+        url: `/api/agent/profile_photo/?agent_id=${userId}`,
+        setterFunction: (data) => {
+          const photo = Array.isArray(data) ? (data.find(p => (p.agent?.id == userId) || p.agent_id == userId) || data[data.length - 1]) : data;
+          setAgentProfilePhoto(photo || null);
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(agentPhotoParam);
+    } else {
+      // When switching to user view, clear any previously stored agent photo
+      if (agentProfilePhoto) setAgentProfilePhoto(null);
     const parameter8 = {
-      url: role === "agent" ? `/api/agent/${userId}/` : `/api/user/${userId}/`,
+        url: `/api/user/${userId}/`,
       setterFunction: (data) => {
         console.log("API Response Data:", data);
         setApiData(data);
@@ -281,33 +307,18 @@ const DashboardLayout = ({
     };
     fetchDataWithTokenV2(parameter8);
 
-    // Fetch user profile photo separately (same logic as Header.jsx)
+      // Fetch user profile photo separately
     const parameterPhoto = {
       url: `/api/user/profile_photo/?user_id=${userId}`,
       setterFunction: (data) => {
-        console.log("Profile photo data:", data);
-        console.log("Data type:", typeof data, "Is array:", Array.isArray(data));
-        if (Array.isArray(data) && data.length > 0) {
-          console.log("Setting user_profilephoto:", data[data.length - 1]);
-          setApiData(prev => ({
-            ...prev,
-            user_profilephoto: data[data.length - 1] // Get the latest photo
-          }));
-        } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-          console.log("Setting user_profilephoto (object):", data);
-          setApiData(prev => ({
-            ...prev,
-            user_profilephoto: data
-          }));
-        } else {
-          console.log("No photo data found or unexpected format:", data);
-          setApiData(prev => ({ ...prev, user_profilephoto: null }));
-        }
+          const photo = Array.isArray(data) ? data[data.length - 1] : data;
+          setApiData(prev => ({ ...prev, user_profilephoto: photo || null }));
       },
       setErrors: setErrors,
       setLoading: setLoading,
     };
     fetchDataWithTokenV2(parameterPhoto);
+    }
 
     const handleClickOutside = (event) => {
       if (
@@ -322,7 +333,7 @@ const DashboardLayout = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [userId, role]);
 
   const navigate = useNavigate();
   const [activeSubNav, setActiveSubNav] = useState(subNavActive);
@@ -780,24 +791,24 @@ const DashboardLayout = ({
                 {console.log("profile_photo:", apiData?.profile_photo)}
                 {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
                 {console.log("user_profilephoto:", apiData?.user_profilephoto)}
-                {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
+                {(() => {
+                  const rawUrl = apiData?.user_profilephoto?.upload_photo || apiData?.profile_photo;
+                  const finalUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${process.env.REACT_APP_API_URL}${rawUrl}`) : 'Using fallback SVG';
+                  console.log('Final image URL:', finalUrl);
+                  return null;
+                })()}
                 <img
-                  src={
-                    (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
-                      ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
-                      : `data:image/svg+xml;utf8,${encodeURIComponent(
-                          apiData?.gender === "male"
-                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
-                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
-              </svg>`
-                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
-                        )}`
-                  }
+                  src={(() => {
+                    const rawUrl = apiData?.user_profilephoto?.upload_photo || apiData?.profile_photo;
+                    if (rawUrl) {
+                      return rawUrl.startsWith('http') ? rawUrl : `${process.env.REACT_APP_API_URL}${rawUrl}`;
+                    }
+                    return `data:image/svg+xml;utf8,${encodeURIComponent(
+                      apiData?.gender === "male"
+                        ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#bfdbfe\\"/><path d=\\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\\" fill=\\"#bfdbfe\\"/></svg>`
+                        : `<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 24 24\\" fill=\\"#ec4899\\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#fbcfe8\\"/><path d=\\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\\" fill=\\"#fbcfe8\\"/><circle cx=\\"12\\" cy=\\"8\\" r=\\"2\\" fill=\\"#ec4899\\"/></svg>`
+                    )}`;
+                  })()}
                   alt="User"
                   onError={(e) => {
                     console.log("Image failed to load, using fallback");
@@ -1011,52 +1022,50 @@ const DashboardLayout = ({
             {!isMobile && (
             <div className="user-profile" onClick={toggleUserDropdown}>
               {console.log("apiData:", apiData)}
-              {console.log("profile_photo:", apiData?.profile_photo)}
-              {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
-              {console.log("user_profilephoto:", apiData?.user_profilephoto)}
-              {console.log("Final image URL:", (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo) ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}` : 'Using fallback SVG')}
+              {console.log("agentProfilePhoto:", agentProfilePhoto)}
               <img
-                src={
-                  (apiData?.profile_photo || apiData?.user_profilephoto?.upload_photo)
-                    ? `${process.env.REACT_APP_API_URL}${apiData.profile_photo || apiData.user_profilephoto?.upload_photo}`
-                    : `data:image/svg+xml;utf8,${encodeURIComponent(
-                        apiData?.gender === "male"
-                          ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
-                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
-              </svg>`
-                          : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
-                      )}`
-                }
+                src={(() => {
+                  const toSecure = (u) =>
+                    typeof u === 'string' && u.startsWith('http://api.mehrammatch.com')
+                      ? u.replace('http://', 'https://')
+                      : u;
+                  if (role === "agent") {
+                    const u = agentProfilePhoto?.upload_photo;
+                    if (u) {
+                      const abs = u.startsWith('http') ? u : `${process.env.REACT_APP_API_URL}${u}`;
+                      return toSecure(abs);
+                    }
+                    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                  }
+                  const raw = apiData?.user_profilephoto?.upload_photo || apiData?.profile_photo;
+                  if (raw) {
+                    const abs = raw.startsWith('http') ? raw : `${process.env.REACT_APP_API_URL}${raw}`;
+                    return toSecure(abs);
+                  }
+                  return `data:image/svg+xml;utf8,${encodeURIComponent(
+                    apiData?.gender === "male"
+                      ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#bfdbfe\\"/><path d=\\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\\" fill=\\"#bfdbfe\\"/></svg>`
+                      : `<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 24 24\\" fill=\\"#ec4899\\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#fbcfe8\\"/><path d=\\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\\" fill=\\"#fbcfe8\\"/><circle cx=\\"12\\" cy=\\"8\\" r=\\"2\\" fill=\\"#ec4899\\"/></svg>`
+                  )}`;
+                })()}
                 alt="User"
                 onError={(e) => {
-                  console.log("Image failed to load, using fallback");
-                  e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                  // If protocol is http, try upgrading to https once
+                  if (e.currentTarget.src.startsWith('http://')) {
+                    e.currentTarget.src = e.currentTarget.src.replace('http://', 'https://');
+                    return;
+                  }
+                  // Fallback to SVG avatar
+                  e.currentTarget.src = `data:image/svg+xml;utf8,${encodeURIComponent(
                     apiData?.gender === "male"
-                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
-                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
-              </svg>`
-                      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
-                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
-                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
-                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
-              </svg>`
+                      ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#bfdbfe\\"/><path d=\\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\\" fill=\\"#bfdbfe\\"/></svg>`
+                      : `<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 24 24\\" fill=\\"#ec4899\\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#fbcfe8\\"/><path d=\\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\\" fill=\\"#fbcfe8\\"/><circle cx=\\"12\\" cy=\\"8\\" r=\\"2\\" fill=\\"#ec4899\\"/></svg>`
                   )}`;
-                }}
-                onLoad={() => {
-                  console.log("Image loaded successfully");
                 }}
               />
               <div className="user_role_info">
                 <span className="username">{apiData?.name}</span>
-                <span className="user-role">
-                  {role === "agent" ? "Agent" : "User"}
-                </span>
+                <span className="user-role">{role === "agent" ? "Agent" : "User"}</span>
               </div>
               <FiChevronDown style={{ fontSize: "14px" }} />
               {showUserDropdown && (
@@ -1231,19 +1240,12 @@ const DashboardLayout = ({
               </Link>
 
               {role === "agent" && (
-                <>
-                  <div
-                    className={`nav-item ${
-                      isActive("/my-memberss") ? "active" : ""
-                    }`}
-                    title={!showSidebar ? "Members" : ""}
-                    onClick={handleMembersClick}
-                    style={{
-                      justifyContent: "space-between",
-                      cursor: "pointer"
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div
+                  className={`nav-item ${isActive("/my-memberss") ? "active" : ""}`}
+                  title={!showSidebar ? "My Members" : ""}
+                  onClick={() => navigate("/my-memberss")}
+                  style={{ cursor: "pointer" }}
+                >
                       <div className="nav-item-icon">
                         <svg
                           width="20"
@@ -1258,59 +1260,8 @@ const DashboardLayout = ({
                           />
                         </svg>
                       </div>
-                      {showSidebar && <span className="nav-item-text">Members</span>}
+                  {showSidebar && <span className="nav-item-text">My Members</span>}
                     </div>
-
-                    {showSidebar && (
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        stroke="currentColor"
-                        style={{
-                          transition: "transform 0.3s ease",
-                          transform: isMembersMenuOpen
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                          flexShrink: 0
-                        }}
-                      >
-                        <polyline points="6 8 10 12 14 8" strokeWidth="2" />
-                      </svg>
-                    )}
-                  </div>
-
-                  {/* Slide-down submenu */}
-                  <div
-                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                      isMembersMenuOpen
-                        ? "max-h-40 opacity-100"
-                        : "max-h-0 opacity-0"
-                    }`}
-                  >
-                    <div
-                      className="nav-item"
-                      style={{
-                        paddingLeft: showSidebar ? "52px" : "16px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => navigate("/my-memberss")}
-                    >
-                      <span className="nav-item-text">Add Member</span>
-                    </div>
-                    <div
-                      className="nav-item"
-                      style={{
-                        paddingLeft: showSidebar ? "52px" : "16px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setShowAllMembers(true)}
-                    >
-                      <span className="nav-item-text">View All Members</span>
-                    </div>
-                  </div>
-                </>
               )}
 {/* 
               {(role === "individual" || role === "user") && (

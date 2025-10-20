@@ -239,7 +239,7 @@ const LandingPage = () => {
         },
         setErrors: setApiErrors,
         navigate: navigate,
-        navUrl: lastSegment === "agent" ? "/newdashboard" : "/newdashboard",
+        navUrl: lastSegment === "agent" ? "/agentstepone/" : "/newdashboard",
         showSuccessMessage: (message) => alert(message),
         showErrorMessage: (message) => alert(message),
       };

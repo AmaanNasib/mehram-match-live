@@ -102,31 +102,74 @@ const AgentStepFour = () => {
   };
 
   const handleSave = () => {
+    console.log('handleSave called, image:', image);
     if (!image) {
       setError("Please upload an image before saving.");
       return;
     }
     const formData = new FormData();
     formData.append('upload_photo', image);
-    formData.append('user_id', userId);
-    let updateurl = `/api/user/profile_photo/${imagedata?.[imagedata.length - 1]?.id}/`
+    formData.append('agent_id', userId);
+    
+    // Check if there's already a photo in imagedata (from profile photo table)
+    console.log('Current imagedata when saving:', imagedata);
+    console.log('imagedata length:', imagedata?.length);
+    console.log('profileData.upload_photo:', profileData?.upload_photo);
+    console.log('apiData.profile_photo:', apiData?.profile_photo);
+    
+    const existingPhotoId = imagedata?.[imagedata.length - 1]?.id;
+    const hasExistingPhoto = existingPhotoId && imagedata.length > 0;
+    
+    // Fallback: If imagedata is empty but main profile has a photo, we should update
+    const hasPhotoInMainProfile = apiData?.profile_photo || profileData?.upload_photo;
+    const shouldUpdate = hasExistingPhoto || hasPhotoInMainProfile;
+    
+    console.log('existingPhotoId:', existingPhotoId);
+    console.log('hasExistingPhoto:', hasExistingPhoto);
+    console.log('hasPhotoInMainProfile:', hasPhotoInMainProfile);
+    console.log('shouldUpdate:', shouldUpdate);
+    
+    let updateurl = `/api/agent/profile_photo/${existingPhotoId}/`;
     const parameter = {
-      url: `${profileData?.upload_photo ? updateurl : '/api/user/profile_photo/'}`,
-      setUserId: setImagedateset,
+      url: hasExistingPhoto ? updateurl : '/api/agent/profile_photo/',
+      setUserId: (responseData) => {
+        console.log('Photo upload response:', responseData);
+        // Convert single response to array format for imagedata
+        setImagedateset([responseData]);
+        
+        // Update agent profile with the new photo URL
+        if (responseData?.upload_photo) {
+          console.log('Updating agent profile with new photo URL:', responseData.upload_photo);
+          const updateParameter = {
+            url: `/api/agent/${userId}/`,
+            payload: {
+              profile_photo: responseData.upload_photo,
+              // Don't send upload_photo to main agent profile, only profile_photo
+            },
+            setErrors: setError,
+          };
+          justputDataWithoutToken(updateParameter);
+        }
+      },
       formData: formData,
       setErrors: setError,
       setLoading: setLoading,
     };
-    console.log("profileData?.profile_photo", profileData?.profile_photo);
+    console.log("Existing photo ID:", existingPhotoId);
+    console.log("Has existing photo:", hasExistingPhoto);
+    console.log("Uploading photo to:", parameter.url);
 
-    if (profileData?.upload_photo) {
+    if (hasExistingPhoto) {
+      console.log("Using PUT request for update");
       ReturnPutResponseFormdataWithoutToken(parameter)
     } else {
+      console.log("Using POST request for new upload");
       ReturnResponseFormdataWithoutToken(parameter)
     }
 
     setError("");
     console.log("Image saved:", image);
+    
     // alert("Image saved successfully!");
   };
   useEffect(() => {
@@ -155,6 +198,17 @@ const AgentStepFour = () => {
               setErrors: setErrors,
             };
             fetchDataV2(parameter);
+
+            // Also fetch the profile photo data
+            const photoParameter = {
+              url: `/api/agent/profile_photo/?agent_id=${userId}`,
+              setterFunction: setImagedateset,
+              setErrors: setErrors,
+              setLoading: setLoading,
+            };
+            console.log('Fetching profile photos for agent_id:', userId);
+            // This endpoint returns a list (array). Use list-aware fetch helper.
+            fetchDataV2(photoParameter);
           }
       
 
@@ -165,28 +219,67 @@ const AgentStepFour = () => {
 
   useEffect(() => {
     if (apiData) {
-      // console.log(apiData, "apiData.profile_photo");
-      // console.log(apiData.profile_photo, "apiData.profile_photo");
+      console.log(apiData, "apiData loaded");
+      console.log(apiData.profile_photo, "apiData.profile_photo");
+      console.log(apiData.upload_photo, "apiData.upload_photo");
 
       setProfileData({
         expierience_in_business: apiData.expierience_in_business ,
         marraige_fixed_in_pass: apiData.marraige_fixed_in_pass ,
         full_time_marraige_agent: apiData.full_time_marraige_agent ,
         upload_photo: apiData.upload_photo 
-      })
+      });
     }
 
   }, [apiData]);
   useEffect(() => {
-    if (imagedata?.[imagedata.length - 1]?.upload_photo) {
-      setPreview(imagedata?.[imagedata.length - 1]?.upload_photo)
+    console.log('imagedata updated:', imagedata);
+    console.log('imagedata length:', imagedata?.length);
+    if (imagedata && imagedata.length > 0) {
+      const latestPhoto = imagedata[imagedata.length - 1];
+      console.log('Latest photo from imagedata:', latestPhoto);
+      if (latestPhoto?.upload_photo) {
+        console.log('Loading photo from imagedata:', latestPhoto.upload_photo);
+        
+        // Construct full URL if it's a relative path
+        const fullPhotoUrl = latestPhoto.upload_photo.startsWith('http') 
+          ? latestPhoto.upload_photo 
+          : `${process.env.REACT_APP_API_URL}${latestPhoto.upload_photo}`;
+        
+        setPreview(fullPhotoUrl);
+        
+        // Create a mock file object for the existing photo
+        const mockFile = {
+          name: 'existing-photo.jpg',
+          type: 'image/jpeg',
+          size: 0
+        };
+        setImage(mockFile);
+      }
     }
-
   }, [imagedata]);
 
   const naviagteNextStep = () => {
-    // if (validateForm()) {
-    if (true) {
+    console.log('Next Step clicked, image:', image);
+    
+    // If there's an image to upload, save it first
+    if (image) {
+      console.log('Image found, calling handleSave first');
+      handleSave();
+      
+      // Wait for photo upload to complete, then proceed
+      setTimeout(() => {
+        console.log('Photo upload completed, proceeding to next step');
+        proceedToNextStep();
+      }, 2000);
+    } else {
+      console.log('No image to upload, proceeding directly');
+      proceedToNextStep();
+    }
+  };
+
+  const proceedToNextStep = () => {
+    if (validateForm()) {
       const parameters = {
         url: `/api/agent/${userId}/`,
         payload: {
@@ -200,17 +293,10 @@ const AgentStepFour = () => {
         setErrors: setErrors,
       };
 
-      // if (profileData?.profile_visible && profileData?.photo_upload_privacy_option) {
-      if (validateForm()) {
-        // updateDataV2(parameters);
-        justputDataWithoutToken(parameters);
-        // handleSave()
-      } else {
-        // setErrors(true);
-        setMessage("Please fill all the required fields");
-      }
+      justputDataWithoutToken(parameters);
+    } else {
+      setMessage("Please fill all the required fields");
     }
-
   };
 
   const updateField = (field, value) => {
