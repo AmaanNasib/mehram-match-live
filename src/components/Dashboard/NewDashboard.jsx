@@ -475,7 +475,7 @@ useEffect(() => {
                   </h2>
                   <button 
                     onClick={() => navigate('/viewalltrendingprofiles')}
-                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    className="bg-white hover:bg-pink-500 text-black px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     View All
                   </button>
@@ -521,9 +521,9 @@ useEffect(() => {
                               profile={user}
                               url={`/api/trending_profile/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
                               interested_id={profile?.interested_id}
-                              setApiData={setApiData}
+              setApiData={setApiData}
                               IsInterested={profile?.is_interested}
-                              activeUser={activeUser}
+              activeUser={activeUser}
                             />
                           </div>
                         );
@@ -541,20 +541,20 @@ useEffect(() => {
             {role !== "agent" && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-4 sm:px-6 py-3 sm:py-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Recommended for You
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Recommended for You
+                    </h2>
                   <button 
                     onClick={() => navigate('/viewallrecommendedprofiles')}
-                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    className="bg-white hover:bg-pink-500 text-black px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     View All
                   </button>
-                </div>
+                  </div>
                 </div>
                 <div className="p-3 sm:p-4 md:p-6">
                   {loading ? (
@@ -596,9 +596,9 @@ useEffect(() => {
                                 profile={user}
                                 url={`/api/user/recommend/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
                                 interested_id={profile?.interested_id}
-                                setApiData={setApiDataRecommend}
+                setApiData={setApiDataRecommend}
                                 IsInterested={profile?.is_interested}
-                                activeUser={activeUser}
+                activeUser={activeUser}
                               />
                             </div>
                           );
@@ -625,7 +625,7 @@ useEffect(() => {
                   </h2>
                   <button 
                     onClick={() => navigate('/viewalluser')}
-                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    className="bg-white hover:bg-pink-500 text-black px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     View All
                   </button>
@@ -671,11 +671,11 @@ useEffect(() => {
                                 profile={user}
                                 url={`/api/user/`}
                                 interested_id={profile?.interested_id}
-                                setApiData={setUserDetail}
+            setApiData={setUserDetail}
                                 IsInterested={profile?.is_interested}
                                 activeUser={activeUser}
                                 setIsModalOpen={setIsModalOpen}
-                                isOpenWindow={isOpenWindow}
+            isOpenWindow={isOpenWindow}
                               />
                             </div>
                           );

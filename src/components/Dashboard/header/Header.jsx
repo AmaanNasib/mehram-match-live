@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./header.css";
-import logo from "../../../images/logo.png";
 import bell from "../../../images/bell.svg";
 import time from "../../../images/time.svg";
 import grayHeart from "../../../images/grayHeart.svg";
@@ -716,9 +715,9 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
             <div className="logo flex-shrink-0" style={{ marginLeft: "1rem" }}>
               <img
                 href="/"
-                src={logo}
-                style={{ height: "2.5rem", width: "100%", maxWidth: "200px" }}
-                alt="Mehram Match"
+                src="/images/MM LOGO.png"
+                style={{ height: "3rem", width: "auto" }}
+                alt="MM Logo"
                 className="logo-img"
               />
             </div>
@@ -768,9 +767,9 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
                   <img
-                    src={logo}
-                    style={{ height: "2.5rem", width: "auto" }}
-                    alt="Mehram Match"
+                    src="/images/MM LOGO.png"
+                    style={{ height: "3rem", width: "auto" }}
+                    alt="MM Logo"
                     className="logo-img"
                   />
                 </div>

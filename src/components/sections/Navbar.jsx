@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom"; // Use NavLink instead of Link
-import logo from "../../images/logo.png";
 
 // Add custom CSS for smooth animations and logo styling
 const style = document.createElement('style');
@@ -227,12 +226,12 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
           <NavLink to={isUserLoggedIn ? "/newdashboard" : "/"} className="flex-shrink-0">
             <div className="logo-container">
               <img 
-                src={logo} 
-                alt="Mehram Match" 
-                className="logo-mobile"
+                src="/images/MM LOGO.png" 
+                alt="MM Logo" 
+                className="h-12 w-auto"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='30' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='%23FF59B6'%3EMehram Match%3C/text%3E%3C/svg%3E";
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='16' y='20' font-family='Arial, sans-serif' font-size='14' font-weight='bold' fill='%23FF59B6' text-anchor='middle'%3EMM%3C/text%3E%3C/svg%3E";
                 }}
               />
             </div>
@@ -274,12 +273,12 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
           <NavLink to={isUserLoggedIn ? "/newdashboard" : "/"} className="flex-shrink-0">
             <div className="logo-container">
               <img 
-                src={logo} 
-                alt="Mehram Match" 
-                className="logo-desktop"
+                src="/images/MM LOGO.png" 
+                alt="MM Logo" 
+                className="h-14 w-auto"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 60'%3E%3Ctext x='0' y='35' font-family='Arial, sans-serif' font-size='20' font-weight='bold' fill='%23FF59B6'%3EMehram Match%3C/text%3E%3C/svg%3E";
+                  e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext x='20' y='25' font-family='Arial, sans-serif' font-size='18' font-weight='bold' fill='%23FF59B6' text-anchor='middle'%3EMM%3C/text%3E%3C/svg%3E";
                 }}
               />
             </div>

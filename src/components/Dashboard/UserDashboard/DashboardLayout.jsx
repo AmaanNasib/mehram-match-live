@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./DashboardLayout.css";
-import logo from "../../../images/newLogo.jpg";
 import { HiChevronRight } from "react-icons/hi"
 import {
   FiSettings,
@@ -767,7 +766,7 @@ const DashboardLayout = ({
             {/* Logo (hide on mobile) */}
             {!isMobile && (
             <Link to="/" className="logo">
-              <img src={logo} alt="Mehram Match" />
+              <img src="/images/MM LOGO.png" alt="MM Logo" style={{ height: "3rem", width: "auto" }} />
             </Link>
             )}
 
@@ -1103,7 +1102,7 @@ const DashboardLayout = ({
             {isMobile && (
               <div className="mobile-drawer-top">
                 <Link to="/" className="drawer-logo" onClick={() => setShowSidebar(false)}>
-                  <img src={logo} alt="Mehram Match" />
+                  <img src="/images/MM LOGO.png" alt="MM Logo" style={{ height: "3rem", width: "auto" }} />
                 </Link>
                 <div className="drawer-search" ref={searchRef}>
                   <form onSubmit={handleSearchSubmit}>

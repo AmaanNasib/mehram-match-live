@@ -6,7 +6,7 @@ const MainNav = () => {
   return (
     <nav className="main-nav">
       <div className="logo">
-        <img src="https://placehold.co/150x50" alt="Mehram Match" className="logo-img" />
+        <img src="/images/MM LOGO.png" alt="MM Logo" className="logo-img" style={{ height: "3rem", width: "auto" }} />
       </div>
       <div className="nav-links">
         <Link to="/newdashboard" className="active">HOME</Link> 

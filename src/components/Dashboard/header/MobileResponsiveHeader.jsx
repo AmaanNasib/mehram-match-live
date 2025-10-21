@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./MobileResponsiveHeader.css";
-import logo from "../../../images/logo.png";
 import bell from "../../../images/bell.svg";
 import time from "../../../images/time.svg";
 import grayHeart from "../../../images/grayHeart.svg";
