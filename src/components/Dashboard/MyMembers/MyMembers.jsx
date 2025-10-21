@@ -2110,37 +2110,6 @@ useEffect(() => {
               <AiOutlineRedo className="icon" /> Reset
             </button>
 
-            <button
-              onClick={handleClick}
-              type="button"
-              className={`m-[12px] ${
-                highlightAddButton ? "ring-2 ring-black rounded-full" : ""
-              }`}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 108 108"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="54" cy="54" r="54" fill="#0fd357" />
-                <path
-                  d="M77 54.5H32"
-                  stroke="#fff"
-                  stroke-width="4.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M54.5 77V32"
-                  stroke="#fff"
-                  stroke-width="4.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
           </div>
 
           {/* Loading Skeleton */}

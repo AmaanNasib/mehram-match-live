@@ -518,14 +518,6 @@ const MemberAnalytics = () => {
             onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
           >
             <option value="">Marital Status</option>
-            {gender === 'male' ? (
-              <>
-                <option value="Single">Single</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
-              </>
-            ) : (
               <>
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
@@ -533,7 +525,6 @@ const MemberAnalytics = () => {
                 <option value="Khula">Khula</option>
                 <option value="Widowed">Widowed</option>
               </>
-            )}
           </select>
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>

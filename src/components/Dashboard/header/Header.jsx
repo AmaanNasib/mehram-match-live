@@ -422,13 +422,10 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
       <header className="main-header">
         <div className="top-bar">
           <div
-            className="welcome-text"
-            style={{ color: "gray", fontSize: "0.8rem" }}
           >
-            Welcome to Active Mehram Match
           </div>
           <div className="top-right">
-            <div className="help-line">Help Line +01 112 352 666</div>
+            <div ></div>
             <div className="user-section">
               <div className="notifications">
                 <div
@@ -696,79 +693,6 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                         </div>
                       </div>
                     )} */}
-
-                    <div>
-                      {role == "agent" && (
-                        <>
-                          <div
-                            className="dropdown-item"
-                            style={{ display: "flex", alignItems: "center" }}
-                            onClick={toggleMemberDropdown}
-                          >
-                            <FiUsers
-                              style={{ marginRight: "12px", fontSize: "16px" }}
-                            />
-                            Members
-                            <FiChevronDown style={{ fontSize: "14px" }} />
-                          </div>
-
-                          {isMemberDropdownOpen && (
-                            <div
-                              className="settings-dropdown"
-                              style={{
-                                position: "absolute",
-                                top: "100%",
-                                left: "0",
-                                backgroundColor: "#fff",
-                                padding: "10px",
-                                boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                                borderRadius: "5px",
-                              }}
-                            >
-                              {members.map((member) => (
-                                <div
-                                  key={member?.id}
-                                  className="dropdown-item"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    padding: "8px 0",
-                                  }}
-                                >
-                                  <div style={{ marginRight: "12px" }}>
-                                    {member?.profile_photo ? (
-                                      <>
-                                        <img
-                                          src={
-                                            member?.profile_photo.upload_photo
-                                          }
-                                          // alt={member.name}
-                                          style={{
-                                            width: "24px",
-                                            height: "24px",
-                                            borderRadius: "50%",
-                                          }}
-                                        />
-                                      </>
-                                    ) : (
-                                      <div
-                                        style={{
-                                          width: "24px",
-                                          height: "24px",
-                                          borderRadius: "50%",
-                                          backgroundColor: "#ccc",
-                                        }}
-                                      />
-                                    )}
-                                  </div>
-                                  <span>{member?.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
                     <div
                       className="dropdown-item"
                       style={{ display: "flex", alignItems: "center" }}
@@ -804,7 +728,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               <a href="/newdashboard" className="active">
                 HOME
               </a>
-              <a href="/my-memberss" style={{display:role === "individual"? "none ":""}}>MEMBERS</a>
+              {/* <a href="/my-memberss" style={{display:role === "individual"? "none ":""}}>MEMBERS</a> */}
               {/* <a href="/guidance">GUIDANCE</a> */}
               <a href="/contact-us">CONTACT US</a>
             </div>
@@ -1101,14 +1025,14 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               Dashboard
             </a>
             <a
-              href={`/myprofile/${userId}`}
-              className={activeSubNav === "My Profile" ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick("/newdashboard")}
+              href={`/my-memberss/${userId}`}
+              className={activeSubNav === "My Members" ? "activeSubNav" : ""}
+              onClick={() => handleSubNavClick("/my-memberss")}
             >
               <i className="icon">
                 <img src={people} alt="" />
               </i>{" "}
-              My Profile
+              My Members
             </a>
             <a
               href="#"

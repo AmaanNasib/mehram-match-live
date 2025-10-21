@@ -2,17 +2,21 @@
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  width: 280px;
+  width: 100%;
+  max-width: 20rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
+  min-height: 550px;
 }
 
 /* Mobile improvements */
 @media (max-width: 640px) {
   .profile-card { 
-    width: 200px; 
+    width: 100%;
+    max-width: 18rem;
     border-radius: 10px; 
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    min-height: 550px;
   }
   .profile-image { 
     height: 140px; 

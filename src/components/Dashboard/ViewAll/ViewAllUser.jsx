@@ -413,166 +413,44 @@ const ViewAllUser = () => {
                   
                   console.log('Total profiles after filtering:', filteredProfiles?.length);
 
-                  // Create chunks of profiles for multiple rows (5 profiles per row)
-                  const profilesPerRow = 5;
-                  const rows = [];
-                  for (let i = 0; i < filteredProfiles.length; i += profilesPerRow) {
-                    rows.push(filteredProfiles.slice(i, i + profilesPerRow));
-                  }
-
-                  return rows.map((rowProfiles, rowIndex) => (
-                    <div key={rowIndex} className="relative">
-                      {/* Profile Cards Frame Container */}
-                      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-                        {/* Frame Header */}
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-                          <div className="flex items-center space-x-3">
-                            <h4 className="text-lg font-semibold text-gray-800">Profiles</h4>
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {rowProfiles.length} profiles
-                          </div>
+                  // Create a single grid layout with 3 columns
+                  return (
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                        <div className="flex items-center space-x-3">
+                          <h4 className="text-xl font-semibold text-gray-800">All Profiles</h4>
                         </div>
-
-                        {/* Horizontal Scrollable Row */}
-                        <div className="relative group">
-                        <div
-                          className="horizontal-scroll-row flex gap-12 overflow-x-auto overflow-y-hidden scroll-smooth pb-4"
-                          style={{
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none',
-                            WebkitOverflowScrolling: 'touch',
-                            maxWidth: '100%',
-                            width: '100%'
-                          }}
-                          onScroll={(e) => {
-                            e.stopPropagation();
-
-                            const container = e.target;
-                            const scrollLeft = container.scrollLeft;
-                            const scrollWidth = container.scrollWidth;
-                            const clientWidth = container.clientWidth;
-
-                            // Show/hide navigation buttons for this row
-                            const leftBtn = container.parentElement.querySelector('.scroll-btn-left');
-                            const rightBtn = container.parentElement.querySelector('.scroll-btn-right');
-
-                            if (leftBtn) {
-                              leftBtn.style.opacity = scrollLeft > 0 ? '1' : '0.3';
-                              leftBtn.style.pointerEvents = scrollLeft > 0 ? 'auto' : 'none';
-                            }
-
-                            if (rightBtn) {
-                              const canScrollRight = scrollLeft < scrollWidth - clientWidth - 10;
-                              rightBtn.style.opacity = canScrollRight ? '1' : '0.3';
-                              rightBtn.style.pointerEvents = canScrollRight ? 'auto' : 'none';
-                            }
-                          }}
-                          onWheel={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-
-                            const container = e.currentTarget;
-                            const scrollAmount = e.deltaY * 1.5;
-                            container.scrollLeft += scrollAmount;
-                          }}
-                          onTouchStart={(e) => {
-                            e.stopPropagation();
-                          }}
-                          onTouchMove={(e) => {
-                            e.stopPropagation();
-                          }}
-                        >
-                          {rowProfiles.map((profile, index) => {
-                            const user = profile && profile.user ? profile.user : profile;
-                            const keyId = user?.id || profile?.id;
-                            return (
-                              <div key={keyId} className="flex-shrink-0 w-72 max-w-72 transform transition-all duration-300 hover:scale-105 hover:z-10">
-                                <div className="relative">
-                                  {/* Profile Number Badge */}
-                                  <div className="absolute top-3 left-3 z-10">
-                                    <span className="bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg">
-                                      #{rowIndex * profilesPerRow + index + 1}
-                                    </span>
-                                  </div>
-                                  
-                                  <DashboadrCard
-                                    profile={user}
-                                    url={role == "agent" ? `/api/agent/user_list/` : `/api/user/`}
-                                    interested_id={profile?.interested_id}
-                                    setApiData={setAllUser}
-                                    IsInterested={profile?.is_interested}
-                                    activeUser={activeUser}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* Row Navigation Buttons */}
-                        <button
-                          className="scroll-btn-left absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white border border-gray-200 rounded-full p-3 shadow-xl transition-all duration-300 z-20 opacity-30 pointer-events-none group-hover:opacity-100"
-                          style={{
-                            width: '48px',
-                            height: '48px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                            backdropFilter: 'blur(10px)'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const container = e.target.closest('.relative').querySelector('.horizontal-scroll-row');
-                            if (container) {
-                              container.scrollBy({ left: -320, behavior: 'smooth' });
-                            }
-                          }}
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M15 18l-6-6 6-6"/>
-                          </svg>
-                        </button>
-
-                        <button
-                          className="scroll-btn-right absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white border border-gray-200 rounded-full p-3 shadow-xl transition-all duration-300 z-20 opacity-30 pointer-events-none group-hover:opacity-100"
-                          style={{
-                            width: '48px',
-                            height: '48px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)',
-                            backdropFilter: 'blur(10px)'
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const container = e.target.closest('.relative').querySelector('.horizontal-scroll-row');
-                            if (container) {
-                              container.scrollBy({ left: 320, behavior: 'smooth' });
-                            }
-                          }}
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 18l6-6-6-6"/>
-                          </svg>
-                        </button>
-
-                          {/* Row Scroll Indicator */}
-                          <div className="flex justify-center mt-4 space-x-2">
-                            {Array.from({ length: Math.ceil(rowProfiles.length / 4) }, (_, i) => (
-                              <div key={i} className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                            ))}
-                          </div>
+                        <div className="text-sm text-gray-500">
+                          {filteredProfiles.length} profiles
                         </div>
                       </div>
+
+                      {/* Grid Layout - 3 columns */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {filteredProfiles.map((profile, index) => {
+                          const user = profile && profile.user ? profile.user : profile;
+                          const keyId = user?.id || profile?.id;
+                          return (
+                            <div key={keyId} className="transform transition-all duration-300 hover:scale-105 h-fit">
+                              <DashboadrCard
+                                profile={user}
+                                url={role == "agent" ? `/api/agent/user_list/` : `/api/user/`}
+                                interested_id={profile?.interested_id}
+                                setApiData={setAllUser}
+                                IsInterested={profile?.is_interested}
+                                activeUser={activeUser}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  ));
+                  );
                 })()}
               </div>
 
-              {/* Quick Stats */}
+              {/* Quick Stats
               <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 mt-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="text-center">
@@ -588,7 +466,7 @@ const ViewAllUser = () => {
                     <div className="text-gray-600">Profile Rows</div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Custom Styles */}
               <style jsx>{`

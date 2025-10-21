@@ -21,6 +21,7 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
   const [rangeText , setRangeText]=useState('18-23');
   const [rangeText1 , setRangeText1]=useState({});
   const [userId] = useState(localStorage.getItem("userId"));
+  const [role] = useState(localStorage.getItem("role"));
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -612,6 +613,20 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
           age_min: parseInt(rangeText?.split('-')?.[0]),
           age_max: parseInt(rangeText?.split('-')?.[1]),
           user_id: userId,
+          // For agents: show both male and female profiles when age range is set
+          ...(role === 'agent' && (rangeText && rangeText !== '18-23') && {
+            show_both_genders: true,
+            include_male: true,
+            include_female: true
+          }),
+          // For agents: priority-based filtering based on agent's city/state
+          ...(role === 'agent' && userProfile && {
+            agent_city: userProfile.city,
+            agent_state: userProfile.state,
+            priority_based_filtering: true,
+            same_city_priority: 1,
+            same_state_priority: 1
+          }),
         },
         setUserId: setApiData,
         setErrors,
@@ -620,7 +635,7 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
     }, 500);
     return () => debounceRef.current && clearTimeout(debounceRef.current);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.memberID]);
+  }, [formData.memberID, role, userProfile, rangeText]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

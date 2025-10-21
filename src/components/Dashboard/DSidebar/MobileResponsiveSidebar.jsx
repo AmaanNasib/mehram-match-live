@@ -610,6 +610,20 @@ const MobileResponsiveSidebar = ({ setApiData, onClose, reloadOriginalData }) =>
           age_min: parseInt(rangeText?.split('-')?.[0]),
           age_max: parseInt(rangeText?.split('-')?.[1]),
           user_id: userId,
+          // For agents: show both male and female profiles when age range is set
+          ...(role === 'agent' && (rangeText && rangeText !== '18-23') && {
+            show_both_genders: true,
+            include_male: true,
+            include_female: true
+          }),
+          // For agents: priority-based filtering based on agent's city/state
+          ...(role === 'agent' && userProfile && {
+            agent_city: userProfile.city,
+            agent_state: userProfile.state,
+            priority_based_filtering: true,
+            same_city_priority: 1,
+            same_state_priority: 1
+          }),
         },
         setUserId: setApiData,
         setErrors,
@@ -617,7 +631,7 @@ const MobileResponsiveSidebar = ({ setApiData, onClose, reloadOriginalData }) =>
       postDataReturnResponse(parameter);
     }, 500);
     return () => debounceRef.current && clearTimeout(debounceRef.current);
-  }, [formData.memberID]);
+  }, [formData.memberID, role, userProfile, rangeText]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -646,6 +660,20 @@ const MobileResponsiveSidebar = ({ setApiData, onClose, reloadOriginalData }) =>
         age_min: parseInt(rangeText?.split("-")?.[0]),  
         age_max: parseInt(rangeText?.split("-")?.[1]),  
         user_id: userId,
+        // For agents: show both male and female profiles when age range is set
+        ...(role === 'agent' && (rangeText && rangeText !== '18-23') && {
+          show_both_genders: true,
+          include_male: true,
+          include_female: true
+        }),
+        // For agents: priority-based filtering based on agent's city/state
+        ...(role === 'agent' && userProfile && {
+          agent_city: userProfile.city,
+          agent_state: userProfile.state,
+          priority_based_filtering: true,
+          same_city_priority: 1,
+          same_state_priority: 1
+        }),
         include_trending: true,
         include_recommended: true,
         include_all_profiles: true

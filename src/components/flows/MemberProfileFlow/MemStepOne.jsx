@@ -96,40 +96,9 @@ const MemStepOne = () => {
       console.log("Profile data before submission:", profileData);
       let mem = {};
       if (username == "memberCreation" || isNewMember) {
-        // Additional validation before API call
-        if (!profileData.email?.trim()) {
-          setsetErrors("Email is required for member creation. Please fill in the email field.");
-          // Auto-clear error after 5 seconds
-          setTimeout(() => setsetErrors(null), 5000);
-          return;
-        }
-        if (!profileData.password?.trim()) {
-          setsetErrors("Password is required for member creation. Please fill in the password field.");
-          setTimeout(() => setsetErrors(null), 5000);
-          return;
-        }
-        if (!profileData.phone_number?.trim()) {
-          setsetErrors("Phone number is required for member creation. Please fill in the phone number field.");
-          setTimeout(() => setsetErrors(null), 5000);
-          return;
-        }
-        if (!profileData.confirm_password?.trim()) {
-          setsetErrors("Please confirm your password before creating the member.");
-          setTimeout(() => setsetErrors(null), 5000);
-          return;
-        }
-        if (profileData.password !== profileData.confirm_password) {
-          setsetErrors("Passwords do not match. Please check your password and confirm password fields.");
-          setTimeout(() => setsetErrors(null), 5000);
-          return;
-        }
-        
+        // No additional validation needed for agent member creation
         mem = {
           agent_id: localStorage.getItem("userId") || "",
-          confirm_password: profileData.confirm_password || "",
-          password: profileData.password || "",
-          email: profileData.email || "",
-          phone_number: profileData.phone_number || "",
         };
         console.log("Member creation payload:", mem);
       }
@@ -256,7 +225,6 @@ const MemStepOne = () => {
       'country', 'state', 'city', 'native_country', 'native_state', 'native_city',
       'Education', 'profession', 'describe_job_business',
       'disability', 'type_of_disability', 'incomeRange', 'about_you',
-      'email', 'phone_number', 'password', 'confirm_password'
     ];
 
     // Validate First Name
@@ -357,36 +325,7 @@ const MemStepOne = () => {
       newErrors.about_you = "Personal Values/About You is required";
     }
 
-    // Validate email, password fields for new member creation
-    if (username === "memberCreation" || isNewMember) {
-      // Validate Email
-      if (!profileData.email?.trim()) {
-        newErrors.email = "Email is required for member creation";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email)) {
-        newErrors.email = "Please enter a valid email address";
-      }
-
-      // Validate Phone Number
-      if (!profileData.phone_number?.trim()) {
-        newErrors.phone_number = "Phone number is required for member creation";
-      } else if (!/^[0-9+\-\s()]{10,15}$/.test(profileData.phone_number)) {
-        newErrors.phone_number = "Please enter a valid phone number";
-      }
-
-      // Validate Password
-      if (!profileData.password?.trim()) {
-        newErrors.password = "Password is required for member creation";
-      } else if (profileData.password.length < 8) {
-        newErrors.password = "Password must be at least 8 characters long";
-      }
-
-      // Validate Confirm Password
-      if (!profileData.confirm_password?.trim()) {
-        newErrors.confirm_password = "Please confirm your password";
-      } else if (profileData.password !== profileData.confirm_password) {
-        newErrors.confirm_password = "Passwords do not match";
-      }
-    }
+    // No email, phone, password validations needed for agent member creation
 
     console.log("newErrors", newErrors);
 
@@ -438,35 +377,8 @@ const MemStepOne = () => {
     about_you: "",
     height: "",
     weight: "",
-    email: "",
-    phone_number: "",
-    password: "",
-    confirm_password: "",
   });
 
-  // Initialize phone number with agent's phone number for new member creation
-  useEffect(() => {
-    if ((username === "memberCreation" || isNewMember) && !profileData.phone_number) {
-      // Fetch agent's phone number and set it as default
-      const agentId = localStorage.getItem("userId");
-      if (agentId) {
-        const parameter = {
-          url: `/api/user/${agentId}/`,
-          setterFunction: (agentData) => {
-            if (agentData && agentData.phone_number) {
-              setProfileData(prev => ({
-                ...prev,
-                phone_number: agentData.phone_number
-              }));
-            }
-          },
-          setLoading: () => {},
-          setErrors: () => {},
-        };
-        fetchDataObjectV2(parameter);
-      }
-    }
-  }, [username, isNewMember, profileData.phone_number]);
 
   // Function to get marital status options based on gender
   const getMaritalStatusOptions = (gender) => {
@@ -2047,172 +1959,6 @@ const MemStepOne = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Member Creation Fields */}
-                {(username === "memberCreation" || isNewMember) && (
-                  <div className="space-y-6">
-                    <div className="border-b border-gray-200 pb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="bg-pink-100 text-pink-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3">6</span>
-                        Account Details
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Email */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          Email <span className="text-red-500">*</span>
-                          <div className="group relative tooltip-container">
-                            <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTooltipClick('email');
-                              }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'email' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Enter a valid email address for account creation
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          value={profileData?.email || ""}
-                          onChange={(e) => handleFieldChange("email", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                            formErrors.email
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
-                          }`}
-                          placeholder="Enter your email address"
-                        />
-                        {formErrors.email && (
-                          <p className="text-red-500 text-sm">{formErrors.email}</p>
-                        )}
-                      </div>
-
-                      {/* Phone Number */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          Phone Number <span className="text-red-500">*</span>
-                          <div className="group relative tooltip-container">
-                            <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTooltipClick('phone_number');
-                              }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'phone_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Phone number will be inherited from agent's account
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
-                        </label>
-                        <input
-                          type="tel"
-                          name="phone_number"
-                          value={profileData?.phone_number || ""}
-                          onChange={(e) => handleFieldChange("phone_number", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                            formErrors.phone_number
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
-                          }`}
-                          placeholder="Enter phone number"
-                        />
-                        {formErrors.phone_number && (
-                          <p className="text-red-500 text-sm">{formErrors.phone_number}</p>
-                        )}
-                      </div>
-
-                      {/* Password */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          Password <span className="text-red-500">*</span>
-                          <div className="group relative tooltip-container">
-                            <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTooltipClick('password');
-                              }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Create a strong password (min 8 characters)
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
-                        </label>
-                        <input
-                          type="password"
-                          name="password"
-                          value={profileData?.password || ""}
-                          onChange={(e) => handleFieldChange("password", e.target.value)}
-                          className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium"
-                          placeholder="Enter your password"
-                        />
-                        {formErrors.password && (
-                          <p className="text-red-500 text-sm">{formErrors.password}</p>
-                        )}
-                      </div>
-
-                      {/* Confirm Password */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          Confirm Password <span className="text-red-500">*</span>
-                          <div className="group relative tooltip-container">
-                            <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTooltipClick('confirm_password');
-                              }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'confirm_password' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Re-enter your password to confirm
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
-                        </label>
-                        <input
-                          type="password"
-                          name="confirm_password"
-                          value={profileData?.confirm_password || ""}
-                          onChange={(e) => handleFieldChange("confirm_password", e.target.value)}
-                          className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-[#CB3B8B] transition-all duration-200 text-sm font-medium"
-                          placeholder="Confirm your password"
-                        />
-                        {formErrors.confirm_password && (
-                          <p className="text-red-500 text-sm">{formErrors.confirm_password}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
                     <span className="text-pink-600 font-semibold">1</span>

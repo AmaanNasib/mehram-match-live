@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import Sidebar from "./DSidebar/Sidebar";
 import TrendingProfiles from "./TrendingProfiles/TrendingProfiles";
-import RecommendedProfiles from "./Recommended/RecommendedProfiles";
 import Footer from "../sections/Footer";
 import "./NewDashboard.css";
 import Header from "./header/Header";
@@ -11,9 +10,9 @@ import {
   justUpdateDataV2,
   fetchDataWithTokenV2,
 } from "../../apiUtils";
-import AllUser from "./AllUsers/AllUser";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import UserPop from "../sections/UserPop";
+import DashboadrCard from "./dashboardCard/DashboardCard";
 
 // Shimmer Loading Component
 const ShimmerCard = () => (
@@ -58,6 +57,7 @@ const ShimmerCard = () => (
 
 const NewDashboard = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const lastSegment = location.pathname.split("/").pop();
   // Baseline datasets from backend
   const [apiData, setApiData] = useState([]); // trending baseline
@@ -461,109 +461,156 @@ useEffect(() => {
               </div>
             )}
 
-            {/* Content Sections */}
-            {role !== "agent" && (
-              <>
-                {/* Trending Profiles Section - Exact Flutter Homepage Style */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] px-4 sm:px-6 py-3 sm:py-4">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                        Trending Profiles
-                      </h2>
-                      
-                    </div>
+            {/* Content Sections - Now available for both agents and regular users */}
+            
+            {/* Trending Profiles Section - Exact Flutter Homepage Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-[#CB3B8B] to-[#F971BC] px-4 sm:px-6 py-3 sm:py-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    Trending Profiles
+                  </h2>
+                  <button 
+                    onClick={() => navigate('/viewalltrendingprofiles')}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                  >
+                    View All
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 sm:p-4 md:p-6">
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                    {[...Array(8)].map((_, index) => (
+                      <div key={index} className="h-fit">
+                        <ShimmerProfileCard />
+                      </div>
+                    ))}
                   </div>
-                  <div className="p-3 sm:p-4 md:p-6">
-                    {loading ? (
-                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                        {[...Array(4)].map((_, index) => (
-                          <div key={index} className="flex-shrink-0 w-72">
-                            <ShimmerProfileCard />
+                ) : (
+                  noResults && filterActive ? (
+                    <div className="text-center text-gray-500 py-8">
+                      No profiles found for selected filters.
+                    </div>
+                  ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                    {displayTrending && displayTrending.length > 0 ? (
+                      displayTrending.filter(profile => {
+                        // Gender filtering: show opposite gender
+                        const currentUserGender = activeUser?.gender;
+                        const profileGender = profile.user?.gender || profile?.gender;
+                        
+                        // If current user is male, show female profiles and vice versa
+                        if (currentUserGender === 'male' && profileGender === 'female') return true;
+                        if (currentUserGender === 'female' && profileGender === 'male') return true;
+                        
+                        // If gender is not specified, show all profiles
+                        if (!currentUserGender || !profileGender) return true;
+                        
+                        return false;
+                      }).map((profile) => {
+                        const user = profile && profile.user ? profile.user : profile;
+                        const keyId = user?.id || profile?.id;
+                        
+                        return (
+                          <div key={keyId} className="h-fit">
+                            <DashboadrCard 
+                              profile={user}
+                              url={`/api/trending_profile/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
+                              interested_id={profile?.interested_id}
+                              setApiData={setApiData}
+                              IsInterested={profile?.is_interested}
+                              activeUser={activeUser}
+                            />
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })
                     ) : (
-                      noResults && filterActive ? (
-                        <div className="text-center text-gray-500 py-8">
-                          No profiles found for selected filters.
-                        </div>
-                      ) : (
-                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                <TrendingProfiles
-                  setApiData={setApiData}
-                  setIsModalOpen={setIsModalOpen}
-                  isOpenWindow={isOpenWindow}
-                  url={`/api/trending_profile/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
-                  activeUser={activeUser}
-                  profiles={
-                    Array.isArray(displayTrending) &&
-                    displayTrending.every(
-                      (item) => typeof item === "object" && item !== null
-                    )
-                      ? displayTrending
-                      : []
-                  }
-                />
-                      </div>
-                      )
+                      <p className="text-center text-gray-500 py-8">No trending profiles found</p>
                     )}
                   </div>
-                </div>
+                  )
+                )}
+              </div>
+            </div>
 
-                {/* Recommended Profiles Section - Exact Flutter Homepage Style */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-4 sm:px-6 py-3 sm:py-4">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Recommended for You
-                      </h2>
-                   
+            {/* Recommended Profiles Section - Only for regular users, not agents */}
+            {role !== "agent" && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-[#DA73AD] to-[#FFA4D6] px-4 sm:px-6 py-3 sm:py-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Recommended for You
+                  </h2>
+                  <button 
+                    onClick={() => navigate('/viewallrecommendedprofiles')}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                  >
+                    View All
+                  </button>
+                </div>
+                </div>
+                <div className="p-3 sm:p-4 md:p-6">
+                  {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                      {[...Array(8)].map((_, index) => (
+                        <div key={index} className="h-fit">
+                          <ShimmerProfileCard />
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <div className="p-3 sm:p-4 md:p-6">
-                    {loading ? (
-                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                        {[...Array(4)].map((_, index) => (
-                          <div key={index} className="flex-shrink-0 w-72">
-                            <ShimmerProfileCard />
-                          </div>
-                        ))}
+                  ) : (
+                    noResults && filterActive ? (
+                      <div className="text-center text-gray-500 py-8">
+                        No profiles found for selected filters.
                       </div>
                     ) : (
-                      noResults && filterActive ? (
-                        <div className="text-center text-gray-500 py-8">
-                          No profiles found for selected filters.
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                      {displayRecommended && displayRecommended.length > 0 ? (
+                        displayRecommended.filter(profile => {
+                          // Gender filtering: show opposite gender
+                          const currentUserGender = activeUser?.gender;
+                          const profileGender = profile.user?.gender || profile?.gender;
+                          
+                          // If current user is male, show female profiles and vice versa
+                          if (currentUserGender === 'male' && profileGender === 'female') return true;
+                          if (currentUserGender === 'female' && profileGender === 'male') return true;
+                          
+                          // If gender is not specified, show all profiles
+                          if (!currentUserGender || !profileGender) return true;
+                          
+                          return false;
+                        }).map((profile) => {
+                          const user = profile && profile.user ? profile.user : profile;
+                          const keyId = user?.id || profile?.id;
+                          
+                          return (
+                            <div key={keyId} className="h-fit">
+                              <DashboadrCard 
+                                profile={user}
+                                url={`/api/user/recommend/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
+                                interested_id={profile?.interested_id}
+                                setApiData={setApiDataRecommend}
+                                IsInterested={profile?.is_interested}
+                                activeUser={activeUser}
+                              />
+                            </div>
+                          );
+                        })
                       ) : (
-                      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                <RecommendedProfiles
-                  setApiData={setApiDataRecommend}
-                  setIsModalOpen={setIsModalOpen}
-                  isOpenWindow={isOpenWindow}
-                  url={`/api/user/recommend/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
-                  activeUser={activeUser}
-                  profiles={
-                    Array.isArray(displayRecommended) &&
-                    displayRecommended.every(
-                      (item) => typeof item === "object" && item !== null
+                        <p className="text-center text-gray-500 py-8">No recommended profiles found</p>
+                      )}
+                    </div>
                     )
-                      ? displayRecommended
-                      : []
-                  }
-                />
-                      </div>
-                      )
-                    )}
-                  </div>
+                  )}
                 </div>
-              </>
+              </div>
             )}
 
             {/* All Users Section - Exact Flutter Homepage Style */}
@@ -576,14 +623,21 @@ useEffect(() => {
                     </svg>
                     Browse All Profiles
                   </h2>
-                 
+                  <button 
+                    onClick={() => navigate('/viewalluser')}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                  >
+                    View All
+                  </button>
                 </div>
               </div>
               <div className="p-3 sm:p-4 md:p-6">
                 {loading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {[...Array(12)].map((_, index) => (
-                      <ShimmerProfileCard key={index} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                    {[...Array(8)].map((_, index) => (
+                      <div key={index} className="h-fit">
+                        <ShimmerProfileCard />
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -592,13 +646,44 @@ useEffect(() => {
                       No profiles found for selected filters.
                     </div>
                   ) : (
-          <AllUser
-            profiles={displayAll}
-            setApiData={setUserDetail}
-            isOpenWindow={isOpenWindow}
-            url={`/api/user/`}
-            setIsModalOpen={setIsModalOpen}
-          />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                      {displayAll && displayAll.length > 0 ? (
+                        displayAll.filter(profile => {
+                          // Gender filtering: show opposite gender
+                          const currentUserGender = activeUser?.gender;
+                          const profileGender = profile.user?.gender || profile?.gender;
+                          
+                          // If current user is male, show female profiles and vice versa
+                          if (currentUserGender === 'male' && profileGender === 'female') return true;
+                          if (currentUserGender === 'female' && profileGender === 'male') return true;
+                          
+                          // If gender is not specified, show all profiles
+                          if (!currentUserGender || !profileGender) return true;
+                          
+                          return false;
+                        }).map((profile) => {
+                          const user = profile && profile.user ? profile.user : profile;
+                          const keyId = user?.id || profile?.id;
+                          
+                          return (
+                            <div key={keyId} className="h-fit">
+                              <DashboadrCard 
+                                profile={user}
+                                url={`/api/user/`}
+                                interested_id={profile?.interested_id}
+                                setApiData={setUserDetail}
+                                IsInterested={profile?.is_interested}
+                                activeUser={activeUser}
+                                setIsModalOpen={setIsModalOpen}
+                                isOpenWindow={isOpenWindow}
+                              />
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-center text-gray-500 py-8">No profiles found</p>
+                      )}
+                    </div>
                   )
                 )}
               </div>

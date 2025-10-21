@@ -350,7 +350,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   };
 
   return (
-    <div className="profile-card" style={{ width: "20rem", height: "60%" }}>
+    <div className="profile-card" style={{ width: "100%", maxWidth: "20rem", height: "450px" }}>
       {/* Success Message */}
       {message && (
         <div className="success-message" style={{
@@ -412,7 +412,6 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
             />
           </svg>
         </button>
-        <div className="featured-tag">{}</div>
         
         {/* Agent Verified Ribbon */}
         {profile?.agent_id && (
@@ -498,7 +497,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
               }}
             >
               {/* Common options for all users */}
-              <div
+              {/* <div
                 className="menu-item"
                 onClick={() => {
                   setShowMenu(false);
@@ -526,7 +525,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
                 View Profile
-              </div>
+              </div> */}
 
               {/* Conditional options based on user gender */}
               {activeUser?.gender === 'male' && (
@@ -580,7 +579,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                     className="menu-item"
                     onClick={() => {
                       setShowMenu(false);
-                      shortlist(profile.id);
+                      blocked(profile.id);
                     }}
                     style={{
                       padding: '12px 16px',
@@ -589,23 +588,23 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                       alignItems: 'center',
                       gap: '8px',
                       fontSize: '14px',
-                      color: '#374151',
+                      color: '#dc2626',
                       transition: 'background-color 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#f3f4f6';
+                      e.target.style.backgroundColor = '#fef2f2';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = 'transparent';
                     }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 21 21" fill="none">
+                    <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
                       <path
-                        d="M2.68945 3.62109V7.37109H6.43945V3.62109H2.68945ZM3.93945 4.87109H5.18945V6.12109H3.93945V4.87109ZM7.68945 4.87109V6.12109H17.0645V4.87109H7.68945ZM2.68945 8.62109V12.3711H6.43945V8.62109H2.68945ZM3.93945 9.87109H5.18945V11.1211H3.93945V9.87109ZM7.68945 9.87109V11.1211H17.0645V9.87109H7.68945ZM2.68945 13.6211V17.3711H6.43945V13.6211H2.68945ZM3.93945 14.8711H5.18945V16.1211H3.93945V14.8711ZM7.68945 14.8711V16.1211H17.0645V14.8711H7.68945Z"
-                        fill="#FD2C79"
+                        d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
+                        fill="#dc2626"
                       />
                     </svg>
-                    Shortlist
+                    Ignore
                   </div>
 
                   <div

@@ -965,23 +965,7 @@ const DashboardLayout = ({
                 {showNotifications && <NotificationDropdown />}
               </div>
             )}
-            {!isMobile && (
-            <div className="language-select" onClick={toggleLanguageDropdown}>
-              <img
-                src="https://cdn.vectorstock.com/i/500p/07/62/australia-flag-blowig-in-the-wind-vector-22440762.jpg"
-                alt="User"
-              />
-              <span>English</span>
-              <FiChevronDown style={{ fontSize: "14px" }} />
-              {showLanguageDropdown && (
-                <div className="dropdown-content">
-                  <div className="dropdown-item">English</div>
-                  <div className="dropdown-item">Spanish</div>
-                  <div className="dropdown-item">French</div>
-                </div>
-              )}
-            </div>
-            )}
+
 
             {/* Back to Agent Button - Show when impersonating */}
             {role === 'user' && localStorage.getItem('is_agent_impersonating') === 'true' && (
@@ -1525,7 +1509,7 @@ const DashboardLayout = ({
                   {showSidebar && <span className="nav-item-text">Guidance</span>}
                 </Link>
               )}
-              <Link to="" 
+              <Link to="/contact-us" 
               title={!showSidebar ? "Contact" : ""}
               className="nav-item">
                 <div className="nav-item-icon">
@@ -1544,7 +1528,7 @@ const DashboardLayout = ({
                 </div>
                 {showSidebar && <span className="nav-item-text">Contact</span>}
               </Link>
-              <Link to="/premium" 
+              {/* <Link to="/premium" 
               title={!showSidebar ? "Packages" : ""}
               className="nav-item">
                 <div className="nav-item-icon">
@@ -1569,7 +1553,7 @@ const DashboardLayout = ({
                   </svg>
                 </div>
                 {showSidebar && <span className="nav-item-text">Packages</span>}
-              </Link>
+              </Link> */}
             </nav>
           </aside>
 
