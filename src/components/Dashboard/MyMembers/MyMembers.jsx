@@ -2687,6 +2687,8 @@ useEffect(() => {
             display: inline-block;
             border: 1px solid transparent;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 0 auto;
           }
           .marital-badge.single {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -3467,9 +3469,10 @@ useEffect(() => {
               min-width: 60px;
             }
             
-            .member-name-cell {
-              min-width: 120px;
-            }
+          .member-name-cell {
+            min-width: 120px;
+            text-align: center;
+          }
           }
 
           /* Mobile Large (576px to 767px) */
@@ -3584,6 +3587,10 @@ useEffect(() => {
             
             .member-name {
               font-size: 13px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              width: 100%;
             }
             
             .member-email {
@@ -3745,6 +3752,10 @@ useEffect(() => {
             
             .member-name {
               font-size: 12px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              width: 100%;
             }
             
             .member-email {
@@ -3832,6 +3843,10 @@ useEffect(() => {
             
             .member-name {
               font-size: 11px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              width: 100%;
             }
             
             .member-email {
@@ -3926,7 +3941,7 @@ useEffect(() => {
             color: #1a202c;
             font-weight: 600;
             padding: 20px 16px;
-            text-align: left;
+            text-align: center;
             font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 0.8px;
@@ -3972,6 +3987,7 @@ useEffect(() => {
           .members-table td {
             padding: 20px 16px;
             vertical-align: middle;
+            text-align: center;
             font-size: 14px;
             color: #2d3748;
             border: none;
@@ -3997,7 +4013,8 @@ useEffect(() => {
           .member-name-cell {
             display: flex;
             align-items: center;
-            min-width: 150px;
+            min-width: 120px;
+            max-width: 150px;
           }
 
           .member-avatar {
@@ -4026,6 +4043,10 @@ useEffect(() => {
             flex-direction: column;
             gap: 4px;
             min-width: 0;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 100%;
           }
 
           .member-name {
@@ -4034,6 +4055,12 @@ useEffect(() => {
             font-size: 15px;
             line-height: 1.3;
             margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+            width: 100%;
           }
 
           .member-email {
@@ -4058,8 +4085,9 @@ useEffect(() => {
             letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
             display: inline-block;
-            min-width: 100px;
             text-align: center;
+            margin: 0 auto;
+            min-width: 100px;
           }
 
           .gender-badge {

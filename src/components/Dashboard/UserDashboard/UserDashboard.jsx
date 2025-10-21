@@ -49,6 +49,75 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId'));
   const [role, setRole] = useState(localStorage.getItem('role'));
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState('1'); // Default to "This week"
+
+  // Function to get time period parameter for API
+  const getTimePeriodParam = (period) => {
+    switch(period) {
+      case '1': return 'week';
+      case '2': return 'lastweek';
+      case '3': return 'month';
+      case '4': return '3month';
+      case '5': return '6month';
+      case '6': return '12month';
+      case '7': return 'tilldate';
+      default: return 'week';
+    }
+  };
+
+  // Function to fetch graph data based on time period
+  const fetchGraphData = (timePeriod) => {
+    console.log('=== fetchGraphData called ===');
+    console.log('timePeriod:', timePeriod);
+    console.log('role:', role);
+    
+    const periodParam = getTimePeriodParam(timePeriod);
+    console.log('Period parameter:', periodParam);
+    
+    const apiUrl = role == "agent" ? `/api/agent/graph/?based_on=${periodParam}` : `/api/user/graph/?based_on=${periodParam}`;
+    console.log('API URL:', apiUrl);
+    
+    const parameter5 = {
+      url: apiUrl,
+      setterFunction: (data) => {
+        console.log('=== Graph data received ===');
+        console.log('Period:', periodParam);
+        console.log('Data:', data);
+        console.log('Data structure:', JSON.stringify(data, null, 2));
+        
+        // Handle different data structures from agent graph API
+        if (role === "agent" && data) {
+          // Check if data has the expected structure
+          if (data.interests !== undefined || data.requests !== undefined || data.shortlists !== undefined || data.blocked !== undefined) {
+            console.log('Using direct graph data structure');
+            setApiData5(data);
+          } else if (data.data && typeof data.data === 'object') {
+            console.log('Using nested data structure');
+            setApiData5(data.data);
+          } else if (Array.isArray(data) && data.length > 0) {
+            console.log('Using array data structure, taking first element');
+            setApiData5(data[0]);
+          } else {
+            console.log('Unknown data structure, using as is');
+            setApiData5(data);
+          }
+        } else {
+          setApiData5(data);
+        }
+      },
+      setErrors: (error) => {
+        console.error('Graph API Error:', error);
+        setErrors(error);
+      },
+      setLoading: (loading) => {
+        console.log('Graph loading state:', loading);
+        setLoading(loading);
+      },
+    };
+    
+    console.log('Calling fetchDataWithTokenV2 with:', parameter5);
+    fetchDataWithTokenV2(parameter5);
+  };
 
   // Update userId and role when localStorage changes
   useEffect(() => {
@@ -57,6 +126,9 @@ const UserDashboard = () => {
     setUserId(newUserId);
     setRole(newRole);
   }, []);
+
+  // Note: Removed useEffect to avoid double API calls
+  // Graph data is now fetched only when user manually changes the dropdown
 
   // Function to refresh all dashboard data
   const refreshDashboardData = () => {
@@ -583,6 +655,45 @@ const UserDashboard = () => {
     totalVisitors: { total: "03" },
   };
 
+  // Debug: Log current apiData5 structure
+  console.log('Current apiData5 for chart:', apiData5);
+  console.log('Role:', role);
+  
+  // Force chart re-render when apiData5 changes
+  const chartKey = `chart-${selectedTimePeriod}-${JSON.stringify(apiData5)}`;
+
+  // Helper function to get agent graph data with multiple possible field names
+  const getAgentGraphValue = (fieldName, fallbackValue = 0) => {
+    if (!apiData5 || role !== "agent") return fallbackValue;
+    
+    // Map field names to actual API response fields
+    const fieldMapping = {
+      'interests': ['total_interest', 'interests', 'interest_total'],
+      'requests': ['total_requests', 'requests', 'request_total'],
+      'shortlists': ['shortlisted', 'shortlists', 'shortlist_total'],
+      'blocked': ['blocked', 'blocked_count', 'blocked_total']
+    };
+    
+    const possibleFields = fieldMapping[fieldName] || [
+      fieldName,
+      fieldName.toLowerCase(),
+      fieldName.toUpperCase(),
+      `total_${fieldName}`,
+      `${fieldName}_count`,
+      `${fieldName}_total`
+    ];
+    
+    for (const field of possibleFields) {
+      if (apiData5[field] !== undefined) {
+        console.log(`Found ${fieldName} data in field '${field}':`, apiData5[field]);
+        return apiData5[field];
+      }
+    }
+    
+    console.log(`No ${fieldName} data found in apiData5, using fallback:`, fallbackValue);
+    return fallbackValue;
+  };
+
   // Chart data - using actual dashboard data
   const chartData = {
     labels: [
@@ -594,8 +705,54 @@ const UserDashboard = () => {
     datasets: [
       {
         fill: true,
-        label: "Activity Count",
-        data: [
+        label: role === "agent" ? "Member Activity" : "Activity Count",
+        data: role === "agent" ? [
+          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          (() => {
+            const graphValue = getAgentGraphValue('interests');
+            console.log('Chart Interests Value:', graphValue);
+            if (graphValue !== 0) {
+              return graphValue;
+            }
+            const interestTotal = ((apiData1?.interest_sent || 0) + (apiData1?.interest_received || 0));
+            console.log('Agent Interest Data (fallback):', { sent: apiData1?.interest_sent, received: apiData1?.interest_received, total: interestTotal });
+            return interestTotal;
+          })(),
+          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          (() => {
+            const graphValue = getAgentGraphValue('requests');
+            console.log('Chart Requests Value:', graphValue);
+            if (graphValue !== 0) {
+              return graphValue;
+            }
+            const requestTotal = ((apiData?.request_sent || 0) + (apiData?.request_received || 0));
+            console.log('Agent Request Data (fallback):', { sent: apiData?.request_sent, received: apiData?.request_received, total: requestTotal });
+            return requestTotal;
+          })(),
+          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          (() => {
+            const graphValue = getAgentGraphValue('shortlists');
+            console.log('Chart Shortlists Value:', graphValue);
+            if (graphValue !== 0) {
+              return graphValue;
+            }
+            const shortlistTotal = (apiData2?.total_shortlisted_count || 0);
+            console.log('Agent Shortlist Data (fallback):', { total: shortlistTotal });
+            return shortlistTotal;
+          })(),
+          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          (() => {
+            const graphValue = getAgentGraphValue('blocked');
+            console.log('Chart Blocked Value:', graphValue);
+            if (graphValue !== 0) {
+              return graphValue;
+            }
+            const blockedTotal = (apiData?.blocked_count || 0);
+            console.log('Agent Blocked Data (fallback):', { blocked: blockedTotal });
+            return blockedTotal;
+          })()
+        ] : [
+          // For regular users, use individual counts
           apiData1?.total_interest_count || 0,
           apiData1?.interest_sent || 0,
           apiData1?.interest_received || 0,
@@ -1562,7 +1719,22 @@ const UserDashboard = () => {
         <div className="matches-section">
           <div className="section-header">
             <h2>{role === "agent" ? "Member Activity" : "Matches"}</h2>
-            <select className="month-select">
+            <select 
+              className="month-select" 
+              value={selectedTimePeriod}
+              onChange={(e) => {
+                console.log('=== Dropdown onChange triggered ===');
+                console.log('Selected value:', e.target.value);
+                console.log('Current selectedTimePeriod:', selectedTimePeriod);
+                
+                setSelectedTimePeriod(e.target.value);
+                console.log('Time period changed to:', e.target.value);
+                
+                console.log('Calling fetchGraphData...');
+                fetchGraphData(e.target.value);
+                console.log('fetchGraphData called');
+              }}
+            >
               <option value="1">This week</option>
               <option value="2">Last week</option>
               <option value="3">Last month</option>
@@ -1576,7 +1748,7 @@ const UserDashboard = () => {
             </select>
           </div>
           <div className="chart-container">
-            <Line data={chartData} options={chartOptions} />
+            <Line key={chartKey} data={chartData} options={chartOptions} />
           </div>
         </div>
 
