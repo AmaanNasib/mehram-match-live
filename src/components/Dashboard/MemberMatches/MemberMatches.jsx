@@ -3012,6 +3012,7 @@ const MemberMatches = () => {
   let [filters, setFilters] = useState({
     id: '',
     name: '',
+    agentName: '',
     city: '',
     age: '',
     sectSchoolInfo: '',
@@ -3037,14 +3038,15 @@ const MemberMatches = () => {
     let clear = {
       id: '',
       name: '',
+      agentName: '',
       city: '',
       age: '',
       sectSchoolInfo: '',
       profession: '',
       status: '',
       martialStatus: '',
-      maxAge: '',
-      minAge: '',
+      // maxAge: '',
+      // minAge: '',
       minMatchPercentage: ''
     };
     setFilters(clear);
@@ -3052,8 +3054,6 @@ const MemberMatches = () => {
   };
 
   const applyFilters = (updatedFilters) => {
-    console.log(updatedFilters.id, ">>>");
-    
     if (!Array.isArray(matchDetails)) {
       setFilteredItems([]);
       return;
@@ -3062,10 +3062,20 @@ const MemberMatches = () => {
     setFilteredItems(
       matchDetails?.filter((match) => {
         return (
-          (updatedFilters.id ? match?.id == updatedFilters.id : true) &&
+          (updatedFilters.id ? 
+            // Word-by-word search for id/member_id (case-insensitive)
+            updatedFilters.id.split(' ').every(word => {
+              const w = String(word).toLowerCase();
+              const idStr = match?.id != null ? String(match.id) : '';
+              const mid = match?.member_id || '';
+              const idMatch = idStr.toLowerCase().includes(w);
+              const memberIdMatch = mid.toLowerCase().includes(w);
+              return idMatch || memberIdMatch;
+            }) : true) &&
           (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
+          (updatedFilters.agentName ? match?.agent_name?.toLowerCase().includes(updatedFilters.agentName.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-          (updatedFilters.minAge && updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
+          // (updatedFilters.minAge && updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
           (updatedFilters.sectSchoolInfo ? match?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
           (updatedFilters.profession ? match?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
           (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
@@ -3497,13 +3507,31 @@ const MemberMatches = () => {
           <input
             className="filter-dropdown"
             type="text"
+            value={filters.name}
+            onChange={(e) => handleFilterChange('name', e.target.value)}
+            placeholder="Name"
+            style={{ width: '120px' }}
+          />
+
+          <input
+            className="filter-dropdown"
+            type="text"
+            value={filters.agentName}
+            onChange={(e) => handleFilterChange('agentName', e.target.value)}
+            placeholder="Agent Name"
+            style={{ width: '120px' }}
+          />
+
+          <input
+            className="filter-dropdown"
+            type="text"
             value={filters.city}
             onChange={(e) => handleFilterChange('city', e.target.value)}
             placeholder="Location"
             style={{ width: '120px' }}
           />
           
-          <input
+          {/* <input
             className="filter-dropdown"
             type="number"
             value={filters.minAge || ''}
@@ -3523,7 +3551,7 @@ const MemberMatches = () => {
             min="18"
             max="50"
             style={{ width: '100px' }}
-          />
+          /> */}
 
           <select
             className="filter-dropdown"

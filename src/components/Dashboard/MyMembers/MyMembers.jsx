@@ -1392,6 +1392,8 @@ const MyMembers = () => {
     martialStatus: "",
     startDate: "",
     endDate: "",
+        maxAge: '',
+    minAge: ''
   });
   // Handle change in the search input
 
@@ -1562,6 +1564,8 @@ const MyMembers = () => {
       martialStatus: "",
       startDate: "",
       endDate: "",
+      minAge: "",
+      maxAge: "",
     };
     setFilters(clear);
     applyFilters(clear);
@@ -1626,6 +1630,12 @@ const MyMembers = () => {
           ? match?.martial_status
               ?.toLowerCase()
               .includes(updatedFilters.martialStatus.toLowerCase())
+          : true) &&
+        (updatedFilters.minAge
+          ? parseInt(match?.age) >= parseInt(updatedFilters.minAge)
+          : true) &&
+        (updatedFilters.maxAge
+          ? parseInt(match?.age) <= parseInt(updatedFilters.maxAge)
           : true)
       );
     });
@@ -2021,86 +2031,161 @@ useEffect(() => {
             <input
               className="filter-dropdown"
               type="text"
+              value={filters.name}
+              onChange={(e) => handleFilterChange("name", e.target.value)}
+              placeholder="Name"
+              style={{ width: "100px" }}
+            />
+
+            <input
+              className="filter-dropdown"
+              type="text"
               value={filters.city}
               onChange={(e) => handleFilterChange("city", e.target.value)}
               placeholder="Location"
               list="distinct-ids"
-              style={{ width: "70px" }}
+              style={{ width: "100px" }}
             />
+             <input
+            className="filter-dropdown"
+            type="number"
+            id="minAge"
+            name="minAge"
+            value={filters.minAge || ''}
+            onChange={(e) => handleFilterChange('minAge', e.target.value)}
+            placeholder="Min age"
+            min="18"
+            max="50"
+            style={{ width: '100px' }}
+          />
+          <input
+            className="filter-dropdown"
+            type="number"
+            id="maxAge"
+            name="maxAge"
+            value={filters.maxAge || ''}
+            onChange={(e) => handleFilterChange('maxAge', e.target.value)}
+            placeholder="Max age"
+            min="18"
+            max="50"
+            style={{ width: '100px' }}
+          />
 
-            {/* Replace your current date picker implementation with this */}
-            <div className="date-filters-container">
-              <CustomDatePicker
-                selectedDate={filters.startDate}
-                onChange={(date) => handleFilterChange("startDate", date)}
-                placeholder="Start Date"
-              />
+<select
+            className="filter-dropdown"
+            value={filters.sectSchoolInfo}
+            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+          >
+            <option value="">Sect</option>
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
 
-              <CustomDatePicker
-                selectedDate={filters.endDate}
-                onChange={(date) => handleFilterChange("endDate", date)}
-                placeholder="End Date"
-              />
-            </div>
-
-            <style>
-              {`
-  .date-filters-container {
-    display: flex;
-    gap: 10px;
-  }
-`}
-            </style>
+          <select
+            className="filter-dropdown"
+            value={filters.profession}
+            onChange={(e) => handleFilterChange('profession', e.target.value)}
+          >
+            <option value="">Profession</option>
+            <option value="accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="actor">Actor</option>
+            <option value="administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="air_hostess">Air Hostess</option>
+            <option value="airline_professional">Airline Professional</option>
+            <option value="airforce">Airforce</option>
+            <option value="architect">Architect</option>
+            <option value="artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="audiologist">Audiologist</option>
+            <option value="auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="chef">Chef</option>
+            <option value="civil_servant">Civil Servant</option>
+            <option value="clerk">Clerk</option>
+            <option value="coach">Coach</option>
+            <option value="consultant">Consultant</option>
+            <option value="counselor">Counselor</option>
+            <option value="dentist">Dentist</option>
+            <option value="designer">Designer</option>
+            <option value="doctor">Doctor</option>
+            <option value="engineer">Engineer</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="farmer">Farmer</option>
+            <option value="fashion_designer">Fashion Designer</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="government_employee">Government Employee</option>
+            <option value="graphic_designer">Graphic Designer</option>
+            <option value="homemaker">Homemaker</option>
+            <option value="interior_designer">Interior Designer</option>
+            <option value="journalist">Journalist</option>
+            <option value="lawyer">Lawyer</option>
+            <option value="manager">Manager</option>
+            <option value="marketing_professional">Marketing Professional</option>
+            <option value="nurse">Nurse</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="photographer">Photographer</option>
+            <option value="pilot">Pilot</option>
+            <option value="police">Police</option>
+            <option value="professor">Professor</option>
+            <option value="psychologist">Psychologist</option>
+            <option value="researcher">Researcher</option>
+            <option value="sales_executive">Sales Executive</option>
+            <option value="scientist">Scientist</option>
+            <option value="social_worker">Social Worker</option>
+            <option value="software_consultant">Software Consultant</option>
+            <option value="sportsman">Sportsman</option>
+            <option value="teacher">Teacher</option>
+            <option value="technician">Technician</option>
+            <option value="therapist">Therapist</option>
+            <option value="veterinarian">Veterinarian</option>
+            <option value="writer">Writer</option>
+            <option value="other">Other</option>
+          </select>
 
             <select
-              className="filter-dropdown"
-              value={filters.sectSchoolInfo}
-              onChange={(e) =>
-                handleFilterChange("sectSchoolInfo", e.target.value)
-              }
-            >
-              <option value="">Sect</option>
-              {distinctSchoolInfo?.map((info, index) => (
-                <option key={index} value={info}>
-                  {info}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className="filter-dropdown"
-              value={filters.profession}
-              onChange={(e) => handleFilterChange("profession", e.target.value)}
-            >
-              <option value="">Profession</option>
-              {distinctProfessions?.map((profession, index) => (
-                <option key={index} value={profession}>
-                  {profession}
-                </option>
-              ))}
-            </select>
-
-            <MaritalStatusDropdown
-              value={
-                filters.martialStatus ? filters.martialStatus.split(",") : []
-              }
-              userGender={gender}
-              onChange={handleMaritalStatusChange}
-            />
-
-            <StatusDropdown
-              value={filters.status ? filters.status.split(",") : []}
-              onChange={(selectedStatuses) => {
-                setFilters((prevFilters) => {
-                  const updatedFilters = {
-                    ...prevFilters,
-                    status: selectedStatuses.join(","),
-                  };
-                  applyFilters(updatedFilters);
-                  return updatedFilters;
-                });
-              }}
-            />
+            className="filter-dropdown"
+            value={filters.martialStatus}
+            onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+          >
+            <option value="">Marital Status</option>
+              <>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Khula">Khula</option>
+                <option value="Widowed">Widowed</option>
+              </>
+          </select>
 
             <button
               type="button"
@@ -2232,7 +2317,7 @@ useEffect(() => {
                         <span className="detail-label">Profession</span>
                         <span className="detail-value">{member?.profession || "N/A"}</span>
                       </div>
-                      <div className="detail-item">
+                      <div className="detail-item marital-status-item">
                         <span className="detail-label">Marital Status</span>
                         <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                           {member?.martial_status || "Not mentioned"}
@@ -2688,7 +2773,8 @@ useEffect(() => {
             border: 1px solid transparent;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin: 0 auto;
+            margin-left: auto;
+            margin-right: 0;
           }
           .marital-badge.single {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -4526,6 +4612,11 @@ useEffect(() => {
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
+          }
+
+          .detail-item.marital-status-item {
+            justify-content: flex-end;
+            align-items: center;
           }
 
           .detail-label {

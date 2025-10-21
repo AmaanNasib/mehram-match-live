@@ -380,6 +380,15 @@ const MemberAnalytics = () => {
           <input
             className="filter-dropdown"
             type="text"
+            value={filters.name}
+            onChange={(e) => handleFilterChange('name', e.target.value)}
+            placeholder="Name"
+            style={{ width: '120px' }}
+          />
+
+          <input
+            className="filter-dropdown"
+            type="text"
             value={filters.city}
             onChange={(e) => handleFilterChange('city', e.target.value)}
             placeholder="Location"
