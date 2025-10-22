@@ -154,6 +154,7 @@ const MemStepFour = () => {
 
   const [profileData, setProfileData] = useState({
     preferred_surname: [],
+    preferred_age_gap: (""),
     preferred_dargah_fatiha_niyah: [],
     preferred_sect: [],
     desired_practicing_level: [],
@@ -165,7 +166,12 @@ const MemStepFour = () => {
     preferred_city: [],
     preferred_country: "",
     preferred_state: [],
+    preferred_native_state: [],
+    preferred_native_city: [],
+    preferred_native_country: "",
     cultural_background: "",
+    preferred_height: "",
+    preferred_income_range: "",
   });
   const ensureArray = (v) => {
     if (!v && v !== 0) return [];
@@ -209,6 +215,12 @@ const MemStepFour = () => {
         preferred_state: ensureArray(apiData.preferred_state),
         preferred_occupation_profession: ensureArray(apiData.preferred_occupation_profession),
         cultural_background: apiData.cultural_background || "",
+        preferred_height: apiData.preferred_height || "",
+        preferred_income_range: apiData.preferred_income_range || "",
+        preferred_native_state: ensureArray(apiData.preferred_native_state),
+        preferred_native_city: ensureArray(apiData.preferred_native_city),
+        preferred_native_country: apiData.preferred_native_country || "",
+        preferred_age_gap: apiData.preferred_age_gap || "",
       });
     }
   }, [apiData]);

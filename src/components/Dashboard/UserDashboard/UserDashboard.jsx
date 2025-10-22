@@ -48,76 +48,61 @@ const UserDashboard = () => {
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId'));
+  
+  // Week filtering states
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState('till_date');
+  const [chartLoading, setChartLoading] = useState(false);
   const [role, setRole] = useState(localStorage.getItem('role'));
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState('1'); // Default to "This week"
 
-  // Function to get time period parameter for API
-  const getTimePeriodParam = (period) => {
-    switch(period) {
-      case '1': return 'week';
-      case '2': return 'last_week';
-      case '3': return 'month';
-      case '4': return '3month';
-      case '5': return '6month';
-      case '6': return 'year';
-      case '7': return 'till_date';
-      default: return 'week';
+  // Week options for dropdown
+  const weekOptions = [
+    { value: 'this_week', label: 'This Week (Sunday to now)' },
+    { value: 'last_week', label: 'Last Week (7 days ago)' },
+    { value: 'week', label: 'Week (7 days ago)' },
+    { value: 'month', label: 'Month (30 days ago)' },
+    { value: '3month', label: '3 Months (90 days ago)' },
+    { value: '6month', label: '6 Months (180 days ago)' },
+    { value: 'year', label: 'Year (365 days ago)' },
+    { value: 'till_date', label: 'Till Date (All time)' }
+  ];
+
+  // Function to fetch graph data based on selected time period
+  const fetchGraphData = async (period) => {
+    setChartLoading(true);
+    try {
+      const url = role === "agent" 
+        ? `/api/agent/graph/?based_on=${period}` 
+        : `/api/user/graph/?user_id=${userId}&based_on=${period}`;
+        
+      const parameter = {
+        url: url,
+        setterFunction: setApiData5,
+        setLoading: setChartLoading,
+        setErrors: setErrors,
+      };
+      
+      await fetchDataWithTokenV2(parameter);
+    } catch (error) {
+      console.error('Error fetching graph data:', error);
+      setErrors(true);
+    } finally {
+      setChartLoading(false);
     }
   };
 
-  // Function to fetch graph data based on time period
-  const fetchGraphData = (timePeriod) => {
-    console.log('=== fetchGraphData called ===');
-    console.log('timePeriod:', timePeriod);
-    console.log('role:', role);
-    
-    const periodParam = getTimePeriodParam(timePeriod);
-    console.log('Period parameter:', periodParam);
-    
-    const apiUrl = role == "agent" ? `/api/agent/graph/?based_on=${periodParam}` : `/api/user/graph/?based_on=${periodParam}`;
-    console.log('API URL:', apiUrl);
-    
-    const parameter5 = {
-      url: apiUrl,
-      setterFunction: (data) => {
-        console.log('=== Graph data received ===');
-        console.log('Period:', periodParam);
-        console.log('Data:', data);
-        console.log('Data structure:', JSON.stringify(data, null, 2));
-        
-        // Handle different data structures from agent graph API
-        if (role === "agent" && data) {
-          // Check if data has the expected structure
-          if (data.interests !== undefined || data.requests !== undefined || data.shortlists !== undefined || data.blocked !== undefined) {
-            console.log('Using direct graph data structure');
-            setApiData5(data);
-          } else if (data.data && typeof data.data === 'object') {
-            console.log('Using nested data structure');
-            setApiData5(data.data);
-          } else if (Array.isArray(data) && data.length > 0) {
-            console.log('Using array data structure, taking first element');
-            setApiData5(data[0]);
-          } else {
-            console.log('Unknown data structure, using as is');
-            setApiData5(data);
-          }
-        } else {
-          setApiData5(data);
-        }
-      },
-      setErrors: (error) => {
-        console.error('Graph API Error:', error);
-        setErrors(error);
-      },
-      setLoading: (loading) => {
-        console.log('Graph loading state:', loading);
-        setLoading(loading);
-      },
-    };
-    
-    console.log('Calling fetchDataWithTokenV2 with:', parameter5);
-    fetchDataWithTokenV2(parameter5);
+  // Handle time period change
+  const handleTimePeriodChange = (period) => {
+    setSelectedTimePeriod(period);
+    fetchGraphData(period);
   };
+
+  // useEffect to fetch data when time period changes
+  useEffect(() => {
+    if (selectedTimePeriod) {
+      fetchGraphData(selectedTimePeriod);
+    }
+  }, [selectedTimePeriod, userId, role]);
+
 
   // Update userId and role when localStorage changes
   useEffect(() => {
@@ -699,6 +684,7 @@ const UserDashboard = () => {
     labels: [
       "Total Interests",
       "Total Requests", 
+      "Total Interactions",
       "Members Shortlisted",
       "Blocked Members",
     ],
@@ -707,48 +693,42 @@ const UserDashboard = () => {
         fill: true,
         label: role === "agent" ? "Member Activity" : "Activity Count",
         data: role === "agent" ? [
-          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          // For agents, use same data source as summary cards for consistency
           (() => {
-            const graphValue = getAgentGraphValue('interests');
-            console.log('Chart Interests Value:', graphValue);
-            if (graphValue !== 0) {
-              return graphValue;
-            }
             const interestTotal = ((apiData1?.interest_sent || 0) + (apiData1?.interest_received || 0));
-            console.log('Agent Interest Data (fallback):', { sent: apiData1?.interest_sent, received: apiData1?.interest_received, total: interestTotal });
+            console.log('Chart Interests Value (using apiData1):', { sent: apiData1?.interest_sent, received: apiData1?.interest_received, total: interestTotal });
             return interestTotal;
           })(),
-          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          // For agents, use same data source as summary cards for consistency
           (() => {
-            const graphValue = getAgentGraphValue('requests');
-            console.log('Chart Requests Value:', graphValue);
-            if (graphValue !== 0) {
-              return graphValue;
-            }
             const requestTotal = ((apiData?.request_sent || 0) + (apiData?.request_received || 0));
-            console.log('Agent Request Data (fallback):', { sent: apiData?.request_sent, received: apiData?.request_received, total: requestTotal });
+            console.log('Chart Requests Value (using apiData):', { sent: apiData?.request_sent, received: apiData?.request_received, total: requestTotal });
             return requestTotal;
           })(),
-          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          // For agents, use same data source as summary cards for consistency
           (() => {
-            const graphValue = getAgentGraphValue('shortlists');
-            console.log('Chart Shortlists Value:', graphValue);
-            if (graphValue !== 0) {
-              return graphValue;
-            }
+            const interactionTotal = (apiData7.sent_interactions || 0) + (apiData7.received_interactions || 0);
+            console.log('Chart Interactions Value (using same calculation as summary cards):', { 
+              sent_interactions: apiData7.sent_interactions || 0,
+              interest_sent: apiData1?.interest_sent || 0,
+              request_sent: apiData?.request_sent || 0,
+              received_interactions: apiData7.received_interactions || 0,
+              interest_received: apiData1?.interest_received || 0,
+              request_received: apiData?.request_received || 0,
+              total: interactionTotal 
+            });
+            return interactionTotal;
+          })(),
+          // For agents, use same data source as summary cards for consistency
+          (() => {
             const shortlistTotal = (apiData2?.total_shortlisted_count || 0);
-            console.log('Agent Shortlist Data (fallback):', { total: shortlistTotal });
+            console.log('Chart Shortlists Value (using apiData2):', { total: shortlistTotal });
             return shortlistTotal;
           })(),
-          // For agents, use graph data from apiData5 if available, otherwise fallback to combined data
+          // For agents, use same data source as summary cards for consistency
           (() => {
-            const graphValue = getAgentGraphValue('blocked');
-            console.log('Chart Blocked Value:', graphValue);
-            if (graphValue !== 0) {
-              return graphValue;
-            }
             const blockedTotal = (apiData?.blocked_count || 0);
-            console.log('Agent Blocked Data (fallback):', { blocked: blockedTotal });
+            console.log('Chart Blocked Value (using apiData):', { blocked: blockedTotal });
             return blockedTotal;
           })()
         ] : [
@@ -1473,8 +1453,7 @@ const UserDashboard = () => {
                 </div>
                 <div className="stat-number">
                   {role === "agent" 
-                    ? ((apiData7.sent_interactions || 0) + (apiData1?.interest_sent || 0) + (apiData?.request_sent || 0)) + 
-                      ((apiData7.received_interactions || 0) + (apiData1?.interest_received || 0) + (apiData?.request_received || 0))
+                    ? (apiData7.sent_interactions || 0) + (apiData7.received_interactions || 0)
                     : (apiData7.total_interactions || 0) + (apiData1?.total_interest_count || 0) + (apiData?.total_request_count || 0)
                   }
                 </div>
@@ -1496,7 +1475,7 @@ const UserDashboard = () => {
                       Sent
                     </span>
                     <span className="stat-value">
-                      {(apiData7.sent_interactions || 0) + (apiData1?.interest_sent || 0) + (apiData?.request_sent || 0)}
+                      {(apiData7.sent_interactions || 0)}
                     </span>
                   </div>
                   <div className="stat-row">
@@ -1523,7 +1502,7 @@ const UserDashboard = () => {
                       Received
                     </span>
                     <span className="stat-value">
-                      {(apiData7.received_interactions || 0) + (apiData1?.interest_received || 0) + (apiData?.request_received || 0)}
+                      {(apiData7.received_interactions || 0)}
                     </span>
                   </div>
                 </div>{" "}
@@ -1722,33 +1701,25 @@ const UserDashboard = () => {
             <select 
               className="month-select" 
               value={selectedTimePeriod}
-              onChange={(e) => {
-                console.log('=== Dropdown onChange triggered ===');
-                console.log('Selected value:', e.target.value);
-                console.log('Current selectedTimePeriod:', selectedTimePeriod);
-                
-                setSelectedTimePeriod(e.target.value);
-                console.log('Time period changed to:', e.target.value);
-                
-                console.log('Calling fetchGraphData...');
-                fetchGraphData(e.target.value);
-                console.log('fetchGraphData called');
-              }}
+              onChange={(e) => handleTimePeriodChange(e.target.value)}
+              disabled={chartLoading}
             >
-              <option value="1">This week</option>
-              <option value="2">Last week</option>
-              <option value="3">Last month</option>
-              <option value="4">Last 3 month</option>
-              <option value="5">Last 6 month</option>
-              <option value="6">Last 12 month</option>
-              <option value="7">Till date</option>
-              {/* <option value="3">Last 3 Months</option>
-              <option value="6">Last 6 Months</option>
-              <option value="12">Last Year</option> */}
+              {weekOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
           <div className="chart-container">
-            <Line key={chartKey} data={chartData} options={chartOptions} />
+            {chartLoading ? (
+              <div className="chart-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading chart data...</p>
+              </div>
+            ) : (
+              <Line key={chartKey} data={chartData} options={chartOptions} />
+            )}
           </div>
         </div>
 
