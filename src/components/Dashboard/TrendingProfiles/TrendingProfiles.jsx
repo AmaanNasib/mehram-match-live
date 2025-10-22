@@ -65,7 +65,15 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
               profiles.filter(profile => {
-                // Gender filtering: show opposite gender
+                // For agents, show all profiles (both male and female)
+                const currentRole = localStorage.getItem('role');
+                const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                
+                if (currentRole === 'agent' && !isImpersonating) {
+                  return true; // Show all profiles for agents
+                }
+                
+                // For regular users, show opposite gender
                 const currentUserGender = activeUser?.gender;
                 const profileGender = profile.user?.gender || profile?.gender;
                 

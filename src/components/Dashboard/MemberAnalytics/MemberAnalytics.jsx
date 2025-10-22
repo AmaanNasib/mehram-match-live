@@ -402,30 +402,6 @@ const MemberAnalytics = () => {
             list="distinct-ids"
             style={{ width: '120px' }}
           />
-          {/* <input
-            className="filter-dropdown"
-            type="number"
-            id="minAge"
-            name="minAge"
-            value={filters.minAge || ''}
-            onChange={(e) => handleFilterChange('minAge', e.target.value)}
-            placeholder="Min age"
-            min="18"
-            max="50"
-            style={{ width: '100px' }}
-          />
-          <input
-            className="filter-dropdown"
-            type="number"
-            id="maxAge"
-            name="maxAge"
-            value={filters.maxAge || ''}
-            onChange={(e) => handleFilterChange('maxAge', e.target.value)}
-            placeholder="Max age"
-            min="18"
-            max="50"
-            style={{ width: '100px' }}
-          /> */}
 
           <select
             className="filter-dropdown"
@@ -560,17 +536,103 @@ const MemberAnalytics = () => {
         <table className="interest-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('id')}>
-                Member ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('id')}
+                style={{ cursor: 'pointer' }}
+              >
+                Member ID
+                {sortConfig.key === 'id' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
               </th>
               <th>Photo</th>
-              <th>Name</th>
-              <th>Location</th>
-              <th onClick={() => handleSort('age')}>Age {sortConfig.key === 'age' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Marital Status</th>
-              <th>Total Matches</th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('name')}
+                style={{ cursor: 'pointer' }}
+              >
+                Name
+                {sortConfig.key === 'name' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('city')}
+                style={{ cursor: 'pointer' }}
+              >
+                Location
+                {sortConfig.key === 'city' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('age')}
+                style={{ cursor: 'pointer' }}
+              >
+                Age
+                {sortConfig.key === 'age' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('sect_school_info')}
+                style={{ cursor: 'pointer' }}
+              >
+                Sect
+                {sortConfig.key === 'sect_school_info' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('profession')}
+                style={{ cursor: 'pointer' }}
+              >
+                Profession
+                {sortConfig.key === 'profession' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('martial_status')}
+                style={{ cursor: 'pointer' }}
+              >
+                Marital Status
+                {sortConfig.key === 'martial_status' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable-header" 
+                onClick={() => handleSort('total_matches')}
+                style={{ cursor: 'pointer' }}
+              >
+                Total Matches
+                {sortConfig.key === 'total_matches' && (
+                  <span className="sort-indicator">
+                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -741,6 +803,23 @@ const MemberAnalytics = () => {
             color: #333;
             font-weight: bold;
             text-transform: uppercase;
+          }
+
+          .sortable-header {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+          }
+
+          .sortable-header:hover {
+            background-color: #e3f2fd;
+            color: #1976d2;
+          }
+
+          .sort-indicator {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #1976d2;
           }
           .interest-table th, .interest-table td {
             padding: 12px;

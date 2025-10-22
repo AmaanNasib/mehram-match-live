@@ -29,6 +29,20 @@ const ViewAllUser = () => {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showIgnoreModal, setShowIgnoreModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 15;
+
+  // Function to scroll to top smoothly
+  const scrollToTop = () => {
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
+  };
 
   // Auto-hide success message after 3 seconds
   useEffect(() => {
@@ -282,7 +296,7 @@ const ViewAllUser = () => {
       />
       
       {/* Main Content with Sidebar */}
-      <div className="flex flex-col lg:flex-row gap-4 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-4 w-full max-w-full">
         
         {/* Mobile Filter Toggle Button */}
         <div className="xl:hidden fixed top-24 right-4 z-50">
@@ -314,7 +328,7 @@ const ViewAllUser = () => {
         <div className={`xl:w-80 w-full xl:relative fixed xl:translate-x-0 transition-transform duration-300 z-50 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } xl:block xl:top-auto top-0 left-0 h-full xl:h-auto xl:flex-shrink-0`}>
-          <div className="xl:block h-full xl:h-auto xl:ml-4 xl:mt-4 xl:mb-8" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+          <div className="xl:block h-full xl:h-auto xl:ml-4 xl:mt-4 xl:mb-8">
             <Sidebar 
               setApiData={setAllUser} 
               onClose={() => setIsSidebarOpen(false)}
@@ -324,7 +338,7 @@ const ViewAllUser = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-4 xl:ml-4 overflow-hidden">
+        <div className="flex-1 p-4 xl:ml-4">
           {/* Header Section */}
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-800 mb-1">
@@ -413,22 +427,17 @@ const ViewAllUser = () => {
                   
                   console.log('Total profiles after filtering:', filteredProfiles?.length);
 
-                  // Create a single grid layout with 3 columns
-                  return (
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                        <div className="flex items-center space-x-3">
-                          <h4 className="text-xl font-semibold text-gray-800">All Profiles</h4>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {filteredProfiles.length} profiles
-                        </div>
-                      </div>
+                  // Pagination calculation
+                  const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
+                  const startIndex = (currentPage - 1) * profilesPerPage;
+                  const endIndex = startIndex + profilesPerPage;
+                  const currentProfiles = filteredProfiles.slice(startIndex, endIndex);
 
-                      {/* Grid Layout - 3 columns */}
+                  return (
+                    <>
+                      {/* Profile Cards Grid */}
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {filteredProfiles.map((profile, index) => {
+                        {currentProfiles.map((profile, index) => {
                           const user = profile && profile.user ? profile.user : profile;
                           const keyId = user?.id || profile?.id;
                           return (
@@ -445,7 +454,8 @@ const ViewAllUser = () => {
                           );
                         })}
                       </div>
-                    </div>
+
+                    </>
                   );
                 })()}
               </div>
@@ -486,11 +496,129 @@ const ViewAllUser = () => {
                   transform: translateY(-5px);
                   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
                 }
+                
+                /* Custom scrollbar for main content */
+                .main-content-scroll {
+                  scrollbar-width: thin;
+                  scrollbar-color: #FF59B6 #f1f1f1;
+                }
+                
+                .main-content-scroll::-webkit-scrollbar {
+                  width: 12px;
+                }
+                
+                .main-content-scroll::-webkit-scrollbar-track {
+                  background: #f1f1f1;
+                  border-radius: 6px;
+                  margin: 4px;
+                }
+                
+                .main-content-scroll::-webkit-scrollbar-thumb {
+                  background: #FF59B6;
+                  border-radius: 6px;
+                  border: 2px solid #f1f1f1;
+                }
+                
+                .main-content-scroll::-webkit-scrollbar-thumb:hover {
+                  background: #EB53A7;
+                }
+                
+                .main-content-scroll::-webkit-scrollbar-corner {
+                  background: #f1f1f1;
+                }
               `}</style>
             </div>
           )}
           </div>
       </div>
+
+      {/* Pagination - Outside main content area for full page centering */}
+      {!loading && allUser && allUser.length > 0 && (() => {
+        const filteredProfiles = allUser.filter(profile => {
+          if (ignoredUsers.has(profile.user?.id)) return false;
+          if (role === 'agent') return true;
+          const currentUserGender = activeUser?.gender;
+          const profileGender = profile.user?.gender || profile?.gender;
+          if (currentUserGender === 'male' && profileGender === 'female') return true;
+          if (currentUserGender === 'female' && profileGender === 'male') return true;
+          if (!currentUserGender || !profileGender) return true;
+          return false;
+        });
+        
+        const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
+        const startIndex = (currentPage - 1) * profilesPerPage;
+        const endIndex = startIndex + profilesPerPage;
+        
+        return totalPages > 1 ? (
+          <div className="w-full flex flex-col items-center py-8 bg-gray-50">
+            {/* Pagination */}
+            <div className="flex justify-center items-center space-x-2">
+              {/* Previous Button */}
+              <button
+                onClick={() => {
+                  setCurrentPage(prev => Math.max(prev - 1, 1));
+                  scrollToTop();
+                }}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white hover:from-[#F971BC] hover:to-[#DA73AD] shadow-lg hover:shadow-xl'
+                }`}
+              >
+                <svg className="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+
+              {/* Page Numbers */}
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => {
+                      setCurrentPage(page);
+                      scrollToTop();
+                    }}
+                    className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
+                      currentPage === page
+                        ? 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={() => {
+                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                  scrollToTop();
+                }}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white hover:from-[#F971BC] hover:to-[#DA73AD] shadow-lg hover:shadow-xl'
+                }`}
+              >
+                Next
+                <svg className="w-4 h-4 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Pagination Info */}
+            <div className="text-center mt-4 text-gray-600">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredProfiles.length)} of {filteredProfiles.length} profiles
+            </div>
+          </div>
+        ) : null;
+      })()}
       
       {/* Footer */}
       <Footer />

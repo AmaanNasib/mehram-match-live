@@ -350,7 +350,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   };
 
   return (
-    <div className="profile-card" style={{ width: "100%", maxWidth: "20rem", height: "450px" }}>
+    <div className="profile-card" style={{ width: "100%", maxWidth: "20rem", height: "520px", minHeight: "520px", maxHeight: "520px" }}>
       {/* Success Message */}
       {message && (
         <div className="success-message" style={{
@@ -370,17 +370,6 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
         </div>
       )}
       <div className="profile-image">
-        <button className="nav-btn prev">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
         <img
           src={(() => {
             const src = photoSrc || buildImageUrl(profile?.profile_photo);
@@ -396,22 +385,9 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
           alt="Profile Photo"
           onError={handleImgError}
           style={{
-            objectFit: "cover",
+            objectFit: "contain",
           }}
         />
-
-        <button className="nav-btn next">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill={IsInterested ? "#ff4081" : "none"}
->
-            <path
-              d="M9 18l6-6-6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
         
         {/* Agent Verified Ribbon */}
         {profile?.agent_id && (
@@ -732,10 +708,18 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
               }}
             >
               <h3
-                style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: "1.5rem",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                  hyphens: "auto",
+                  lineHeight: "1.3"
+                }}
               >
 {profile?.name
-  ? profile.name.split(" ").slice(0, 1).join(" ") + (profile.name.split(" ").length > 10 ? "..." : "")
+  ? (profile.name.length > 20 ? profile.name.substring(0, 20) + "..." : profile.name)
   : "Not Mentioned"}
                 <span
                   className="marital-status-badge"
@@ -853,8 +837,8 @@ className="action-btn full-profile-btn"
                 onClick={() => shortlist(profile.id)}
               >
                 <svg
-                  width="21"
-                  height="21"
+                  width="48"
+                  height="48"
                   viewBox="0 0 21 21"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"

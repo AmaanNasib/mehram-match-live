@@ -2429,15 +2429,103 @@ useEffect(() => {
                 <table className="members-table">
                   <thead>
                     <tr>
-                      <th>Member ID</th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('member_id')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Member ID
+                        {sortConfig.key === 'member_id' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
                       <th>Photo</th>
-                      <th>Name</th>
-                      <th>Age</th>
-                      <th>Gender</th>
-                      <th>Location</th>
-                      <th>Sect</th>
-                      <th>Profession</th>
-                      <th>Martial Status</th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('name')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Name
+                        {sortConfig.key === 'name' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('age')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Age
+                        {sortConfig.key === 'age' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('gender')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Gender
+                        {sortConfig.key === 'gender' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('city')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Location
+                        {sortConfig.key === 'city' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('sect_school_info')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Sect
+                        {sortConfig.key === 'sect_school_info' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('profession')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Profession
+                        {sortConfig.key === 'profession' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th 
+                        className="sortable-header" 
+                        onClick={() => handleSort('martial_status')}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        Martial Status
+                        {sortConfig.key === 'martial_status' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -4050,6 +4138,23 @@ useEffect(() => {
             letter-spacing: 0.8px;
             position: relative;
             white-space: nowrap;
+          }
+
+          .sortable-header {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+          }
+
+          .sortable-header:hover {
+            background-color: #e3f2fd;
+            color: #1976d2;
+          }
+
+          .sort-indicator {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #1976d2;
           }
 
           .members-table th:first-child {

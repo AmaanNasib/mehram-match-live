@@ -499,7 +499,15 @@ useEffect(() => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
                     {displayTrending && displayTrending.length > 0 ? (
                       displayTrending.filter(profile => {
-                        // Gender filtering: show opposite gender
+                        // For agents, show all profiles (both male and female)
+                        const currentRole = localStorage.getItem('role');
+                        const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                        
+                        if (currentRole === 'agent' && !isImpersonating) {
+                          return true; // Show all profiles for agents
+                        }
+                        
+                        // For regular users, show opposite gender
                         const currentUserGender = activeUser?.gender;
                         const profileGender = profile.user?.gender || profile?.gender;
                         
@@ -574,7 +582,15 @@ useEffect(() => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
                       {displayRecommended && displayRecommended.length > 0 ? (
                         displayRecommended.filter(profile => {
-                          // Gender filtering: show opposite gender
+                          // For agents, show all profiles (both male and female)
+                          const currentRole = localStorage.getItem('role');
+                          const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                          
+                          if (currentRole === 'agent' && !isImpersonating) {
+                            return true; // Show all profiles for agents
+                          }
+                          
+                          // For regular users, show opposite gender
                           const currentUserGender = activeUser?.gender;
                           const profileGender = profile.user?.gender || profile?.gender;
                           
@@ -649,7 +665,15 @@ useEffect(() => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
                       {displayAll && displayAll.length > 0 ? (
                         displayAll.filter(profile => {
-                          // Gender filtering: show opposite gender
+                          // For agents, show all profiles (both male and female)
+                          const currentRole = localStorage.getItem('role');
+                          const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                          
+                          if (currentRole === 'agent' && !isImpersonating) {
+                            return true; // Show all profiles for agents
+                          }
+                          
+                          // For regular users, show opposite gender
                           const currentUserGender = activeUser?.gender;
                           const profileGender = profile.user?.gender || profile?.gender;
                           

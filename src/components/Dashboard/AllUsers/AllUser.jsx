@@ -63,7 +63,28 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
         ) : (
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
-              profiles.map((profile) => {
+              profiles.filter(profile => {
+                // For agents, show all profiles (both male and female)
+                const currentRole = localStorage.getItem('role');
+                const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                
+                if (currentRole === 'agent' && !isImpersonating) {
+                  return true; // Show all profiles for agents
+                }
+                
+                // For regular users, show opposite gender
+                const currentUserGender = localStorage.getItem('gender');
+                const profileGender = profile.user?.gender || profile?.gender;
+                
+                // If current user is male, show female profiles and vice versa
+                if (currentUserGender === 'male' && profileGender === 'female') return true;
+                if (currentUserGender === 'female' && profileGender === 'male') return true;
+                
+                // If gender is not specified, show all profiles
+                if (!currentUserGender || !profileGender) return true;
+                
+                return false;
+              }).map((profile) => {
                 const user = profile && profile.user ? profile.user : profile;
                 const keyId = user?.id || profile?.id;
                 
