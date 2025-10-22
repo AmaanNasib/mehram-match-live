@@ -325,11 +325,7 @@ const ViewAllTrendingProfiles = () => {
         <div className={`xl:w-80 w-full xl:relative fixed xl:translate-x-0 transition-transform duration-300 z-50 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } xl:block xl:top-auto top-0 left-0 h-full xl:h-auto xl:flex-shrink-0`}>
-          <div className="xl:block h-full xl:h-auto xl:ml-4 xl:mt-4 xl:mb-8" style={{ 
-            maxHeight: 'calc(100vh - 200px)', 
-            overflowY: 'auto',
-            minHeight: 'calc(100vh - 250px)'
-          }}>
+          <div className="xl:block h-full xl:h-auto xl:ml-4 xl:mt-4 xl:mb-8">
             <Sidebar 
               setApiData={setTrendingProfiles} 
               onClose={() => setIsSidebarOpen(false)}
