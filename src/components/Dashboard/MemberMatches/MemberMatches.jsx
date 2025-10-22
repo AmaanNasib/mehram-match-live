@@ -3073,7 +3073,14 @@ const MemberMatches = () => {
               return idMatch || memberIdMatch;
             }) : true) &&
           (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
-          (updatedFilters.agentName ? match?.agent_name?.toLowerCase().includes(updatedFilters.agentName.toLowerCase()) : true) &&
+          (updatedFilters.agentName ? 
+            (() => {
+              const searchTerm = updatedFilters.agentName.toLowerCase();
+              const hasAgentName = match?.agent_info?.agent_name?.toLowerCase().includes(searchTerm) ||
+                                  match?.agent_info?.name?.toLowerCase().includes(searchTerm);
+              const isSelf = searchTerm === 'self' && (!match?.agent_info?.agent_name && !match?.agent_info?.name);
+              return hasAgentName || isSelf;
+            })() : true) &&
           (updatedFilters.city ? match?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
           // (updatedFilters.minAge && updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
           (updatedFilters.sectSchoolInfo ? match?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&

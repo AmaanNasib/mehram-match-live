@@ -1390,6 +1390,7 @@ const MyMembers = () => {
     profession: "",
     status: "",
     martialStatus: "",
+    gender: "",
     startDate: "",
     endDate: "",
         maxAge: '',
@@ -1562,6 +1563,7 @@ const MyMembers = () => {
       profession: "",
       status: "",
       martialStatus: "",
+      gender: "",
       startDate: "",
       endDate: "",
       minAge: "",
@@ -1630,6 +1632,11 @@ const MyMembers = () => {
           ? match?.martial_status
               ?.toLowerCase()
               .includes(updatedFilters.martialStatus.toLowerCase())
+          : true) &&
+        (updatedFilters.gender
+          ? match?.gender
+              ?.toLowerCase()
+              === updatedFilters.gender.toLowerCase()
           : true) &&
         (updatedFilters.minAge
           ? parseInt(match?.age) >= parseInt(updatedFilters.minAge)
@@ -2046,7 +2053,7 @@ useEffect(() => {
               list="distinct-ids"
               style={{ width: "100px" }}
             />
-             <input
+             {/* <input
             className="filter-dropdown"
             type="number"
             id="minAge"
@@ -2069,7 +2076,7 @@ useEffect(() => {
             min="18"
             max="50"
             style={{ width: '100px' }}
-          />
+          /> */}
 
 <select
             className="filter-dropdown"
@@ -2185,6 +2192,16 @@ useEffect(() => {
                 <option value="Khula">Khula</option>
                 <option value="Widowed">Widowed</option>
               </>
+          </select>
+
+          <select
+            className="filter-dropdown"
+            value={filters.gender}
+            onChange={(e) => handleFilterChange('gender', e.target.value)}
+          >
+            <option value="">Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
           </select>
 
             <button

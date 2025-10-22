@@ -58,8 +58,6 @@ const MemberAnalytics = () => {
   };
 
   const applyFilters = (updatedFilters) => {
-    console.log(updatedFilters.id, ">>>");
-    
     if (!Array.isArray(matchDetails)) {
       setFilteredItems([]);
       return;
@@ -68,7 +66,16 @@ const MemberAnalytics = () => {
     setFilteredItems(
       matchDetails?.filter((match) => {
         return (
-          (updatedFilters.id ? match?.id == updatedFilters.id : true) &&
+          (updatedFilters.id ? 
+            // Word-by-word search for id/member_id (case-insensitive)
+            updatedFilters.id.split(' ').every(word => {
+              const w = String(word).toLowerCase();
+              const idStr = match?.id != null ? String(match.id) : '';
+              const mid = match?.member_id || '';
+              const idMatch = idStr.toLowerCase().includes(w);
+              const memberIdMatch = mid.toLowerCase().includes(w);
+              return idMatch || memberIdMatch;
+            }) : true) &&
           (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
           (updatedFilters.minAge && updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
@@ -395,7 +402,7 @@ const MemberAnalytics = () => {
             list="distinct-ids"
             style={{ width: '120px' }}
           />
-          <input
+          {/* <input
             className="filter-dropdown"
             type="number"
             id="minAge"
@@ -418,7 +425,7 @@ const MemberAnalytics = () => {
             min="18"
             max="50"
             style={{ width: '100px' }}
-          />
+          /> */}
 
           <select
             className="filter-dropdown"
