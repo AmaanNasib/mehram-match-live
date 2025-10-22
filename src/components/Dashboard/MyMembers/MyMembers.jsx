@@ -567,6 +567,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
+
           }
 
           .match-item {
@@ -2388,8 +2389,7 @@ useEffect(() => {
                           className="card-action-btn match-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedMember(member);
-                            setShowMatchModal(true);
+                            navigate(`/member-matches/${member.member_id}`);
                           }}
                           title="View Match Details"
                         >
@@ -4928,3 +4928,4 @@ useEffect(() => {
 };
 
 export default MyMembers;
+// export default MyMembers;

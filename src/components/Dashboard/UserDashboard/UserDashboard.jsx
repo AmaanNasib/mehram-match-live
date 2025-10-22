@@ -55,12 +55,12 @@ const UserDashboard = () => {
   const getTimePeriodParam = (period) => {
     switch(period) {
       case '1': return 'week';
-      case '2': return 'lastweek';
+      case '2': return 'last_week';
       case '3': return 'month';
       case '4': return '3month';
       case '5': return '6month';
-      case '6': return '12month';
-      case '7': return 'tilldate';
+      case '6': return 'year';
+      case '7': return 'till_date';
       default: return 'week';
     }
   };

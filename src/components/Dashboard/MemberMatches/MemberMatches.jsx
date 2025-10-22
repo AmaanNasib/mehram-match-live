@@ -267,49 +267,8 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
   return (
     <div className="match-details-modal-overlay">
       <div className="match-details-modal">
-        {/* <div className="modal-header">
-          <div className="header-content">
-            <div className="member-info-header">
-              <img
-                src={member?.profile_photo || '/images/muslim-man.png'}
-                alt={member?.name}
-                className="member-avatar-modal"
-              />
-              <div className="member-details-header">
-                <h3 className="member-name-modal">{member?.name || "N/A"}</h3>
-                <p className="member-id-modal">{member?.member_id || member?.id || "N/A"}</p>
-                 <div className="match-score-header">
-                   <div className="score-circle">
-                     <span className="score-number">{matchData.overallScore}%</span>
-                   </div>
-                   <div className="score-info">
-                     <span className="score-label">Overall Match</span>
-                     <span className="score-detail">
-                       Backend Calculated Score
-                     </span>
-                   </div>
-                 </div>
-              </div>
-            </div>
-            <button className="close-modal-btn" onClick={onClose}>
-              <AiOutlineClose />
-            </button>
-          </div>
-        </div> */}
 
         <div className="modal-content">
-          {/* <div className="backend-score-section">
-            <h4 className="section-title">Backend Match Score</h4>
-            <div className="score-display">
-              <div className="main-score">
-                <span className="score-number-large">{matchData.overallScore}%</span>
-                <span className="score-label-large">Overall Compatibility</span>
-                    </div>
-              <div className="score-note">
-                <p><strong>Note:</strong> This score is calculated by our backend algorithm based on comprehensive compatibility analysis.</p>
-                  </div>
-            </div>
-          </div> */}
 
           {/* User Comparison Section */}
           <div className="user-comparison-section">
