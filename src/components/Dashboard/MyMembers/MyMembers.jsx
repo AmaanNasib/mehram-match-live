@@ -1999,13 +1999,13 @@ useEffect(() => {
                 </div>
               </div>
               
-              <div className="stat-card">
+              {/* <div className="stat-card">
                 <div className="stat-icon">🔔</div>
                 <div className="stat-info">
                   <span className="stat-number">{allMembers.reduce((sum, m) => sum + (m.notifications || 0), 0)}</span>
                   <span className="stat-label">Notifications</span>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Add New Member Button */}
@@ -2266,8 +2266,19 @@ useEffect(() => {
                           <span className="notification-indicator">
                             {member.notifications}
                           </span>
+                          
                         )}
                       </div>
+                      <div className="notifications-info">
+                        <span className="notifications-icon">🔔</span>
+                        <span className="notifications-text">
+                          {member?.notifications > 0 
+                            ? `${member.notifications} notification${member.notifications > 1 ? 's' : ''}`
+                            : "No notifications"
+                          }
+                        </span>
+                      </div>
+                      
                     </div>
 
                     {/* Member Profile Section */}
@@ -2344,16 +2355,7 @@ useEffect(() => {
 
                     {/* Card Footer */}
                     <div className="card-footer">
-                      <div className="notifications-info">
-                        <span className="notifications-icon">🔔</span>
-                        <span className="notifications-text">
-                          {member?.notifications > 0 
-                            ? `${member.notifications} notification${member.notifications > 1 ? 's' : ''}`
-                            : "No notifications"
-                          }
-                        </span>
-                      </div>
-                      <div className="card-action-buttons">
+                      <div className="card-action-buttons" style={{ justifyContent: 'flex-end' }}>
                         <button
                           className="card-action-btn view-btn"
                           onClick={(e) => {
@@ -4758,7 +4760,7 @@ useEffect(() => {
           /* Card Footer */
           .card-footer {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             padding: 16px 20px;
             background: #f8f9fa;
