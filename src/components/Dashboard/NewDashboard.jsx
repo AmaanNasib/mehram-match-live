@@ -496,7 +496,10 @@ useEffect(() => {
                       No profiles found for selected filters.
                     </div>
                   ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#FF59B6 #f1f1f1'
+                  }}>
                     {displayTrending && displayTrending.length > 0 ? (
                       displayTrending.filter(profile => {
                         // For agents, show all profiles (both male and female)
@@ -579,7 +582,10 @@ useEffect(() => {
                         No profiles found for selected filters.
                       </div>
                     ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#FF59B6 #f1f1f1'
+                    }}>
                       {displayRecommended && displayRecommended.length > 0 ? (
                         displayRecommended.filter(profile => {
                           // For agents, show all profiles (both male and female)
@@ -662,7 +668,10 @@ useEffect(() => {
                       No profiles found for selected filters.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto scrollbar-hide">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#FF59B6 #f1f1f1'
+                    }}>
                       {displayAll && displayAll.length > 0 ? (
                         displayAll.filter(profile => {
                           // For agents, show all profiles (both male and female)
@@ -720,6 +729,34 @@ useEffect(() => {
       <div className="mt-16">
         <Footer />
       </div>
+
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        /* Custom scrollbar for AllUser section */
+        .grid::-webkit-scrollbar {
+          width: 12px;
+        }
+        
+        .grid::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 6px;
+          margin: 4px;
+        }
+        
+        .grid::-webkit-scrollbar-thumb {
+          background: #FF59B6;
+          border-radius: 6px;
+          border: 2px solid #f1f1f1;
+        }
+        
+        .grid::-webkit-scrollbar-thumb:hover {
+          background: #EB53A7;
+        }
+        
+        .grid::-webkit-scrollbar-corner {
+          background: #f1f1f1;
+        }
+      `}</style>
     </div>
   );
 };
