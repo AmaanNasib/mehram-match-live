@@ -1024,14 +1024,14 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               Dashboard
             </a>
             <a
-              href={`/my-memberss/${userId}`}
-              className={activeSubNav === "My Members" ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick("/my-memberss")}
+              href={role === "agent" ? `/my-memberss/${userId}` : `/myprofile/${userId}`}
+              className={activeSubNav === (role === "agent" ? "My Members" : "My Profile") ? "activeSubNav" : ""}
+              onClick={() => handleSubNavClick(role === "agent" ? "/my-memberss" : "/myprofile")}
             >
               <i className="icon">
                 <img src={people} alt="" />
               </i>{" "}
-              My Members
+              {role === "agent" ? "My Members" : "My Profile"}
             </a>
             <a
               href="#"
