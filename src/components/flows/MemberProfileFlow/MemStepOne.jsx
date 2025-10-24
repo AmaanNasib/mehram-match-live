@@ -54,11 +54,14 @@ const MemStepOne = () => {
       console.log("Setting form data for user:", apiData.id, "Edit Mode:", editMode);
       // Auto-determine gender based on on_behalf if not already set
       let autoGender = apiData.gender;
-      if (apiData.onbehalf && !apiData.gender) {
+      if (apiData.onbehalf) {
         if (apiData.onbehalf === 'Brother' || apiData.onbehalf === 'Son') {
           autoGender = 'male';
         } else if (apiData.onbehalf === 'Sister' || apiData.onbehalf === 'Daughter') {
           autoGender = 'female';
+        } else {
+          // For Self/Friend, keep existing gender or leave empty
+          autoGender = apiData.gender || '';
         }
       }
 
@@ -198,6 +201,18 @@ const MemStepOne = () => {
         newState.marital_status = '';
       }
 
+      // Auto-select gender based on on_behalf selection
+      if (field === 'on_behalf') {
+        if (value === 'Brother' || value === 'Son') {
+          newState.gender = 'male';
+        } else if (value === 'Sister' || value === 'Daughter') {
+          newState.gender = 'female';
+        } else {
+          // For Self/Friend, reset gender to allow manual selection
+          newState.gender = '';
+        }
+      }
+
       return newState;
     });
 
@@ -245,6 +260,8 @@ const MemStepOne = () => {
     if (!profileData.gender) {
       newErrors.gender = "Gender is required";
     }
+
+    // Old validation logic removed - now handled below
 
     // Validate Date of Birth
     if (!profileData.dob) {
@@ -303,15 +320,16 @@ const MemStepOne = () => {
       newErrors.disability = "Disability status is required";
     }
 
-    // Validate About You - Only required if profession or education is "other"
-    if ((profileData.profession === 'other' || profileData.Education === 'other') && !profileData.describe_job_business?.trim()) {
+    // Validate describe_job_business - Only required if profession OR education is "other" (case insensitive)
+    console.log("Validation Debug - profession:", profileData.profession, "Education:", profileData.Education, "describe_job_business:", profileData.describe_job_business);
+    if ((profileData.profession?.toLowerCase() === 'other' || profileData.Education?.toLowerCase() === 'other') && !profileData.describe_job_business?.trim()) {
       newErrors.describe_job_business = "Please describe your education & job/business";
     }
 
-    // Validate Income Range
-    if (!profileData.incomeRange) {
-      newErrors.incomeRange = "Income Range is required";
-    }
+    // Income Range is now optional - not mandatory for profile completion
+    // if (!profileData.incomeRange) {
+    //   newErrors.incomeRange = "Income Range is required";
+    // }
 
     if (
       profileData.disability === "yes" &&
@@ -409,6 +427,17 @@ const MemStepOne = () => {
            profileData.on_behalf === 'Sister' || 
            profileData.on_behalf === 'Son' || 
            profileData.on_behalf === 'Daughter';
+  };
+
+  // Function to get gender options based on on_behalf selection
+  const getGenderOptions = () => {
+    if (profileData.on_behalf === 'Brother' || profileData.on_behalf === 'Son') {
+      return [{ value: "male", label: "Male" }];
+    } else if (profileData.on_behalf === 'Sister' || profileData.on_behalf === 'Daughter') {
+      return [{ value: "female", label: "Female" }];
+    } else {
+      return genders; // Full options for Self/Friend
+    }
   };
 
   // Comprehensive country-state-city data structure
@@ -801,6 +830,22 @@ const MemStepOne = () => {
     const cities = locationData[country].states[state].cities;
     // Add "Other" option to every state
     return [...cities, { value: "other", label: "Other" }];
+  };
+
+  const getHeightOptions = () => {
+    const options = [];
+    // Generate height options from 4'0" to 7'0"
+    for (let feet = 4; feet <= 7; feet++) {
+      for (let inches = 0; inches < 12; inches++) {
+        const heightInInches = feet * 12 + inches;
+        const heightInCm = Math.round(heightInInches * 2.54);
+        options.push({
+          value: `${feet}'${inches}"`,
+          label: `${feet}'${inches}" (${heightInCm}cm)`
+        });
+      }
+    }
+    return options;
   };
 
   const Professions = [
@@ -1294,7 +1339,7 @@ const MemStepOne = () => {
                         </div>
                       </label>
                       <Dropdown
-                        options={genders}
+                        options={getGenderOptions()}
                         name="gender"
                         value={profileData.gender}
                         onChange={(e) => handleFieldChange("gender", e.target.value)}
@@ -1648,8 +1693,9 @@ const MemStepOne = () => {
                     </div>
                   </div>
 
-                  {/* Job Description - Only show if profession or education is "other" */}
-                  {(profileData.profession === 'other' || profileData.Education === 'other') && (
+                  {/* Job Description - Only show if profession or education is "other" (case insensitive) */}
+                  {console.log("Debug - profession:", profileData.profession, "Education:", profileData.Education)}
+                  {(profileData.profession?.toLowerCase() === 'other' || profileData.Education?.toLowerCase() === 'other') && (
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <span>Please describe your education & job/business <span className="text-red-500">*</span></span>
@@ -1751,7 +1797,7 @@ const MemStepOne = () => {
                 {/* Income Range */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <span>Income Range <span className="text-red-500">*</span></span>
+                        <span>Income Range</span>
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1805,7 +1851,7 @@ const MemStepOne = () => {
                     {/* Height */}
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        Height (M)
+                        Height
                         <div className="group relative tooltip-container">
                           <svg 
                             className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
@@ -1814,28 +1860,34 @@ const MemStepOne = () => {
                             viewBox="0 0 24 24"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleTooltipClick('hieght');
+                              handleTooltipClick('height');
                             }}
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'hieght' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                            Enter your height in meters (e.g., 1.75)
+                          <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'height' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your height
                             <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                           </div>
                         </div>
                       </label>
-                      <input
-                        type="text"
-                        value={profileData?.hieght || ""}
-                        onChange={(e) => handleFieldChange("hieght", e.target.value)}
+                      <select
+                        name="height"
+                        value={profileData.height || ""}
+                        onChange={(e) => handleFieldChange("height", e.target.value)}
                         className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                          formErrors.hieght
+                          formErrors.height
                             ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                             : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
                         }`}
-                        placeholder="Enter height in meters"
-                      />
+                      >
+                        <option value="">Select your height</option>
+                        {getHeightOptions().map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                       {formErrors.height && (
                         <p className="text-red-500 text-sm">{formErrors.height}</p>
                       )}

@@ -20,14 +20,14 @@ const UserDetailThird = () => {
 
         // Fetch Trending Profiles
         const trendingResponse = await fetchDataWithTokenV2({
-          url: `/api/trending_profile/?user_id=${userId}`,
+          url: `/api/trending_profile/?user_id=${userId}&profile_completed=true`,
           setterFunction: setApiData,
           setErrors: setErrors,
         });
 
         // Fetch Similar Profiles
         const similarResponse = await fetchDataWithTokenV2({
-          url: `/api/user/recommend/?user_id=${userId}`,
+          url: `/api/user/recommend/?user_id=${userId}&profile_completed=true`,
           setterFunction: setApiData1,
           setErrors: setErrors,
         });

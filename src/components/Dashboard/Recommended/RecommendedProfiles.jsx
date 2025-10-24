@@ -64,6 +64,15 @@ const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
               profiles.filter(profile => {
+                // Check if profile is completed - only show completed profiles
+                const user = profile && profile.user ? profile.user : profile;
+                const isProfileCompleted = user?.profile_completed === true;
+                
+                // If profile is not completed, don't show it
+                if (!isProfileCompleted) {
+                  return false;
+                }
+                
                 // Gender filtering: show opposite gender
                 const currentUserGender = activeUser?.gender;
                 const profileGender = profile.user?.gender || profile?.gender;
@@ -72,7 +81,7 @@ const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
                 if (currentUserGender === 'male' && profileGender === 'female') return true;
                 if (currentUserGender === 'female' && profileGender === 'male') return true;
                 
-                // If gender is not specified, show all profiles
+                // If gender is not specified, show all completed profiles
                 if (!currentUserGender || !profileGender) return true;
                 
                 return false;

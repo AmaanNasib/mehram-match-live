@@ -40,7 +40,7 @@ const Dashboard = () => {
       tofetch:{
         items : [
           {
-            fetchurl :  `/api/user/`,
+            fetchurl :  `/api/user/?profile_completed=true`,
             setterFunction : setApiData
           }
         ]
@@ -68,7 +68,7 @@ const userData=localStorage.getItem("userId");
 
   useEffect(() => {
     const parameter = {
-      url: "/api/user/",
+      url: "/api/user/?profile_completed=true",
       setterFunction: setApiData,
       setErrors : setErrors
     }

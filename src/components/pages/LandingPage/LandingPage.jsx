@@ -125,27 +125,7 @@ const LandingPage = () => {
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-    if (!formData.first_name.trim()) {
-      newErrors.first_name = 'First Name is required';
-    } else if (!nameRegex.test(formData.first_name)) {
-      newErrors.first_name = 'First Name should contain only letters';
-    }
-
-    if (!formData.last_name.trim()) {
-      newErrors.last_name = 'Last Name is required';
-    } else if (!nameRegex.test(formData.last_name)) {
-      newErrors.last_name = 'Last Name should contain only letters';
-    }
-
-    if ((formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && !formData.gender) {
-      newErrors.gender = 'Gender is required';
-    }
-
-    if (!formData.date_of_birth) {
-      newErrors.date_of_birth = 'Date of Birth is required';
-    } else if (!dateRegex.test(formData.date_of_birth)) {
-      newErrors.date_of_birth = 'Invalid date format (YYYY-MM-DD)';
-    }
+    // First name, last name, gender, and date of birth validations removed as these fields are not in the form
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
@@ -201,8 +181,12 @@ const LandingPage = () => {
   };
 
   const posstData = () => {
+    console.log("Create Account button clicked!");
+    console.log("Form data:", formData);
     const isValid = handleValidForm();
+    console.log("Form validation result:", isValid);
     if (isValid) {
+      console.log("Form is valid, showing OTP form");
       setOtpFormVisible(true);
       const parameter = {
         url: "/api/otp/",
@@ -213,6 +197,8 @@ const LandingPage = () => {
         setApiErrors,
       };
       justpostDataWithoutToken(parameter);
+    } else {
+      console.log("Form validation failed");
     }
   };
 

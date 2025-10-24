@@ -170,13 +170,14 @@ const MemStepThree = () => {
     // if (!profileData.step_mother) {
     //   newErrors.step_mother = "Mother's stepmother status is required";
     // }
-    // Family type, family practicing level, and number of siblings are now optional
-    // if (!profileData.family_type) {
-    //   newErrors.family_type = "Family type is required";
-    // }
-    // if (!profileData.family_practicing_level) {
-    //   newErrors.family_practicing_level = "Family practicing level is required";
-    // }
+    // Family type and family practicing level are MANDATORY for profile completion
+    if (!profileData.family_type) {
+      newErrors.family_type = "Family type is required";
+    }
+    if (!profileData.family_practicing_level) {
+      newErrors.family_practicing_level = "Family practicing level is required";
+    }
+    // Number of siblings is optional - not mandatory for profile completion
     // if (!profileData.number_of_siblings) {
     //   newErrors.number_of_siblings = "Number of siblings is required";
     // }
@@ -194,20 +195,20 @@ const MemStepThree = () => {
     //   }
     // }
 
-    // Wali validation for females
-    if (profileData.gender === "female") {
-      if (!profileData.wali_name?.trim()) {
-        newErrors.wali_name = "Wali name is required";
-      } else if (!nameRegex.test(profileData.wali_name)) {
-        newErrors.wali_name = "Wali name should contain only letters and spaces";
-      }
-      if (!profileData.wali_contact_number?.trim()) {
-        newErrors.wali_contact_number = "Wali contact number is required";
-      }
-      if (!profileData.wali_blood_relation) {
-        newErrors.wali_blood_relation = "Blood relation is required";
-      }
-    }
+    // Wali validation for females - NOW OPTIONAL (not mandatory for profile completion)
+    // if (profileData.gender === "female") {
+    //   if (!profileData.wali_name?.trim()) {
+    //     newErrors.wali_name = "Wali name is required";
+    //   } else if (!nameRegex.test(profileData.wali_name)) {
+    //     newErrors.wali_name = "Wali name should contain only letters and spaces";
+    //   }
+    //   if (!profileData.wali_contact_number?.trim()) {
+    //     newErrors.wali_contact_number = "Wali contact number is required";
+    //   }
+    //   if (!profileData.wali_blood_relation) {
+    //     newErrors.wali_blood_relation = "Blood relation is required";
+    //   }
+    // }
 
     setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -242,13 +243,14 @@ const MemStepThree = () => {
     // if (!profileData.step_mother) {
     //   newErrors.step_mother = "Mother's stepmother status is required";
     // }
-    // Family type, family practicing level, and number of siblings are now optional
-    // if (!profileData.family_type) {
-    //   newErrors.family_type = "Family type is required";
-    // }
-    // if (!profileData.family_practicing_level) {
-    //   newErrors.family_practicing_level = "Family practicing level is required";
-    // }
+    // Family type and family practicing level are MANDATORY for profile completion
+    if (!profileData.family_type) {
+      newErrors.family_type = "Family type is required";
+    }
+    if (!profileData.family_practicing_level) {
+      newErrors.family_practicing_level = "Family practicing level is required";
+    }
+    // Number of siblings is optional - not mandatory for profile completion
     // if (!profileData.number_of_siblings) {
     //   newErrors.number_of_siblings = "Number of siblings is required";
     // }
@@ -266,20 +268,20 @@ const MemStepThree = () => {
     //   }
     // }
 
-    // Wali validation for females
-    if (profileData.gender === "female") {
-      if (!profileData.wali_name?.trim()) {
-        newErrors.wali_name = "Wali name is required";
-      } else if (!nameRegex.test(profileData.wali_name)) {
-        newErrors.wali_name = "Wali name should contain only letters and spaces";
-      }
-      if (!profileData.wali_contact_number?.trim()) {
-        newErrors.wali_contact_number = "Wali contact number is required";
-      }
-      if (!profileData.wali_blood_relation) {
-        newErrors.wali_blood_relation = "Blood relation is required";
-      }
-    }
+    // Wali validation for females - NOW OPTIONAL (not mandatory for profile completion)
+    // if (profileData.gender === "female") {
+    //   if (!profileData.wali_name?.trim()) {
+    //     newErrors.wali_name = "Wali name is required";
+    //   } else if (!nameRegex.test(profileData.wali_name)) {
+    //     newErrors.wali_name = "Wali name should contain only letters and spaces";
+    //   }
+    //   if (!profileData.wali_contact_number?.trim()) {
+    //     newErrors.wali_contact_number = "Wali contact number is required";
+    //   }
+    //   if (!profileData.wali_blood_relation) {
+    //     newErrors.wali_blood_relation = "Blood relation is required";
+    //   }
+    // }
 
     setFormErrors(newErrors);
 
@@ -1273,7 +1275,7 @@ const MemStepThree = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                           <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              <span>Wali Name <span className="text-red-500">*</span></span>
+                              <span>Wali Name</span>
                               <div className="group relative tooltip-container">
                                 <svg
                                   className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors"
@@ -1312,7 +1314,7 @@ const MemStepThree = () => {
 
                           <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              <span>Wali Contact Number <span className="text-red-500">*</span></span>
+                              <span>Wali Contact Number</span>
                               <div className="group relative tooltip-container">
                                 <svg
                                   className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors"
@@ -1353,7 +1355,7 @@ const MemStepThree = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                              <span>Blood Relation <span className="text-red-500">*</span></span>
+                              <span>Blood Relation</span>
                               <div className="group relative tooltip-container">
                                 <svg
                                   className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors"

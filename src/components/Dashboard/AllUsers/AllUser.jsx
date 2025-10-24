@@ -64,12 +64,21 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
               profiles.filter(profile => {
-                // For agents, show all profiles (both male and female)
+                // Check if profile is completed - only show completed profiles
+                const user = profile && profile.user ? profile.user : profile;
+                const isProfileCompleted = user?.profile_completed === true;
+                
+                // If profile is not completed, don't show it
+                if (!isProfileCompleted) {
+                  return false;
+                }
+                
+                // For agents, show all completed profiles (both male and female)
                 const currentRole = localStorage.getItem('role');
                 const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                 
                 if (currentRole === 'agent' && !isImpersonating) {
-                  return true; // Show all profiles for agents
+                  return true; // Show all completed profiles for agents
                 }
                 
                 // For regular users, show opposite gender
@@ -80,7 +89,7 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
                 if (currentUserGender === 'male' && profileGender === 'female') return true;
                 if (currentUserGender === 'female' && profileGender === 'male') return true;
                 
-                // If gender is not specified, show all profiles
+                // If gender is not specified, show all completed profiles
                 if (!currentUserGender || !profileGender) return true;
                 
                 return false;

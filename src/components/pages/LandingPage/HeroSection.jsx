@@ -141,58 +141,9 @@ const RegistrationForm = ({
     )}
 
     {/* First Name & Last Name */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <FormField label="First Name" required error={errors.first_name} tooltip="Enter your first name. Only letters and spaces allowed. Numbers and symbols will be automatically removed." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="first_name">
-        <input
-          id="first_name"
-          type="text"
-          className={`w-full h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.first_name ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-          placeholder="First Name"
-          onChange={handleInputChange}
-          value={formData?.first_name || ''}
-        />
-      </FormField>
+    {/* First Name and Last Name fields removed */}
 
-      <FormField label="Last Name" required error={errors.last_name} tooltip="Enter your last name (surname). Only letters and spaces allowed. Numbers and symbols will be automatically removed." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="last_name">
-        <input
-          id="last_name"
-          type="text"
-          className={`w-full h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.last_name ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-          placeholder="Last Name"
-          onChange={handleInputChange}
-          value={formData.last_name}
-        />
-      </FormField>
-    </div>
-
-    {/* Gender Field - Conditional */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {(formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && (
-        <FormField label="Gender" required error={errors.gender} tooltip="Select the gender. This field only appears when creating profile for Self or Friend." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="gender">
-          <select
-            id="gender"
-            className={`w-full h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.gender ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-            onChange={handleInputChange}
-            value={formData.gender}
-          >
-            <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </FormField>
-      )}
-
-      <FormField label="Date of Birth" required error={errors.date_of_birth} tooltip="Select your date of birth. Age limit: Male (18+), Female (21+). Format: DD-MM-YYYY" showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="date_of_birth">
-        <input
-          id="date_of_birth"
-          type="date"
-          className={`w-full h-11 px-4 text-[#6D6E6F] font-semibold rounded-lg border ${errors.date_of_birth ? "border-red-500" : "border-[#898B92]"} focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
-          onChange={handleInputChange}
-          value={formData.date_of_birth}
-          max={formData.gender === 'male' ? '2005-12-28' : '2007-12-28'}
-        />
-      </FormField>
-    </div>
+    {/* Gender and Date of Birth fields removed */}
 
     {/* Email */}
     <FormField label="Email" required error={errors.email} tooltip="Enter a valid email address. This will be used for account verification and communication." showTooltip={showTooltip} handleTooltipClick={handleTooltipClick} fieldName="email">

@@ -64,7 +64,7 @@ const ViewAllUser = () => {
     setLoading(true);
     setErrors(null);
     const parameter = {
-      url: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
+      url: role == "agent" ? `/api/agent/user_list/?profile_completed=true` : `/api/user/?profile_completed=true`,
       setterFunction: (data) => {
         console.log('Original data reloaded:', data);
         setAllUser(data);
@@ -78,13 +78,13 @@ const ViewAllUser = () => {
 
   useEffect(() => {
     const parameter = {
-      url: role == "agent" ? `/api/agent/user_list/` : `/api/user/`,
+      url: role == "agent" ? `/api/agent/user_list/?profile_completed=true` : `/api/user/?profile_completed=true`,
       setterFunction: (data) => {
         console.log('ViewAllUser API Response:', data);
         console.log('Role:', role);
         console.log('Total profiles received:', data?.length);
         console.log('First user data structure:', data[0]);
-        console.log('API URL used:', role == "agent" ? `/api/agent/user_list/` : `/api/user/`);
+        console.log('API URL used:', role == "agent" ? `/api/agent/user_list/?profile_completed=true` : `/api/user/?profile_completed=true`);
         setAllUser(data);
       },
       setErrors: setErrors,
@@ -406,7 +406,16 @@ const ViewAllUser = () => {
                     // Filter out ignored users
                     if (ignoredUsers.has(profile.user?.id)) return false;
                     
-                    // For agents, show all profiles without gender filtering
+                    // Check if profile is completed - only show completed profiles
+                    const user = profile && profile.user ? profile.user : profile;
+                    const isProfileCompleted = user?.profile_completed === true;
+                    
+                    // If profile is not completed, don't show it
+                    if (!isProfileCompleted) {
+                      return false;
+                    }
+                    
+                    // For agents, show all completed profiles without gender filtering
                     if (role === 'agent') {
                       return true;
                     }
@@ -536,6 +545,16 @@ const ViewAllUser = () => {
       {!loading && allUser && allUser.length > 0 && (() => {
         const filteredProfiles = allUser.filter(profile => {
           if (ignoredUsers.has(profile.user?.id)) return false;
+          
+          // Check if profile is completed - only show completed profiles
+          const user = profile && profile.user ? profile.user : profile;
+          const isProfileCompleted = user?.profile_completed === true;
+          
+          // If profile is not completed, don't show it
+          if (!isProfileCompleted) {
+            return false;
+          }
+          
           if (role === 'agent') return true;
           const currentUserGender = activeUser?.gender;
           const profileGender = profile.user?.gender || profile?.gender;

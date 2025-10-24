@@ -3,7 +3,18 @@
     min-height: 100vh;
     background-color: #f5f5f5;
     overflow-x: hidden;
+    overflow-y: hidden;
   }
+
+/* Hide scrollbars for dashboard */
+.dashboard::-webkit-scrollbar {
+  display: none;
+}
+
+.dashboard {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
   
   .dashboard-header {
     background: white;
@@ -222,18 +233,19 @@
   }
 
   .table-wrapper {
-    overflow-x: auto;
+    overflow-x: hidden;
     border-radius: 24px;
     position: relative;
   }
 
+  /* Hide scrollbar for table wrapper */
   .table-wrapper::-webkit-scrollbar {
-    height: 8px;
+    display: none;
   }
 
-  .table-wrapper::-webkit-scrollbar-track {
-    background: #f1f3f4;
-    border-radius: 4px;
+  .table-wrapper {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
   }
 
   .table-wrapper::-webkit-scrollbar-thumb {

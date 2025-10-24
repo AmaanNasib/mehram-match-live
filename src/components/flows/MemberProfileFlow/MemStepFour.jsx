@@ -152,9 +152,41 @@ const MemStepFour = () => {
     { value: "Surname does not matter.", label: "Surname does not matter." }
   ];
 
+  // Helper functions for dropdown options
+  const getHeightOptions = () => {
+    const options = [];
+    // Generate height options from 4'0" to 7'0"
+    for (let feet = 4; feet <= 7; feet++) {
+      for (let inches = 0; inches < 12; inches++) {
+        const heightInInches = feet * 12 + inches;
+        const heightInCm = Math.round(heightInInches * 2.54);
+        options.push({
+          value: `${feet}'${inches}"`,
+          label: `${feet}'${inches}" (${heightInCm}cm)`
+        });
+      }
+    }
+    return options;
+  };
+
+  const getIncomeRangeOptions = () => {
+    return [
+      { value: "Below 2 Lakhs", label: "Below 2 Lakhs" },
+      { value: "2-5 Lakhs", label: "2-5 Lakhs" },
+      { value: "5-10 Lakhs", label: "5-10 Lakhs" },
+      { value: "10-15 Lakhs", label: "10-15 Lakhs" },
+      { value: "15-25 Lakhs", label: "15-25 Lakhs" },
+      { value: "25-50 Lakhs", label: "25-50 Lakhs" },
+      { value: "Above 50 Lakhs", label: "Above 50 Lakhs" },
+      { value: "No preference", label: "No preference" },
+      { value: "Prefer not to say", label: "Prefer not to say" }
+    ];
+  };
+
   const [profileData, setProfileData] = useState({
     preferred_surname: [],
-    preferred_age_gap: (""),
+    preferred_age_min: "",
+    preferred_age_max: "",
     preferred_dargah_fatiha_niyah: [],
     preferred_sect: [],
     desired_practicing_level: [],
@@ -168,10 +200,12 @@ const MemStepFour = () => {
     preferred_state: [],
     preferred_native_state: [],
     preferred_native_city: [],
-    preferred_native_country: "",
+    preferred_native_country: [],
     cultural_background: "",
-    preferred_height: "",
-    preferred_income_range: "",
+    preferred_height: [],
+    preferred_income_range: [],
+    preferred_age_min: "",
+    preferred_age_max: "",
   });
   const ensureArray = (v) => {
     if (!v && v !== 0) return [];
@@ -215,12 +249,13 @@ const MemStepFour = () => {
         preferred_state: ensureArray(apiData.preferred_state),
         preferred_occupation_profession: ensureArray(apiData.preferred_occupation_profession),
         cultural_background: apiData.cultural_background || "",
-        preferred_height: apiData.preferred_height || "",
-        preferred_income_range: apiData.preferred_income_range || "",
         preferred_native_state: ensureArray(apiData.preferred_native_state),
         preferred_native_city: ensureArray(apiData.preferred_native_city),
-        preferred_native_country: apiData.preferred_native_country || "",
-        preferred_age_gap: apiData.preferred_age_gap || "",
+        preferred_native_country: ensureArray(apiData.preferred_native_country),
+        preferred_height: ensureArray(apiData.preferred_height),
+        preferred_income_range: ensureArray(apiData.preferred_income_range),
+        preferred_age_min: apiData.preferred_age_min || "",
+        preferred_age_max: apiData.preferred_age_max || "",
       });
     }
   }, [apiData]);
@@ -314,6 +349,13 @@ const MemStepFour = () => {
         preferred_country: ensureArray(profileData.preferred_country),
         preferred_state: ensureArray(profileData.preferred_state),
         cultural_background: profileData.cultural_background || "",
+        preferred_native_state: ensureArray(profileData.preferred_native_state),
+        preferred_native_city: ensureArray(profileData.preferred_native_city),
+        preferred_native_country: ensureArray(profileData.preferred_native_country),
+        preferred_height: ensureArray(profileData.preferred_height),
+        preferred_income_range: ensureArray(profileData.preferred_income_range),
+        preferred_age_min: profileData.preferred_age_min || "",
+        preferred_age_max: profileData.preferred_age_max || "",
       },
       navigate: navigate,
       navUrl: `/memstepfive/${currentUserId}`,
@@ -342,6 +384,16 @@ const MemStepFour = () => {
       } else if (field === 'preferred_state') {
         // Reset city when state changes
         newState.preferred_city = [];
+      }
+
+      // Handle cascading dropdown logic for native location
+      if (field === 'preferred_native_country') {
+        // Reset state and city when native country changes
+        newState.preferred_native_state = [];
+        newState.preferred_native_city = [];
+      } else if (field === 'preferred_native_state') {
+        // Reset city when native state changes
+        newState.preferred_native_city = [];
       }
 
       return newState;
@@ -1732,6 +1784,232 @@ const MemStepFour = () => {
                         className="w-full px-4 py-3 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm font-medium resize-none"
                         onChange={(e) => updateField("preferred_family_background", e.target.value)}
                       />
+                </div>
+
+                {/* Preferred Height & Preferred Income Range (side-by-side) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Preferred Height</span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('preferred_height');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_height' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select your preferred height range for your partner
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <MultiSelectDropdown
+                    name="preferred_height"
+                    values={profileData.preferred_height}
+                    options={getHeightOptions()}
+                    placeholder="Search heights..."
+                  />
+                  <SelectedChips field="preferred_height" values={profileData.preferred_height} options={getHeightOptions()} />
+                  </div>
+
+                  {/* Preferred Income Range */}
+                  <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Preferred Income Range</span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('preferred_income_range');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_income_range' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select your preferred income range for your partner
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <MultiSelectDropdown
+                    name="preferred_income_range"
+                    values={profileData.preferred_income_range}
+                    options={getIncomeRangeOptions()}
+                    placeholder="Search income ranges..."
+                  />
+                  <SelectedChips field="preferred_income_range" values={profileData.preferred_income_range} options={getIncomeRangeOptions()} />
+                  </div>
+                </div>
+
+                {/* Age Gap */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <span>Age Gap</span>
+                    <div className="group relative tooltip-container">
+                      <svg 
+                        className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTooltipClick('preferred_age_min');
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_age_min' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        Select your preferred age gap range
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    </div>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Min Age Gap (years)</label>
+                      <input
+                        type="number"
+                        name="preferred_age_min"
+                        value={profileData.preferred_age_min || ""}
+                        placeholder="e.g., 2"
+                        className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm"
+                        onChange={(e) => updateField("preferred_age_min", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Max Age Gap (years)</label>
+                      <input
+                        type="number"
+                        name="preferred_age_max"
+                        value={profileData.preferred_age_max || ""}
+                        placeholder="e.g., 10"
+                        className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] focus:border-transparent transition-all duration-200 text-sm"
+                        onChange={(e) => updateField("preferred_age_max", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preferred Native Location */}
+                <div className="space-y-6">
+                  <div className="border-b border-gray-200 pb-4">
+                    <h4 className="text-md font-semibold text-gray-900 flex items-center">
+                      <span className="bg-[#FFC0E3] text-[#CB3B8B] rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mr-3">4</span>
+                      Preferred Native Location
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Select your preferred native location for your partner
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Native Country */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native Country</span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('preferred_native_country');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_native_country' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your preferred native country for your partner
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <MultiSelectDropdown
+                        name="preferred_native_country"
+                        values={profileData.preferred_native_country}
+                        options={getCountries()}
+                        placeholder="Search native countries..."
+                      />
+                      <SelectedChips field="preferred_native_country" values={profileData.preferred_native_country} options={getCountries()} />
+                    </div>
+
+                    {/* Native State */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native State</span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('preferred_native_state');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_native_state' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your preferred native state for your partner
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <MultiSelectDropdown
+                        name="preferred_native_state"
+                        values={profileData.preferred_native_state}
+                        options={getStates(profileData.preferred_native_country)}
+                        placeholder="Search native states..."
+                      />
+                      <SelectedChips field="preferred_native_state" values={profileData.preferred_native_state} options={getStates(profileData.preferred_native_country)} />
+                    </div>
+
+                    {/* Native City */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                        <span>Native City</span>
+                        <div className="group relative tooltip-container">
+                          <svg 
+                            className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTooltipClick('preferred_native_city');
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className={`absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg ${showTooltip === 'preferred_native_city' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            Select your preferred native city for your partner
+                            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </label>
+                      <MultiSelectDropdown
+                        name="preferred_native_city"
+                        values={profileData.preferred_native_city}
+                        options={getCities(profileData.preferred_native_country, profileData.preferred_native_state)}
+                        placeholder="Search native cities..."
+                      />
+                      <SelectedChips field="preferred_native_city" values={profileData.preferred_native_city} options={getCities(profileData.preferred_native_country, profileData.preferred_native_state)} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Cultural Background (Self) */}

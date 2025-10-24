@@ -97,7 +97,7 @@ const NewDashboard = () => {
       tofetch: {
         items: [
           {
-            fetchurl: `/api/user/`,
+            fetchurl: `/api/user/?profile_completed=true`,
             setterFunction: setApiData,
           },
         ],
@@ -251,7 +251,7 @@ const NewDashboard = () => {
     const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
     
     const parameter = {
-      url: (currentRole == "agent" && !isImpersonating) ? `/api/agent/user_list/` : `/api/user/`,
+      url: (currentRole == "agent" && !isImpersonating) ? `/api/agent/user_list/?profile_completed=true` : `/api/user/?profile_completed=true`,
       setterFunction: (data) => {
         setUserDetail(data);
         if (!filterActive) setDisplayAll(data);
@@ -270,7 +270,7 @@ const NewDashboard = () => {
     
     // If impersonating, use user endpoints; if agent, use agent endpoints
     const parameter = {
-      url: (currentRole==="agent" && !isImpersonating) ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${currentUserId}`,
+      url: (currentRole==="agent" && !isImpersonating) ? `/api/trending_profiles_by_interest/?profile_completed=true` : `/api/trending_profile/?user_id=${currentUserId}&profile_completed=true`,
       setterFunction: (data) => {
         console.log('Trending profiles data received:', data);
         console.log('Trending profiles count:', Array.isArray(data) ? data.length : 'Not an array');
@@ -294,7 +294,7 @@ useEffect(() => {
   const currentUserId = localStorage.getItem('impersonating_user_id') || userId;
   
     const parameter1 = {
-      url: `/api/user/recommend/?user_id=${currentUserId}`,
+      url: `/api/user/recommend/?user_id=${currentUserId}&profile_completed=true`,
       setterFunction: (data) => {
         console.log('Recommended profiles data received:', data);
         console.log('Recommended profiles count:', Array.isArray(data) ? data.length : 'Not an array');
@@ -502,12 +502,21 @@ useEffect(() => {
                   }}>
                     {displayTrending && displayTrending.length > 0 ? (
                       displayTrending.filter(profile => {
-                        // For agents, show all profiles (both male and female)
+                        // Check if profile is completed - only show completed profiles
+                        const user = profile && profile.user ? profile.user : profile;
+                        const isProfileCompleted = user?.profile_completed === true;
+                        
+                        // If profile is not completed, don't show it
+                        if (!isProfileCompleted) {
+                          return false;
+                        }
+                        
+                        // For agents, show all completed profiles (both male and female)
                         const currentRole = localStorage.getItem('role');
                         const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                         
                         if (currentRole === 'agent' && !isImpersonating) {
-                          return true; // Show all profiles for agents
+                          return true; // Show all completed profiles for agents
                         }
                         
                         // For regular users, show opposite gender
@@ -518,7 +527,7 @@ useEffect(() => {
                         if (currentUserGender === 'male' && profileGender === 'female') return true;
                         if (currentUserGender === 'female' && profileGender === 'male') return true;
                         
-                        // If gender is not specified, show all profiles
+                        // If gender is not specified, show all completed profiles
                         if (!currentUserGender || !profileGender) return true;
                         
                         return false;
@@ -588,12 +597,21 @@ useEffect(() => {
                     }}>
                       {displayRecommended && displayRecommended.length > 0 ? (
                         displayRecommended.filter(profile => {
-                          // For agents, show all profiles (both male and female)
+                          // Check if profile is completed - only show completed profiles
+                          const user = profile && profile.user ? profile.user : profile;
+                          const isProfileCompleted = user?.profile_completed === true;
+                          
+                          // If profile is not completed, don't show it
+                          if (!isProfileCompleted) {
+                            return false;
+                          }
+                          
+                          // For agents, show all completed profiles (both male and female)
                           const currentRole = localStorage.getItem('role');
                           const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                           
                           if (currentRole === 'agent' && !isImpersonating) {
-                            return true; // Show all profiles for agents
+                            return true; // Show all completed profiles for agents
                           }
                           
                           // For regular users, show opposite gender
@@ -604,7 +622,7 @@ useEffect(() => {
                           if (currentUserGender === 'male' && profileGender === 'female') return true;
                           if (currentUserGender === 'female' && profileGender === 'male') return true;
                           
-                          // If gender is not specified, show all profiles
+                          // If gender is not specified, show all completed profiles
                           if (!currentUserGender || !profileGender) return true;
                           
                           return false;
@@ -674,12 +692,21 @@ useEffect(() => {
                     }}>
                       {displayAll && displayAll.length > 0 ? (
                         displayAll.filter(profile => {
-                          // For agents, show all profiles (both male and female)
+                          // Check if profile is completed - only show completed profiles
+                          const user = profile && profile.user ? profile.user : profile;
+                          const isProfileCompleted = user?.profile_completed === true;
+                          
+                          // If profile is not completed, don't show it
+                          if (!isProfileCompleted) {
+                            return false;
+                          }
+                          
+                          // For agents, show all completed profiles (both male and female)
                           const currentRole = localStorage.getItem('role');
                           const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                           
                           if (currentRole === 'agent' && !isImpersonating) {
-                            return true; // Show all profiles for agents
+                            return true; // Show all completed profiles for agents
                           }
                           
                           // For regular users, show opposite gender
@@ -690,7 +717,7 @@ useEffect(() => {
                           if (currentUserGender === 'male' && profileGender === 'female') return true;
                           if (currentUserGender === 'female' && profileGender === 'male') return true;
                           
-                          // If gender is not specified, show all profiles
+                          // If gender is not specified, show all completed profiles
                           if (!currentUserGender || !profileGender) return true;
                           
                           return false;

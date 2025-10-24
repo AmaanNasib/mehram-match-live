@@ -68,22 +68,38 @@ const UserDashboard = () => {
 
   // Function to fetch graph data based on selected time period
   const fetchGraphData = async (period) => {
+    console.log('Fetching graph data for period:', period);
+    console.log('Role:', role, 'UserID:', userId);
     setChartLoading(true);
     try {
       const url = role === "agent" 
         ? `/api/agent/graph/?based_on=${period}` 
         : `/api/user/graph/?user_id=${userId}&based_on=${period}`;
         
+      console.log('Graph API URL:', url);
+        
       const parameter = {
         url: url,
-        setterFunction: setApiData5,
+        setterFunction: (data) => {
+          console.log('Graph API response for period', period, ':', data);
+          console.log('Data type:', typeof data);
+          console.log('Data keys:', data ? Object.keys(data) : 'No data');
+          console.log('Data length:', Array.isArray(data) ? data.length : 'Not an array');
+          
+          // Check if data is empty or null
+          if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+            console.warn('Empty or null data received for period:', period);
+          }
+          
+          setApiData5(data);
+        },
         setLoading: setChartLoading,
         setErrors: setErrors,
       };
       
       await fetchDataWithTokenV2(parameter);
     } catch (error) {
-      console.error('Error fetching graph data:', error);
+      console.error('Error fetching graph data for period', period, ':', error);
       setErrors(true);
     } finally {
       setChartLoading(false);
@@ -643,20 +659,27 @@ const UserDashboard = () => {
   // Debug: Log current apiData5 structure
   console.log('Current apiData5 for chart:', apiData5);
   console.log('Role:', role);
+  console.log('Selected time period:', selectedTimePeriod);
   
   // Force chart re-render when apiData5 changes
   const chartKey = `chart-${selectedTimePeriod}-${JSON.stringify(apiData5)}`;
 
   // Helper function to get agent graph data with multiple possible field names
   const getAgentGraphValue = (fieldName, fallbackValue = 0) => {
-    if (!apiData5 || role !== "agent") return fallbackValue;
+    if (!apiData5 || role !== "agent") {
+      console.log(`No apiData5 or not agent role for ${fieldName}, using fallback:`, fallbackValue);
+      return fallbackValue;
+    }
+    
+    console.log(`Looking for ${fieldName} in apiData5:`, apiData5);
     
     // Map field names to actual API response fields
     const fieldMapping = {
-      'interests': ['total_interest', 'interests', 'interest_total'],
-      'requests': ['total_requests', 'requests', 'request_total'],
-      'shortlists': ['shortlisted', 'shortlists', 'shortlist_total'],
-      'blocked': ['blocked', 'blocked_count', 'blocked_total']
+      'interests': ['total_interest', 'interests', 'interest_total', 'interest_count'],
+      'requests': ['total_requests', 'requests', 'request_total', 'request_count'],
+      'shortlists': ['shortlisted', 'shortlists', 'shortlist_total', 'shortlist_count'],
+      'blocked': ['blocked', 'blocked_count', 'blocked_total'],
+      'interactions': ['total_interactions', 'interactions', 'interaction_total', 'interaction_count']
     };
     
     const possibleFields = fieldMapping[fieldName] || [
@@ -693,52 +716,19 @@ const UserDashboard = () => {
         fill: true,
         label: role === "agent" ? "Member Activity" : "Activity Count",
         data: role === "agent" ? [
-          // For agents, use same data source as summary cards for consistency
-          (() => {
-            const interestTotal = ((apiData1?.interest_sent || 0) + (apiData1?.interest_received || 0));
-            console.log('Chart Interests Value (using apiData1):', { sent: apiData1?.interest_sent, received: apiData1?.interest_received, total: interestTotal });
-            return interestTotal;
-          })(),
-          // For agents, use same data source as summary cards for consistency
-          (() => {
-            const requestTotal = ((apiData?.request_sent || 0) + (apiData?.request_received || 0));
-            console.log('Chart Requests Value (using apiData):', { sent: apiData?.request_sent, received: apiData?.request_received, total: requestTotal });
-            return requestTotal;
-          })(),
-          // For agents, use same data source as summary cards for consistency
-          (() => {
-            const interactionTotal = (apiData7.sent_interactions || 0) + (apiData7.received_interactions || 0);
-            console.log('Chart Interactions Value (using same calculation as summary cards):', { 
-              sent_interactions: apiData7.sent_interactions || 0,
-              interest_sent: apiData1?.interest_sent || 0,
-              request_sent: apiData?.request_sent || 0,
-              received_interactions: apiData7.received_interactions || 0,
-              interest_received: apiData1?.interest_received || 0,
-              request_received: apiData?.request_received || 0,
-              total: interactionTotal 
-            });
-            return interactionTotal;
-          })(),
-          // For agents, use same data source as summary cards for consistency
-          (() => {
-            const shortlistTotal = (apiData2?.total_shortlisted_count || 0);
-            console.log('Chart Shortlists Value (using apiData2):', { total: shortlistTotal });
-            return shortlistTotal;
-          })(),
-          // For agents, use same data source as summary cards for consistency
-          (() => {
-            const blockedTotal = (apiData?.blocked_count || 0);
-            console.log('Chart Blocked Value (using apiData):', { blocked: blockedTotal });
-            return blockedTotal;
-          })()
+          // Use graph API data (apiData5) for filtered results
+          getAgentGraphValue('interests', 0),
+          getAgentGraphValue('requests', 0),
+          getAgentGraphValue('interactions', 0),
+          getAgentGraphValue('shortlists', 0),
+          getAgentGraphValue('blocked', 0)
         ] : [
-          // For regular users, use individual counts
-          apiData1?.total_interest_count || 0,
-          apiData1?.interest_sent || 0,
-          apiData1?.interest_received || 0,
-          apiData2?.total_shortlisted_count || 0,
-          apiData?.total_request_count || 0,
-          apiData?.sent_request_accepted || 0
+          // For regular users, use graph API data for filtered results
+          apiData5?.total_interest || apiData1?.total_interest_count || 0,
+          apiData5?.total_requests || apiData?.total_request_count || 0,
+          apiData5?.total_interactions || (apiData1?.interest_sent || 0) + (apiData1?.interest_received || 0),
+          apiData5?.total_shortlisted || apiData2?.total_shortlisted_count || 0,
+          apiData5?.total_blocked || apiData?.blocked_count || 0
         ],
         borderColor: "#4318FF",
         backgroundColor: "rgba(67, 24, 255, 0.1)",
@@ -927,13 +917,13 @@ const UserDashboard = () => {
                     console.log("User profile image loaded successfully");
                   }}
                 />
-                {role === "agent" && (
+                {/* {role === "agent" && (
                   <div className="agent-badge">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="#FD2C79" />
                     </svg>
                   </div>
-                )}
+                )} */}
               </div>
               <div className="user-welcome">
                 <h1 className="dashboard-title">
@@ -1274,7 +1264,7 @@ const UserDashboard = () => {
             <div className="stat-content">
               <div className="stat-info">
                 <div className="dCardHeading">
-                  <h3>{role === "agent" ? "Total Requests" : "Total Request"}</h3>
+                  <h3>{role === "agent" ? "Photo Requests" : "Total Request"}</h3>
                   <svg
                     width="58"
                     height="52"

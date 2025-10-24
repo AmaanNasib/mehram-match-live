@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
  gap:10px;
- overflow:hidden;
+ overflow:visible;
 }
 
 /* Header Styles */
@@ -275,7 +275,7 @@
 
 /* Sidebar Styles */
 .dashboard-content {
-  height: 100vh;
+  height: auto;
   display: flex;
   justify-content: space-between;
   gap:10px;
@@ -283,7 +283,7 @@
 
 .dashboard-sidebar {
   background: white;
-  height: 100%;
+  height: auto;
   padding: 12px 24px;
   border-right: 1px solid #e0e0e0;
   display: flex;
@@ -314,6 +314,20 @@
   font-size: 15px;
   font-weight: 500;
   text-align: left;
+}
+
+/* Hide scrollbar for navigation */
+nav {
+  overflow-y: hidden;
+}
+
+nav::-webkit-scrollbar {
+  display: none;
+}
+
+nav {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
 .pagetext {

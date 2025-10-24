@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import MemberCard from "./MemberCard";
+import MembersTable from "./MembersTable";
 import {
   AiOutlineFilter,
   AiOutlineRedo,
@@ -17,6 +20,7 @@ import { format } from "date-fns";
 import { HiOutlineDotsHorizontal  } from "react-icons/hi";
 
 // Age is handled by the backend age field
+
 
 // Match Details Modal Component
 const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
@@ -425,8 +429,8 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
             border-radius: 20px;
             max-width: 800px;
             width: 100%;
-            max-height: 90vh;
-            overflow: hidden;
+            max-height: none;
+            overflow: visible;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
             animation: modalSlideIn 0.3s ease-out;
           }
@@ -548,8 +552,8 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
 
           .modal-content {
             padding: 24px;
-            max-height: 60vh;
-            overflow-y: auto;
+            max-height: none;
+            overflow: visible;
           }
 
           .section-title {
@@ -720,7 +724,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
           @media (max-width: 768px) {
             .match-details-modal {
               margin: 10px;
-              max-height: 95vh;
+              max-height: none;
             }
 
             .modal-header {
@@ -1407,6 +1411,79 @@ const MyMembers = () => {
       },
     });
   };
+
+  // Remove member function - now shows modal instead of window.confirm
+  const _confirmRemove = (member) => {
+    if (!member || !member.id) {
+      console.error('Invalid member data for removal');
+      return;
+    }
+
+    // Set the member to delete and show the modal
+    setMemberToDelete(member);
+    setShowDeleteModal(true);
+  };
+
+  // Actual delete function that gets called from the modal
+  const handleDeleteConfirm = async () => {
+    if (!memberToDelete || !memberToDelete.id) {
+      console.error('Invalid member data for removal');
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      console.log('Removing member:', memberToDelete.id);
+      
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/user/${memberToDelete.id}/remove/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('Member removed successfully:', data);
+        
+        // Show success message
+        alert(`Member ${memberToDelete.name || memberToDelete.first_name || 'Unknown Member'} has been removed successfully!`);
+        
+        // Close the modal
+        setShowDeleteModal(false);
+        setMemberToDelete(null);
+        
+        // Refresh the members list
+        const parameter = {
+          url: `/api/agent/user_agent/?agent_id=${userId}`,
+          setterFunction: setApiData,
+          setLoading: setLoading,
+          setErrors: setErrors,
+        };
+        fetchDataObjectV2(parameter);
+        
+      } else {
+        console.error('Failed to remove member:', data);
+        alert(`Failed to remove member: ${data.error || 'Unknown error'}`);
+      }
+      
+    } catch (error) {
+      console.error('Error removing member:', error);
+      alert('Network error occurred while removing member. Please try again.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Function to close delete modal
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setMemberToDelete(null);
+    setIsDeleting(false);
+  };
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value.toLowerCase());
   };
@@ -1692,11 +1769,14 @@ const MyMembers = () => {
         }
         return 0;
       } else {
-        // Sorting by user field
-        if (a?.[sortConfig?.key] < b?.[sortConfig?.key]) {
+        // Sorting by user field with proper case-insensitive comparison
+        const aValue = a?.[sortConfig?.key]?.toString().toLowerCase() || '';
+        const bValue = b?.[sortConfig?.key]?.toString().toLowerCase() || '';
+        
+        if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
-        if (a?.[sortConfig?.key] > b?.[sortConfig?.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === "asc" ? 1 : -1;
         }
         return 0;
@@ -1789,6 +1869,11 @@ useEffect(() => {
   // Match details modal state
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  
+  // Delete confirmation modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Current user data for match analysis
   const [currentUser, setCurrentUser] = useState({
@@ -2248,477 +2333,28 @@ useEffect(() => {
             viewMode === 'cards' ? (
             <div className="members-cards-container">
               <div className="cards-grid">
-              {currentItems.map((member) => {
-                // console.log("Rendering member:", member);
-                // console.log("Member member_id:", member?.member_id);
-                // console.log("Member id:", member?.id);
-                // Age is now handled by the backend age field
-                return (
-                  <div
+                {currentItems.map((member) => (
+                  <MemberCard
                     key={member.id}
-                    className="member-card"
-                    onClick={() => navigate(`/details/${member?.id}`)}
-                  >
-                    {/* Card Header */}
-                    <div className="card-header">
-                      <div className="member-id-section">
-                        <span className="id-badge">{member?.member_id || "N/A"}</span>
-                        {member?.notifications > 0 && (
-                          <span className="notification-indicator">
-                            {member.notifications}
-                          </span>
-                          
-                        )}
-                      </div>
-                      <div className="notifications-info">
-                        <span className="notifications-icon">🔔</span>
-                        <span className="notifications-text">
-                          {member?.notifications > 0 
-                            ? `${member.notifications} notification${member.notifications > 1 ? 's' : ''}`
-                            : "No notifications"
-                          }
-                        </span>
-                      </div>
-                      
-                    </div>
-
-                    {/* Member Profile Section */}
-                    <div className="card-profile-section">
-                      <div className="profile-avatar-large">
-                        <img
-                          src={(() => {
-                            // Check multiple possible field names for profile photo
-                            const photoUrl = member?.profile_photo?.upload_photo || 
-                                            member?.user_profilephoto?.upload_photo ||
-                                            member?.profile_image ||
-                                            member?.avatar ||
-                                            member?.photo ||
-                                            member?.image ||
-                                            member?.user_profilephoto?.photo ||
-                                            member?.user_profilephoto?.image;
-                            
-                            const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
-                            
-                            if (fullUrl) {
-                              return fullUrl;
-                            } else {
-                              return member?.gender === "male"
-                                ? "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo="
-                                : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFQzQ4OTkiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
-                            }
-                          })()}
-                          alt={member?.name || "Member"}
-                          className="avatar-large-img"
-                          onError={(e) => {
-                            e.target.src = member?.gender === "male"
-                              ? "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo="
-                              : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFQzQ4OTkiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
-                          }}
-                        />
-                      </div>
-                      <div className="profile-info-large">
-                        <h3 className="member-name-large">{member?.name || "N/A"}</h3>
-                        <p className="member-email-large">{member?.email || ""}</p>
-                      </div>
-                    </div>
-
-                    {/* Member Details Grid */}
-                    <div className="card-details-grid">
-                      <div className="detail-item">
-                        <span className="detail-label">Age</span>
-                        <span className="detail-value">
-                          {member?.age || "N/A"}
-                        </span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Gender</span>
-                        <span className="detail-value">{member?.gender || "N/A"}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Location</span>
-                        <span className="detail-value">{member?.location || member?.city || "N/A"}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Sect</span>
-                        <span className="detail-value">{member?.sect || member?.sect_school_info || "N/A"}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Profession</span>
-                        <span className="detail-value">{member?.profession || "N/A"}</span>
-                      </div>
-                      <div className="detail-item marital-status-item">
-                        <span className="detail-label">Marital Status</span>
-                        <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                          {member?.martial_status || "Not mentioned"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Card Footer */}
-                    <div className="card-footer">
-                      <div className="card-action-buttons" style={{ justifyContent: 'flex-end' }}>
-                        <button
-                          className="card-action-btn view-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/details/${member?.id}`);
-                          }}
-                          title="View Profile"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                          </svg>
-                        </button>
-                        
-                        <button
-                          className="card-action-btn edit-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/memstepone`, { state: { editMode: true, memberId: member.id } });
-                          }}
-                          title="Edit Profile"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        
-                        <button
-                          className="card-action-btn match-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/member-matches/${member.member_id}`);
-                          }}
-                          title="View Match Details"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M9 12l2 2 4-4"/>
-                            <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
-                            <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
-                            <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"/>
-                            <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"/>
-                          </svg>
-                        </button>
-                        
-                        <button
-                          className="card-action-btn delete-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Add delete functionality
-                          }}
-                          title="Delete Profile"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    member={member}
+                    onDelete={_confirmRemove}
+                    onEdit={(member) => navigate(`/memstepone`, { state: { editMode: true, memberId: member.id } })}
+                    onViewMatches={(member) => navigate(`/member-matches/${member.member_id}`)}
+                    onViewProfile={(memberId) => navigate(`/details/${memberId}`)}
+                  />
+                ))}
               </div>
             </div>
           ) : (
             /* Table View */
-            <div className="members-table-container">
-              <div className="table-wrapper">
-                <table className="members-table">
-                  <thead>
-                    <tr>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('member_id')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Member ID
-                        {sortConfig.key === 'member_id' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th>Photo</th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('name')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Name
-                        {sortConfig.key === 'name' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('age')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Age
-                        {sortConfig.key === 'age' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('gender')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Gender
-                        {sortConfig.key === 'gender' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('city')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Location
-                        {sortConfig.key === 'city' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('sect_school_info')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Sect
-                        {sortConfig.key === 'sect_school_info' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('profession')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Profession
-                        {sortConfig.key === 'profession' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th 
-                        className="sortable-header" 
-                        onClick={() => handleSort('martial_status')}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        Martial Status
-                        {sortConfig.key === 'martial_status' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentItems.map((member) => (
-                      <tr key={member.id} className="table-row">
-                        <td>
-                          <span className="member-id-badge">{member?.member_id || "N/A"}</span>
-                        </td>
-                        <td>
-                          <div className="member-photo-cell">
-                            <div className="member-avatar">
-                              <img
-                                src={(() => {
-                                  // Check multiple possible field names for profile photo
-                                  const photoUrl = member?.profile_photo?.upload_photo || 
-                                                  member?.user_profilephoto?.upload_photo ||
-                                                  member?.profile_image ||
-                                                  member?.avatar ||
-                                                  member?.photo ||
-                                                  member?.image ||
-                                                  member?.user_profilephoto?.photo ||
-                                                  member?.user_profilephoto?.image;
-                                  
-                                  const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
-                                  
-                                  console.log(`Member ${member?.name} - All photo fields:`, {
-                                    'profile_photo.upload_photo': member?.profile_photo?.upload_photo,
-                                    'user_profilephoto.upload_photo': member?.user_profilephoto?.upload_photo,
-                                    profile_image: member?.profile_image,
-                                    avatar: member?.avatar,
-                                    photo: member?.photo,
-                                    image: member?.image
-                                  });
-                                  console.log(`Member ${member?.name} - Selected Photo URL:`, photoUrl);
-                                  console.log(`Member ${member?.name} - Full URL:`, fullUrl);
-                                  console.log(`Member ${member?.name} - API URL:`, process.env.REACT_APP_API_URL);
-                                  
-                                  if (fullUrl) {
-                                    return fullUrl;
-                                  } else {
-                                    return member?.gender === "male"
-                                      ? "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo="
-                                      : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFQzQ4OTkiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
-                                  }
-                                })()}
-                                alt={member?.name || "Member"}
-                                className="avatar-img"
-                                onError={(e) => {
-                                  e.target.src = member?.gender === "male"
-                                    ? "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo="
-                                    : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNFQzQ4OTkiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="member-name-cell">
-                            <div className="member-info">
-                              <span className="member-name">{member?.name || "N/A"}</span>
-                              <span className="member-email">{member?.email || ""}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{member?.age || "N/A"}</td>
-                        <td>{member?.gender || "N/A"}</td>
-                        <td>{member?.location || member?.city || "N/A"}</td>
-                        <td>{member?.sect || member?.sect_school_info || "N/A"}</td>
-                        <td>{member?.profession || "N/A"}</td>
-                        <td>
-                          <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                            {member?.martial_status || "Not mentioned"}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="table-actions" style={{ 
-                            display: "flex", 
-                            gap: "8px", 
-                            alignItems: "center", 
-                            flexWrap: "nowrap", 
-                            justifyContent: "center",
-                            minWidth: "120px",
-                            padding: "4px"
-                          }}>
-                            <button
-                              className="action-btn view-btn modern-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log("View button clicked for member:", member?.id);
-                                navigate(`/details/${member?.id}`);
-                              }}
-                              title="View Profile"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                              </svg>
-                            </button>
-                            
-                            <button
-                              className="action-btn edit-btn modern-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/memstepone`, { state: { editMode: true, memberId: member.id } });
-                              }}
-                              title="Edit Profile"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                              </svg>
-                            </button>
-                            
-                            <button
-                              className="action-btn match-btn modern-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedMember(member);
-                                setShowMatchModal(true);
-                              }}
-                              title="View Match Details"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 12l2 2 4-4"/>
-                                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
-                                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
-                                <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"/>
-                                <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"/>
-                              </svg>
-                            </button>
-                            
-                            <button
-                              className="action-btn delete-btn modern-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Add delete functionality
-                              }}
-                              title="Delete Profile"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <polyline points="3,6 5,6 21,6"/>
-                                <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"/>
-                                <line x1="10" y1="11" x2="10" y2="17"/>
-                                <line x1="14" y1="11" x2="14" y2="17"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <MembersTable
+              members={filteredItems}
+              sortConfig={sortConfig}
+              handleSort={handleSort}
+              onConfirmRemove={_confirmRemove}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+            />
           )
           )}
 
@@ -2756,6 +2392,43 @@ useEffect(() => {
 
         <style>
           {`
+          /* Custom Scrollbar Styling */
+          ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+          }
+
+          ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+          }
+
+          ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #CB3B8B 0%, #FF59B6 50%, #F971BC 100%);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+          }
+
+          ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #FF59B6 0%, #EB53A7 50%, #CB3B8B 100%);
+          }
+
+          ::-webkit-scrollbar-corner {
+            background: #f1f1f1;
+          }
+
+          /* Firefox scrollbar */
+          * {
+            scrollbar-width: thin;
+            scrollbar-color: #CB3B8B #f1f1f1;
+          }
+
+          /* Body scrollbar styling */
+          body {
+            overflow-y: auto;
+            overflow-x: hidden;
+          }
+
           /* Total Requests Exact Styling */
           .total-interest-container {
             padding: 20px;
@@ -4103,7 +3776,7 @@ useEffect(() => {
           }
 
           .table-wrapper {
-            overflow-x: auto;
+            overflow: visible;
             border-radius: 16px;
           }
 
@@ -4525,77 +4198,11 @@ useEffect(() => {
             padding: 0;
           }
 
-          .member-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid #f1f3f4;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            font-family: 'Poppins', sans-serif;
-          }
+          /* MemberCard styles are now handled by MemberCard.css */
 
-          .member-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            border-color: #e3f2fd;
-          }
+          /* Notification indicator styles are now handled by MemberCard.css */
 
-          /* Card Header */
-          .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-          }
-
-          .member-id-section {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-
-          .id-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-          }
-
-          .notification-indicator {
-            background: #ff4444;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 16px;
-            text-align: center;
-          }
-
-          .card-action-btn {
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #4a5568;
-            transition: all 0.2s ease;
-          }
-
-          .card-action-btn:hover {
-            background: #f7fafc;
-            border-color: #cbd5e0;
-          }
+          /* Card action button styles are now handled by MemberCard.css */
 
           .card-action-menu {
             position: absolute;
@@ -4922,6 +4529,15 @@ useEffect(() => {
         }}
         member={selectedMember}
         currentUser={currentUser}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        member={memberToDelete}
+        isDeleting={isDeleting}
       />
     </>
   );
