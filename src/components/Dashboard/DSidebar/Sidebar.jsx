@@ -39,6 +39,11 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
   ]);
   const [stateOptions, setStateOptions] = useState([]);
   const [cityOptions, setCityOptions] = useState([]);
+  const [genderOptions, setGenderOptions] = useState([
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+  ]);
+  
   const [professionOptions, setProfessionOptions] = useState([
     { value: "Accountant", label: "Accountant" },
     { value: "Acting Professional", label: "Acting Professional" },
@@ -188,7 +193,8 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
     profession: '',
     country: '',
     state: '',
-    city: '', 
+    city: '',
+    gender: '', // Gender filter for agents
   });
 
   // Check if any filter is applied
@@ -212,7 +218,8 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
       profession: '',
       country: '',
       state: '',
-      city: '', 
+      city: '',
+      gender: '',
     });
     setRangeText('18-23');
     setStateOptions([]);
@@ -541,10 +548,21 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
 
   // Build marital options based on gender (similar to MemStepOne)
   const computeMaritalOptions = (gender) => {
+    // For agents, show all marital status options regardless of gender
+    if (role === 'agent') {
+      return [
+        { value: 'Single', label: 'Single' },
+        { value: 'Married', label: 'Married' },
+        { value: 'Divorced', label: 'Divorced' },
+        { value: 'Khula', label: 'Khula' },
+        { value: 'Widowed', label: 'Widowed' },
+      ];
+    }
+    
     const base = [
       { value: 'Single', label: 'Single' },
       { value: 'Divorced', label: 'Divorced' },
-      { value: 'KhulaA', label: 'Khula' },
+      { value: 'Khula', label: 'Khula' },
       { value: 'Widowed', label: 'Widowed' },
     ];
     
@@ -652,48 +670,89 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
       country: formData.country,
       state: formData.state,
       city: formData.city,
+      gender: formData.gender,
       age_min: parseInt(rangeText?.split("-")?.[0]),
       age_max: parseInt(rangeText?.split("-")?.[1]),
       user_id: userId
     });
     
-    // Universal search that works across all sections
-    const parameter = {
-      url: "/api/user/filter/",
-      payload: {
-        // key mapping for backend expectations
-        // Trim member ID for word-by-word search
-        member_id: formData.memberID?.trim() || undefined,
-        search_mode: formData.memberID ? 'partial' : undefined, // Enable partial match for member ID search
-        martial_status: formData.maritalStatus || undefined,
-        sect_school_info: formData.sect || undefined,
-        profession: formData.profession || undefined,
-        country: formData.country || undefined,
-        state: formData.state || undefined,
-        city: formData.city || undefined,
-        // remove FE-only keys
-        memberID: undefined,
-        maritalStatus: undefined,
-        sect: undefined,
-        age_min: parseInt(rangeText?.split("-")?.[0]),  
-        age_max: parseInt(rangeText?.split("-")?.[1]),  
-        user_id: userId,
-        // Add section-specific filtering
-        include_trending: true,
-        include_recommended: true,
-        include_all_profiles: true
-      },
-      setUserId: (data) => {
-        console.log('Filter API response:', data);
-        console.log('Data type:', typeof data, 'Is array:', Array.isArray(data));
-        console.log('Data length:', Array.isArray(data) ? data.length : 'Not an array');
-        setApiData(data);
-      },
-      setErrors: setErrors,
-    };
-    
-    // Universal search across all sections
-    postDataReturnResponse(parameter);
+    // For agents, use /api/agent/user_list/ with gender filter
+    if (role === 'agent') {
+      const params = new URLSearchParams();
+      if (formData.gender) params.append('gender', formData.gender);
+      if (formData.maritalStatus) params.append('martial_status', formData.maritalStatus);
+      if (formData.sect) params.append('sect_school_info', formData.sect);
+      if (formData.profession) params.append('profession', formData.profession);
+      if (formData.city) params.append('city', formData.city);
+      if (formData.state) params.append('state', formData.state);
+      if (formData.country) params.append('country', formData.country);
+      
+      // Add age filters
+      const ageMin = rangeText ? parseInt(rangeText?.split("-")?.[0]) : null;
+      const ageMax = rangeText ? parseInt(rangeText?.split("-")?.[1]) : null;
+      console.log('Agent filter - age range:', { ageMin, ageMax, rangeText });
+      if (ageMin && !isNaN(ageMin)) params.append('age_min', ageMin);
+      if (ageMax && !isNaN(ageMax)) params.append('age_max', ageMax);
+      
+      console.log('Agent filter URL:', `/api/agent/user_list/${params.toString() ? '?' + params.toString() : ''}`);
+      
+      const parameter = {
+        url: `/api/agent/user_list/${params.toString() ? '?' + params.toString() : ''}`,
+        setterFunction: (data) => {
+          console.log('=== AGENT FILTER API RESPONSE ===');
+          console.log('Agent filter API response:', data);
+          console.log('Data type:', typeof data);
+          console.log('Is array:', Array.isArray(data));
+          console.log('Data length:', Array.isArray(data) ? data.length : 'Not an array');
+          console.log('First item:', data?.[0]);
+          console.log('Calling setApiData with data');
+          setApiData(data);
+        },
+        setLoading: setLoading,
+        setErrors: setErrors,
+      };
+      
+      console.log('Calling fetchDataObjectV2 with parameter:', parameter);
+      fetchDataObjectV2(parameter);
+    } else {
+      // For regular users, use /api/user/filter/
+      const parameter = {
+        url: "/api/user/filter/",
+        payload: {
+          // key mapping for backend expectations
+          // Trim member ID for word-by-word search
+          member_id: formData.memberID?.trim() || undefined,
+          search_mode: formData.memberID ? 'partial' : undefined, // Enable partial match for member ID search
+          martial_status: formData.maritalStatus || undefined,
+          sect_school_info: formData.sect || undefined,
+          profession: formData.profession || undefined,
+          country: formData.country || undefined,
+          state: formData.state || undefined,
+          city: formData.city || undefined,
+          // remove FE-only keys
+          memberID: undefined,
+          maritalStatus: undefined,
+          sect: undefined,
+          age_min: parseInt(rangeText?.split("-")?.[0]),  
+          age_max: parseInt(rangeText?.split("-")?.[1]),  
+          user_id: userId,
+          // Add section-specific filtering
+          include_trending: true,
+          include_recommended: true,
+          include_all_profiles: true
+        },
+        setUserId: (data) => {
+          console.log('Filter API response:', data);
+          console.log('Data type:', typeof data, 'Is array:', Array.isArray(data));
+          console.log('Data length:', Array.isArray(data) ? data.length : 'Not an array');
+          setApiData(data);
+        },
+        setErrors: setErrors,
+      };
+      
+      // Universal search across all sections
+      postDataReturnResponse(parameter);
+    }
     
     // Reset searching state after a delay
     setTimeout(() => {
@@ -782,6 +841,29 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
                 className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium"
               />
             </div>
+
+            {/* Gender (Only for Agents) */}
+            {role === 'agent' && (
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-[#CB3B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Gender
+                </label>
+                <select 
+                  name="gender" 
+                  value={formData.gender} 
+                  onChange={handleChange}
+                  className="w-full h-12 px-4 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF59B6] focus:border-transparent transition-all duration-200 text-sm font-medium appearance-none bg-white cursor-pointer"
+                >
+                  <option value="">All</option>
+                  {genderOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Marital Status */}
             <div className="space-y-2">

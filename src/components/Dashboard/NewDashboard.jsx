@@ -158,10 +158,17 @@ const NewDashboard = () => {
       // Simply pass all filtered results to "Browse All Profiles" section
       rawList.forEach((item) => {
         console.log('Adding filtered result:', item);
+        console.log('Item keys:', Object.keys(item));
         console.log('Item user:', item?.user);
-        console.log('User profile_completed:', item?.user?.profile_completed);
-        // Use the item as-is (it already has the correct structure from API)
-        inAll.push(item);
+        console.log('Item has user property:', !!item?.user);
+        console.log('Item age:', item?.age || item?.user?.age);
+        console.log('User profile_completed:', item?.user?.profile_completed || item?.profile_completed);
+        
+        // Normalize the item structure to ensure it has consistent format
+        // Agent API returns direct user objects, while user filter API returns wrapped objects
+        const normalizedItem = item?.user ? item : { user: item };
+        
+        inAll.push(normalizedItem);
       });
 
       console.log('Results - trending:', inTrending.length, 'recommended:', inRecommended.length, 'all:', inAll.length);

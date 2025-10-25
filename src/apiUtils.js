@@ -1667,9 +1667,10 @@ const fetchDataObjectV2 = (parameter) => {
       },
     })
     .then((response) => {
-      // Check if response.data is an object
-      if (typeof response.data === "object" && !Array.isArray(response.data)) {
-        parameter?.setterFunction(response.data); // Directly set the object
+      // Check if response.data is an object or array
+      if (typeof response.data === "object") {
+        // Handle both objects and arrays
+        parameter?.setterFunction(response.data);
       } else {
         parameter?.setErrors("Unexpected response data format.");
       }
