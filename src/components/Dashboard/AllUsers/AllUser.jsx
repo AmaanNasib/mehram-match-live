@@ -4,7 +4,7 @@ import MobileProfileCard from '../dashboardCard/MobileProfileCard';
 import './alluser.css';
 import { useNavigate } from 'react-router-dom';
 
-const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) => {
+const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url, filterActive }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -71,6 +71,11 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url }) =>
                 // If profile is not completed, don't show it
                 if (!isProfileCompleted) {
                   return false;
+                }
+                
+                // When filter is active, bypass gender filtering to show all filtered results
+                if (filterActive) {
+                  return true; // Show all filtered results regardless of gender
                 }
                 
                 // For agents, show all completed profiles (both male and female)

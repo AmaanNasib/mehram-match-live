@@ -128,8 +128,14 @@ const NewDashboard = () => {
 
   // When filters are applied from Sidebar, partition results into sections
   const handleFilterResults = (results) => {
+    console.log('=== handleFilterResults called ===');
+    console.log('Results:', results);
+    console.log('Results type:', typeof results);
+    console.log('Is array:', Array.isArray(results));
+    
     // If results is null, it means clear filters - reset to baseline data
     if (results === null) {
+      console.log('Clearing filters, resetting to baseline data');
       setDisplayTrending(apiData);
       setDisplayRecommended(apiRecommend);
       setDisplayAll(userDetail);
@@ -139,49 +145,45 @@ const NewDashboard = () => {
     }
 
     const rawList = Array.isArray(results) ? results : [];
+    console.log('Raw list length:', rawList.length);
+    console.log('Raw list sample:', rawList[0]);
 
-    // Helpers: normalize user object and get id from any shape
-    const normalize = (item) => (item && item.user ? item.user : item);
-    const getId = (item) => normalize(item)?.id;
+    try {
+      // Directly use the filtered results as-is from API
+      // No need to normalize or categorize - just show them in "Browse All Profiles"
+      const inTrending = [];
+      const inRecommended = [];
+      const inAll = [];
 
-    const list = rawList.map(normalize).filter(Boolean);
+      // Simply pass all filtered results to "Browse All Profiles" section
+      rawList.forEach((item) => {
+        console.log('Adding filtered result:', item);
+        console.log('Item user:', item?.user);
+        console.log('User profile_completed:', item?.user?.profile_completed);
+        // Use the item as-is (it already has the correct structure from API)
+        inAll.push(item);
+      });
 
-    // Build baseline maps id -> baselineItem (keep original shape used by sections)
-    const trendingMap = new Map();
-    apiData.forEach((base) => {
-      const id = getId(base);
-      if (id != null) trendingMap.set(id, base);
-    });
-    const recommendedMap = new Map();
-    apiRecommend.forEach((base) => {
-      const id = getId(base);
-      if (id != null) recommendedMap.set(id, base);
-    });
+      console.log('Results - trending:', inTrending.length, 'recommended:', inRecommended.length, 'all:', inAll.length);
+      console.log('Filtered results count:', inAll.length);
+      console.log('Setting filterActive to: true');
+      console.log('Setting displayAll to:', inAll);
 
-    const inTrending = [];
-    const inRecommended = [];
-    const inAll = [];
+      console.log('About to set states...');
+      
+      setDisplayTrending(inTrending);
+      setDisplayRecommended(inRecommended);
+      setDisplayAll(inAll);
 
-    list.forEach((user) => {
-      const id = user?.id;
-      if (id == null) return;
-      if (trendingMap.has(id)) {
-        // Use baseline item (preserves props like profile_photo expected by cards)
-        inTrending.push(trendingMap.get(id));
-      } else if (recommendedMap.has(id)) {
-        inRecommended.push(recommendedMap.get(id));
-      } else {
-        // All section expects plain user object
-        inAll.push(user);
-      }
-    });
-
-    setDisplayTrending(inTrending);
-    setDisplayRecommended(inRecommended);
-    setDisplayAll(inAll);
-
-    setFilterActive(true);
-    setNoResults(list.length === 0);
+      setFilterActive(true);
+      setNoResults(inAll.length === 0);
+      
+      console.log('States set. filterActive will be:', true, 'displayAll will be:', inAll);
+    } catch (error) {
+      console.error('Error in handleFilterResults:', error);
+      setFilterActive(false);
+      setNoResults(true);
+    }
   };
 
   const [isOpenWindow, setIsModalOpen] = useState(false);
@@ -690,16 +692,32 @@ useEffect(() => {
                       scrollbarWidth: 'thin',
                       scrollbarColor: '#FF59B6 #f1f1f1'
                     }}>
+                      {console.log('=== RENDERING BROWSE ALL PROFILES ===')}
+                      {console.log('displayAll:', displayAll)}
+                      {console.log('displayAll.length:', displayAll?.length)}
+                      {console.log('filterActive:', filterActive)}
                       {displayAll && displayAll.length > 0 ? (
                         displayAll.filter(profile => {
+                          console.log('Filtering profile:', profile);
+                          
+                          // When filter is active, bypass all checks and show the filtered results as-is
+                          if (filterActive) {
+                            console.log('Filter active, showing profile regardless of completion or gender');
+                            return true; // Show all filtered results regardless of completion status or gender
+                          }
+                          
                           // Check if profile is completed - only show completed profiles
                           const user = profile && profile.user ? profile.user : profile;
                           const isProfileCompleted = user?.profile_completed === true;
+                          console.log('Profile completed:', isProfileCompleted);
                           
                           // If profile is not completed, don't show it
                           if (!isProfileCompleted) {
+                            console.log('Profile not completed, skipping');
                             return false;
                           }
+                          
+                          console.log('Filter not active, applying gender filter');
                           
                           // For agents, show all completed profiles (both male and female)
                           const currentRole = localStorage.getItem('role');
