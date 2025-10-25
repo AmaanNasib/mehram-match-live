@@ -29,6 +29,39 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
   const matchData = getBackendMatchData(member);
 
+  // Determine which sections to show based on backend API response
+  const hasFieldByFieldData = () => {
+    // Check if we have basic field comparison data (age, location, sect, etc.)
+    return currentMember && member && (
+      (currentMember.age && member.age) ||
+      (currentMember.city && member.city) ||
+      (currentMember.sect_school_info && member.sect_school_info) ||
+      (currentMember.profession && member.profession) ||
+      (currentMember.martial_status && member.martial_status)
+    );
+  };
+
+  const hasProfessionalMatchBreakdown = () => {
+    // Check if backend has professional match breakdown data AND user has filled preferences
+    if (!member.match_breakdown || !member.match_breakdown.field_matches) {
+      return false;
+    }
+    
+    // Check if user has actually filled any preferences (not empty arrays)
+    const fieldMatches = member.match_breakdown.field_matches;
+    const hasUserPreferences = Object.values(fieldMatches).some(field => 
+      field.user1_preferences && 
+      Array.isArray(field.user1_preferences) && 
+      field.user1_preferences.length > 0
+    );
+    
+    return hasUserPreferences;
+  };
+
+  // Backend API response based logic
+  const shouldShowFieldByField = hasFieldByFieldData() && !hasProfessionalMatchBreakdown();
+  const shouldShowProfessionalBreakdown = hasProfessionalMatchBreakdown();
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'excellent': return '#10B981';
@@ -154,7 +187,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
               {/* Center Column - Match Status & Matching Values */}
               <div className="column-center">
                 <div className="match-status-container">
-                  <div className="match-status-header">Match Status</div>
+                  <div className="match-status-header">Compatibility</div>
                   <div className={`match-badge ${isMatched ? 'match-true' : 'match-false'}`}>
                     {isMatched ? '✓ TRUE' : '✗ FALSE'}
                   </div>
@@ -324,13 +357,14 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             </div>
           </div>
 
-          {/* Field-by-Field Comparison */}
-          <div className="field-comparison-section">
-            <h4 className="section-title">Field-by-Field Comparison</h4>
+          {/* Field-by-Field Comparison - Only show if no professional breakdown */}
+          {shouldShowFieldByField && (
+            <div className="field-comparison-section">
+              <h4 className="section-title">Field-by-Field Comparison</h4>
             <div className="comparison-table">
               <div className="comparison-header-row">
                 <div className="header-cell user-header-cell">Current User</div>
-                <div className="header-cell match-header-cell">Match Status</div>
+                <div className="header-cell match-header-cell">Compatibility Status</div>
                 <div className="header-cell user-header-cell">Matched User</div>
               </div>
 
@@ -356,7 +390,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                       <div className="comparison-cell match-cell">
                         {haveValues ? (
                           <span className={`match-badge ${isEqual ? 'match' : 'no-match'}`}>
-                            {isEqual ? '✓ MATCH' : '✗ NO MATCH'}
+                            {isEqual ? '✓' : '✗'}
                           </span>
                         ) : (
                           <span className="match-badge unknown">? UNKNOWN</span>
@@ -383,19 +417,11 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   {(() => {
                     const ageMatch = member?.match_details?.age_match;
                     if (ageMatch === true) {
-                      return <span className="match-badge match">✓ MATCH</span>;
+                      return <span className="match-badge match">✓</span>;
                     }
                     if (ageMatch === false) {
-                      return <span className="match-badge no-match">✗ NO MATCH</span>;
+                      return <span className="match-badge no-match">✗</span>;
                     }
-                    // if (currentMember?.age && member?.age) {
-                    //   // Fallback if backend flag missing
-                    //   return (
-                    //     <span className={`match-badge ${Math.abs(currentMember.age - member.age) <= 2 ? 'match' : 'no-match'}`}>
-                    //       {Math.abs(currentMember.age - member.age) <= 2 ? '✓ MATCH' : '✗ NO MATCH'}
-                    //     </span>
-                    //   );
-                    // }
                     return <span className="match-badge unknown">? UNKNOWN</span>;
                   })()}
                 </div>
@@ -414,7 +440,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 <div className="comparison-cell match-cell">
                   {currentMember?.city && member?.city ? (
                     <span className={`match-badge ${currentMember.city.toLowerCase() === member.city.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.city.toLowerCase() === member.city.toLowerCase() ? '✓ MATCH' : '✗ NO MATCH'}
+                      {currentMember.city.toLowerCase() === member.city.toLowerCase() ? '✓' : '✗'}
                     </span>
                   ) : (
                     <span className="match-badge unknown">? UNKNOWN</span>
@@ -435,7 +461,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 <div className="comparison-cell match-cell">
                   {currentMember?.sect_school_info && member?.sect_school_info ? (
                     <span className={`match-badge ${currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? '✓ MATCH' : '✗ NO MATCH'}
+                      {currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? '✓' : '✗'}
                     </span>
                   ) : (
                     <span className="match-badge unknown">? UNKNOWN</span>
@@ -456,7 +482,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 <div className="comparison-cell match-cell">
                   {currentMember?.profession && member?.profession ? (
                     <span className={`match-badge ${currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? '✓ MATCH' : '✗ NO MATCH'}
+                      {currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? '✓' : '✗'}
                     </span>
                   ) : (
                     <span className="match-badge unknown">? UNKNOWN</span>
@@ -477,7 +503,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 <div className="comparison-cell match-cell">
                   {currentMember?.martial_status && member?.martial_status ? (
                     <span className={`match-badge ${currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? '✓ MATCH' : '✗ NO MATCH'}
+                      {currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? '✓' : '✗'}
                     </span>
                   ) : (
                     <span className="match-badge unknown">? UNKNOWN</span>
@@ -490,73 +516,19 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
               </div>
             </div>
           </div>
+          )}
 
-          {/* Professional Match Analysis Section */}
-          {member.match_breakdown || member.compatibility_details ? (
+          {/* Professional Match Analysis Section - Only show if professional breakdown exists */}
+          {shouldShowProfessionalBreakdown && (
             <div className="professional-analysis-section">
-              {/* <div className="analysis-section-header">
-                <div className="header-main">
-                  <div className="header-icon-container">
-                    <span className="header-icon">📊</span>
-                  </div>
-                  <div className="header-content">
-                    <h4 className="section-title">Professional Match Analysis</h4>
-                    <p className="section-subtitle">Detailed compatibility assessment across all preference categories</p>
-                  </div>
-                </div>
-                <div className="header-actions">
-                  <div className="analysis-badge">
-                    <span className="badge-icon">🎯</span>
-                    <span className="badge-text">AI Powered</span>
-                  </div>
-                </div>
-              </div> */}
-              
-              {/* Comparison Header */}
-              {/* <div className="comparison-header-info">
-                <div className="header-description">
-                  Comprehensive field-by-field analysis showing detailed compatibility between your preferences and their profile
-                </div>
-                <div className="comparison-legend">
-                  <div className="legend-item">
-                    <div className="legend-color blue"></div>
-                    <span>Your Preferences</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-color green"></div>
-                    <span>Their Preferences</span>
-                  </div>
-                </div>
-              </div> */}
-              
-              {/* Match Statistics Summary */}
-              {/* <div className="match-stats-summary">
-                <div className="stats-grid">
-                  <div className="stat-item">
-                    <div className="stat-number">{matchData.overallScore}%</div>
-                    <div className="stat-label">Overall Match</div>
-                  </div>
-                  <div className="stat-item">
-                    <div className="stat-number">
-                      {member.match_breakdown?.matched_fields || 0}
-                    </div>
-                    <div className="stat-label">Matching Fields</div>
-                  </div>
-                  <div className="stat-item">
-                    <div className="stat-number">
-                      {member.match_breakdown?.total_fields || 0}
-                    </div>
-                    <div className="stat-label">Total Fields</div>
-                  </div>
-                </div>
-              </div> */}
+
 
               {/* Professional Match Breakdown */}
               {member.match_breakdown && (
                 <div className="professional-match-table">
                   <div className="comparison-header-row">
                     <div className="header-cell user-header-cell">Current User</div>
-                    <div className="header-cell match-header-cell">Match Status</div>
+                    <div className="header-cell match-header-cell">Compatibility Status</div>
                     <div className="header-cell user-header-cell">Matched User</div>
                   </div>
                   {(() => {
@@ -620,7 +592,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                           </div>
                           <div className="comparison-cell match-cell">
                             <span className={`match-badge ${isMatched ? 'match' : 'no-match'}`}>
-                              {isMatched ? '✓ MATCH' : '✗ NO MATCH'}
+                              {isMatched ? '✓' : '✗'}
                             </span>
                           </div>
                           <div className="comparison-cell user-cell">
@@ -663,66 +635,8 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 </div>
               )}
               
-              {/* Match Quality */}
-              {/* {member.match_quality && (
-                <div className="api-response-card">
-                  <div className="api-card-header">
-                    <h5 className="api-card-title">
-                      <span className="api-icon">📊</span>
-                      Match Quality
-                    </h5>
-                    <span className="api-badge">API Response</span>
-                  </div>
-                  
-                  <div className="api-content-grid">
-                    {Object.entries(member.match_quality).map(([key, value]) => (
-                      <div key={key} className="api-field-card">
-                        <div className="api-field-header">
-                          <span className="api-field-label">{key.replace(/_/g, ' ').toUpperCase()}</span>
-                          <span className={`api-field-status ${getApiFieldStatus(value)}`}>
-                            {getApiFieldStatus(value)}
-                          </span>
-                        </div>
-                        <div className="api-field-content">
-                          {renderApiFieldValue(value)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )} */}
             </div>
-          ) : null}
-
-          <div className="recommendations-section">
-            <h4 className="section-title">Recommendations</h4>
-            <div className="recommendations-list">
-              {matchData.overallScore >= 80 && (
-                <div className="recommendation-item excellent">
-                  <div className="rec-icon">🌟</div>
-                  <div className="rec-text">
-                    <strong>Excellent Match!</strong> This profile shows high compatibility across multiple areas.
-                  </div>
-                </div>
-              )}
-              {matchData.overallScore >= 60 && matchData.overallScore < 80 && (
-                <div className="recommendation-item good">
-                  <div className="rec-icon">✅</div>
-                  <div className="rec-text">
-                    <strong>Good Match!</strong> This profile has good potential with some areas to explore.
-                  </div>
-                </div>
-              )}
-              {matchData.overallScore < 60 && (
-                <div className="recommendation-item fair">
-                  <div className="rec-icon">⚠️</div>
-                  <div className="rec-text">
-                    <strong>Consider Carefully</strong> This profile may require more discussion about compatibility.
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="modal-footer">
@@ -746,8 +660,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -757,36 +670,25 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
           .match-details-modal {
             background: white;
-            border-radius: 20px;
+            border-radius: 8px;
             max-width: 800px;
             width: 100%;
             max-height: 90vh;
             overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            animation: modalSlideIn 0.3s ease-out;
-          }
-
-          @keyframes modalSlideIn {
-            from {
-              opacity: 0;
-              transform: translateY(-50px) scale(0.95);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e5e7eb;
           }
 
           .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px;
           }
 
           .header-content {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
           }
 
           .member-info-header {
@@ -796,12 +698,11 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .member-avatar-modal {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            border: 2px solid #e5e7eb;
           }
 
           .member-details-header {
@@ -809,17 +710,16 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .member-name-modal {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 600;
             margin: 0 0 4px 0;
-            color: white;
+            color: #1f2937;
           }
 
           .member-id-modal {
             font-size: 14px;
-            opacity: 0.9;
-            margin: 0 0 12px 0;
-            font-family: 'SF Mono', 'Monaco', monospace;
+            color: #6b7280;
+            margin: 0 0 8px 0;
           }
 
           .match-score-header {
@@ -829,20 +729,20 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .score-circle {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: #f3f4f6;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid #e5e7eb;
           }
 
           .score-number {
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
           }
 
           .score-info {
@@ -852,49 +752,46 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
           .score-label {
             font-size: 14px;
-            font-weight: 600;
-            color: white;
+            font-weight: 500;
+            color: #374151;
           }
 
           .score-detail {
             font-size: 12px;
-            opacity: 0.8;
-            color: white;
+            color: #6b7280;
           }
 
           .close-modal-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #6b7280;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background-color 0.2s ease;
           }
 
           .close-modal-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
+            background: #e5e7eb;
           }
 
           .modal-content {
-            padding: 24px;
+            padding: 20px;
             max-height: 60vh;
             overflow-y: auto;
           }
 
           .section-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            color: #000000;
+            color: #1f2937;
             margin: 0 0 16px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
           }
 
           .matches-grid {
@@ -968,22 +865,22 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .recommendations-section {
-            margin-top: 24px;
+            margin: 20px 0;
           }
 
           .recommendations-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
           }
 
           .recommendation-item {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            padding: 16px;
-            border-radius: 12px;
-            border-left: 4px solid;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid;
           }
 
           .recommendation-item.excellent {
@@ -1002,14 +899,14 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .rec-icon {
-            font-size: 20px;
+            font-size: 16px;
             flex-shrink: 0;
           }
 
           .rec-text {
-            font-size: 14px;
+            font-size: 13px;
             color: #374151;
-            line-height: 1.5;
+            line-height: 1.4;
           }
 
           /* API Details Section */
@@ -1157,8 +1054,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
           /* User Comparison Section */
           .user-comparison-section {
-            margin-top: 24px;
-            margin-bottom: 24px;
+            margin: 20px 0;
           }
 
           .comparison-container {
@@ -1167,9 +1063,9 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             gap: 20px;
             align-items: center;
             background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
           }
 
           .user-column {
@@ -1183,26 +1079,25 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .user-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             color: #1f2937;
-            margin: 0 0 12px 0;
+            margin: 0 0 8px 0;
           }
 
           .user-info {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
           }
 
           .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #e5e7eb;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
           }
 
           .user-details {
@@ -1213,15 +1108,14 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .user-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #1f2937;
           }
 
           .user-id {
-            font-size: 12px;
+            font-size: 11px;
             color: #6b7280;
-            font-family: 'SF Mono', 'Monaco', monospace;
           }
 
           .comparison-column {
@@ -1231,7 +1125,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .comparison-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #6b7280;
             margin: 0;
@@ -1241,65 +1135,57 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
           /* Field Comparison Section */
           .field-comparison-section {
-            margin-top: 24px;
-            margin-bottom: 24px;
+            margin: 20px 0;
           }
 
           /* Professional Match Table */
           .professional-match-table {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 6px;
             overflow: hidden;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 24px;
+            border: 1px solid #e5e7eb;
+            margin-top: 16px;
           }
 
           .comparison-table {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 6px;
             overflow: hidden;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
           }
 
           .comparison-header-row {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 1px solid #e5e7eb;
           }
 
           .header-cell {
-            padding: 16px;
-            font-size: 14px;
+            padding: 12px;
+            font-size: 12px;
             font-weight: 600;
-            color: #1f2937;
+            color: #374151;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .user-header-cell {
-            background: #e3f2fd;
-            color: #1565c0;
+            background: #f3f4f6;
+            color: #374151;
           }
 
           .match-header-cell {
-            background: #f3e5f5;
-            color: #7b1fa2;
-            min-width: 150px;
+            background: #f3f4f6;
+            color: #374151;
+            min-width: 120px;
           }
 
           .comparison-row {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             border-bottom: 1px solid #f3f4f6;
-            transition: background-color 0.2s ease;
-          }
-
-          .comparison-row:hover {
-            background: #f8f9fa;
           }
 
           .comparison-row:last-child {
@@ -1307,7 +1193,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .comparison-cell {
-            padding: 16px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1320,12 +1206,12 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
           .match-cell {
             background: #fff;
-            min-width: 150px;
+            min-width: 120px;
             justify-content: center;
           }
 
           .field-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #6b7280;
             text-transform: uppercase;
@@ -1333,40 +1219,35 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .field-value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #1f2937;
             text-align: center;
           }
 
           .match-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: inline-block;
-            border: 2px solid transparent;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
 
           .match-badge.match {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #ffffff;
-            border-color: #047857;
+            background: #d1fae5;
+            color: #065f46;
           }
 
           .match-badge.no-match {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: #ffffff;
-            border-color: #b91c1c;
+            background: #fee2e2;
+            color: #991b1b;
           }
 
           .match-badge.unknown {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-            color: #ffffff;
-            border-color: #374151;
+            background: #f3f4f6;
+            color: #6b7280;
           }
 
           /* API Response Cards */
@@ -1624,42 +1505,42 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           }
 
           .modal-footer {
-            padding: 20px 24px;
+            padding: 16px 20px;
             background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            border-top: 1px solid #e5e7eb;
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 8px;
           }
 
           .action-btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 14px;
+            transition: background-color 0.2s ease;
+            border: 1px solid;
+            font-size: 13px;
           }
 
           .action-btn.secondary {
-            background: #6b7280;
-            color: white;
+            background: #f3f4f6;
+            color: #374151;
+            border-color: #d1d5db;
           }
 
           .action-btn.secondary:hover {
-            background: #4b5563;
-            transform: translateY(-1px);
+            background: #e5e7eb;
           }
 
           .action-btn.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #3b82f6;
             color: white;
+            border-color: #3b82f6;
           }
 
           .action-btn.primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #2563eb;
           }
 
           @media (max-width: 768px) {

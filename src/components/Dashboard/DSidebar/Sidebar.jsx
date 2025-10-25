@@ -193,7 +193,7 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
     profession: '',
     country: '',
     state: '',
-    city: '',
+    city: '', 
     gender: '', // Gender filter for agents
   });
 
@@ -218,7 +218,7 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
       profession: '',
       country: '',
       state: '',
-      city: '',
+      city: '', 
       gender: '',
     });
     setRangeText('18-23');
@@ -716,42 +716,42 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
       fetchDataObjectV2(parameter);
     } else {
       // For regular users, use /api/user/filter/
-      const parameter = {
-        url: "/api/user/filter/",
-        payload: {
-          // key mapping for backend expectations
+    const parameter = {
+      url: "/api/user/filter/",
+      payload: {
+        // key mapping for backend expectations
           // Trim member ID for word-by-word search
           member_id: formData.memberID?.trim() || undefined,
           search_mode: formData.memberID ? 'partial' : undefined, // Enable partial match for member ID search
-          martial_status: formData.maritalStatus || undefined,
-          sect_school_info: formData.sect || undefined,
-          profession: formData.profession || undefined,
-          country: formData.country || undefined,
-          state: formData.state || undefined,
-          city: formData.city || undefined,
-          // remove FE-only keys
-          memberID: undefined,
-          maritalStatus: undefined,
-          sect: undefined,
-          age_min: parseInt(rangeText?.split("-")?.[0]),  
-          age_max: parseInt(rangeText?.split("-")?.[1]),  
-          user_id: userId,
-          // Add section-specific filtering
-          include_trending: true,
-          include_recommended: true,
-          include_all_profiles: true
-        },
+        martial_status: formData.maritalStatus || undefined,
+        sect_school_info: formData.sect || undefined,
+        profession: formData.profession || undefined,
+        country: formData.country || undefined,
+        state: formData.state || undefined,
+        city: formData.city || undefined,
+        // remove FE-only keys
+        memberID: undefined,
+        maritalStatus: undefined,
+        sect: undefined,
+        age_min: parseInt(rangeText?.split("-")?.[0]),  
+        age_max: parseInt(rangeText?.split("-")?.[1]),  
+        user_id: userId,
+        // Add section-specific filtering
+        include_trending: true,
+        include_recommended: true,
+        include_all_profiles: true
+      },
         setUserId: (data) => {
           console.log('Filter API response:', data);
           console.log('Data type:', typeof data, 'Is array:', Array.isArray(data));
           console.log('Data length:', Array.isArray(data) ? data.length : 'Not an array');
           setApiData(data);
         },
-        setErrors: setErrors,
-      };
-      
-      // Universal search across all sections
-      postDataReturnResponse(parameter);
+      setErrors: setErrors,
+    };
+    
+    // Universal search across all sections
+    postDataReturnResponse(parameter);
     }
     
     // Reset searching state after a delay
