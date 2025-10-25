@@ -50,6 +50,7 @@ import MyProfile from "./components/UserDetail/MyProfile";
 import MyInterest from "./components/Dashboard/dashboardCard/MyInterest/Myinterest";
 import MyShortlist from "./components/Dashboard/dashboardCard/MyShortList/MyShortlist";
 import TotalShortlistAgent from "./components/Dashboard/TotalShortlistAgent/TotalShortlistAgent";
+import TotalInteractionAgent from "./components/Dashboard/TotalInteractionAgent/TotalInteractionAgent";
 import ChangePassword from "./components/Dashboard/UserDashboard/ChangePassword.jsx";
 import Landingpage from "./components/Guidance/Landingpage.tsx";
 import BlogPage from "./components/Guidance/Blogpage/BlogPage.tsx";
@@ -269,6 +270,15 @@ const AllRoutes = () => {
             <PrivateRoute>
               {" "}
               <TotalShortlistAgent />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/total-interaction-agent"
+          element={
+            <PrivateRoute>
+              {" "}
+              <TotalInteractionAgent />{" "}
             </PrivateRoute>
           }
         />

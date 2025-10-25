@@ -1303,9 +1303,9 @@ const DashboardLayout = ({
 
               {role === "agent" && (
                 <div
-                  className={`nav-item ${isActive("/member-interactions") ? "active" : ""}`}
+                  className={`nav-item ${isActive("/total-interaction-agent") ? "active" : ""}`}
                   title={!showSidebar ? "Member Interactions" : ""}
-                  onClick={() => navigate("/member-interactions")}
+                  onClick={() => navigate("/total-interaction-agent")}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="nav-item-icon">
