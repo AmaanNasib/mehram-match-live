@@ -1,0 +1,634 @@
+.total-shortlist-agent-container {
+  padding: 24px;
+  width: 100%;
+  margin: 0;
+}
+
+.shortlist-header {
+  margin-bottom: 32px;
+}
+
+.shortlist-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.shortlist-header .subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+
+/* Content States */
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.error-state svg,
+.empty-state svg {
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+.error-state h3,
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.error-state p,
+.empty-state p {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Members Table Styles */
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-top: 20px;
+  table-layout: fixed;
+}
+
+.members-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.members-table th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.members-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+.members-table tbody tr:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.members-table td {
+  padding: 16px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Member ID Badge */
+.member-id-badge {
+  background: linear-gradient(135deg, #CB3B8B 0%, #EB53A7 50%, #F971BC 100%) !important;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Member Photo Cell */
+.member-photo-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Simple Member Name */
+.simple-member-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  display: block;
+}
+
+/* Marital Badge */
+.marital-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.marital-badge.single {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.marital-badge.married {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.marital-badge.divorced {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.marital-badge.widowed {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.marital-badge.not-mentioned {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Table Actions */
+.table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.view-btn,
+.remove-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.view-btn:hover {
+  background: #bfdbfe;
+  color: #2563eb;
+}
+
+.remove-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.remove-btn:hover {
+  background: #fecaca;
+  color: #b91c1c;
+}
+
+/* Stats Section */
+.stats-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.stats-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.stats-icon {
+  background: #dbeafe;
+  padding: 12px;
+  border-radius: 8px;
+  color: #3b82f6;
+}
+
+.stats-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 4px 0;
+}
+
+.stats-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .shortlist-table-container {
+    overflow-x: auto;
+  }
+  
+  .shortlist-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .total-shortlist-agent-container {
+    padding: 16px;
+  }
+
+  .shortlist-table th,
+  .shortlist-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
+  .table-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .table-name .name {
+    font-size: 14px;
+  }
+
+  .table-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .view-btn,
+  .remove-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .search-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .shortlist-header h2 {
+    font-size: 24px;
+  }
+
+  .shortlist-table th,
+  .shortlist-table td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .table-avatar {
+    width: 35px;
+    height: 35px;
+  }
+
+  .table-name {
+    min-width: 100px;
+  }
+
+  .table-age,
+  .table-marital-status,
+  .table-profession,
+  .table-education,
+  .table-location,
+  .table-date {
+    max-width: 80px;
+  }
+
+  .table-actions {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .view-btn,
+  .remove-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}
+
+/* User Details Modal */
+.user-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.user-modal-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.user-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.user-modal-header h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.user-modal-body {
+  padding: 0 24px 24px 24px;
+}
+
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.user-avatar-container {
+  flex-shrink: 0;
+}
+
+.user-modal-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e5e7eb;
+}
+
+.user-basic-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.user-email {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+}
+
+.user-id {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.user-bio-section,
+.user-interests-section {
+  margin-bottom: 24px;
+}
+
+.user-bio-section h4,
+.user-interests-section h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+}
+
+.user-bio {
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-tag {
+  background: #dbeafe;
+  color: #3b82f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.view-full-profile-btn,
+.close-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-full-profile-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.view-full-profile-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.close-btn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.close-btn:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  .user-modal-content {
+    margin: 10px;
+    max-height: 95vh;
+  }
+
+  .user-modal-header {
+    padding: 16px 16px 0 16px;
+  }
+
+  .user-modal-body {
+    padding: 0 16px 16px 16px;
+  }
+
+  .user-profile-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .user-modal-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .user-name {
+    font-size: 24px;
+  }
+
+  .user-details-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .detail-item {
+    padding: 10px 12px;
+  }
+
+  .user-modal-footer {
+    flex-direction: column;
+  }
+
+  .view-full-profile-btn,
+  .close-btn {
+    width: 100%;
+  }
+}

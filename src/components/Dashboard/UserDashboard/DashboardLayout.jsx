@@ -1334,6 +1334,31 @@ const DashboardLayout = ({
                 </div>
               )}
 
+              {role === "agent" && (
+                <div
+                  className={`nav-item ${isActive("/total-shortlist-agent") ? "active" : ""}`}
+                  title={!showSidebar ? "Total Shortlist" : ""}
+                  onClick={() => navigate("/total-shortlist-agent")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Shortlist</span>}
+                </div>
+              )}
+
               {(role === "individual" || role === "user") && (
                 <Link
                   to="/total-interest"
