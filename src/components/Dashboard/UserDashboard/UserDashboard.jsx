@@ -317,8 +317,34 @@ const UserDashboard = () => {
     } else {
       // For agent role, use the API
       const parameter2 = {
-        url: '/api/agent/shortlisted/count/',
-        setterFunction: setApiData2,
+        url: '/api/agent/shortlist/',
+        setterFunction: (data) => {
+          console.log('Agent shortlist data received:', data);
+          // Handle different response structures
+          let shortlistCount = 0;
+          if (Array.isArray(data)) {
+            shortlistCount = data.length;
+          } else if (data && typeof data === 'object') {
+            // Check for count property
+            if (data.total_shortlisted_count !== undefined) {
+              shortlistCount = data.total_shortlisted_count;
+            } else if (data.shortlisted !== undefined) {
+              shortlistCount = Array.isArray(data.shortlisted) ? data.shortlisted.length : data.shortlisted;
+            } else {
+              // Try to get length from first array property
+              const keys = Object.keys(data);
+              if (keys.length > 0 && Array.isArray(data[keys[0]])) {
+                shortlistCount = data[keys[0]].length;
+              }
+            }
+          }
+          console.log('Agent shortlist count:', shortlistCount);
+          const mappedData = {
+            total_shortlisted_count: shortlistCount
+          };
+          console.log('Mapped agent shortlist data:', mappedData);
+          setApiData2(mappedData);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };

@@ -245,58 +245,6 @@ const MemberInterest = () => {
                   <h3>No Received Interests</h3>
                   <p>Your members haven't received any interests yet</p>
                 </div>
-              ) : viewMode === 'cards' ? (
-                <div className="interest-grid">
-                  {receivedInterests.map((interest, index) => (
-                    <div key={index} className="interest-card">
-                      <div className="card-header">
-                        <div className="member-info">
-                          <img
-                            src={getProfileImageUrl(interest.member_photo)}
-                            alt={interest.member_name}
-                            className="member-avatar"
-                          />
-                          <div>
-                            <h4>{interest.member_name || "N/A"}</h4>
-                            <span className="member-id">ID: {interest.member_id}</span>
-                          </div>
-                        </div>
-                        <span className="received-badge">Received Interest</span>
-                      </div>
-                      
-                      <div className="divider"></div>
-
-                      <div className="card-body">
-                        <div className="interest-from">
-                          <div className="sender-info">
-                            <img
-                              src={getProfileImageUrl(interest.sender_photo)}
-                              alt={interest.sender_name}
-                              className="sender-avatar"
-                            />
-                            <div>
-                              <h5>From: {interest.sender_name || "N/A"}</h5>
-                              <span className="sender-id">ID: {interest.sender_id}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="interest-details">
-                          <div className="detail-row">
-                            <span className="label">Date:</span>
-                            <span className="value">{formatDate(interest.created_at)}</span>
-                          </div>
-                          <div className="detail-row">
-                            <span className="label">Status:</span>
-                            <span className={`status ${interest.status?.toLowerCase() || 'pending'}`}>
-                              {interest.status || "Pending"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               ) : (
                 <div className="interest-table-container">
                   <table className="interest-table">
