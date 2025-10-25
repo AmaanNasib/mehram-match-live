@@ -12,6 +12,11 @@ const MemberRequests = () => {
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  
+  // Photo modal states
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [selectedUserPhotos, setSelectedUserPhotos] = useState([]);
+  const [selectedUserName, setSelectedUserName] = useState("");
 
   // Fetch all member photo requests for the agent
   useEffect(() => {
@@ -107,9 +112,21 @@ const MemberRequests = () => {
   }, [userId]);
 
   const getProfileImageUrl = (photoUrl) => {
-    if (!photoUrl) {
+    // Check if photoUrl exists and is a string
+    if (!photoUrl || typeof photoUrl !== 'string') {
       return "https://via.placeholder.com/60";
     }
+    
+    // Check if it's already a complete URL
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+      // Check if URL is malformed (contains ! or other invalid characters)
+      if (photoUrl.includes('!') || photoUrl.includes('undefined') || photoUrl.length < 10) {
+        return "https://via.placeholder.com/60";
+      }
+      return photoUrl;
+    }
+    
+    // For relative paths, prepend the API URL
     return `${process.env.REACT_APP_API_URL}${photoUrl}`;
   };
 
@@ -124,6 +141,70 @@ const MemberRequests = () => {
       });
     } catch (e) {
       return dateString;
+    }
+  };
+
+  // Handle photo click - fetch and show user photos
+  const handlePhotoClick = async (userId, userName) => {
+    try {
+      setLoading(true);
+      
+      // Fetch user photos from user_userphoto table
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/add_photo/?user_id=${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const photoData = await response.json();
+      console.log('User photos fetched:', photoData);
+      
+      // Get photos from user_userphoto table
+      const photos = [];
+      
+      // Check if response is an array
+      if (Array.isArray(photoData)) {
+        photoData.forEach(photoItem => {
+          if (photoItem.upload_photo) {
+            const processedUrl = getProfileImageUrl(photoItem.upload_photo);
+            // Only add if it's a valid URL (not placeholder)
+            if (!processedUrl.includes('placeholder')) {
+              photos.push(processedUrl);
+            }
+          }
+        });
+      } else if (photoData && typeof photoData === 'object') {
+        // If it's a single object or has a nested structure
+        if (photoData.upload_photo) {
+          const processedUrl = getProfileImageUrl(photoData.upload_photo);
+          if (!processedUrl.includes('placeholder')) {
+            photos.push(processedUrl);
+          }
+        }
+        // Check for array inside the object
+        if (photoData.photos && Array.isArray(photoData.photos)) {
+          photoData.photos.forEach(photo => {
+            if (photo.upload_photo) {
+              const processedUrl = getProfileImageUrl(photo.upload_photo);
+              if (!processedUrl.includes('placeholder')) {
+                photos.push(processedUrl);
+              }
+            }
+          });
+        }
+      }
+      
+      console.log('Processed photos:', photos);
+      
+      setSelectedUserPhotos(photos);
+      setSelectedUserName(userName);
+      setShowPhotoModal(true);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching user photos:', err);
+      setLoading(false);
+      alert('Error loading photos. Please try again.');
     }
   };
 
@@ -217,9 +298,19 @@ const MemberRequests = () => {
                           </td>
                           <td>{formatDate(request.created_at)}</td>
                           <td>
-                            <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
-                              {request.status || "Open"}
-                            </span>
+                            {request.status?.toLowerCase() === 'accepted' ? (
+                              <button
+                                className={`status clickable-status ${request.status?.toLowerCase() || 'open'}`}
+                                onClick={() => handlePhotoClick(request.recipient_id, request.recipient_name)}
+                                title="Click to view photos"
+                              >
+                                {request.status || "Open"}
+                              </button>
+                            ) : (
+                              <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
+                                {request.status || "Open"}
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -284,9 +375,19 @@ const MemberRequests = () => {
                           </td>
                           <td>{formatDate(request.created_at)}</td>
                           <td>
-                            <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
-                              {request.status || "Open"}
-                            </span>
+                            {request.status?.toLowerCase() === 'accepted' ? (
+                              <button
+                                className={`status clickable-status ${request.status?.toLowerCase() || 'open'}`}
+                                onClick={() => handlePhotoClick(request.sender_id, request.sender_name)}
+                                title="Click to view photos"
+                              >
+                                {request.status || "Open"}
+                              </button>
+                            ) : (
+                              <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
+                                {request.status || "Open"}
+                              </span>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -297,6 +398,54 @@ const MemberRequests = () => {
             </div>
           )}
         </div>
+
+        {/* Photo Modal */}
+        {showPhotoModal && (
+          <div className="photo-modal-overlay" onClick={() => setShowPhotoModal(false)}>
+            <div className="photo-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="photo-modal-header">
+                <h3>{selectedUserName}'s Photos</h3>
+                <button className="close-modal-btn" onClick={() => setShowPhotoModal(false)}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              <div className="photo-modal-body">
+                {selectedUserPhotos.length > 0 ? (
+                  <div className="photo-grid">
+                    {selectedUserPhotos.map((photo, index) => (
+                      <div key={index} className="photo-item">
+                        <img 
+                          src={photo} 
+                          alt={`Photo ${index + 1}`}
+                          onError={(e) => {
+                            console.error('Image failed to load:', photo);
+                            e.target.src = 'https://via.placeholder.com/200x200?text=Image+Not+Found';
+                          }}
+                          onLoad={() => {
+                            console.log('Image loaded successfully:', photo);
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-photos">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" strokeWidth="2" />
+                      <polyline points="21 15 16 10 5 21" strokeWidth="2" />
+                    </svg>
+                    <h3>No Photos Found</h3>
+                    <p>This user hasn't uploaded any photos yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
