@@ -82,7 +82,7 @@ const UserDashboard = () => {
     setChartLoading(true);
     try {
       const url = role === "agent" 
-        ? `/api/agent/graph/?based_on=${period}` 
+        ? `/api/agent/graph/?agent_id=${userId}&based_on=${period}` 
         : `/api/user/graph/?user_id=${userId}&based_on=${period}`;
         
       console.log('Graph API URL:', url);
@@ -107,6 +107,14 @@ const UserDashboard = () => {
           };
           
           const mergedData = { ...defaultData, ...data };
+          
+          // Special handling for shortlist data - use the same value as card
+          if (role === "agent" && apiData2?.total_shortlisted_count) {
+            mergedData.shortlisted = apiData2.total_shortlisted_count;
+            mergedData.total_shortlisted = apiData2.total_shortlisted_count;
+            console.log('Using shortlist data from apiData2 for graph:', apiData2.total_shortlisted_count);
+          }
+          
           console.log('Merged data:', mergedData);
           
           setApiData5(mergedData);
@@ -315,11 +323,15 @@ const UserDashboard = () => {
       console.log('UserDashboard - About to call shortlist API with userId:', userId);
       fetchDataWithTokenV2(parameter2);
     } else {
-      // For agent role, use the API
+      // For agent role, use the API with proper agent_id parameter
       const parameter2 = {
-        url: '/api/agent/shortlist/',
+        url: `/api/agent/shortlist/?agent_id=${userId}`,
         setterFunction: (data) => {
           console.log('Agent shortlist data received:', data);
+          console.log('Agent shortlist data type:', typeof data);
+          console.log('Agent shortlist data is array:', Array.isArray(data));
+          console.log('Agent shortlist data keys:', data ? Object.keys(data) : 'No data');
+          
           // Handle different response structures
           let shortlistCount = 0;
           if (Array.isArray(data)) {
@@ -330,6 +342,8 @@ const UserDashboard = () => {
               shortlistCount = data.total_shortlisted_count;
             } else if (data.shortlisted !== undefined) {
               shortlistCount = Array.isArray(data.shortlisted) ? data.shortlisted.length : data.shortlisted;
+            } else if (data.count !== undefined) {
+              shortlistCount = data.count;
             } else {
               // Try to get length from first array property
               const keys = Object.keys(data);
@@ -345,7 +359,10 @@ const UserDashboard = () => {
           console.log('Mapped agent shortlist data:', mappedData);
           setApiData2(mappedData);
         },
-        setErrors: setErrors,
+        setErrors: (error) => {
+          console.error('Agent shortlist API error:', error);
+          setErrors(error);
+        },
         setLoading: setLoading,
       };
       fetchDataWithTokenV2(parameter2);
@@ -737,7 +754,8 @@ const UserDashboard = () => {
       getAgentGraphValue('interests', 0),
       getAgentGraphValue('requests', 0),
       getAgentGraphValue('interactions', 0),
-      getAgentGraphValue('shortlists', 0),
+      // For shortlist, prioritize apiData2 (card data) over apiData5 (graph data)
+      apiData2?.total_shortlisted_count || getAgentGraphValue('shortlists', 0),
       getAgentGraphValue('blocked', 0)
     ] : [
       // For regular users, use graph API data for filtered results
