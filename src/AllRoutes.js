@@ -61,6 +61,7 @@ import ContactUs from "./components/pages/ContactUs/ContactUs";
 import PrivacyPolicy from "./components/pages/PrivacyPolicy/PrivacyPolicy";
 import MemberAnalytics from "./components/Dashboard/MemberAnalytics/MemberAnalytics";
 import MemberMatches from "./components/Dashboard/MemberMatches/MemberMatches";
+import MemberInterest from "./components/Dashboard/MemberInterest/MemberInterest";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -326,6 +327,14 @@ const AllRoutes = () => {
           element={
             <PrivateRoute>
               <MemberMatches />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/member-interest"
+          element={
+            <PrivateRoute>
+              <MemberInterest />
             </PrivateRoute>
           }
         />

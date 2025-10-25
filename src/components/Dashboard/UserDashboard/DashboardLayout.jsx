@@ -1238,38 +1238,101 @@ const DashboardLayout = ({
                           stroke="currentColor"
                         >
                           <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
                             strokeWidth="2"
                           />
+                          <circle cx="9" cy="7" r="4" strokeWidth="2" />
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87" strokeWidth="2" />
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75" strokeWidth="2" />
                         </svg>
                       </div>
                   {showSidebar && <span className="nav-item-text">My Members</span>}
                     </div>
               )}
-{/* 
-              {(role === "individual" || role === "user") && (
-                <Link
-                  to="/total-interaction"
-                  title={!showSidebar ? "Total Interaction" : ""}
-                  className={`nav-item ${
-                    isActive("/total-interaction") ? "active" : ""
-                  }`}
+
+              {role === "agent" && (
+                <div
+                  className={`nav-item ${isActive("/member-interest") ? "active" : ""}`}
+                  title={!showSidebar ? "Member Interest" : ""}
+                  onClick={() => navigate("/member-interest")}
+                  style={{ cursor: "pointer" }}
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {showSidebar && "Total Interaction"}
-                </Link>
-              )} */}
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Interests</span>}
+                </div>
+              )}
+
+              {role === "agent" && (
+                <div
+                  className={`nav-item ${isActive("/member-request") ? "active" : ""}`}
+                  title={!showSidebar ? "Member Request" : ""}
+                  onClick={() => navigate("/member-request")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                        strokeWidth="2"
+                      />
+                      <circle cx="12" cy="12" r="3" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Requests</span>}
+                </div>
+              )}
+
+              {role === "agent" && (
+                <div
+                  className={`nav-item ${isActive("/member-interactions") ? "active" : ""}`}
+                  title={!showSidebar ? "Member Interactions" : ""}
+                  onClick={() => navigate("/member-interactions")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <path
+                        d="M8 21s-4-3-4-9 4-9 4-9"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M12 21s-4-3-4-9 4-9 4-9"
+                        strokeWidth="2"
+                      />
+                      <path
+                        d="M16 21s4-3 4-9-4-9-4-9"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Interactions</span>}
+                </div>
+              )}
 
               {(role === "individual" || role === "user") && (
                 <Link
