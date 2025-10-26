@@ -140,6 +140,18 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
   
   return (
     <div className="simple-profile-card">
+      {/* Agent Verified Ribbon - Like the CSS example */}
+      {profile?.agent_id && (
+        <div className="ribbon">
+          <h3>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Agent Verified
+          </h3>
+        </div>
+      )}
+      
       {/* Profile Photo with Online Badge */}
       <div className="simple-profile-photo">
         <img 

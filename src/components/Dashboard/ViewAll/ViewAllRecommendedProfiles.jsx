@@ -13,7 +13,7 @@ import Header from "../header/Header";
 import Sidebar from "../DSidebar/Sidebar";
 import Footer from "../../sections/Footer";
 import { useNavigate } from "react-router-dom";
-import DashboadrCard from "../dashboardCard/DashboardCard";
+import SimpleProfileCard from "../dashboardCard/SimpleProfileCard";
 
 const ViewAllRecommendedProfiles = () => {
   const userId = localStorage.getItem("userId");
@@ -424,13 +424,14 @@ const ViewAllRecommendedProfiles = () => {
                           const keyId = user?.id || profile?.id;
                           return (
                             <div key={keyId} className="transform transition-all duration-300 hover:scale-105 h-fit">
-                              <DashboadrCard
+                              <SimpleProfileCard
                                 profile={user}
-                                url={`/api/user/recommend/?user_id=${userId}`}
-                                interested_id={profile?.interested_id}
-                                setApiData={setRecommendedProfiles}
-                                IsInterested={profile?.is_interested}
-                                activeUser={activeUser}
+                                onInterested={null}
+                                onShortlist={null}
+                                onIgnore={null}
+                                onMessage={null}
+                                onViewProfile={(profile) => navigate(`/details/${profile.id}`)}
+                                isInterested={profile?.is_interested || false}
                               />
                             </div>
                           );
