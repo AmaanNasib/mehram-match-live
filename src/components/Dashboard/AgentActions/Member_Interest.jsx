@@ -198,7 +198,7 @@ const Member_Interest = () => {
       return;
     }
 
-    try {0
+    try {
       console.log('Accepting interest with:', {
         member_id: memberId,
         interest_id: interestId,

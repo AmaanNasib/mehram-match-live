@@ -5,7 +5,7 @@ import men1 from "../../../images/men8.jpg";
 import { postDataWithFetchV2, fetchDataV2, justUpdateDataV2, putDataWithFetchV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { useNavigate } from "react-router-dom";
 
-const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, activeUser }) => {
+const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, activeUser, onShowMemberSendInterest }) => {
   
   const fillHeart = false;
   const navigate = useNavigate();
@@ -45,6 +45,18 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
 
 
   const interested = ({action_on_id,interested_id}) => {
+    // For agents, show bottom sheet to select member
+    if (role === 'agent') {
+      const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+      
+      // Only show bottom sheet if agent is not impersonating a user
+      if (!isImpersonating) {
+        onShowMemberSendInterest(profile);
+        return;
+      }
+    }
+    
+    // Regular interest logic for users or when agent is impersonating
     const parameter = {
       url:Number(interested_id)?`/api/recieved/${interested_id}/` :`/api/recieved/`,
       payload: {
@@ -852,17 +864,9 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
         </div>
       </div>
       <div className="profile-info" style={{ padding: "16px 12px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "initial",
-          }}
-        >
-          <div
-            className="profile-details"
-            style={{ display: "flex", flexDirection: "column", gap: "0rem" }}
-          >
+        <div className="profile-content">
+          <div className="profile-details-section">
+            <div className="profile-details" style={{ display: "flex", flexDirection: "column", gap: "0rem" }}>
             <div
               className="profile-header"
               style={{
@@ -929,6 +933,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
             <p className="profession">
               {profile?.profession ? profile.profession : "Not Mentioned"}
             </p>
+            
             <button
               className="message-btn"
               style={{ marginTop: "0.5rem" }}
@@ -939,8 +944,11 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
             >
               Message
             </button>
+            </div>
           </div>
-          <div className="profile-actions" style={{ marginTop: "0" }}>
+          
+          <div className="profile-actions-section">
+            <div className="profile-actions" style={{ marginTop: "0" }}>
             <div
               className="action-buttons"
               style={{
@@ -1034,6 +1042,7 @@ className="action-btn full-profile-btn"
                 Ignore
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>

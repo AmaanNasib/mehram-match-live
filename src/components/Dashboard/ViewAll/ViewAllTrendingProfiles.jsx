@@ -403,12 +403,21 @@ const ViewAllTrendingProfiles = () => {
                     // Filter out ignored users
                     if (ignoredUsers.has(profile.user?.id)) return false;
                     
+                    // Check if profile is completed - only show completed profiles
+                    const user = profile && profile.user ? profile.user : profile;
+                    const isProfileCompleted = user?.profile_completed === true;
+                    
+                    // If profile is not completed, don't show it
+                    if (!isProfileCompleted) {
+                      return false;
+                    }
+                    
                     // Check if user is agent and not impersonating
                     const currentRole = localStorage.getItem('role');
                     const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                     
                     if (currentRole === 'agent' && !isImpersonating) {
-                      return true; // Show all profiles for agents
+                      return true; // Show all completed profiles for agents
                     }
                     
                     // Gender filtering: show opposite gender for regular users
@@ -419,7 +428,7 @@ const ViewAllTrendingProfiles = () => {
                     if (currentUserGender === 'male' && profileGender === 'female') return true;
                     if (currentUserGender === 'female' && profileGender === 'male') return true;
                     
-                    // If gender is not specified, show all profiles
+                    // If gender is not specified, show all completed profiles
                     if (!currentUserGender || !profileGender) return true;
                     
                     return false;
@@ -519,12 +528,21 @@ const ViewAllTrendingProfiles = () => {
         const filteredProfiles = trendingProfiles.filter(profile => {
           if (ignoredUsers.has(profile.user?.id)) return false;
           
+          // Check if profile is completed - only show completed profiles
+          const user = profile && profile.user ? profile.user : profile;
+          const isProfileCompleted = user?.profile_completed === true;
+          
+          // If profile is not completed, don't show it
+          if (!isProfileCompleted) {
+            return false;
+          }
+          
           // Check if user is agent and not impersonating
           const currentRole = localStorage.getItem('role');
           const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
           
           if (currentRole === 'agent' && !isImpersonating) {
-            return true; // Show all profiles for agents
+            return true; // Show all completed profiles for agents
           }
           
           const currentUserGender = activeUser?.gender;

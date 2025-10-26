@@ -1,0 +1,346 @@
+.simple-profile-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 20rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(255, 20, 147, 0.08);
+}
+
+.simple-profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.simple-profile-photo {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.simple-profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.simple-profile-card:hover .simple-profile-photo img {
+  transform: scale(1.05);
+}
+
+.online-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  background: #22c55e;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.simple-profile-content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.simple-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.simple-profile-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+  flex: 1;
+  min-width: 120px;
+}
+
+.simple-marital-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.simple-marital-badge.single {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.simple-marital-badge.married {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.simple-marital-badge.divorced,
+.simple-marital-badge.khula {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.simple-marital-badge.widowed,
+.simple-marital-badge.awaiting\ divorce {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.simple-member-id {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FF1493;
+  margin-bottom: 16px;
+  padding: 6px 10px;
+  background: rgba(255, 20, 147, 0.08);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.simple-member-id svg {
+  flex-shrink: 0;
+}
+
+.simple-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.simple-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #495057;
+  padding: 6px 0;
+}
+
+.simple-info-item svg {
+  flex-shrink: 0;
+  color: #6c757d;
+}
+
+.simple-info-item span {
+  flex: 1;
+  font-weight: 500;
+}
+
+.simple-action-buttons {
+  padding: 0 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.simple-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.simple-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.simple-icon-btn:hover {
+  border-color: currentColor;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.simple-icon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.simple-icon-btn:disabled:hover {
+  border-color: #e9ecef;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.simple-icon-btn:disabled svg {
+  animation: spin 1s linear infinite;
+}
+
+.simple-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s;
+}
+
+.simple-icon-btn:active svg {
+  transform: scale(0.9);
+}
+
+/* Default state - when interest is NOT sent: white bg, pink border, pink outline heart */
+.simple-icon-btn.interest-btn {
+  background: white !important;
+  border-color: #FF1493 !important;
+}
+
+.simple-icon-btn.interest-btn svg {
+  fill: none;
+  stroke: #FF1493;
+}
+
+.simple-icon-btn.interest-btn:hover {
+  background: rgba(255, 20, 147, 0.12) !important;
+  border-color: #e0117a !important;
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.2);
+}
+
+.simple-icon-btn.interest-btn:hover svg {
+  fill: none;
+  stroke: #e0117a;
+}
+
+/* When interest is already sent: white bg, pink border, pink filled heart */
+.simple-icon-btn.interest-btn.interested {
+  background: white !important;
+  border-color: #FF1493 !important;
+}
+
+.simple-icon-btn.interest-btn.interested:hover {
+  background: rgba(255, 20, 147, 0.12) !important;
+  border-color: #e0117a !important;
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.2);
+}
+
+.simple-icon-btn.interest-btn.interested:hover svg {
+  fill: #e0117a;
+  stroke: #e0117a;
+}
+
+.simple-icon-btn.interest-btn.interested svg {
+  fill: #FF1493;
+  stroke: #FF1493;
+}
+
+.shortlist-btn:hover {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: #6366f1;
+}
+
+.view-btn:hover {
+  background: rgba(5, 150, 105, 0.05);
+  border-color: #059669;
+}
+
+.ignore-btn:hover {
+  background: rgba(239, 68, 68, 0.05);
+  border-color: #ef4444;
+}
+
+.simple-message-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FF1493 0%, #e0117a 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+}
+
+.simple-message-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.4);
+}
+
+.simple-message-btn:active {
+  transform: translateY(0);
+}
+
+.simple-message-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .simple-profile-card {
+    max-width: 18rem;
+    min-height: 480px;
+  }
+  
+  .simple-profile-photo {
+    height: 200px;
+  }
+  
+  .simple-profile-header h3 {
+    font-size: 18px;
+  }
+  
+  .simple-info-item {
+    font-size: 13px;
+  }
+
+  .simple-icon-btn {
+    padding: 8px;
+  }
+
+  .simple-icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .simple-message-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+

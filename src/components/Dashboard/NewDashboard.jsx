@@ -13,6 +13,8 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import UserPop from "../sections/UserPop";
 import DashboadrCard from "./dashboardCard/DashboardCard";
+import SimpleProfileCard from "./dashboardCard/SimpleProfileCard";
+import MemberSendInterest from "./AgentActions/MemberSendInterest";
 
 // Shimmer Loading Component
 const ShimmerCard = () => (
@@ -79,7 +81,33 @@ const NewDashboard = () => {
   const role = localStorage.getItem("role");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showWelcomeSection, setShowWelcomeSection] = useState(false);
+  const [showMemberSendInterest, setShowMemberSendInterest] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   // console.log(activeUser);
+
+  // Handler for showing member send interest bottom sheet
+  const handleShowMemberSendInterest = (profile) => {
+    setSelectedProfile(profile);
+    setShowMemberSendInterest(true);
+  };
+
+  // Handler for closing member send interest bottom sheet
+  const handleCloseMemberSendInterest = () => {
+    setShowMemberSendInterest(false);
+    setSelectedProfile(null);
+  };
+
+  // Handler for interest button click - different behavior for agents vs users
+  const handleInterested = (profile) => {
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
+    // If role is agent and not impersonating, open MemberSendInterest
+    if (currentRole === 'agent' && !isImpersonating) {
+      handleShowMemberSendInterest(profile);
+    }
+    // For regular users, onInterested prop is null, so card handles API call directly
+  };
 
   const updateLater = () => {
     // Clear first-time login flag when user chooses to update later
@@ -544,22 +572,28 @@ useEffect(() => {
                         const user = profile && profile.user ? profile.user : profile;
                         const keyId = user?.id || profile?.id;
                         
+                                                // For agents: pass onInterested callback, for regular users: pass null/undefined
+                        const currentRole = localStorage.getItem('role');
+                        const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                        const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
+                        
                         return (
                           <div key={keyId} className="h-fit">
-                            <DashboadrCard 
+                            <SimpleProfileCard 
                               profile={user}
-                              url={`/api/trending_profile/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
-                              interested_id={profile?.interested_id}
-              setApiData={setApiData}
-                              IsInterested={profile?.is_interested}
-              activeUser={activeUser}
+                              isInterested={profile?.is_interested}
+                              onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
+                              onShortlist={undefined}
+                              onIgnore={() => console.log('Ignore:', user.name)}
+                              onMessage={() => console.log('Message:', user.name)}
+                              onViewProfile={() => navigate(`/details/${user.id}`)}
                             />
                           </div>
                         );
                       })
                     ) : (
-                      <p className="text-center text-gray-500 py-8">No trending profiles found</p>
-                    )}
+                        <p className="text-center text-gray-500 py-8">No trending profiles found</p>
+                      )}
                   </div>
                   )
                 )}
@@ -639,15 +673,21 @@ useEffect(() => {
                           const user = profile && profile.user ? profile.user : profile;
                           const keyId = user?.id || profile?.id;
                           
+                          // For agents: pass onInterested callback, for regular users: pass null/undefined
+                          const currentRole = localStorage.getItem('role');
+                          const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                          const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
+                          
                           return (
                             <div key={keyId} className="h-fit">
-                              <DashboadrCard 
+                              <SimpleProfileCard 
                                 profile={user}
-                                url={`/api/user/recommend/?user_id=${localStorage.getItem('impersonating_user_id') || userId}`}
-                                interested_id={profile?.interested_id}
-                setApiData={setApiDataRecommend}
-                                IsInterested={profile?.is_interested}
-                activeUser={activeUser}
+                                isInterested={profile?.is_interested}
+                                onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
+                                onShortlist={undefined}
+                                onIgnore={() => console.log('Ignore:', user.name)}
+                                onMessage={() => console.log('Message:', user.name)}
+                                onViewProfile={() => navigate(`/details/${user.id}`)}
                               />
                             </div>
                           );
@@ -750,17 +790,21 @@ useEffect(() => {
                           const user = profile && profile.user ? profile.user : profile;
                           const keyId = user?.id || profile?.id;
                           
+                          // For agents: pass onInterested callback, for regular users: pass null/undefined
+                          const currentRole = localStorage.getItem('role');
+                          const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                          const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
+                          
                           return (
                             <div key={keyId} className="h-fit">
-                              <DashboadrCard 
+                              <SimpleProfileCard 
                                 profile={user}
-                                url={`/api/user/`}
-                                interested_id={profile?.interested_id}
-            setApiData={setUserDetail}
-                                IsInterested={profile?.is_interested}
-                                activeUser={activeUser}
-                                setIsModalOpen={setIsModalOpen}
-            isOpenWindow={isOpenWindow}
+                                isInterested={profile?.is_interested}
+                                onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
+                                onShortlist={undefined}
+                                onIgnore={() => console.log('Ignore:', user.name)}
+                                onMessage={() => console.log('Message:', user.name)}
+                                onViewProfile={() => navigate(`/details/${user.id}`)}
                               />
                             </div>
                           );
@@ -781,6 +825,19 @@ useEffect(() => {
       <div className="mt-16">
         <Footer />
       </div>
+
+      {/* Member Send Interest Bottom Sheet for Agents */}
+      {selectedProfile && (
+        <MemberSendInterest
+          isOpen={showMemberSendInterest}
+          onClose={handleCloseMemberSendInterest}
+          targetUserId={selectedProfile?.id}
+          targetUserName={selectedProfile?.name || selectedProfile?.first_name || "User"}
+          targetUserPhoto={selectedProfile?.profile_photo || selectedProfile?.upload_photo}
+          targetUserGender={selectedProfile?.gender}
+          targetUserData={selectedProfile}
+        />
+      )}
 
       {/* Custom Scrollbar Styles */}
       <style jsx>{`

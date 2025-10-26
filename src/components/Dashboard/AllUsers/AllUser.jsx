@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboadrCard from '../dashboardCard/DashboardCard';
+import SimpleProfileCard from '../dashboardCard/SimpleProfileCard';
 import MobileProfileCard from '../dashboardCard/MobileProfileCard';
 import './alluser.css';
 import { useNavigate } from 'react-router-dom';
@@ -150,15 +151,25 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url, filt
                 }
                 
                 return (
-                  <DashboadrCard
+                  <SimpleProfileCard
                     key={keyId}
                     profile={user}
-                    url={url}
-                    setApiData={setApiData}
-                    interested_id={profile?.interested_id}
-                    IsInterested={profile?.is_interested}
-                    setIsModalOpen={setIsModalOpen}
-                    isOpenWindow={isOpenWindow}
+                    isInterested={profile?.is_interested}
+                    onInterested={() => {
+                      console.log('Interested clicked for', user.name);
+                    }}
+                    onShortlist={() => {
+                      console.log('Shortlist clicked for', user.name);
+                    }}
+                    onIgnore={() => {
+                      console.log('Ignore clicked for', user.name);
+                    }}
+                    onMessage={() => {
+                      console.log('Message clicked for', user.name);
+                    }}
+                    onViewProfile={() => {
+                      navigate(`/details/${user.id}`);
+                    }}
                   />
                 );
               })

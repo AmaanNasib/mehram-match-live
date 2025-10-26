@@ -147,11 +147,31 @@
   justify-content: space-between;
 }
 
-.profile-header {
+.profile-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.profile-details-section {
+  flex: 1;
+  margin-right: 12px;
+}
+
+.profile-actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
   margin-bottom: 8px;
+  flex-direction: column;
 }
 
 .profile-header h3 { 
@@ -240,6 +260,7 @@
   flex-direction: column; 
   gap: 12px; 
   margin-top: auto;
+  align-items: flex-start;
 }
 
 .message-btn { width: 60%; padding: 10px; background: #f5f5f5; border: none; border-radius: 1rem; color: #333; font-weight: 500; font-size: 14px; cursor: pointer; transition: background 0.2s; }
@@ -249,7 +270,8 @@
   display: flex; 
   gap: 8px; 
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .action-btn { 

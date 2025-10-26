@@ -3,6 +3,7 @@ import DashboadrCard from '../dashboardCard/DashboardCard';
 import MobileProfileCard from '../dashboardCard/MobileProfileCard';
 import './trendingProfiles.css';
 import {  useNavigate ,} from 'react-router-dom';
+import SimpleProfileCard from '../dashboardCard/SimpleProfileCard';
 
 const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -146,13 +147,30 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
                 }
                 
                 return (
-                  <DashboadrCard 
+                  <SimpleProfileCard 
                     key={keyId}
                     profile={user}
-                    url={url}
-                    interested_id={profile?.interested_id}
-                    setApiData={setApiData}
-                    IsInterested={profile?.is_interested}
+                    isInterested={profile?.is_interested}
+                    onInterested={() => {
+                      // Handle interest click
+                      console.log('Interested clicked for', user.name);
+                    }}
+                    onShortlist={() => {
+                      // Handle shortlist click
+                      console.log('Shortlist clicked for', user.name);
+                    }}
+                    onIgnore={() => {
+                      // Handle ignore click
+                      console.log('Ignore clicked for', user.name);
+                    }}
+                    onMessage={() => {
+                      // Handle message click
+                      console.log('Message clicked for', user.name);
+                    }}
+                    onViewProfile={() => {
+                      // Handle view profile click
+                      navigate(`/details/${user.id}`);
+                    }}
                   />
                 );
               })
