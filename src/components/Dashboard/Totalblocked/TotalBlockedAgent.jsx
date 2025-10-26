@@ -13,6 +13,8 @@ const TotalBlockedAgent = () => {
   const [errors, setErrors] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [showUnblockModal, setShowUnblockModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
 
   // Pagination
@@ -149,34 +151,45 @@ const TotalBlockedAgent = () => {
     }
   };
 
-  const handleUnblock = async (user) => {
-    if (window.confirm(`Are you sure you want to unblock ${user?.user?.name || 'this user'}?`)) {
-      try {
-        setLoading(true);
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/unblock/user/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({
-            user_id: user?.user?.id || user?.id
-          })
-        });
+  const handleUnblockClick = (user) => {
+    setSelectedUser(user);
+    setShowUnblockModal(true);
+  };
 
-        if (response.ok) {
-          alert('User unblocked successfully!');
-          refreshData(); // Refresh the data
-        } else {
-          alert('Failed to unblock user. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error unblocking user:', error);
-        alert('An error occurred while unblocking the user.');
-      } finally {
-        setLoading(false);
+  const handleUnblockConfirm = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/unblock/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          action_on_id: selectedUser?.user?.id || selectedUser?.id
+        })
+      });
+
+      if (response.ok) {
+        setShowUnblockModal(false);
+        setSelectedUser(null);
+        refreshData(); // Refresh the data
+      } else {
+        alert('Failed to unblock user. Please try again.');
       }
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      alert('An error occurred while unblocking the user.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleUnblockCancel = () => {
+    setShowUnblockModal(false);
+    setSelectedUser(null);
   };
 
   const handleViewProfile = (user) => {
@@ -329,7 +342,7 @@ const TotalBlockedAgent = () => {
                       <div className="action-buttons">
                         <button 
                           className="action-btn unblock-btn"
-                          onClick={() => handleUnblock(match)}
+                          onClick={() => handleUnblockClick(match)}
                           title="Unblock User"
                         >
                           Unblock
@@ -384,6 +397,41 @@ const TotalBlockedAgent = () => {
             >
               Next &raquo;
             </button>
+          </div>
+        )}
+
+        {/* Unblock Confirmation Modal */}
+        {showUnblockModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Confirm Unblock</h3>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Are you sure you want to unblock <strong>{selectedUser?.user?.name || 'this user'}</strong>?
+                </p>
+                <p className="modal-warning">
+                  This action will allow the user to interact with your members again.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  className="modal-btn cancel-btn"
+                  onClick={handleUnblockCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="modal-btn confirm-btn"
+                  onClick={handleUnblockConfirm}
+                  disabled={loading}
+                >
+                  {loading ? 'Unblocking...' : 'Yes, Unblock'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
