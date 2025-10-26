@@ -40,6 +40,7 @@ import ManageProfile from "./components/Dashboard/ManageProfile/ManageProfile";
 import Totalrequest from "./components/Dashboard/Totalrequest/Totalrequest";
 import Totalshortlist from "./components/Dashboard/Totalshortlist/Totalshortlist";
 import Totalblocked from "./components/Dashboard/Totalblocked/Totalblocked";
+import TotalBlockedAgent from "./components/Dashboard/Totalblocked/TotalBlockedAgent";
 import PremiumPlans from "./components/Dashboard/Premiums/PremiumPlans";
 import Inbox from "./components/Dashboard/Inbox/Inbox";
 import TermsCondition from "./components/Dashboard/TermsCondition/TermsCondition";
@@ -288,6 +289,15 @@ const AllRoutes = () => {
             <PrivateRoute>
               {" "}
               <Totalblocked />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/total-blocked"
+          element={
+            <PrivateRoute>
+              {" "}
+              <TotalBlockedAgent />{" "}
             </PrivateRoute>
           }
         />

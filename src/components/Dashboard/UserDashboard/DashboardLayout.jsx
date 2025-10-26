@@ -1018,7 +1018,7 @@ const DashboardLayout = ({
                       const abs = u.startsWith('http') ? u : `${process.env.REACT_APP_API_URL}${u}`;
                       return toSecure(abs);
                     }
-                    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
                   }
                   const raw = apiData?.user_profilephoto?.upload_photo || apiData?.profile_photo;
                   if (raw) {
@@ -1041,8 +1041,8 @@ const DashboardLayout = ({
                   // Fallback to SVG avatar
                   e.currentTarget.src = `data:image/svg+xml;utf8,${encodeURIComponent(
                     apiData?.gender === "male"
-                      ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#bfdbfe\\"/><path d=\\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\\" fill=\\"#bfdbfe\\"/></svg>`
-                      : `<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 24 24\\" fill=\\"#ec4899\\"><circle cx=\\"12\\" cy=\\"8\\" r=\\"5\\" fill=\\"#fbcfe8\\"/><path d=\\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\\" fill=\\"#fbcfe8\\"/><circle cx=\\"12\\" cy=\\"8\\" r=\\"2\\" fill=\\"#ec4899\\"/></svg>`
+                      ? `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#3b82f6\">\n                <circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#bfdbfe\"/>\n                <path d=\"M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z\" fill=\"#bfdbfe\"/>\n              </svg>`
+                      : `<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"#ec4899\">\n                <circle cx=\"12\" cy=\"8\" r=\"5\" fill=\"#fbcfe8\"/>\n                <path d=\"M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z\" fill=\"#fbcfe8\"/>\n                <circle cx=\"12\" cy=\"8\" r=\"2\" fill=\"#ec4899\"/>\n              </svg>`
                   )}`;
                 }}
               />
@@ -1356,6 +1356,31 @@ const DashboardLayout = ({
                     </svg>
                   </div>
                   {showSidebar && <span className="nav-item-text">Total Shortlist</span>}
+                </div>
+              )}
+
+              {role === "agent" && (
+                <div
+                  className={`nav-item ${isActive("/total-blocked") ? "active" : ""}`}
+                  title={!showSidebar ? "Total Blocked" : ""}
+                  onClick={() => navigate("/total-blocked")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="nav-item-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M18 6L6 18"/>
+                      <path d="M6 6l12 12"/>
+                      <circle cx="12" cy="12" r="10" fill="none"/>
+                    </svg>
+                  </div>
+                  {showSidebar && <span className="nav-item-text">Total Blocked</span>}
                 </div>
               )}
 
