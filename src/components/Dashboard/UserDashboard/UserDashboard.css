@@ -98,6 +98,7 @@
 
 .stat-info {
   flex: 1;
+  position: relative;
 }
 
 .stat-info h3 {
@@ -121,24 +122,57 @@ justify-content: space-between;}
 .dCardHeading{
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  width: 100%;
+  position: relative;
+  margin-bottom: 8px;
+  min-height: 32px;
+}
+
+.dCardHeading h3 {
+  font-size: 14px;
+  color: #718096;
+  font-weight: 500;
+  margin: 0;
+  flex: 1;
+  padding-right: 56px;
+  line-height: 1.2;
 }
 
 .dCardHeading svg {
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  right: 0;
+  top: -10px;
   flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
+  .dCardHeading {
+    gap: 8px;
+  }
+  
+  .dCardHeading h3 {
+    font-size: 13px;
+  }
+  
   .dCardHeading svg {
     width: 40px;
-    height: auto;
+    height: 40px;
+    top: -8px;
   }
 }
 
 @media (max-width: 480px) {
   .dCardHeading svg {
-    width: 36px;
-    height: auto;
+    width: 32px;
+    height: 32px;
+    top: -6px;
+  }
+  
+  .dCardHeading h3 {
+    font-size: 12px;
   }
 }
 .stat-row {
