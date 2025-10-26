@@ -115,6 +115,16 @@ const UserDashboard = () => {
             console.log('Using shortlist data from apiData2 for graph:', apiData2.total_shortlisted_count);
           }
           
+          // Special handling for blocked data for agent - use agent_direct_blocks from apiData3
+          if (role === "agent" && apiData3?.total_blocked_count) {
+            mergedData.total_blocked = apiData3.total_blocked_count;
+            console.log('Using blocked data from apiData3 for agent graph:', mergedData.total_blocked);
+          } else if (role === "agent") {
+            // Fallback to API response if apiData3 is not available
+            mergedData.total_blocked = data?.agent_direct_blocks || data?.total_blocked_count || 0;
+            console.log('Using blocked data from API response for agent graph:', mergedData.total_blocked, 'from data:', data);
+          }
+          
           console.log('Merged data:', mergedData);
           
           setApiData5(mergedData);
@@ -390,10 +400,19 @@ const UserDashboard = () => {
       // For agent role, use the API
       const parameter3 = {
         url: '/api/agent/blocked/count/',
-        setterFunction: setApiData3,
+        setterFunction: (data) => {
+          console.log('Agent blocked count data received:', data);
+          // Map API response to expected format - API returns object with counts
+          const mappedData = {
+            total_blocked_count: data?.agent_direct_blocks || data?.total_blocked_count || 0
+          };
+          console.log('Mapped agent blocked data:', mappedData);
+          setApiData3(mappedData);
+        },
         setErrors: setErrors,
         setLoading: setLoading,
       };
+      console.log('UserDashboard - Blocked API URL for agent:', parameter3.url);
       fetchDataWithTokenV2(parameter3);
     }
 
@@ -756,7 +775,8 @@ const UserDashboard = () => {
       getAgentGraphValue('interactions', 0),
       // For shortlist, prioritize apiData2 (card data) over apiData5 (graph data)
       apiData2?.total_shortlisted_count || getAgentGraphValue('shortlists', 0),
-      getAgentGraphValue('blocked', 0)
+      // For blocked, prioritize apiData3 (card data) over apiData5 (graph data)
+      apiData3?.total_blocked_count || getAgentGraphValue('blocked', 0)
     ] : [
       // For regular users, use graph API data for filtered results
       apiData5?.total_interest || 0,
@@ -793,7 +813,7 @@ const UserDashboard = () => {
         },
       ],
     };
-  }, [apiData5, apiData1, apiData, apiData2, role, selectedTimePeriod]);
+  }, [apiData5, apiData1, apiData, apiData2, apiData3, role, selectedTimePeriod]);
 
   const chartOptions = {
     responsive: true,

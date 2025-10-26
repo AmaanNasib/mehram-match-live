@@ -179,7 +179,6 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
       setBlockedUserIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(Number(interestedId));
-        console.log('Unblocked user ID:', interestedId, 'Updated blocked list:', Array.from(newSet));
         return newSet;
       });
     }
@@ -510,7 +509,6 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
         )}
         
         {/* Blocked User Stamp - Overlay on photo for agents */}
-        {console.log('Stamp check - Profile ID:', profile?.id, 'Blocked IDs:', Array.from(blockedUserIds), 'Should show stamp:', role === 'agent' && profile?.id && blockedUserIds.has(Number(profile.id)))}
         {role === 'agent' && profile?.id && blockedUserIds.has(Number(profile.id)) && (
           <div 
             style={{
