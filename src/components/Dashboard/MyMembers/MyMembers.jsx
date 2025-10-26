@@ -1433,30 +1433,60 @@ const MyMembers = () => {
 
     setIsDeleting(true);
 
-    try {
-      console.log('Removing member:', memberToDelete.id);
-      
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/user/${memberToDelete.id}/remove/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    // Wait for animation to play before making API call
+    setTimeout(async () => {
+      try {
+        console.log('Removing member:', memberToDelete.id);
+        
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/user/${memberToDelete.id}/remove/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok && data.success) {
-        console.log('Member removed successfully:', data);
+        if (response.ok && data.success) {
+          console.log('Member removed successfully:', data);
+          
+          // Remove from UI after animation completes
+          setApiData(prevData => {
+            if (Array.isArray(prevData)) {
+              return prevData.filter(member => member.id !== memberToDelete.id);
+            }
+            return prevData;
+          });
+          
+          // Show success message
+          alert(`Member ${memberToDelete.name || memberToDelete.first_name || 'Unknown Member'} has been removed successfully!`);
+          
+          // Close the modal
+          setShowDeleteModal(false);
+          setMemberToDelete(null);
+          
+        } else {
+          console.error('Failed to remove member:', data);
+          alert(`Failed to remove member: ${data.error || 'Unknown error'}`);
+          
+          // Revert the UI change if API call failed
+          // Reload the members list
+          const parameter = {
+            url: `/api/agent/user_agent/?agent_id=${userId}`,
+            setterFunction: setApiData,
+            setLoading: setLoading,
+            setErrors: setErrors,
+          };
+          fetchDataObjectV2(parameter);
+        }
         
-        // Show success message
-        alert(`Member ${memberToDelete.name || memberToDelete.first_name || 'Unknown Member'} has been removed successfully!`);
+      } catch (error) {
+        console.error('Error removing member:', error);
+        alert('Network error occurred while removing member. Please try again.');
         
-        // Close the modal
-        setShowDeleteModal(false);
-        setMemberToDelete(null);
-        
-        // Refresh the members list
+        // Revert the UI change if network error occurred
+        // Reload the members list
         const parameter = {
           url: `/api/agent/user_agent/?agent_id=${userId}`,
           setterFunction: setApiData,
@@ -1464,18 +1494,10 @@ const MyMembers = () => {
           setErrors: setErrors,
         };
         fetchDataObjectV2(parameter);
-        
-      } else {
-        console.error('Failed to remove member:', data);
-        alert(`Failed to remove member: ${data.error || 'Unknown error'}`);
+      } finally {
+        setIsDeleting(false);
       }
-      
-    } catch (error) {
-      console.error('Error removing member:', error);
-      alert('Network error occurred while removing member. Please try again.');
-    } finally {
-      setIsDeleting(false);
-    }
+    }, 600); // Wait for animation to complete
   };
 
   // Function to close delete modal

@@ -7,10 +7,12 @@ const MemberCard = memo(({
   onDelete, 
   onEdit, 
   onViewMatches,
-  onViewProfile 
+  onViewProfile,
+  isDeleting = false
 }) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -95,6 +97,13 @@ const MemberCard = memo(({
     }
   }, [member, onDelete]);
 
+  // Trigger animation when isDeleting prop becomes true
+  useEffect(() => {
+    if (isDeleting) {
+      setIsAnimatingOut(true);
+    }
+  }, [isDeleting]);
+
   const handleImageError = useCallback((e) => {
     e.target.src = getFallbackImage();
   }, [getFallbackImage]);
@@ -110,7 +119,7 @@ const MemberCard = memo(({
 
   return (
     <div
-      className="member-card"
+      className={`member-card ${isAnimatingOut ? 'animate-out' : ''} ${isDeleting ? 'is-deleting' : ''}`}
       onClick={handleCardClick}
     >
       {/* Card Header */}
