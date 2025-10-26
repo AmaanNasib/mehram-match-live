@@ -182,34 +182,31 @@ const MemberCard = memo(({
 
       {/* Member Details Grid */}
       <div className="card-details-grid">
-        <div className="detail-item">
-          <span className="detail-label">Age</span>
-          <span className="detail-value">
-            {member?.age || "N/A"}
-          </span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-label">Gender</span>
-          <span className="detail-value">{member?.gender || "N/A"}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-label">Location</span>
-          <span className="detail-value">{member?.location || member?.city || "N/A"}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-label">Sect</span>
-          <span className="detail-value">{member?.sect || member?.sect_school_info || "N/A"}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-label">Profession</span>
-          <span className="detail-value">{member?.profession || "N/A"}</span>
-        </div>
-        <div className="detail-item marital-status-item">
-          <span className="detail-label">Marital Status</span>
-          <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-            {member?.martial_status || "Not mentioned"}
-          </span>
-        </div>
+          <div className="detail-row">
+            <span className="detail-label">Age</span>
+            <span className="detail-value">{member?.age || "N/A"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Gender</span>
+            <span className="detail-value">{member?.gender || "N/A"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Location</span>
+            <span className="detail-value">{member?.location || member?.city || "N/A"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Sect</span>
+            <span className="detail-value">{member?.sect || member?.sect_school_info || "N/A"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Profession</span>
+            <span className="detail-value">{member?.profession || "N/A"}</span>
+          </div>
+          <div className="detail-row">
+            <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+              {member?.martial_status || "Not mentioned"}
+            </span>
+          </div>
       </div>
 
       {/* Card Footer */}

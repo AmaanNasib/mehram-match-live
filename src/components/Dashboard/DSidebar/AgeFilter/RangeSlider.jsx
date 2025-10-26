@@ -2,8 +2,17 @@ import React, { useEffect, useState } from "react";
 import "./rangeSlider.css"; // Include your CSS styles
 
 const RangeSlider = ({setRangeText, rangeText}) => {
-  const [minValue, setMinValue] = useState(18);
-  const [maxValue, setMaxValue] = useState(23);
+  // Parse initial values from rangeText prop to maintain state
+  const getInitialValues = () => {
+    if (rangeText && rangeText.includes('-')) {
+      const [min, max] = rangeText.split('-').map(Number);
+      return { min: min || 18, max: max || 23 };
+    }
+    return { min: 18, max: 23 };
+  };
+  
+  const [minValue, setMinValue] = useState(getInitialValues().min);
+  const [maxValue, setMaxValue] = useState(getInitialValues().max);
 
   const handleMinChange = (e) => {
     const value = parseInt(e.target.value, 10);
@@ -21,13 +30,21 @@ const RangeSlider = ({setRangeText, rangeText}) => {
 
   const minPercent = ((minValue - 18) / (50 - 18)) * 100;
   const maxPercent = ((maxValue - 18) / (50 - 18)) * 100;
+// Update rangeText when slider values change
 useEffect(() => {
   setRangeText(`${minValue}-${maxValue}`); 
+}, [minValue, maxValue, setRangeText]);
 
-  return () => {
-    
+// Update slider values when rangeText prop changes (to prevent reset)
+useEffect(() => {
+  if (rangeText && rangeText.includes('-')) {
+    const [min, max] = rangeText.split('-').map(Number);
+    if (min && max && (min !== minValue || max !== maxValue)) {
+      setMinValue(min);
+      setMaxValue(max);
+    }
   }
-}, [maxPercent,minPercent])
+}, [rangeText]);
 
 // Format the range as "18-25"
 

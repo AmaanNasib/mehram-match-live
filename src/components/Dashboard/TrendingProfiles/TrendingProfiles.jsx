@@ -7,6 +7,7 @@ import {  useNavigate ,} from 'react-router-dom';
 const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [agentCurrentMembers, setAgentCurrentMembers] = useState(new Set());
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -25,6 +26,34 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Fetch agent's current members to filter deleted members
+  useEffect(() => {
+    const currentRole = localStorage.getItem('role');
+    const userId = localStorage.getItem('userId');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
+    if (currentRole === 'agent' && !isImpersonating && userId) {
+      // Fetch agent's current members list
+      fetch(`${process.env.REACT_APP_API_URL}/api/agent/user_agent/?agent_id=${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data && Array.isArray(data)) {
+          // Create a Set of current member IDs
+          const currentMemberIds = new Set(data.map(member => member.id));
+          setAgentCurrentMembers(currentMemberIds);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching agent members:', error);
+      });
+    }
   }, []);
 
     const navigate =useNavigate();
@@ -74,12 +103,17 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
                   return false;
                 }
                 
-                // For agents, show all completed profiles (both male and female)
+                // For agents, check if member was deleted
                 const currentRole = localStorage.getItem('role');
                 const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+                const profileId = user?.id || profile?.id;
                 
-                if (currentRole === 'agent' && !isImpersonating) {
-                  return true; // Show all completed profiles for agents
+                if (currentRole === 'agent' && !isImpersonating && profileId) {
+                  // Only show if this member is in agent's current members list
+                  if (!agentCurrentMembers.has(profileId)) {
+                    return false; // Don't show deleted member
+                  }
+                  return true; // Show all current completed profiles for agents
                 }
                 
                 // For regular users, show opposite gender

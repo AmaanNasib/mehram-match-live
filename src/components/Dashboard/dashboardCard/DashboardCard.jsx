@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./dashboardCard.css";
 import heart from "../../../images/colorHeart.svg";
 import men1 from "../../../images/men8.jpg";
-import { postDataWithFetchV2, fetchDataV2, justUpdateDataV2, putDataWithFetchV2 } from "../../../apiUtils";
+import { postDataWithFetchV2, fetchDataV2, justUpdateDataV2, putDataWithFetchV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { useNavigate } from "react-router-dom";
 
 const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, activeUser }) => {
@@ -19,6 +19,7 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   const [photoRequestStatus, setPhotoRequestStatus] = useState(null); // Track photo request status: 'pending', 'accepted', 'rejected', null
   const [loadingPhotoStatus, setLoadingPhotoStatus] = useState(false);
   const role =localStorage.getItem('role');
+  const [blockedUserIds, setBlockedUserIds] = useState(new Set()); // Track blocked user IDs
 
   // Function to get marital status badge color
   const getMaritalStatusColor = (maritalStatus) => {
@@ -99,28 +100,89 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
   };
 
   const blocked = (interestedId) => {
-    const parameter = {
-      url: `/api/recieved/`,
-      payload: {
-        action_by_id: userId,
-        action_on_id: interestedId,
-        blocked: true,
-      },
-      setErrors: setErrors,
-      tofetch: {
-        items: [
-          {
-            fetchurl: url,
-            dataset: setApiData,
-            setSuccessMessage: setSuccessMessage,
-            setErrors: setErrors,
-          },
-        ],
-        setSuccessMessage: setSuccessMessage,
+    // Check if user is agent and use agent block API
+    if (role === 'agent') {
+      const parameter = {
+        url: `/api/agent/block/`,
+        payload: {
+          action_on_id: Number(interestedId),
+        },
         setErrors: setErrors,
-      },
-    };
-    postDataWithFetchV2(parameter);
+        tofetch: {
+          items: [
+            {
+              fetchurl: url,
+              dataset: setApiData,
+              setSuccessMessage: setSuccessMessage,
+              setErrors: setErrors,
+            },
+          ],
+          setSuccessMessage: setSuccessMessage,
+          setErrors: setErrors,
+        },
+      };
+      postDataWithFetchV2(parameter);
+      // Update blocked list immediately
+      setBlockedUserIds(prev => new Set([...prev, Number(interestedId)]));
+    } else {
+      // Regular user block
+      const parameter = {
+        url: `/api/recieved/`,
+        payload: {
+          action_by_id: userId,
+          action_on_id: interestedId,
+          blocked: true,
+        },
+        setErrors: setErrors,
+        tofetch: {
+          items: [
+            {
+              fetchurl: url,
+              dataset: setApiData,
+              setSuccessMessage: setSuccessMessage,
+              setErrors: setErrors,
+            },
+          ],
+          setSuccessMessage: setSuccessMessage,
+          setErrors: setErrors,
+        },
+      };
+      postDataWithFetchV2(parameter);
+    }
+  };
+
+  const unblock = (interestedId) => {
+    // Check if user is agent and use agent unblock API
+    if (role === 'agent') {
+      const parameter = {
+        url: `/api/agent/unblock/`,
+        payload: {
+          action_on_id: Number(interestedId),
+        },
+        setErrors: setErrors,
+        setSuccessMessage: setSuccessMessage,
+        tofetch: {
+          items: [
+            {
+              fetchurl: url,
+              dataset: setApiData,
+              setSuccessMessage: setSuccessMessage,
+              setErrors: setErrors,
+            },
+          ],
+          setSuccessMessage: setSuccessMessage,
+          setErrors: setErrors,
+        },
+      };
+      postDataWithFetchV2(parameter);
+      // Update blocked list immediately
+      setBlockedUserIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(Number(interestedId));
+        console.log('Unblocked user ID:', interestedId, 'Updated blocked list:', Array.from(newSet));
+        return newSet;
+      });
+    }
   };
 
   // Demo functions for testing photo request status updates
@@ -235,6 +297,36 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
       checkPhotoRequestStatus();
     }
   }, [profile?.id, userId]);
+
+  // Fetch blocked users for agent
+  useEffect(() => {
+    if (role === 'agent' && userId) {
+      const parameter = {
+        url: `/api/agent/blocked/count/`,
+        setterFunction: (data) => {
+          console.log('Blocked users data:', data);
+          // Extract blocked user IDs from the response
+          // Response format: {total_blocked_count: X, member_blocks: Y, agent_direct_blocks: Z}
+          // We need to fetch the actual list of blocked users
+          const parameter2 = {
+            url: `/api/user/blocked/?user_id=${userId}`,
+            setterFunction: (blockedData) => {
+              console.log('Actual blocked users list:', blockedData);
+              if (blockedData && blockedData.blocked_users) {
+                const blockedIds = blockedData.blocked_users.map(blocked => blocked.user?.id || blocked.blocked_user?.id).filter(id => id);
+                console.log('Blocked IDs:', blockedIds);
+                setBlockedUserIds(new Set(blockedIds));
+              }
+            },
+            setErrors: setErrors,
+          };
+          fetchDataWithTokenV2(parameter2);
+        },
+        setErrors: setErrors,
+      };
+      fetchDataWithTokenV2(parameter);
+    }
+  }, [role, userId]);
 
   // Function to check existing photo request status
   const checkPhotoRequestStatus = async () => {
@@ -417,6 +509,47 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
           </div>
         )}
         
+        {/* Blocked User Stamp - Overlay on photo for agents */}
+        {console.log('Stamp check - Profile ID:', profile?.id, 'Blocked IDs:', Array.from(blockedUserIds), 'Should show stamp:', role === 'agent' && profile?.id && blockedUserIds.has(Number(profile.id)))}
+        {role === 'agent' && profile?.id && blockedUserIds.has(Number(profile.id)) && (
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(220, 38, 38, 0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 5,
+              borderRadius: '8px'
+            }}
+          >
+            <div style={{
+              background: 'white',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontWeight: '700',
+              fontSize: '16px',
+              color: '#DC2626',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            }}>
+              <svg width="20" height="20" viewBox="0 0 21 20" fill="none">
+                <path
+                  d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
+                  fill="#DC2626"
+                />
+              </svg>
+              BLOCKED
+            </div>
+          </div>
+        )}
+        
         {/* Three-dot menu button */}
         <div className="menu-container" style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}>
           <button 
@@ -551,69 +684,70 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                     </div>
                   )}
 
-                  <div
-                    className="menu-item"
-                    onClick={() => {
-                      setShowMenu(false);
-                      blocked(profile.id);
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '14px',
-                      color: '#dc2626',
-                      transition: 'background-color 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#fef2f2';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
-                      <path
-                        d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
-                        fill="#dc2626"
-                      />
-                    </svg>
-                    Ignore
-                  </div>
-
-                  <div
-                    className="menu-item"
-                    onClick={() => {
-                      setShowMenu(false);
-                      blocked(profile.id);
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '14px',
-                      color: '#dc2626',
-                      transition: 'background-color 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#fef2f2';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
-                      <path
-                        d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
-                        fill="#dc2626"
-                      />
-                    </svg>
-                    Block User
-                  </div>
+                  {/* Conditional Block/Unblock for agent */}
+                  {role === 'agent' && blockedUserIds.has(Number(profile.id)) ? (
+                    <div
+                      className="menu-item"
+                      onClick={() => {
+                        setShowMenu(false);
+                        unblock(profile.id);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        color: '#059669',
+                        transition: 'background-color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#f0fdf4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18"/>
+                        <path d="M6 6l12 12"/>
+                      </svg>
+                      Unblock User
+                    </div>
+                  ) : (
+                    <div
+                      className="menu-item"
+                      onClick={() => {
+                        setShowMenu(false);
+                        blocked(profile.id);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        color: '#dc2626',
+                        transition: 'background-color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#fef2f2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
+                        <path
+                          d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
+                          fill="#dc2626"
+                        />
+                      </svg>
+                      Block User
+                    </div>
+                  )}
                 </>
               )}
 
@@ -650,37 +784,69 @@ const DashboardCard = ({ profile, setApiData, IsInterested, url, interested_id, 
                     Report User
                   </div>
 
-                  <div
-                    className="menu-item"
-                    onClick={() => {
-                      setShowMenu(false);
-                      blocked(profile.id);
-                    }}
-                    style={{
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '14px',
-                      color: '#dc2626',
-                      transition: 'background-color 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#fef2f2';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
-                      <path
-                        d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
-                        fill="#dc2626"
-                      />
-                    </svg>
-                    Block User
-                  </div>
+                  {role === 'agent' && blockedUserIds.has(Number(profile.id)) ? (
+                    <div
+                      className="menu-item"
+                      onClick={() => {
+                        setShowMenu(false);
+                        unblock(profile.id);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        color: '#059669',
+                        transition: 'background-color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#f0fdf4';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18"/>
+                        <path d="M6 6l12 12"/>
+                      </svg>
+                      Unblock User
+                    </div>
+                  ) : (
+                    <div
+                      className="menu-item"
+                      onClick={() => {
+                        setShowMenu(false);
+                        blocked(profile.id);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        color: '#dc2626',
+                        transition: 'background-color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#fef2f2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 21 20" fill="none">
+                        <path
+                          d="M10.2598 1.87109C8.78841 1.87109 7.42122 2.24219 6.1582 2.98438C4.93424 3.70052 3.96419 4.67057 3.24805 5.89453C2.50586 7.15755 2.13477 8.52474 2.13477 9.99609C2.13477 11.4674 2.50586 12.8346 3.24805 14.0977C3.96419 15.3216 4.93424 16.2917 6.1582 17.0078C7.42122 17.75 8.78841 18.1211 10.2598 18.1211C11.7311 18.1211 13.0983 17.75 14.3613 17.0078C15.5853 16.2917 16.5553 15.3216 17.2715 14.0977C18.0137 12.8346 18.3848 11.4674 18.3848 9.99609C18.3848 8.52474 18.0137 7.15755 17.2715 5.89453C16.5553 4.67057 15.5853 3.70052 14.3613 2.98438C13.0983 2.24219 11.7311 1.87109 10.2598 1.87109ZM10.2598 3.12109C11.5098 3.12109 12.6686 3.43359 13.7363 4.05859C14.765 4.67057 15.5853 5.49089 16.1973 6.51953C16.8223 7.58724 17.1348 8.74609 17.1348 9.99609C17.1348 10.8294 16.9915 11.6367 16.7051 12.418C16.4186 13.1602 16.015 13.8372 15.4941 14.4492L5.9043 4.66406C6.50326 4.16927 7.17383 3.78841 7.91602 3.52148C8.6582 3.25456 9.43945 3.12109 10.2598 3.12109ZM5.02539 5.54297L14.6152 15.3281C14.0163 15.8229 13.3457 16.2038 12.6035 16.4707C11.8613 16.7376 11.0801 16.8711 10.2598 16.8711C9.00977 16.8711 7.85091 16.5586 6.7832 15.9336C5.75456 15.3216 4.93424 14.5013 4.32227 13.4727C3.69727 12.4049 3.38477 11.2461 3.38477 9.99609C3.38477 9.16276 3.52799 8.35547 3.81445 7.57422C4.10091 6.83203 4.50456 6.15495 5.02539 5.54297Z"
+                          fill="#dc2626"
+                        />
+                      </svg>
+                      Block User
+                    </div>
+                  )}
                 </>
               )}
             </div>

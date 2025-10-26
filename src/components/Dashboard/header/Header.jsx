@@ -1024,7 +1024,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               Dashboard
             </a>
             <a
-              href={role === "agent" ? `/my-memberss/${userId}` : `/myprofile/${userId}`}
+              href={role === "agent" ? `/my-memberss/` : `/newdashboard`}
               className={activeSubNav === (role === "agent" ? "My Members" : "My Profile") ? "activeSubNav" : ""}
               onClick={() => handleSubNavClick(role === "agent" ? "/my-memberss" : "/myprofile")}
             >
