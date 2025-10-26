@@ -1252,9 +1252,9 @@ const DashboardLayout = ({
 
               {role === "agent" && (
                 <div
-                  className={`nav-item ${isActive("/member-interest") ? "active" : ""}`}
-                  title={!showSidebar ? "Member Interest" : ""}
-                  onClick={() => navigate("/member-interest")}
+                  className={`nav-item ${isActive("/member-interest-agent") ? "active" : ""}`}
+                  title={!showSidebar ? "Total Interest" : ""}
+                  onClick={() => navigate("/member-interest-agent")}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="nav-item-icon">
@@ -1271,7 +1271,7 @@ const DashboardLayout = ({
                       />
                     </svg>
                   </div>
-                  {showSidebar && <span className="nav-item-text">Total Interests</span>}
+                  {showSidebar && <span className="nav-item-text">Total Interest</span>}
                 </div>
               )}
 

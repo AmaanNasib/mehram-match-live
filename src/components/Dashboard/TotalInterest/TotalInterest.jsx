@@ -1373,7 +1373,7 @@ const TotalInterest = () => {
             color: #374151;
             font-weight: 600;
             padding: 12px 16px;
-            text-align: left;
+            text-align: center !important;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -1398,6 +1398,8 @@ const TotalInterest = () => {
             font-size: 14px;
             color: #1f2937;
             background: #ffffff;
+            text-align: center !important;
+            vertical-align: middle;
           }
           
           .interest-table td:last-child {

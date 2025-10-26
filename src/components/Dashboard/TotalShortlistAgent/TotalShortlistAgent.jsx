@@ -186,213 +186,152 @@ const TotalShortlistAgent = () => {
           <p className="subtitle">Manage your shortlisted members</p>
         </div>
 
-
-        {/* Content */}
-        <div className="shortlist-content">
-          {loading && (
-            <div className="loading-state">
-              <div className="loading-spinner"></div>
-              <p>Loading shortlist...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="error-state">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                <line x1="15" y1="9" x2="9" y2="15" strokeWidth="2"/>
-                <line x1="9" y1="9" x2="15" y2="15" strokeWidth="2"/>
-              </svg>
-              <h3>Error Loading Data</h3>
-              <p>Failed to load shortlist data. Please try again.</p>
-            </div>
-          )}
-
-          {!loading && !error && filteredData.length === 0 && (
-            <div className="empty-state">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
-              </svg>
-              <h3>No Shortlisted Members</h3>
-              <p>You haven't shortlisted any members yet</p>
-            </div>
-          )}
-
-          {!loading && !error && filteredData.length > 0 && (
-            <table className="members-table">
-                  <thead>
-                    <tr>
-                      <th onClick={() => handleSort('member_id')} className="sortable-header">
-                        Member ID
-                        {sortConfig.key === 'member_id' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th>Photo</th>
-                      <th onClick={() => handleSort('name')} className="sortable-header">
-                        Name
-                        {sortConfig.key === 'name' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('age')} className="sortable-header">
-                        Age
-                        {sortConfig.key === 'age' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('marital_status')} className="sortable-header">
-                        Marital Status
-                        {sortConfig.key === 'marital_status' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('profession')} className="sortable-header">
-                        Profession
-                        {sortConfig.key === 'profession' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('sect')} className="sortable-header">
-                        Sect
-                        {sortConfig.key === 'sect' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('location')} className="sortable-header">
-                        Location
-                        {sortConfig.key === 'location' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th onClick={() => handleSort('shortlisted_date')} className="sortable-header">
-                        Shortlisted Date
-                        {sortConfig.key === 'shortlisted_date' && (
-                          <span className="sort-indicator">
-                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                          </span>
-                        )}
-                      </th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredData.map((item, index) => (
-                      <tr key={item.id || index} className="table-row">
-                        <td style={{ textAlign: 'center' }}>
-                          <span className="shortlist-member-id-badge">
-                            {item.action_on?.member_id || "N/A"}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <div className="member-photo-cell">
-                            <div className="member-avatar">
-                              <img
-                                src={getProfileImageUrl(item.action_on?.profile_photo)}
-                                alt={item.action_on?.name || "Member"}
-                                className="avatar-img"
-                                onError={(e) => {
-                                  e.target.src = "https://via.placeholder.com/50";
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className="simple-member-name">
-                            {item.action_on?.name || "N/A"}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>{item.action_on?.age || "N/A"}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className={`marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                            {item.action_on?.martial_status || "Not mentioned"}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>{item.action_on?.profession || "N/A"}</td>
-                        <td style={{ textAlign: 'center' }}>{item.action_on?.sect_school_info || "N/A"}</td>
-                        <td style={{ textAlign: 'center' }}>{item.action_on?.city || "N/A"}</td>
-                        <td style={{ textAlign: 'center' }}>{formatDate(item.created_at)}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <div className="table-actions">
-                            <button
-                              className="action-btn view-btn modern-btn"
-                              onClick={() => handleViewUserDetails(item.action_on)}
-                              title="View User Details"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                              </svg>
-                            </button>
-                            
-                            <button
-                              className="action-btn remove-btn modern-btn"
-                              onClick={() => handleRemoveFromShortlist(item)}
-                              title="Remove from shortlist"
-                              style={{
-                                width: "36px",
-                                height: "36px",
-                                minWidth: "36px",
-                                minHeight: "36px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center"
-                              }}
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="18" y1="6" x2="6" y2="18"/>
-                                <line x1="6" y1="6" x2="18" y2="18"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-          )}
-        </div>
-
-        {/* Stats */}
-        {!loading && !error && filteredData.length > 0 && (
-          <div className="stats-section">
-            <div className="stats-card">
-              <div className="stats-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
-                </svg>
-              </div>
-              <div className="stats-content">
-                <h3>Total Shortlisted</h3>
-                <p className="stats-number">{filteredData.length}</p>
-              </div>
-            </div>
+        {loading && (
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <p>Loading shortlist...</p>
           </div>
         )}
+
+        {error && (
+          <div className="error-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" strokeWidth="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" strokeWidth="2"/>
+            </svg>
+            <h3>Error Loading Data</h3>
+            <p>Failed to load shortlist data. Please try again.</p>
+          </div>
+        )}
+
+        {!loading && !error && filteredData.length === 0 && (
+          <div className="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
+            </svg>
+            <h3>No Shortlisted Members</h3>
+            <p>You haven't shortlisted any members yet</p>
+          </div>
+        )}
+
+        {!loading && !error && filteredData.length > 0 && (
+          <table className="interest-table">
+            <thead>
+              <tr>
+                <th onClick={() => handleSort('member_id')} className="sortable-header">
+                  MEMBER ID
+                  {sortConfig.key === 'member_id' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th onClick={() => handleSort('location')} className="sortable-header">
+                  Location
+                  {sortConfig.key === 'location' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('shortlisted_date')} className="sortable-header">
+                  Date
+                  {sortConfig.key === 'shortlisted_date' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('sect')} className="sortable-header">
+                  Sect
+                  {sortConfig.key === 'sect' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('profession')} className="sortable-header">
+                  Profession
+                  {sortConfig.key === 'profession' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('marital_status')} className="sortable-header">
+                  Marital Status
+                  {sortConfig.key === 'marital_status' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((item, index) => (
+                <tr key={item.id || index} style={{ cursor: "pointer" }} onClick={() => handleViewUserDetails(item.action_on)}>
+                  <td>{item.action_on?.member_id || "N/A"}</td>
+                  <td>
+                    <img
+                      src={getProfileImageUrl(item.action_on?.profile_photo)}
+                      alt={item.action_on?.name || "Member"}
+                      style={{ 
+                        width: "32px", 
+                        height: "32px", 
+                        borderRadius: "50%", 
+                        objectFit: "cover",
+                        border: "2px solid #e0e0e0"
+                      }}
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/50";
+                      }}
+                    />
+                  </td>
+                  <td>{item.action_on?.name || "N/A"}</td>
+                  <td>{item.action_on?.city || "N/A"}</td>
+                  <td>{formatDate(item.created_at)}</td>
+                  <td>{item.action_on?.sect_school_info || "N/A"}</td>
+                  <td>{item.action_on?.profession || "N/A"}</td>
+                  <td>
+                    <span className={`marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                      {item.action_on?.martial_status || "Not mentioned"}
+                    </span>
+                  </td>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="action-btn remove-btn modern-btn"
+                      onClick={() => handleRemoveFromShortlist(item)}
+                      title="Remove from shortlist"
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        minWidth: "32px",
+                        maxWidth: "32px",
+                        minHeight: "32px",
+                        maxHeight: "32px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "0"
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
 
         {/* User Details Modal */}
         {showUserModal && selectedUser && (

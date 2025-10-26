@@ -139,6 +139,62 @@
   border-bottom: 1px solid #f3f4f6;
 }
 
+/* Interest Table Styles (for matching TotalInterest) */
+.interest-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-top: 20px;
+  table-layout: fixed;
+}
+
+.interest-table thead {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.interest-table th {
+  padding: 12px;
+  text-align: center !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ddd;
+  background: #f0f0f0;
+  color: #333;
+  font-size: 13px;
+}
+
+.interest-table td {
+  padding: 12px;
+  text-align: center !important;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.interest-table td > img {
+  margin: 0 auto;
+  display: block;
+}
+
+.interest-table td > button {
+  margin: 0 auto;
+}
+
+.interest-table td > span {
+  display: inline-block;
+}
+
+.interest-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.interest-table tbody tr:hover {
+  background: #f1f1f1;
+}
+
 /* Member ID Badge */
 .shortlist-member-id-badge {
   background: linear-gradient(135deg, #CB3B8B 0%, #EB53A7 50%, #F971BC 100%) !important;

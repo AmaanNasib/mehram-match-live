@@ -1,0 +1,181 @@
+.member-interest-agent-container {
+  padding: 24px;
+  width: 100%;
+  margin: 0;
+}
+
+.member-interest-agent-header {
+  margin-bottom: 32px;
+}
+
+.member-interest-agent-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.member-interest-agent-header .subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.member-interest-agent-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.member-interest-agent-tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.member-interest-agent-tab-button:hover {
+  color: #1f2937;
+  background: #f9fafb;
+}
+
+.member-interest-agent-tab-button.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: transparent;
+}
+
+.member-interest-agent-tab-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.member-interest-agent-content {
+  min-height: 400px;
+}
+
+/* Withdraw Button */
+.member-interest-agent-withdraw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.member-interest-agent-withdraw-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.member-interest-agent-withdraw-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.member-interest-agent-no-action {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Action Buttons Group */
+.member-interest-agent-action-buttons-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Accept Button */
+.member-interest-agent-accept-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.member-interest-agent-accept-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.member-interest-agent-accept-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Reject Button */
+.member-interest-agent-reject-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.member-interest-agent-reject-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.member-interest-agent-reject-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .member-interest-agent-container {
+    padding: 16px;
+  }
+
+  .member-interest-agent-header h2 {
+    font-size: 24px;
+  }
+
+  .member-interest-agent-tabs {
+    gap: 8px;
+  }
+
+  .member-interest-agent-tab-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}

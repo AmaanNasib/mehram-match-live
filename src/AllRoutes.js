@@ -65,6 +65,7 @@ import MemberAnalytics from "./components/Dashboard/MemberAnalytics/MemberAnalyt
 import MemberMatches from "./components/Dashboard/MemberMatches/MemberMatches";
 import MemberInterest from "./components/Dashboard/MemberInterest/MemberInterest";
 import MemberRequests from "./components/Dashboard/MemberRequests/MemberRequests";
+import Member_Interest from "./components/Dashboard/AgentActions/Member_Interest";
 // import MemberInterests from "./components/Dashboard/MemberInterests/MemberInterests";
 
 const AllRoutes = () => {
@@ -365,6 +366,14 @@ const AllRoutes = () => {
           element={
             <PrivateRoute>
               <MemberRequests />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/member-interest-agent"
+          element={
+            <PrivateRoute>
+              <Member_Interest />
             </PrivateRoute>
           }
         />
