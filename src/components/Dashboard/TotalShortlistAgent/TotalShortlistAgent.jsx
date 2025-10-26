@@ -13,6 +13,7 @@ const TotalShortlistAgent = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   // Fetch agent shortlist data
   useEffect(() => {
@@ -69,27 +70,33 @@ const TotalShortlistAgent = () => {
     }
   };
 
-  const handleRemoveFromShortlist = async (shortlistId) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/shortlist/${shortlistId}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  const handleRemoveFromShortlist = async (item) => {
+    if (window.confirm(`Are you sure you want to unshortlist ${item.action_on?.name || 'this user'}?`)) {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/shortlist/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action_on_id: item.action_on?.id,
+            shortlisted: false
+          })
+        });
 
-      if (response.ok) {
-        // Remove from local state
-        setShortlistData(prev => prev.filter(item => item.id !== shortlistId));
-        setFilteredData(prev => prev.filter(item => item.id !== shortlistId));
-        alert('Removed from shortlist successfully');
-      } else {
-        alert('Failed to remove from shortlist');
+        if (response.ok) {
+          // Remove from local state
+          setShortlistData(prev => prev.filter(shortlistItem => shortlistItem.id !== item.id));
+          setFilteredData(prev => prev.filter(shortlistItem => shortlistItem.id !== item.id));
+          alert('User unshortlisted successfully');
+        } else {
+          alert('Failed to unshortlist user');
+        }
+      } catch (error) {
+        console.error('Error unshortlisting user:', error);
+        alert('Error unshortlisting user');
       }
-    } catch (error) {
-      console.error('Error removing from shortlist:', error);
-      alert('Error removing from shortlist');
     }
   };
 
@@ -97,6 +104,74 @@ const TotalShortlistAgent = () => {
     setSelectedUser(user);
     setShowUserModal(true);
   };
+
+  const handleSort = (column) => {
+    let direction = 'asc';
+    if (sortConfig.key === column && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key: column, direction });
+  };
+
+  // Sort functionality
+  useEffect(() => {
+    if (!sortConfig.key) return;
+
+    const sortedData = [...filteredData].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortConfig.key) {
+        case 'member_id':
+          aValue = a.action_on?.member_id || '';
+          bValue = b.action_on?.member_id || '';
+          break;
+        case 'name':
+          aValue = a.action_on?.name || '';
+          bValue = b.action_on?.name || '';
+          break;
+        case 'age':
+          aValue = parseInt(a.action_on?.age) || 0;
+          bValue = parseInt(b.action_on?.age) || 0;
+          break;
+        case 'marital_status':
+          aValue = a.action_on?.martial_status || '';
+          bValue = b.action_on?.martial_status || '';
+          break;
+        case 'profession':
+          aValue = a.action_on?.profession || '';
+          bValue = b.action_on?.profession || '';
+          break;
+        case 'sect':
+          aValue = a.action_on?.sect_school_info || '';
+          bValue = b.action_on?.sect_school_info || '';
+          break;
+        case 'location':
+          aValue = a.action_on?.city || '';
+          bValue = b.action_on?.city || '';
+          break;
+        case 'shortlisted_date':
+          aValue = new Date(a.created_at);
+          bValue = new Date(b.created_at);
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortConfig.key === 'shortlisted_date') {
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    setFilteredData(sortedData);
+  }, [sortConfig]);
 
   const closeUserModal = () => {
     setShowUserModal(false);
@@ -147,27 +222,83 @@ const TotalShortlistAgent = () => {
             <table className="members-table">
                   <thead>
                     <tr>
-                      <th>Member ID</th>
+                      <th onClick={() => handleSort('member_id')} className="sortable-header">
+                        Member ID
+                        {sortConfig.key === 'member_id' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
                       <th>Photo</th>
-                      <th>Name</th>
-                      <th>Age</th>
-                      <th>Marital Status</th>
-                      <th>Profession</th>
-                      <th>Sect</th>
-                      <th>Location</th>
-                      <th>Shortlisted Date</th>
+                      <th onClick={() => handleSort('name')} className="sortable-header">
+                        Name
+                        {sortConfig.key === 'name' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('age')} className="sortable-header">
+                        Age
+                        {sortConfig.key === 'age' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('marital_status')} className="sortable-header">
+                        Marital Status
+                        {sortConfig.key === 'marital_status' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('profession')} className="sortable-header">
+                        Profession
+                        {sortConfig.key === 'profession' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('sect')} className="sortable-header">
+                        Sect
+                        {sortConfig.key === 'sect' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('location')} className="sortable-header">
+                        Location
+                        {sortConfig.key === 'location' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th onClick={() => handleSort('shortlisted_date')} className="sortable-header">
+                        Shortlisted Date
+                        {sortConfig.key === 'shortlisted_date' && (
+                          <span className="sort-indicator">
+                            {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                          </span>
+                        )}
+                      </th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredData.map((item, index) => (
                       <tr key={item.id || index} className="table-row">
-                        <td>
-                          <span className="member-id-badge">
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="shortlist-member-id-badge">
                             {item.action_on?.member_id || "N/A"}
                           </span>
                         </td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>
                           <div className="member-photo-cell">
                             <div className="member-avatar">
                               <img
@@ -181,22 +312,22 @@ const TotalShortlistAgent = () => {
                             </div>
                           </div>
                         </td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>
                           <span className="simple-member-name">
                             {item.action_on?.name || "N/A"}
                           </span>
                         </td>
-                        <td>{item.action_on?.age || "N/A"}</td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>{item.action_on?.age || "N/A"}</td>
+                        <td style={{ textAlign: 'center' }}>
                           <span className={`marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                             {item.action_on?.martial_status || "Not mentioned"}
                           </span>
                         </td>
-                        <td>{item.action_on?.profession || "N/A"}</td>
-                        <td>{item.action_on?.sect_school_info || "N/A"}</td>
-                        <td>{item.action_on?.city || "N/A"}</td>
-                        <td>{formatDate(item.created_at)}</td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>{item.action_on?.profession || "N/A"}</td>
+                        <td style={{ textAlign: 'center' }}>{item.action_on?.sect_school_info || "N/A"}</td>
+                        <td style={{ textAlign: 'center' }}>{item.action_on?.city || "N/A"}</td>
+                        <td style={{ textAlign: 'center' }}>{formatDate(item.created_at)}</td>
+                        <td style={{ textAlign: 'center' }}>
                           <div className="table-actions">
                             <button
                               className="action-btn view-btn modern-btn"
@@ -220,7 +351,7 @@ const TotalShortlistAgent = () => {
                             
                             <button
                               className="action-btn remove-btn modern-btn"
-                              onClick={() => handleRemoveFromShortlist(item.id)}
+                              onClick={() => handleRemoveFromShortlist(item)}
                               title="Remove from shortlist"
                               style={{
                                 width: "36px",

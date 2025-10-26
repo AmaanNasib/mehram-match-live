@@ -95,7 +95,7 @@
 
 .members-table th {
   padding: 16px 12px;
-  text-align: left;
+  text-align: center;
   font-weight: 600;
   font-size: 13px;
   text-transform: uppercase;
@@ -104,6 +104,22 @@
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: rgba(194, 222, 247, 0.884);
+}
+
+.sort-indicator {
+  margin-left: 8px;
+  font-weight: bold;
+  color: #fff;
 }
 
 .members-table tbody tr {
@@ -124,7 +140,7 @@
 }
 
 /* Member ID Badge */
-.member-id-badge {
+.shortlist-member-id-badge {
   background: linear-gradient(135deg, #CB3B8B 0%, #EB53A7 50%, #F971BC 100%) !important;
   color: white;
   padding: 6px 12px;
@@ -243,7 +259,7 @@
 
 .remove-btn:hover {
   background: #fecaca;
-  color: #b91c1c;
+  color: #ff0000;
 }
 
 /* Stats Section */
