@@ -386,6 +386,38 @@
   transform: scale(0.98);
 }
 
+.interest-btn {
+  background: transparent !important;
+  color: #10b981 !important;
+  border: 1px solid #10b981 !important;
+}
+
+.interest-btn:hover {
+  background: #10b981 !important;
+  color: white !important;
+  border-color: #10b981 !important;
+}
+
+.interest-btn:active {
+  transform: scale(0.98);
+}
+
+.request-btn {
+  background: transparent !important;
+  color: #3b82f6 !important;
+  border: 1px solid #3b82f6 !important;
+}
+
+.request-btn:hover {
+  background: #3b82f6 !important;
+  color: white !important;
+  border-color: #3b82f6 !important;
+}
+
+.request-btn:active {
+  transform: scale(0.98);
+}
+
 .delete-btn {
   background: transparent !important;
   color: #dc2626 !important;

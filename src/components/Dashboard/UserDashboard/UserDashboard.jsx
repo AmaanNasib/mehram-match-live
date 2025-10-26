@@ -345,20 +345,27 @@ const UserDashboard = () => {
           // Handle different response structures
           let shortlistCount = 0;
           if (Array.isArray(data)) {
-            shortlistCount = data.length;
+            // Filter only shortlisted: true items
+            shortlistCount = data.filter(item => item.shortlisted === true).length;
+            console.log('Filtered shortlist count (true only):', shortlistCount);
           } else if (data && typeof data === 'object') {
             // Check for count property
             if (data.total_shortlisted_count !== undefined) {
               shortlistCount = data.total_shortlisted_count;
             } else if (data.shortlisted !== undefined) {
-              shortlistCount = Array.isArray(data.shortlisted) ? data.shortlisted.length : data.shortlisted;
+              if (Array.isArray(data.shortlisted)) {
+                // Filter only shortlisted: true items
+                shortlistCount = data.shortlisted.filter(item => item.shortlisted === true).length;
+              } else {
+                shortlistCount = data.shortlisted;
+              }
             } else if (data.count !== undefined) {
               shortlistCount = data.count;
             } else {
-              // Try to get length from first array property
+              // Try to get length from first array property and filter
               const keys = Object.keys(data);
               if (keys.length > 0 && Array.isArray(data[keys[0]])) {
-                shortlistCount = data[keys[0]].length;
+                shortlistCount = data[keys[0]].filter(item => item.shortlisted === true).length;
               }
             }
           }
