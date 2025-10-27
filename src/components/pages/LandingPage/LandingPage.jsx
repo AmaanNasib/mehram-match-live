@@ -202,6 +202,42 @@ const LandingPage = () => {
     }
   };
 
+  // Google Sign Up Handler
+  const handleGoogleSignUp = (googleData) => {
+    console.log("Google sign up data:", googleData);
+    console.log("Navigating to memstepone after successful registration");
+    
+    const parameter = {
+      url: "/api/user/",
+      payload: {
+        contact_number: "", // Google users might not have phone
+        first_name: googleData.first_name,
+        last_name: googleData.last_name,
+        name: googleData.name,
+        onbehalf: googleData.on_behalf,
+        password: googleData.password,
+        dob: googleData.dob, // Use DOB from Google modal
+        gender: googleData.gender,
+        confirm_password: googleData.confirm_password,
+        terms_condition: googleData.terms_condition,
+        email: googleData.email,
+        is_google_signup: true, // Flag to identify Google signup
+      },
+      setErrors: setApiErrors,
+      navigate: navigate,
+      navUrl: "/memstepone/", // Will be updated with user ID in registration function
+      showSuccessMessage: (message) => {
+        console.log("Registration successful:", message);
+        alert(message);
+      },
+      showErrorMessage: (message) => {
+        console.log("Registration failed:", message);
+        alert(message);
+      },
+    };
+    registration(parameter);
+  };
+
   const verifyOtpAndCaptcha = (e) => {
     e.preventDefault();
     const isValid = handleValidOtp();
@@ -452,6 +488,7 @@ const LandingPage = () => {
           currentSlide={currentSlide}
           showTooltip={showTooltip}
           handleTooltipClick={handleTooltipClick}
+          onGoogleSignUp={handleGoogleSignUp}
         />
 
         {/* Analytics Section */}

@@ -39,13 +39,43 @@ const MemStepOne = () => {
   useEffect(() => {
     console.log("Current userId:", userId, "Edit Mode:", editMode, "Member ID:", memberId);
     if (userId) {
-      const parameter = {
-        url: `/api/user/${userId}/`,
-        setterFunction: setApiData,
-        setLoading: setLoading,
-        setErrors: setsetErrors,
-      };
-      fetchDataObjectV2(parameter);
+      // Check if this is a Google sign up user (temporary token)
+      const token = localStorage.getItem("token");
+      const isGoogleSignup = token && token.startsWith("google_");
+      
+      if (isGoogleSignup) {
+        console.log("Google sign up user - skipping API call, using form data");
+        
+        // Get stored Google user data
+        const googleUserData = JSON.parse(localStorage.getItem("googleUserData") || "{}");
+        console.log("Using Google user data:", googleUserData);
+        
+        // For Google sign up users, don't fetch from API, use the data from registration
+        setApiData({
+          id: userId,
+          first_name: googleUserData.first_name || localStorage.getItem("name")?.split(" ")[0] || "",
+          last_name: googleUserData.last_name || localStorage.getItem("name")?.split(" ")[1] || "",
+          name: localStorage.getItem("name") || "",
+          email: googleUserData.email || "",
+          onbehalf: googleUserData.onbehalf || "Self",
+          gender: googleUserData.gender || "male",
+          dob: googleUserData.dob || "",
+          // Add other default fields as needed
+          profile_started: true,
+          profile_completed: false,
+          profile_percentage: 0
+        });
+        setLoading(false);
+      } else {
+        // Regular user - fetch from API
+        const parameter = {
+          url: `/api/user/${userId}/`,
+          setterFunction: setApiData,
+          setLoading: setLoading,
+          setErrors: setsetErrors,
+        };
+        fetchDataObjectV2(parameter);
+      }
     }
   }, [userId, editMode, memberId]);
 

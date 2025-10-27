@@ -434,14 +434,6 @@ const AllRoutes = () => {
         />
 
         <Route
-          path="/memstepone"
-          element={
-            <PrivateRoute>
-              <MemStepOne />
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/memsteptwo"
           element={
             <PrivateRoute>

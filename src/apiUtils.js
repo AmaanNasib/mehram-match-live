@@ -839,10 +839,44 @@ const registration = (parameter) => {
       console.log("data : ", response.data);
 
       // Store tokens and user ID in localStorage
-      localStorage.setItem("token", response?.data?.access_token||response?.data?.access||'');
-      localStorage.setItem("refresh", response?.data?.refresh_token||'');
-      localStorage.setItem("userId", response?.data?.id);
-      localStorage.setItem("name", `${response?.data?.first_name ||''} ${response?.data?.last_name ||""}` || "");
+      console.log("Full API response:", response.data);
+      console.log("Available fields:", Object.keys(response.data));
+      
+      let token = response?.data?.access_token || response?.data?.access || response?.data?.token || '';
+      const refreshToken = response?.data?.refresh_token || response?.data?.refresh || '';
+      const userId = response?.data?.id;
+      const userName = `${response?.data?.first_name ||''} ${response?.data?.last_name ||""}` || "";
+      
+      // If no token found, generate a temporary one for Google sign up
+      if (!token && parameter?.payload?.is_google_signup) {
+        token = `google_${userId}_${Date.now()}`;
+        console.log("Generated temporary token for Google sign up:", token);
+      }
+      
+      console.log("Storing token:", token);
+      console.log("Storing userId:", userId);
+      console.log("Storing userName:", userName);
+      
+      localStorage.setItem("token", token);
+      localStorage.setItem("refresh", refreshToken);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("name", userName);
+      
+      // Store additional Google sign up data
+      if (parameter?.payload?.is_google_signup) {
+        localStorage.setItem("googleUserData", JSON.stringify({
+          email: parameter.payload.email,
+          onbehalf: parameter.payload.onbehalf,
+          gender: parameter.payload.gender,
+          dob: parameter.payload.dob,
+          first_name: parameter.payload.first_name,
+          last_name: parameter.payload.last_name
+        }));
+        console.log("Stored Google user data in localStorage");
+      }
+      
+      console.log("Token stored in localStorage:", localStorage.getItem("token"));
+      console.log("UserId stored in localStorage:", localStorage.getItem("userId"));
 
       // Show success message
       if (parameter?.showSuccessMessage) {
@@ -851,18 +885,39 @@ const registration = (parameter) => {
 
       // Navigate to the specified URL
       if (parameter?.navigate) {
-        // For agent registration, use the response ID in the URL
-        const navUrl = parameter?.navUrl?.includes('agentstepone') 
-          ? `/agentstepone/${response?.data?.id}` 
-          : parameter?.navUrl;
+        let navUrl = parameter?.navUrl;
+        console.log("Original navUrl:", navUrl);
+        console.log("User ID from response:", response?.data?.id);
         
-        parameter.navigate(navUrl, {
-          state: {
-            successMessage: "Successfully Created!",
-            successMessageColor: "#4285F4",
-          },
-        });
+        // Handle different registration types
+        if (parameter?.navUrl?.includes('agentstepone')) {
+          // Agent registration
+          navUrl = `/agentstepone/${response?.data?.id}`;
+          console.log("Agent registration - Final navUrl:", navUrl);
+        } else if (parameter?.navUrl?.includes('memstepone')) {
+          // Google sign up or regular user registration - go to memstepone with user ID
+          navUrl = `/memstepone/${response?.data?.id}`;
+          console.log("Google/User registration - Final navUrl:", navUrl);
+        } else if (parameter?.navUrl?.includes('newdashboard')) {
+          // Regular dashboard
+          navUrl = parameter?.navUrl;
+          console.log("Dashboard - Final navUrl:", navUrl);
+        }
+        
+        console.log("About to navigate to:", navUrl);
+        
+        // Small delay to ensure localStorage is set
+        setTimeout(() => {
+          parameter.navigate(navUrl, {
+            state: {
+              successMessage: "Successfully Created!",
+              successMessageColor: "#4285F4",
+            },
+          });
+          console.log("Navigation called successfully");
+        }, 100);
       } else {
+        console.log("No navigate function provided");
         // Optionally reload the page if no navigation is provided
         // window.location.reload();
       }

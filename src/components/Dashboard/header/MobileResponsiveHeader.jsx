@@ -385,7 +385,7 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
                     <div className="dropdown-content-mobile">
                       <div
                         className="dropdown-item-mobile"
-                        onClick={() => navigate(`/myprofile/${userId}`)}
+                        onClick={() => navigate(role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`)}
                       >
                         <FiUser className="dropdown-icon-mobile" />
                         My Profile
@@ -581,9 +581,9 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
                       Dashboard
                     </a>
                     <a 
-                      href={`/myprofile/${userId}`}
+                      href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`}
                       className={`mobile-nav-link ${activeSubNav === "My Profile" ? "active" : ""}`}
-                      onClick={() => handleSubNavClick("/newdashboard")}
+                      onClick={() => handleSubNavClick(role === "agent" ? "/agent-profile" : "/newdashboard")}
                     >
                       <img src={people} alt="" className="mobile-nav-icon" />
                       My Profile
@@ -685,9 +685,9 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
               Dashboard
             </a>
             <a
-              href={`/myprofile/${userId}`}
+              href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`}
               className={activeSubNav === "My Profile" ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick("/newdashboard")}
+              onClick={() => handleSubNavClick(role === "agent" ? "/agent-profile" : "/newdashboard")}
             >
               <i className="icon">
                 <img src={people} alt="" />

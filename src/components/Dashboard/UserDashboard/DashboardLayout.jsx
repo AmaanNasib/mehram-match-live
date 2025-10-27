@@ -222,7 +222,7 @@ const DashboardLayout = ({
     const suggestions = [
       { type: 'profile', text: `Search profiles matching "${query}"`, action: () => navigate(`/search?q=${query}`) },
       { type: 'dashboard', text: 'Dashboard', action: () => navigate('/user-dashboard') },
-      { type: 'profile', text: 'My Profile', action: () => navigate(`/myprofile/${userId}`) },
+      { type: 'profile', text: 'My Profile', action: () => navigate(role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`) },
       { type: 'settings', text: 'Settings', action: () => navigate('/settings') },
       { type: 'help', text: 'Help & Support', action: () => navigate('/help') },
       { type: 'matches', text: 'My Matches', action: () => navigate('/matches') },
@@ -833,7 +833,14 @@ const DashboardLayout = ({
                     <div
                       className="dropdown-item"
                       style={{ display: "flex", alignItems: "center" }}
-                      onClick={() => navigate(`/myprofile/${userId}`)}
+                      onClick={() => {
+                        console.log("DashboardLayout - My Profile clicked (first dropdown)");
+                        console.log("Role:", role);
+                        console.log("UserId:", userId);
+                        const targetUrl = role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`;
+                        console.log("Navigating to:", targetUrl);
+                        navigate(targetUrl);
+                      }}
                     >
                       <FiUser style={{ marginRight: "12px", fontSize: "16px" }} />
                       My Profile
@@ -1056,7 +1063,14 @@ const DashboardLayout = ({
                   <div
                     className="dropdown-item"
                     style={{ display: "flex", alignItems: "center" }}
-                    onClick={() => navigate(`/myprofile/${userId}`)}
+                    onClick={() => {
+                      console.log("DashboardLayout - My Profile clicked");
+                      console.log("Role:", role);
+                      console.log("UserId:", userId);
+                      const targetUrl = role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`;
+                      console.log("Navigating to:", targetUrl);
+                      navigate(targetUrl);
+                    }}
                   >
                     <FiUser style={{ marginRight: "12px", fontSize: "16px" }} />
                     My Profile
