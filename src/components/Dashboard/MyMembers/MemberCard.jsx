@@ -102,6 +102,11 @@ const MemberCard = memo(({
     navigate(`/member-interests/${member?.id || member?.member_id}`);
   }, [member?.id, member?.member_id, navigate]);
 
+  const handleRequestClick = useCallback((e) => {
+    e.stopPropagation();
+    navigate(`/member-request-send-received?memberId=${member?.id || member?.member_id}`);
+  }, [member?.id, member?.member_id, navigate]);
+
   // Trigger animation when isDeleting prop becomes true
   useEffect(() => {
     if (isDeleting) {
@@ -241,7 +246,8 @@ const MemberCard = memo(({
           {/* Request Button */}
           <button
             className="card-action-btn request-btn"
-            title="Send Request"
+            title="View Member Photo Requests"
+            onClick={handleRequestClick}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>

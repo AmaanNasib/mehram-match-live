@@ -68,6 +68,7 @@ import MemberInterest from "./components/Dashboard/MemberInterest/MemberInterest
 import MemberRequests from "./components/Dashboard/MemberRequests/MemberRequests";
 import Member_Interest from "./components/Dashboard/AgentActions/Member_Interest";
 import MemberInterests from "./components/Dashboard/MemberInterests/MemberInterests";
+import MemberRequestSend_Received from "./components/Dashboard/AgentActions/MemberRequestSend_Received";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -392,6 +393,14 @@ const AllRoutes = () => {
           element={
             <PrivateRoute>
               <MemberInterests />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/member-request-send-received"
+          element={
+            <PrivateRoute>
+              <MemberRequestSend_Received />
             </PrivateRoute>
           }
         />
