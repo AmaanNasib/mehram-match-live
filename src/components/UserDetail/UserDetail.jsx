@@ -4,6 +4,7 @@ import "./userDetail.css";
 import UserSetionOne from "./UserSetionOne";
 import UserDetailSecond from "./UserDetailSecond";
 import UserDetailThird from "./UserDetailThird";
+import MemberSendRequest from "./MemberSendRequest";
 import men from "../../images/men1.jpg"
 
 import { useState, useEffect } from "react";
@@ -24,6 +25,7 @@ const UserDetail = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [viewingImages, setViewingImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showMaleMemberModal, setShowMaleMemberModal] = useState(false);
 
   const [formData, setFormData] = useState({
     id: null,
@@ -150,20 +152,17 @@ const UserDetail = () => {
         apiData.photo_upload_privacy_option === 'Only to users whom I approve' && 
         currentUserId && apiData.id) {
       
-      console.log('Setting up periodic photo request status check');
       
       // Check immediately
       checkPhotoRequestStatus(currentUserId, apiData.id);
       
       // Set up periodic checking every 10 seconds (faster for testing)
       const interval = setInterval(() => {
-        console.log('Periodic check for photo request status');
         checkPhotoRequestStatus(currentUserId, apiData.id);
       }, 10000); // 10 seconds
 
       // Cleanup interval on component unmount or when dependencies change
       return () => {
-        console.log('Clearing photo request status check interval');
         clearInterval(interval);
       };
     }
@@ -295,7 +294,6 @@ const UserDetail = () => {
     setPhotoPrivacyLoading(true);
     
     try {
-      console.log('Checking photo request status for:', { currentUserId, targetUserId });
       
       // Try multiple endpoints for photo request status
       const baseUrl = process.env.REACT_APP_API_URL;
@@ -311,7 +309,6 @@ const UserDetail = () => {
       
       for (const endpoint of endpoints) {
         try {
-          console.log('Trying endpoint:', endpoint);
           
           response = await fetch(endpoint, {
             method: 'GET',
@@ -322,44 +319,33 @@ const UserDetail = () => {
             }
           });
           
-          console.log('Response status for', endpoint, ':', response.status);
-          console.log('Response headers for', endpoint, ':', Object.fromEntries(response.headers.entries()));
           
           if (response.ok) {
             const responseText = await response.text();
-            console.log('Raw response text for', endpoint, ':', responseText.substring(0, 200));
-            console.log('Content-Type header:', response.headers.get('content-type'));
             
             // Check if response is HTML (error page)
             if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-              console.log('Received HTML response from', endpoint, '- trying next endpoint');
               continue;
             }
             
             try {
               data = JSON.parse(responseText);
-              console.log('Successfully parsed JSON from', endpoint, ':', data);
               success = true;
               break;
             } catch (parseError) {
-              console.log('Failed to parse JSON from', endpoint, '- trying next endpoint');
               continue;
             }
           } else {
-            console.log('Non-200 response from', endpoint, '- trying next endpoint');
           }
         } catch (endpointError) {
-          console.log('Error with endpoint', endpoint, ':', endpointError.message, '- trying next endpoint');
         }
       }
       
       if (!success) {
-        console.error('All endpoints failed to return valid JSON');
         setCanViewPhotos(false);
         return;
       }
 
-      console.log('Photo request status data:', data);
       
       if (data && data.length > 0) {
         // Check if current user has sent a request to this profile
@@ -369,39 +355,29 @@ const UserDetail = () => {
         });
         
         if (userRequest) {
-          console.log('Found user request:', userRequest);
-          console.log('Request status:', userRequest.status);
-          console.log('Action by:', userRequest.action_by);
-          console.log('Action on:', userRequest.action_on);
           
           if (userRequest.status === 'Accepted') {
-            console.log('🎉 Photo request accepted - unlocking photos!');
             setCanViewPhotos(true);
             setRequestMessage('Photo access granted! Photos are now visible.');
             setShowRequestMessage(true);
             setTimeout(() => setShowRequestMessage(false), 5000);
           } else if (userRequest.status === 'Requested') {
-            console.log('⏳ Photo request pending - waiting for approval');
             setCanViewPhotos(false);
             setRequestMessage('Photo request sent - waiting for approval');
             setShowRequestMessage(true);
             setTimeout(() => setShowRequestMessage(false), 3000);
           } else if (userRequest.status === 'Rejected') {
-            console.log('❌ Photo request rejected');
             setCanViewPhotos(false);
             setRequestMessage('Photo request was rejected');
             setShowRequestMessage(true);
             setTimeout(() => setShowRequestMessage(false), 3000);
           } else {
-            console.log('❓ Photo request status unknown:', userRequest.status);
             setCanViewPhotos(false);
           }
         } else {
-          console.log('No photo request found from current user');
           setCanViewPhotos(false);
         }
       } else {
-        console.log('No photo requests found');
         setCanViewPhotos(false);
       }
     } catch (error) {
@@ -642,6 +618,35 @@ const UserDetail = () => {
     postDataWithFetchV2(parameter);
   };
 
+  // Check if user is agent
+  const isAgent = () => {
+    const userRole = localStorage.getItem('userRole');
+    const role = localStorage.getItem('role');
+    const userType = localStorage.getItem('userType');
+    
+    // Check role first since that's what exists in localStorage
+    return role === 'agent' || role === 'Agent' || userRole === 'agent' || userRole === 'Agent' || userType === 'agent' || userType === 'Agent';
+  };
+
+  // Open male member selection modal
+  const openMaleMemberModal = () => {
+    setShowMaleMemberModal(true);
+  };
+
+  // Handle success from modal
+  const handleModalSuccess = (message) => {
+    setRequestMessage(message);
+    setShowRequestMessage(true);
+    setTimeout(() => setShowRequestMessage(false), 5000);
+  };
+
+  // Handle error from modal
+  const handleModalError = (message) => {
+    setRequestMessage(message);
+    setShowRequestMessage(true);
+    setTimeout(() => setShowRequestMessage(false), 5000);
+  };
+
   useEffect(() => {
     if (apiData) {
       setFormData({
@@ -828,111 +833,81 @@ const UserDetail = () => {
 
                     {/* Request Button */}
                     <div className="request-section">
-                      <button className="request-photo-btn" onClick={handlePhotoRequest}>
-                        Request Photo Access
-                      </button>
-                      <p className="request-info">
-                        This user's photos are private. Click to request access.
-                      </p>
-                      {/* Manual status check button for testing */}
-                      <button 
-                        className="check-status-btn" 
-                        onClick={manualCheckStatus}
-                        style={{
-                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          marginTop: '8px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        Check Status
-                      </button>
-                      
-                      {/* Direct database check button */}
-                      <button 
-                        className="database-check-btn" 
-                        onClick={directDatabaseCheck}
-                        style={{
-                          background: 'linear-gradient(135deg, #10b981, #059669)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          marginTop: '8px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        Database Check
-                      </button>
-                      
-                      {/* Force unlock button (temporary workaround) */}
-                      <button 
-                        className="force-unlock-btn" 
-                        onClick={forceUnlockPhotos}
-                        style={{
-                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          marginTop: '8px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        Force Unlock
-                      </button>
-                      
-                      {/* Simulate accepted request button */}
-                      <button 
-                        className="simulate-accepted-btn" 
-                        onClick={simulateAcceptedRequest}
-                        style={{
-                          background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          marginTop: '8px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        Simulate Accepted
-                      </button>
-                      
-                      {/* Test all APIs button */}
-                      <button 
-                        className="test-apis-btn" 
-                        onClick={testAllAPIs}
-                        style={{
-                          background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-                          color: 'white',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          marginTop: '8px',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        Test All APIs
-                      </button>
+                      {isAgent() ? (
+                        // Agent Button - Send Request from Member
+                        <div className="agent-request-section">
+                          <button 
+                            className="agent-request-btn" 
+                            onClick={openMaleMemberModal}
+                            style={{
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '12px 24px',
+                              borderRadius: '8px',
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                            }}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                              <circle cx="9" cy="7" r="4"/>
+                              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Send Request from Member
+                          </button>
+                          <p className="agent-request-info" style={{
+                            fontSize: '14px',
+                            color: '#6b7280',
+                            marginTop: '8px',
+                            textAlign: 'center'
+                          }}>
+                            Select one of your male members to send photo request
+                          </p>
+                        </div>
+                      ) : (
+                        // Regular User Button - Direct Photo Request
+                        <div className="regular-request-section">
+                          <button 
+                            className="request-photo-btn" 
+                            onClick={handlePhotoRequest}
+                            style={{
+                              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '12px 24px',
+                              borderRadius: '8px',
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
+                            }}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            Request Photo Access
+                          </button>
+                          <p className="request-info" style={{
+                            fontSize: '14px',
+                            color: '#6b7280',
+                            marginTop: '8px',
+                            textAlign: 'center'
+                          }}>
+                            This user's photos are private. Click to request access.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
@@ -976,6 +951,15 @@ const UserDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Male Member Selection Modal */}
+      <MemberSendRequest
+        isOpen={showMaleMemberModal}
+        onClose={() => setShowMaleMemberModal(false)}
+        targetUserId={apiData?.id}
+        onSuccess={handleModalSuccess}
+        onError={handleModalError}
+      />
     </div>
   );
 };
