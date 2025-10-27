@@ -48,6 +48,9 @@ const HeroSection = ({
       const userData = JSON.parse(jsonPayload);
       setGoogleUserData(userData);
       
+      // Generate a random password for Google users
+      const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      
       // Get current form data for on_behalf and terms
       const currentOnBehalf = formData.on_behalf || 'Self';
       const currentTerms = formData.terms_condition || false;
@@ -60,33 +63,33 @@ const HeroSection = ({
         autoGender = 'female';
       }
       
-      // Prepare registration data for new Google OAuth API
+      // Prepare registration data
       let registrationData;
       
-      if (currentOnBehalf === 'Self') {
+      if (currentOnBehalf === 'Self' || currentOnBehalf === 'Friend') {
         // Use Google name data for Self/Friend
         registrationData = {
+          name: userData.name,
+          first_name: userData.given_name,
+          last_name: userData.family_name,
           email: userData.email,
-          first_name: userData.given_name || '',
-          last_name: userData.family_name || '',
-          contact_number: userData.phone_number || '', // Use Google phone number
-          onbehalf: currentOnBehalf,
+          on_behalf: currentOnBehalf,
           gender: autoGender || 'male',
-          auth_provider: 'google',
-          google_id: userData.sub, // Google user ID
+          password: generatedPassword,
+          confirm_password: generatedPassword,
           terms_condition: currentTerms
         };
       } else {
         // Clear name data for family members
         registrationData = {
-          email: userData.email,
+          name: '',
           first_name: '',
           last_name: '',
-          contact_number: userData.phone_number || '', // Use Google phone number
-          onbehalf: currentOnBehalf,
+          email: userData.email,
+          on_behalf: currentOnBehalf,
           gender: autoGender,
-          auth_provider: 'google',
-          google_id: userData.sub, // Google user ID
+          password: '',
+          confirm_password: '',
           terms_condition: currentTerms
         };
       }

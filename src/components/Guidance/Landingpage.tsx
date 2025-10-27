@@ -8,6 +8,7 @@ import Carousel from "./Carousel";
 
 
 const LandingPage = () => {
+  const [login, setLogin] = useState(false);
 
   const blogData = [
   {
@@ -186,7 +187,7 @@ const pageCount = Math.ceil(blogData.length / itemsPerPage);
   return (
     <>
        
-      <Navbar isLogIn={false} setLogin={() => {}} login={false} />
+      <Navbar isLogIn={login} setLogin={setLogin} login={login} />
 
       <div className="relative text-white overflow-hidden bg-gradient-to-r from-white to-pink-100 min-h-screen">
 

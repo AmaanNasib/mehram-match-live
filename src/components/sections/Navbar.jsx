@@ -218,7 +218,7 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="w-full px-0 py-3">
         {/* Mobile Layout */}
         <div className="lg:hidden flex items-center justify-between px-2">
@@ -304,40 +304,20 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
             >
               Guidance
             </NavLink>
-            <div className="relative group" ref={servicesDropdownRef}>
-              <button
-                onClick={toggleServicesDropdown}
-                className="flex items-center space-x-1 text-gray-700 hover:text-[#FF59B6] hover:bg-gray-50 transition-all duration-200 font-medium py-2 px-3 rounded-lg"
+            <button
+              onClick={toggleServicesDropdown}
+              className="flex items-center space-x-1 text-gray-700 hover:text-[#FF59B6] hover:bg-gray-50 transition-all duration-200 font-medium py-2 px-3 rounded-lg"
+            >
+              <span>Services</span>
+              <svg 
+                className={`w-4 h-4 transition-transform duration-200 ${isServicesDropdownVisible ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
               >
-                <span>Services</span>
-                <svg 
-                  className={`w-4 h-4 transition-transform duration-200 ${isServicesDropdownVisible ? 'rotate-180' : ''}`}
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <div className={`absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50 border border-gray-200 overflow-hidden transition-all duration-200 ease-out transform ${
-                isServicesDropdownVisible 
-                  ? 'opacity-100 translate-y-0 scale-100' 
-                  : 'opacity-0 -translate-y-1 scale-98 pointer-events-none'
-              }`}>
-                <button
-                  onClick={handleMatchmakingClick}
-                  className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF59B6] transition-all duration-200 font-medium"
-                >
-                  <div className="flex items-center space-x-3 group">
-                    <svg className="w-4 h-4 text-gray-500 group-hover:text-[#FF59B6] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    <span className="group-hover:text-[#FF59B6] transition-colors duration-200">Matchmaking</span>
-                  </div>
-                </button>
-              </div>
-            </div>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
             <NavLink
               to="/contact-us"
               className={({ isActive }) => (isActive ? "active" : "")}
@@ -368,56 +348,71 @@ const Navbar = ({ isLogIn, setLogin, login }) => {
                 </button>
 
                 {/* Register Button */}
-                <div className="relative group">
-                  <button
-                    className="text-white px-6 py-2 rounded-lg bg-gradient-to-r from-[#833E8D] to-[#FF59B6] shadow-lg hover:shadow-xl font-medium text-sm"
-                    onClick={toggleDropdown}
-                  >
-                    Register
-                  </button>
-
-                  {isDropdownVisible && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-100">
-                      <NavLink
-                        to="/individual"
-                        onClick={()=>{closeDropdown("member")}}
-                        className={({ isActive }) =>
-                          `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
-                            isActive
-                              ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
-                              : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
-                          }`
-                        }
-                      >
-                        Individual
-                      </NavLink>
-                      <NavLink
-                        to="/agent"
-                        onClick={()=>{closeDropdown("agent")}}
-                        className={({ isActive }) =>
-                          `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
-                            isActive
-                              ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
-                              : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
-                          }`
-                        }
-                      >
-                        Agent
-                      </NavLink>
-                    </div>
-                    
-                  )}
-                </div>
+                <button
+                  className="text-white px-6 py-2 rounded-lg bg-gradient-to-r from-[#833E8D] to-[#FF59B6] shadow-lg hover:shadow-xl font-medium text-sm"
+                  onClick={toggleDropdown}
+                >
+                  Register
+                </button>
               </>
             )}
           </div>
         </div>
       </nav>
 
+      {/* Register Dropdown - Outside Navbar */}
+      {isDropdownVisible && (
+        <div className="fixed top-16 right-4 w-48 bg-white rounded-md shadow-lg z-[9999] border border-gray-100">
+          <NavLink
+            to="/individual"
+            onClick={()=>{closeDropdown("member")}}
+            className={({ isActive }) =>
+              `block px-6 py-3 text-center font-medium no-underline rounded-t-md transition-all duration-200 ${
+                isActive
+                  ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
+                  : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
+              }`
+            }
+          >
+            Individual
+          </NavLink>
+          <NavLink
+            to="/agent"
+            onClick={()=>{closeDropdown("agent")}}
+            className={({ isActive }) =>
+              `block px-6 py-3 text-center font-medium no-underline rounded-b-md transition-all duration-200 ${
+                isActive
+                  ? "bg-gradient-to-r from-[#833E8D] to-[#FF59B6] text-white"
+                  : "bg-white text-[#833E8D] hover:bg-gradient-to-r hover:from-[#FF59B6] hover:to-[#833E8D] hover:text-white"
+              }`
+            }
+          >
+            Agent
+          </NavLink>
+        </div>
+      )}
+
+      {/* Services Dropdown - Outside Navbar */}
+      {isServicesDropdownVisible && (
+        <div className="fixed top-16 w-48 bg-white rounded-lg shadow-lg z-[9999] border border-gray-200" style={{ left: 'calc(50% + 120px)' }}>
+          <button
+            onClick={handleMatchmakingClick}
+            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#FF59B6] transition-all duration-200 font-medium"
+          >
+            <div className="flex items-center space-x-3 group">
+              <svg className="w-4 h-4 text-gray-500 group-hover:text-[#FF59B6] transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              <span className="group-hover:text-[#FF59B6] transition-colors duration-200">Matchmaking</span>
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div 
-          className="lg:hidden bg-white/98 backdrop-blur-xl border-t border-gray-200 shadow-2xl"
+          className="lg:hidden bg-white/98 backdrop-blur-xl border-t border-gray-200 shadow-2xl relative z-50"
           style={{
             animation: 'slideDown 0.4s ease-out forwards'
           }}

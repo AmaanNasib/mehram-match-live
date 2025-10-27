@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './AboutUs.css';
 import Navbar from '../../sections/Navbar';
@@ -7,10 +7,12 @@ import Footer from '../../sections/Footer';
 const heroImage = '/blog2.jpg';
 
 const AboutUs = () => {
+  const [login, setLogin] = useState(false);
+
   return (
     <div className="about-us-page">
       {/* Navbar */}
-      <Navbar />
+      <Navbar isLogIn={login} setLogin={setLogin} login={login} />
       
       {/* Hero Section */}
       <section className="hero-section">

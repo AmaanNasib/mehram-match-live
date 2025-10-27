@@ -3,6 +3,7 @@ import Footer from '../../sections/Footer';
 import Navbar from '../../sections/Navbar';
 
 const ContactUs = () => {
+  const [login, setLogin] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -137,7 +138,7 @@ Sent from MehramMatch Contact Form
 
   return (
     <>
-      <Navbar />
+      <Navbar isLogIn={login} setLogin={setLogin} login={login} />
       <div className="min-h-screen bg-white overflow-x-hidden">
         {/* Hero Section */}
         <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-[#FFF5FB] to-[#F8F9FA]">
