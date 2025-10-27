@@ -153,14 +153,6 @@ const Member_Interest = () => {
     }
 
     try {
-      // Debug logging
-      console.log('Withdrawing interest with:', {
-        member_id: rowData.member_id,
-        target_user_id: rowData.target_user_id,
-        member_id_type: typeof rowData.member_id,
-        target_user_id_type: typeof rowData.target_user_id
-      });
-
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/withdraw-interest/`, {
         method: 'POST',
         headers: {
@@ -173,21 +165,16 @@ const Member_Interest = () => {
         })
       });
 
-      console.log('Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('Success:', data);
         alert('Interest withdrawn successfully');
         // Refresh the data
         window.location.reload();
       } else {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
         alert(`Failed to withdraw interest: ${errorData.error || errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error withdrawing interest:', error);
       alert('Error withdrawing interest: ' + error.message);
     }
   };
@@ -218,20 +205,15 @@ const Member_Interest = () => {
         })
       });
 
-      console.log('Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('Success:', data);
         alert('Interest accepted successfully');
         window.location.reload();
       } else {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
         alert(`Failed to accept interest: ${errorData.error || errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error accepting interest:', error);
       alert('Error accepting interest: ' + error.message);
     }
   };
@@ -243,12 +225,6 @@ const Member_Interest = () => {
     }
 
     try {
-      console.log('Rejecting interest with:', {
-        member_id: memberId,
-        interest_id: interestId,
-        action: 'reject'
-      });
-
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/interest-action/`, {
         method: 'POST',
         headers: {
@@ -262,20 +238,15 @@ const Member_Interest = () => {
         })
       });
 
-      console.log('Response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log('Success:', data);
         alert('Interest rejected successfully');
         window.location.reload();
       } else {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
         alert(`Failed to reject interest: ${errorData.error || errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error rejecting interest:', error);
       alert('Error rejecting interest: ' + error.message);
     }
   };

@@ -475,37 +475,28 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                 ref={dropdownRef}
                 style={{ position: "relative", cursor: "pointer" }}
               >
-                {console.log("=== HEADER DEBUG ===")}
-                {console.log("Role:", role)}
-                {console.log("userId:", userId)}
-                {console.log("apiData:", apiData)}
-                {console.log("apiData.first_name:", apiData?.first_name)}
-                {console.log("apiData.last_name:", apiData?.last_name)}
-                {console.log("apiData.name:", apiData?.name)}
-                {console.log("agentProfilePhoto:", agentProfilePhoto)}
-                {console.log("profile_photo:", apiData?.profile_photo)}
-                {console.log("upload_photo:", apiData?.profile_photo?.upload_photo)}
-                {console.log("user_profilephoto:", apiData?.user_profilephoto)}
-                {console.log("=== END HEADER DEBUG ===")}
                 <img
                   src={
                     (() => {
                       // For agents, prioritize agent_profilephoto
                       if (role === "agent") {
                         const agentPhotoUrl = agentProfilePhoto?.upload_photo;
-                        console.log("Agent photo URL found:", agentPhotoUrl);
                         
                         if (agentPhotoUrl) {
-                          const fullUrl = agentPhotoUrl.startsWith('http') 
+                          // Fix HTTP to HTTPS for production URLs
+                          let fullUrl = agentPhotoUrl.startsWith('http') 
                             ? agentPhotoUrl 
                             : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
-                          console.log("Agent full URL constructed:", fullUrl);
+                          
+                          if (fullUrl.startsWith('http://api.mehrammatch.com')) {
+                            fullUrl = fullUrl.replace('http://api.mehrammatch.com', 'https://api.mehrammatch.com');
+                          }
+                          
                           return fullUrl;
                         }
                         
                         // For agents, use SVG placeholder if no agent photo uploaded
-                        console.log("No agent photo found, using SVG placeholder");
-                        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTIgMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMTRDNy41ODE3MiAxNCA0IDE3LjU4MTcgNCAyMkgxMkMxNi40MTgzIDE0IDEyIDE0IDEyIDE0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cjwvc3ZnPgo=";
+                        return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNGMTI1N0YiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25uZSI+CjxwYXRoIGQ9Ik0xMiAxMkMxNC43NjE0IDEyIDE3IDkuNzYxNDIgMTcgN0MxNyA0LjIzODU4IDE0Ljc2MTQgMiAxMiAyQzkuMjM4NTggMiA3IDQuMjM4NTggNyA3QzcgOS43NjE0MiA5LjIzODU4IDEyIDEyIDEyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyIDE0QzcuNTgxNzIgMTQgNCAxNy41ODE3IDQgMjJIMTJDMTYuNDE4MyAxNCAxMiAxNCAxMiAxNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4K";
                       }
                       
                       // For regular users, use regular user photo sources
@@ -593,7 +584,13 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                     <div
                       className="dropdown-item"
                       style={{ display: "flex", alignItems: "center" }}
-                      onClick={() => navigate(`/myprofile/${userId}`)}
+                      onClick={() => {
+                        if (role === "agent") {
+                          navigate(`/agent-profile/${userId}`);
+                        } else {
+                          navigate(`/myprofile/${userId}`);
+                        }
+                      }}
                     >
                       <FiUser
                         style={{ marginRight: "12px", fontSize: "16px" }}

@@ -48,6 +48,7 @@ import TermsConditions from "./components/pages/TermsConditions/TermsConditions"
 
 import UserDetail from "./components/UserDetail/UserDetail";
 import MyProfile from "./components/UserDetail/MyProfile";
+import AgentProfile from "./components/Dashboard/AgentProfile/AgentProfile";
 import MyInterest from "./components/Dashboard/dashboardCard/MyInterest/Myinterest";
 import MyShortlist from "./components/Dashboard/dashboardCard/MyShortList/MyShortlist";
 import TotalShortlistAgent from "./components/Dashboard/TotalShortlistAgent/TotalShortlistAgent";
@@ -182,6 +183,15 @@ const AllRoutes = () => {
             <PrivateRoute>
               {" "}
               <MyProfile />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/agent-profile/:agentId"
+          element={
+            <PrivateRoute>
+              {" "}
+              <AgentProfile />{" "}
             </PrivateRoute>
           }
         />
