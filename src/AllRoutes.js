@@ -67,7 +67,7 @@ import MemberMatches from "./components/Dashboard/MemberMatches/MemberMatches";
 import MemberInterest from "./components/Dashboard/MemberInterest/MemberInterest";
 import MemberRequests from "./components/Dashboard/MemberRequests/MemberRequests";
 import Member_Interest from "./components/Dashboard/AgentActions/Member_Interest";
-// import MemberInterests from "./components/Dashboard/MemberInterests/MemberInterests";
+import MemberInterests from "./components/Dashboard/MemberInterests/MemberInterests";
 
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
@@ -387,14 +387,14 @@ const AllRoutes = () => {
             </PrivateRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/member-interests/:memberId"
           element={
             <PrivateRoute>
               <MemberInterests />
             </PrivateRoute>
           }
-        /> */}
+        />
         <Route
           path="/dashboard"
           element={

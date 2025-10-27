@@ -1591,17 +1591,26 @@ const googleLogin = (parameter) => {
         parameter.showSuccessMessage("Successfully logged in with Google!");
       }
       
-      // Navigate based on profile completion status
+      // Navigate based on role and profile completion status
       if (parameter?.navigate) {
         let navUrl;
-        if (profileCompleted === true || profilePercentage >= 100) {
-          // Profile is complete, go to dashboard
+        const userRole = response.data.user?.role || response.data.role || localStorage.getItem("role");
+        
+        if (userRole === 'agent') {
+          // Agent login - go to agent dashboard
+          navUrl = "/newdashboard";
+          console.log("Google login - Agent role detected, navigating to agent dashboard");
+        } else {
+          // User login - check profile completion
+          if (profileCompleted === true) {
+            // Profile is complete, go to user dashboard
           navUrl = "/newdashboard";
           console.log("Profile complete - navigating to dashboard");
         } else {
           // Profile incomplete, go to MemStepOne
           navUrl = `/memstepone/${userId}`;
           console.log("Profile incomplete - navigating to MemStepOne");
+          }
         }
         
         parameter.navigate(navUrl, {

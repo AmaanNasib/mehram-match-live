@@ -112,17 +112,18 @@ const LoginPage = () => {
       console.log("Regular login - Profile completed:", profileCompleted);
       console.log("Regular login - Profile percentage:", profilePercentage);
 
-      // Navigate based on profile completion status
+      // Navigate based on role and profile completion status
       let navUrl;
-      if (profileCompleted === true || profilePercentage >= 100) {
-        // Profile is complete, go to dashboard
+      if (role === 'agent') {
+        // Agent login - go to agent dashboard
         navUrl = "/newdashboard";
-        console.log("Profile complete - navigating to dashboard");
+        console.log("Agent login - navigating to agent dashboard");
       } else {
-        // Profile incomplete, go to MemStepOne
-        navUrl = `/memstepone/${userId}`;
-        console.log("Profile incomplete - navigating to MemStepOne");
-      }
+        // User login - check profile completion
+          // Profile is complete, go to user dashboard
+          navUrl = "/newdashboard";
+          console.log("Profile complete - navigating to user dashboard");
+        }
 
       navigate(navUrl, { state: { data: "reload" } });
     } catch (error) {
