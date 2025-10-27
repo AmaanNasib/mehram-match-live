@@ -26,13 +26,11 @@ const HeroSection = ({
   handleTooltipClick,
   onGoogleSignUp
 }) => {
-  // Google Sign Up Modal State
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  // Google Sign Up State
   const [googleUserData, setGoogleUserData] = useState(null);
   const [googleFormData, setGoogleFormData] = useState({
     on_behalf: 'Self',
     gender: '',
-    dob: '',
     password: '',
     confirm_password: ''
   });
@@ -50,19 +48,53 @@ const HeroSection = ({
       const userData = JSON.parse(jsonPayload);
       setGoogleUserData(userData);
       
-      // Generate a random password for Google users
-      const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      // Get current form data for on_behalf and terms
+      const currentOnBehalf = formData.on_behalf || 'Self';
+      const currentTerms = formData.terms_condition || false;
       
-      // Set initial form data with Google info
-      setGoogleFormData({
-        on_behalf: 'Self',
-        gender: '',
-        dob: userData.birthdate || '', // Google might provide birthdate
-        password: generatedPassword,
-        confirm_password: generatedPassword
-      });
+      // Auto-determine gender based on on_behalf
+      let autoGender = '';
+      if (currentOnBehalf === 'Brother' || currentOnBehalf === 'Son') {
+        autoGender = 'male';
+      } else if (currentOnBehalf === 'Sister' || currentOnBehalf === 'Daughter') {
+        autoGender = 'female';
+      }
       
-      setShowGoogleModal(true);
+      // Prepare registration data for new Google OAuth API
+      let registrationData;
+      
+      if (currentOnBehalf === 'Self') {
+        // Use Google name data for Self/Friend
+        registrationData = {
+          email: userData.email,
+          first_name: userData.given_name || '',
+          last_name: userData.family_name || '',
+          contact_number: userData.phone_number || '', // Use Google phone number
+          onbehalf: currentOnBehalf,
+          gender: autoGender || 'male',
+          auth_provider: 'google',
+          google_id: userData.sub, // Google user ID
+          terms_condition: currentTerms
+        };
+      } else {
+        // Clear name data for family members
+        registrationData = {
+          email: userData.email,
+          first_name: '',
+          last_name: '',
+          contact_number: userData.phone_number || '', // Use Google phone number
+          onbehalf: currentOnBehalf,
+          gender: autoGender,
+          auth_provider: 'google',
+          google_id: userData.sub, // Google user ID
+          terms_condition: currentTerms
+        };
+      }
+      
+      // Call the parent component's Google sign up handler
+      if (onGoogleSignUp) {
+        onGoogleSignUp(registrationData);
+      }
     } catch (error) {
       console.error('Error decoding Google token:', error);
     }
@@ -73,88 +105,6 @@ const HeroSection = ({
     console.error('Google OAuth failed');
   };
 
-  // Handle On Behalf Selection
-  const handleGoogleOnBehalfChange = (e) => {
-    const value = e.target.value;
-    let autoGender = '';
-    let dob = googleFormData.dob;
-    let password = googleFormData.password;
-    let confirm_password = googleFormData.confirm_password;
-    
-    if (value === 'Brother' || value === 'Son') {
-      autoGender = 'male';
-    } else if (value === 'Sister' || value === 'Daughter') {
-      autoGender = 'female';
-    }
-    
-    // Handle DOB and Password based on selection
-    if (value === 'Self') {
-      // For Self: Use Google DOB and generated password
-      dob = googleUserData?.birthdate || '';
-      // Keep the generated password
-    } else if (value === 'Friend') {
-      // For Friend: Clear DOB, keep generated password
-      dob = '';
-      // Keep the generated password
-    } else {
-      // For family members: Clear DOB and password
-      dob = '';
-      password = '';
-      confirm_password = '';
-    }
-    
-    setGoogleFormData({
-      on_behalf: value,
-      gender: autoGender,
-      dob: dob,
-      password: password,
-      confirm_password: confirm_password
-    });
-  };
-
-  // Handle Google Sign Up Submit
-  const handleGoogleSignUpSubmit = () => {
-    if (!googleUserData) return;
-
-    let registrationData;
-    
-    if (googleFormData.on_behalf === 'Self' || googleFormData.on_behalf === 'Friend') {
-      // Use Google name data for Self/Friend
-      registrationData = {
-        name: googleUserData.name,
-        first_name: googleUserData.given_name,
-        last_name: googleUserData.family_name,
-        email: googleUserData.email,
-        on_behalf: googleFormData.on_behalf,
-        gender: googleFormData.gender || 'male', // Default if not auto-selected
-        dob: googleFormData.dob, // Use DOB from form
-        password: googleFormData.password, // Use generated password
-        confirm_password: googleFormData.confirm_password,
-        terms_condition: true
-      };
-    } else {
-      // Clear name data for family members
-      registrationData = {
-        name: '',
-        first_name: '',
-        last_name: '',
-        email: googleUserData.email,
-        on_behalf: googleFormData.on_behalf,
-        gender: googleFormData.gender,
-        dob: googleFormData.dob, // Use DOB from form (empty for family members)
-        password: googleFormData.password, // Use password from form
-        confirm_password: googleFormData.confirm_password,
-        terms_condition: true
-      };
-    }
-
-    // Call the parent component's Google sign up handler
-    if (onGoogleSignUp) {
-      onGoogleSignUp(registrationData);
-    }
-    
-    setShowGoogleModal(false);
-  };
   return (
     <section
       className="py-12 md:py-20 lg:py-24 pt-20 md:pt-24 min-h-screen flex items-center justify-center relative overflow-hidden"
@@ -235,16 +185,6 @@ const HeroSection = ({
         </div>
       </div>
 
-      {/* Google Sign Up Modal */}
-      <GoogleSignUpModal
-        showModal={showGoogleModal}
-        setShowModal={setShowGoogleModal}
-        googleUserData={googleUserData}
-        googleFormData={googleFormData}
-        setGoogleFormData={setGoogleFormData}
-        handleGoogleOnBehalfChange={handleGoogleOnBehalfChange}
-        handleGoogleSignUpSubmit={handleGoogleSignUpSubmit}
-      />
     </section>
   );
 };
@@ -395,19 +335,32 @@ const RegistrationForm = ({
     </div>
 
     {/* Google Sign In */}
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id"}>
-      <GoogleLogin
-        onSuccess={handleGoogleSuccess}
-        onError={handleGoogleError}
-        useOneTap={false}
-        theme="outline"
-        size="large"
-        text="signup_with"
-        shape="rectangular"
-        width="100%"
-        className="w-full"
-      />
-    </GoogleOAuthProvider>
+    {formData.on_behalf && formData.terms_condition ? (
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id"}>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+          useOneTap={false}
+          theme="outline"
+          size="large"
+          text="signup_with"
+          shape="rectangular"
+          width="100%"
+          className="w-full"
+        />
+      </GoogleOAuthProvider>
+    ) : (
+      <div className="w-full h-11 px-4 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center opacity-50 cursor-not-allowed">
+        <span className="text-gray-500 font-medium">Sign up with Google</span>
+      </div>
+    )}
+    
+    {/* Helper text for Google sign in */}
+    {(!formData.on_behalf || !formData.terms_condition) && (
+      <p className="text-xs text-gray-500 text-center mt-2">
+        Please select "Profile Creating For" and accept terms & conditions to enable Google sign up
+      </p>
+    )}
   </form>
 );
 
@@ -548,164 +501,6 @@ const PasswordField = ({ id, label, value, error, showPassword, setShowPassword,
   </FormField>
 );
 
-// Google Sign Up Modal Component
-const GoogleSignUpModal = ({ 
-  showModal, 
-  setShowModal, 
-  googleUserData, 
-  googleFormData, 
-  setGoogleFormData,
-  handleGoogleOnBehalfChange, 
-  handleGoogleSignUpSubmit 
-}) => {
-  if (!showModal) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-900">Complete Your Profile</h3>
-          <button
-            onClick={() => setShowModal(false)}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {googleUserData && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Signed in as:</p>
-            <p className="font-medium text-gray-900">{googleUserData.name}</p>
-            <p className="text-sm text-gray-500">{googleUserData.email}</p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Profile Creating For <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={googleFormData.on_behalf}
-              onChange={handleGoogleOnBehalfChange}
-              className="w-full h-11 px-4 text-gray-700 font-semibold rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
-            >
-              <option value="Self">Self</option>
-              <option value="Brother">Brother</option>
-              <option value="Sister">Sister</option>
-              <option value="Daughter">Daughter</option>
-              <option value="Son">Son</option>
-              <option value="Friend">Friend</option>
-            </select>
-          </div>
-
-          {googleFormData.gender && (
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Gender will be automatically set to: <span className="font-medium capitalize">{googleFormData.gender}</span>
-              </p>
-            </div>
-          )}
-
-          {/* DOB Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date of Birth <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={googleFormData.dob}
-              onChange={(e) => setGoogleFormData({...googleFormData, dob: e.target.value})}
-              className="w-full h-11 px-4 text-gray-700 font-semibold rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
-              required
-              disabled={googleFormData.on_behalf === 'Self' && googleUserData?.birthdate}
-            />
-            {googleFormData.on_behalf === 'Self' && googleUserData?.birthdate && (
-              <p className="text-xs text-green-600 mt-1">
-                ✓ DOB pre-filled from Google account (read-only)
-              </p>
-            )}
-            {googleFormData.on_behalf === 'Friend' && (
-              <p className="text-xs text-blue-600 mt-1">
-                ℹ️ Please enter your friend's date of birth
-              </p>
-            )}
-            {googleFormData.on_behalf !== 'Self' && googleFormData.on_behalf !== 'Friend' && (
-              <p className="text-xs text-orange-600 mt-1">
-                ℹ️ Please enter the {googleFormData.on_behalf.toLowerCase()}'s date of birth
-              </p>
-            )}
-          </div>
-
-          {/* Password Fields - Only show for Self and Friend */}
-          {(googleFormData.on_behalf === 'Self' || googleFormData.on_behalf === 'Friend') && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  value={googleFormData.password}
-                  onChange={(e) => setGoogleFormData({...googleFormData, password: e.target.value})}
-                  className="w-full h-11 px-4 text-gray-700 font-semibold rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
-                  required
-                  disabled={googleFormData.on_behalf === 'Self'}
-                />
-                {googleFormData.on_behalf === 'Self' && (
-                  <p className="text-xs text-green-600 mt-1">
-                    ✓ Password auto-generated for Google account
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  value={googleFormData.confirm_password}
-                  onChange={(e) => setGoogleFormData({...googleFormData, confirm_password: e.target.value})}
-                  className="w-full h-11 px-4 text-gray-700 font-semibold rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
-                  required
-                  disabled={googleFormData.on_behalf === 'Self'}
-                />
-              </div>
-            </>
-          )}
-
-          {/* Family Member Info */}
-          {googleFormData.on_behalf !== 'Self' && googleFormData.on_behalf !== 'Friend' && (
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <p className="text-xs text-yellow-800">
-                ℹ️ For {googleFormData.on_behalf.toLowerCase()}, you'll need to complete the profile creation form with their details.
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={() => setShowModal(false)}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleGoogleSignUpSubmit}
-              className="flex-1 py-2 px-4 bg-[#CB3B8B] text-white rounded-lg font-medium hover:bg-[#A8327A] transition-colors"
-            >
-              Continue with Google
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default HeroSection;
 

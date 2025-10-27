@@ -3,6 +3,8 @@ import hero1 from "../../../images/herobg2.png";
 import logo from "../../../images/footerLogo.svg";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { googleLogin } from '../../../apiUtils';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -84,13 +86,45 @@ const LoginPage = () => {
       localStorage.setItem("refresh", refresh ||'');
       localStorage.setItem("loginTime", new Date().toISOString());
 
+      let userId = "";
+      let profileCompleted = false;
+      let profilePercentage = 0;
+
       if (access) {
         const decoded = jwtDecode(access);
-        localStorage.setItem("userId", decoded.user_id || "");
+        userId = decoded.user_id || "";
+        localStorage.setItem("userId", userId);
         localStorage.setItem("name", `${decoded.first_name ||''} ${decoded.last_name ||""}` || "");
+        
+        // Check if profile completion info is in the JWT token
+        profileCompleted = decoded.profile_completed || false;
+        profilePercentage = decoded.profile_percentage || 0;
       }
 
-      navigate("/newdashboard", { state: { data: "reload" } });
+      // Check profile completion from API response if available
+      if (data.profile_completed !== undefined) {
+        profileCompleted = data.profile_completed;
+      }
+      if (data.profile_percentage !== undefined) {
+        profilePercentage = data.profile_percentage;
+      }
+
+      console.log("Regular login - Profile completed:", profileCompleted);
+      console.log("Regular login - Profile percentage:", profilePercentage);
+
+      // Navigate based on profile completion status
+      let navUrl;
+      if (profileCompleted === true || profilePercentage >= 100) {
+        // Profile is complete, go to dashboard
+        navUrl = "/newdashboard";
+        console.log("Profile complete - navigating to dashboard");
+      } else {
+        // Profile incomplete, go to MemStepOne
+        navUrl = `/memstepone/${userId}`;
+        console.log("Profile incomplete - navigating to MemStepOne");
+      }
+
+      navigate(navUrl, { state: { data: "reload" } });
     } catch (error) {
       console.error(error.message);
     }
@@ -98,6 +132,53 @@ const LoginPage = () => {
 
   const handleOtpLogin = () => {
     navigate("/login-otp");
+  };
+
+  // Google OAuth Success Handler
+  const handleGoogleSuccess = (credentialResponse) => {
+    try {
+      // Decode the JWT token to get user info
+      const base64Url = credentialResponse.credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      const userData = JSON.parse(jsonPayload);
+      
+      // Prepare login data for Google OAuth API
+      const loginData = {
+        email: userData.email,
+        google_id: userData.sub, // Google user ID
+        auth_provider: 'google'
+      };
+      
+      // Call Google login API
+      const parameter = {
+        url: "/api/user/login/",
+        payload: loginData,
+        setErrors: setErrorMessage,
+        navigate: navigate,
+        navUrl: "/newdashboard",
+        showSuccessMessage: (message) => {
+          console.log("Google login successful:", message);
+        },
+        showErrorMessage: (message) => {
+          console.log("Google login failed:", message);
+          setErrorMessage(message);
+        },
+      };
+      googleLogin(parameter);
+    } catch (error) {
+      console.error('Error decoding Google token:', error);
+      setErrorMessage('Google login failed. Please try again.');
+    }
+  };
+
+  // Google OAuth Error Handler
+  const handleGoogleError = () => {
+    console.error('Google OAuth failed');
+    setErrorMessage('Google login failed. Please try again.');
   };
 
   const handleKeyDown = (e) => {
@@ -251,6 +332,23 @@ const LoginPage = () => {
               >
                 Login with Mobile OTP
               </button>
+            </div>
+
+            {/* Google Login Button */}
+            <div>
+              <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id"}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="outline"
+                  size="large"
+                  text="signin_with"
+                  shape="rectangular"
+                  width="100%"
+                  className="w-full"
+                />
+              </GoogleOAuthProvider>
             </div>
           </form>
 

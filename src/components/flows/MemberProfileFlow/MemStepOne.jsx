@@ -35,9 +35,37 @@ const MemStepOne = () => {
   } else {
     userId = localStorage.getItem("userId");
   }
+  
+  // Debug: Log userId determination
+  console.log("MemStepOne: Determined userId:", userId);
+  console.log("Edit Mode:", editMode, "Member ID:", memberId, "Is New Member:", isNewMember);
 
   useEffect(() => {
     console.log("Current userId:", userId, "Edit Mode:", editMode, "Member ID:", memberId);
+    
+    // Debug localStorage state
+    console.log("=== LOCALSTORAGE DEBUG ===");
+    console.log("Token in localStorage:", localStorage.getItem("token"));
+    console.log("UserId in localStorage:", localStorage.getItem("userId"));
+    console.log("Name in localStorage:", localStorage.getItem("name"));
+    console.log("LoginTime in localStorage:", localStorage.getItem("loginTime"));
+    console.log("=== END LOCALSTORAGE DEBUG ===");
+    
+    // Handle case where userId is null, undefined, or 'undefined'
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      console.log("No valid userId found, checking localStorage...");
+      const fallbackUserId = localStorage.getItem("userId");
+      if (fallbackUserId && fallbackUserId !== 'undefined') {
+        console.log("Using fallback userId from localStorage:", fallbackUserId);
+        // Update the userId for this component
+        userId = fallbackUserId;
+      } else {
+        console.error("No valid userId available anywhere!");
+        setLoading(false);
+        return;
+      }
+    }
+    
     if (userId) {
       // Check if this is a Google sign up user (temporary token)
       const token = localStorage.getItem("token");
@@ -57,9 +85,10 @@ const MemStepOne = () => {
           last_name: googleUserData.last_name || localStorage.getItem("name")?.split(" ")[1] || "",
           name: localStorage.getItem("name") || "",
           email: googleUserData.email || "",
+          contact_number: googleUserData.contact_number || "",
           onbehalf: googleUserData.onbehalf || "Self",
-          gender: googleUserData.gender || "male",
-          dob: googleUserData.dob || "",
+          gender: googleUserData.gender || "", // Don't set default gender, let user choose
+          dob: "", // DOB will be filled manually in MemStepOne
           // Add other default fields as needed
           profile_started: true,
           profile_completed: false,
@@ -67,13 +96,167 @@ const MemStepOne = () => {
         });
         setLoading(false);
       } else {
-        // Regular user - fetch from API
+        // Regular user or Google login user - fetch from API
+        console.log("Fetching user data from API for userId:", userId);
+        console.log("Token type:", localStorage.getItem("token")?.startsWith("google_") ? "Google Signup" : "Regular/Google Login");
+        
         const parameter = {
           url: `/api/user/${userId}/`,
-          setterFunction: setApiData,
+          setterFunction: (data) => {
+            console.log("API setterFunction called with data:", data);
+            console.log("=== API RESPONSE DEBUG ===");
+            console.log("Raw API response data:", data);
+            console.log("Data type:", typeof data);
+            console.log("Data is null/undefined:", data === null || data === undefined);
+            console.log("Data is array:", Array.isArray(data));
+            console.log("Data length:", data?.length);
+            console.log("Available fields in API response:", Object.keys(data || {}));
+            
+            // Check if data is an empty array
+            if (Array.isArray(data) && data.length === 0) {
+              console.error("API returned empty array! This might be an API issue.");
+              console.log("API URL:", `/api/user/${userId}/`);
+              console.log("Token:", localStorage.getItem("token"));
+              console.log("User ID:", userId);
+            }
+            
+            if (data) {
+              console.log("Key fields check:");
+              console.log("- first_name:", data.first_name);
+              console.log("- last_name:", data.last_name);
+              console.log("- email:", data.email);
+              console.log("- onbehalf:", data.onbehalf);
+              console.log("- gender:", data.gender);
+              console.log("- dob:", data.dob);
+              console.log("- city:", data.city);
+              console.log("- state:", data.state);
+              console.log("- country:", data.country);
+            }
+            
+            // Check if data is an empty array (API issue)
+            if (Array.isArray(data) && data.length === 0) {
+              console.error("API returned empty array - this is likely an API issue");
+              console.log("Using fallback data for empty array response");
+              const fallbackData = {
+                id: userId,
+                first_name: localStorage.getItem("name")?.split(" ")[0] || "",
+                last_name: localStorage.getItem("name")?.split(" ")[1] || "",
+                name: localStorage.getItem("name") || "",
+                email: "",
+                contact_number: "",
+                onbehalf: "Self",
+                gender: "",
+                dob: "",
+                profile_started: true,
+                profile_completed: false,
+                profile_percentage: 0
+              };
+              console.log("Using fallback data for empty array:", fallbackData);
+              setApiData(fallbackData);
+            }
+            // Check if this is a Google login user with incomplete profile
+            else if (data && typeof data === 'object' && (!data.onbehalf || !data.gender)) {
+              console.log("Google login user with incomplete profile detected");
+              console.log("onbehalf:", data.onbehalf, "gender:", data.gender);
+              // Set default values for Google login users
+              const updatedData = {
+                ...data,
+                onbehalf: data.onbehalf || "Self",
+                gender: data.gender || "", // Let user choose gender
+              };
+              console.log("Updated data for Google login user:", updatedData);
+              setApiData(updatedData);
+            } else if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+              // Regular user or complete Google user data
+              console.log("Using complete user data from API");
+              setApiData(data);
+            } else {
+              // Fallback: API returned empty or null data
+              console.warn("API returned empty/null data, using fallback data");
+              const fallbackData = {
+                id: userId,
+                first_name: localStorage.getItem("name")?.split(" ")[0] || "",
+                last_name: localStorage.getItem("name")?.split(" ")[1] || "",
+                name: localStorage.getItem("name") || "",
+                email: "",
+                contact_number: "",
+                onbehalf: "Self",
+                gender: "",
+                dob: "",
+                profile_started: true,
+                profile_completed: false,
+                profile_percentage: 0
+              };
+              console.log("Using fallback data:", fallbackData);
+              setApiData(fallbackData);
+            }
+            console.log("=== END API RESPONSE DEBUG ===");
+          },
           setLoading: setLoading,
-          setErrors: setsetErrors,
+          setErrors: (error) => {
+            console.error("API Error:", error);
+            setsetErrors(error);
+          },
         };
+        console.log("About to call fetchDataObjectV2 with parameter:", parameter);
+        
+        // Debug: Test API call directly
+        console.log("=== DIRECT API TEST ===");
+        console.log("API URL:", `${process.env.REACT_APP_API_URL}/api/user/${userId}/`);
+        const token = localStorage.getItem("token");
+        console.log("Token:", token);
+        console.log("Token type:", typeof token);
+        console.log("Token length:", token?.length);
+        console.log("Token starts with 'Bearer':", token?.startsWith("Bearer"));
+        console.log("Token starts with 'google_':", token?.startsWith("google_"));
+        console.log("User ID:", userId);
+        
+        // Check if token is valid
+        if (!token) {
+          console.error("No token found in localStorage!");
+        } else if (token.startsWith("google_")) {
+          console.warn("Google signup token detected - this might not work with regular API calls");
+        } else if (token.length < 10) {
+          console.error("Token seems too short:", token);
+        } else {
+          // Check JWT token format
+          console.log("JWT Token format check:");
+          console.log("- Starts with 'eyJ':", token.startsWith("eyJ"));
+          console.log("- Contains dots:", token.includes("."));
+          console.log("- Split by dots:", token.split(".").length);
+          if (token.includes(".")) {
+            console.log("- First part (header):", token.split(".")[0]);
+            console.log("- Second part (payload):", token.split(".")[1]);
+            console.log("- Third part (signature):", token.split(".")[2]);
+          }
+        }
+        
+        // Make a direct API call for debugging
+        const authToken = localStorage.getItem("token");
+        const authHeader = authToken?.startsWith("Bearer") ? authToken : `Bearer ${authToken}`;
+        console.log("Auth header:", authHeader);
+        
+        fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => {
+          console.log("Direct API response status:", response.status);
+          console.log("Direct API response headers:", response.headers);
+          return response.json();
+        })
+        .then(data => {
+          console.log("Direct API response data:", data);
+          console.log("Direct API data type:", typeof data);
+          console.log("Direct API is array:", Array.isArray(data));
+        })
+        .catch(error => {
+          console.error("Direct API error:", error);
+        });
+        
         fetchDataObjectV2(parameter);
       }
     }
@@ -81,7 +264,11 @@ const MemStepOne = () => {
 
   useEffect(() => {
     if (apiData && !(isNewMember && clearForm)) {
+      console.log("=== FORM DATA SETTING DEBUG ===");
       console.log("Setting form data for user:", apiData.id, "Edit Mode:", editMode);
+      console.log("API Data received:", apiData);
+      console.log("onbehalf:", apiData.onbehalf, "gender:", apiData.gender);
+      
       // Auto-determine gender based on on_behalf if not already set
       let autoGender = apiData.gender;
       if (apiData.onbehalf) {
@@ -93,9 +280,14 @@ const MemStepOne = () => {
           // For Self/Friend, keep existing gender or leave empty
           autoGender = apiData.gender || '';
         }
+      } else {
+        // If no onbehalf info (like Google sign-in), keep gender empty for user to choose
+        autoGender = apiData.gender || '';
       }
+      
+      console.log("Final autoGender:", autoGender);
 
-      setProfileData({
+      const formDataToSet = {
         first_name: apiData.first_name || null,
         last_name: apiData.last_name || null,
         dob: apiData.dob || null,
@@ -118,7 +310,21 @@ const MemStepOne = () => {
         type_of_disability: apiData.type_of_disability,
         incomeRange: apiData.income,
         about_you: apiData.about_you,
-      });
+      };
+      
+      console.log("Form data to be set:", formDataToSet);
+      console.log("Key form fields:");
+      console.log("- first_name:", formDataToSet.first_name);
+      console.log("- last_name:", formDataToSet.last_name);
+      console.log("- gender:", formDataToSet.gender);
+      console.log("- on_behalf:", formDataToSet.on_behalf);
+      console.log("- dob:", formDataToSet.dob);
+      console.log("- city:", formDataToSet.city);
+      console.log("- state:", formDataToSet.state);
+      console.log("- country:", formDataToSet.country);
+      
+      setProfileData(formDataToSet);
+      console.log("=== END FORM DATA SETTING DEBUG ===");
     }
   }, [apiData, isNewMember, clearForm]);
 
@@ -289,9 +495,16 @@ const MemStepOne = () => {
     // Validate Gender
     if (!profileData.gender) {
       newErrors.gender = "Gender is required";
+    } else {
+      // Validate gender based on relationship type
+      if (profileData.on_behalf) {
+        if ((profileData.on_behalf === 'Brother' || profileData.on_behalf === 'Son') && profileData.gender !== 'male') {
+          newErrors.gender = "Gender must be Male for Brother/Son relationship";
+        } else if ((profileData.on_behalf === 'Sister' || profileData.on_behalf === 'Daughter') && profileData.gender !== 'female') {
+          newErrors.gender = "Gender must be Female for Sister/Daughter relationship";
+        }
+      }
     }
-
-    // Old validation logic removed - now handled below
 
     // Validate Date of Birth
     if (!profileData.dob) {

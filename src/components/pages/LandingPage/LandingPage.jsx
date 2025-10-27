@@ -208,20 +208,18 @@ const LandingPage = () => {
     console.log("Navigating to memstepone after successful registration");
     
     const parameter = {
-      url: "/api/user/",
+      url: "/api/user/register/", // Updated to use new registration endpoint
       payload: {
-        contact_number: "", // Google users might not have phone
+        email: googleData.email,
         first_name: googleData.first_name,
         last_name: googleData.last_name,
-        name: googleData.name,
-        onbehalf: googleData.on_behalf,
-        password: googleData.password,
-        dob: googleData.dob, // Use DOB from Google modal
+        contact_number: googleData.contact_number || "",
+        onbehalf: googleData.onbehalf,
         gender: googleData.gender,
-        confirm_password: googleData.confirm_password,
+        auth_provider: googleData.auth_provider,
+        google_id: googleData.google_id,
         terms_condition: googleData.terms_condition,
-        email: googleData.email,
-        is_google_signup: true, // Flag to identify Google signup
+        is_google_signup: true, // Add flag to identify Google signup
       },
       setErrors: setApiErrors,
       navigate: navigate,
@@ -254,14 +252,14 @@ const LandingPage = () => {
           last_name: formData.last_name,
           onbehalf: formData.on_behalf,
           password: formData.password,
-          dob: formData.date_of_birth,
+          dob: '', // DOB will be filled in MemStepOne
           gender: formData.gender,
           confirm_password: formData.conform_password,
           terms_condition: formData.terms_condition,
         },
         setErrors: setApiErrors,
         navigate: navigate,
-        navUrl: lastSegment === "agent" ? "/agentstepone/" : "/newdashboard",
+        navUrl: lastSegment === "agent" ? "/agentstepone/" : "/memstepone/",
         showSuccessMessage: (message) => alert(message),
         showErrorMessage: (message) => alert(message),
       };

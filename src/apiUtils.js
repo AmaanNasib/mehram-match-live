@@ -842,15 +842,38 @@ const registration = (parameter) => {
       console.log("Full API response:", response.data);
       console.log("Available fields:", Object.keys(response.data));
       
-      let token = response?.data?.access_token || response?.data?.access || response?.data?.token || '';
-      const refreshToken = response?.data?.refresh_token || response?.data?.refresh || '';
-      const userId = response?.data?.id;
-      const userName = `${response?.data?.first_name ||''} ${response?.data?.last_name ||""}` || "";
+      // Extract tokens from the correct API structure (updated for new backend)
+      let token = response?.data?.tokens?.access || response?.data?.access_token || response?.data?.access || response?.data?.token || '';
+      const refreshToken = response?.data?.tokens?.refresh || response?.data?.refresh_token || response?.data?.refresh || '';
+      const userId = response?.data?.user?.id || response?.data?.id || response?.data?.user_id;
+      const userName = `${response?.data?.user?.first_name || response?.data?.first_name ||''} ${response?.data?.user?.last_name || response?.data?.last_name ||""}` || "";
       
-      // If no token found, generate a temporary one for Google sign up
-      if (!token && parameter?.payload?.is_google_signup) {
-        token = `google_${userId}_${Date.now()}`;
-        console.log("Generated temporary token for Google sign up:", token);
+      // Debug: Log the API response structure
+      console.log("🔍 API Response Structure Debug:");
+      console.log("- Has tokens object:", !!response?.data?.tokens);
+      console.log("- Has user object:", !!response?.data?.user);
+      console.log("- Direct fields:", Object.keys(response?.data || {}));
+      if (response?.data?.tokens) {
+        console.log("- Tokens object keys:", Object.keys(response.data.tokens));
+      }
+      if (response?.data?.user) {
+        console.log("- User object keys:", Object.keys(response.data.user));
+      }
+      
+      // Check if we received proper JWT tokens
+      if (!token) {
+        console.error("❌ No JWT token received from API!");
+        console.log("API Response:", response.data);
+        console.log("Available fields:", Object.keys(response.data || {}));
+      } else {
+        console.log("✅ Received JWT token from API:", token.substring(0, 20) + "...");
+      }
+      
+      // Debug: Check if userId is valid
+      if (!userId) {
+        console.error("No userId received from API response!");
+        console.log("API Response data:", response.data);
+        console.log("Available fields:", Object.keys(response.data || {}));
       }
       
       console.log("Storing token:", token);
@@ -866,13 +889,25 @@ const registration = (parameter) => {
       if (parameter?.payload?.is_google_signup) {
         localStorage.setItem("googleUserData", JSON.stringify({
           email: parameter.payload.email,
+          contact_number: parameter.payload.contact_number,
           onbehalf: parameter.payload.onbehalf,
           gender: parameter.payload.gender,
-          dob: parameter.payload.dob,
           first_name: parameter.payload.first_name,
-          last_name: parameter.payload.last_name
+          last_name: parameter.payload.last_name,
+          google_id: parameter.payload.google_id
         }));
         console.log("Stored Google user data in localStorage");
+        
+        // Check if we received proper JWT tokens from Google signup
+        if (!token) {
+          console.error("❌ No JWT token received from Google signup API!");
+          console.log("API Response:", response.data);
+        } else if (token.startsWith("google_")) {
+          console.warn("⚠️ Google signup API returned temporary token instead of JWT. Backend needs to be updated.");
+          console.log("Current token:", token);
+        } else {
+          console.log("✅ Received proper JWT token from Google signup:", token.substring(0, 20) + "...");
+        }
       }
       
       console.log("Token stored in localStorage:", localStorage.getItem("token"));
@@ -887,17 +922,25 @@ const registration = (parameter) => {
       if (parameter?.navigate) {
         let navUrl = parameter?.navUrl;
         console.log("Original navUrl:", navUrl);
-        console.log("User ID from response:", response?.data?.id);
+        console.log("User ID from response:", response?.data?.id || response?.data?.user_id);
         
         // Handle different registration types
         if (parameter?.navUrl?.includes('agentstepone')) {
           // Agent registration
-          navUrl = `/agentstepone/${response?.data?.id}`;
+          const agentUserId = response?.data?.id || response?.data?.user_id;
+          navUrl = `/agentstepone/${agentUserId}`;
           console.log("Agent registration - Final navUrl:", navUrl);
         } else if (parameter?.navUrl?.includes('memstepone')) {
           // Google sign up or regular user registration - go to memstepone with user ID
-          navUrl = `/memstepone/${response?.data?.id}`;
-          console.log("Google/User registration - Final navUrl:", navUrl);
+          const userId = response?.data?.id || response?.data?.user_id || localStorage.getItem("userId");
+          if (userId && userId !== 'undefined') {
+            navUrl = `/memstepone/${userId}`;
+            console.log("Google/User registration - Final navUrl:", navUrl);
+          } else {
+            console.error("No valid userId available for navigation!");
+            navUrl = "/memstepone/"; // Fallback without user ID
+            console.log("Using fallback navUrl:", navUrl);
+          }
         } else if (parameter?.navUrl?.includes('newdashboard')) {
           // Regular dashboard
           navUrl = parameter?.navUrl;
@@ -1475,6 +1518,153 @@ const justUpdateDataV2 = (parameter) => {
 
 };
 
+// Google OAuth Login Function
+const googleLogin = (parameter) => {
+  axios
+    .post(`${process.env.REACT_APP_API_URL}${parameter?.url}`, parameter?.payload, {})
+    .then((response) => {
+      console.log("Google login response:", response.data);
+      
+      // Store tokens and user data
+      console.log("Google login response structure:", response.data);
+      console.log("Available fields in Google login response:", Object.keys(response.data || {}));
+      
+      // Extract tokens from the correct structure (updated for new backend)
+      const access = response.data.tokens?.access || response.data.access;
+      const refresh = response.data.tokens?.refresh || response.data.refresh;
+      const userId = response.data.user?.id || response.data.user_id || response.data.id;
+      const userName = `${response.data.user?.first_name || response.data.first_name || ''} ${response.data.user?.last_name || response.data.last_name || ''}` || "";
+      const profileCompleted = response.data.user?.profile_completed || response.data.profile_completed;
+      const profilePercentage = response.data.user?.profile_percentage || response.data.profile_percentage;
+      
+      // Debug: Log the API response structure
+      console.log("🔍 Google Login API Response Structure Debug:");
+      console.log("- Has tokens object:", !!response.data.tokens);
+      console.log("- Has user object:", !!response.data.user);
+      console.log("- Direct fields:", Object.keys(response.data || {}));
+      if (response.data.tokens) {
+        console.log("- Tokens object keys:", Object.keys(response.data.tokens));
+      }
+      if (response.data.user) {
+        console.log("- User object keys:", Object.keys(response.data.user));
+      }
+      
+      console.log("Google login - Access token:", access);
+      console.log("Google login - Refresh token:", refresh);
+      console.log("Google login - User ID:", userId);
+      console.log("Google login - Profile completed:", profileCompleted);
+      console.log("Google login - Profile percentage:", profilePercentage);
+      
+      // Check if access token exists
+      if (!access) {
+        console.error("No access token received from Google login API!");
+        console.log("Response data keys:", Object.keys(response.data || {}));
+        console.log("Full response data:", response.data);
+      } else {
+        console.log("Access token received, storing in localStorage");
+      }
+      
+      localStorage.setItem("token", access || '');
+      localStorage.setItem("refresh", refresh || '');
+      localStorage.setItem("userId", userId || '');
+      localStorage.setItem("name", userName);
+      localStorage.setItem("loginTime", new Date().toISOString());
+      
+      // Verify token was stored
+      console.log("Token stored in localStorage:", localStorage.getItem("token"));
+      console.log("Token length after storage:", localStorage.getItem("token")?.length);
+      
+      // Check token format
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        console.log("Token format check:");
+        console.log("- Starts with 'eyJ':", storedToken.startsWith("eyJ"));
+        console.log("- Contains dots:", storedToken.includes("."));
+        console.log("- Split by dots:", storedToken.split(".").length);
+        console.log("- First part (header):", storedToken.split(".")[0]);
+        console.log("- Second part (payload):", storedToken.split(".")[1]);
+        console.log("- Third part (signature):", storedToken.split(".")[2]);
+      }
+      
+      // Show success message
+      if (parameter?.showSuccessMessage) {
+        parameter.showSuccessMessage("Successfully logged in with Google!");
+      }
+      
+      // Navigate based on profile completion status
+      if (parameter?.navigate) {
+        let navUrl;
+        if (profileCompleted === true || profilePercentage >= 100) {
+          // Profile is complete, go to dashboard
+          navUrl = "/newdashboard";
+          console.log("Profile complete - navigating to dashboard");
+        } else {
+          // Profile incomplete, go to MemStepOne
+          navUrl = `/memstepone/${userId}`;
+          console.log("Profile incomplete - navigating to MemStepOne");
+        }
+        
+        parameter.navigate(navUrl, {
+          state: {
+            successMessage: "Successfully logged in with Google!",
+            successMessageColor: "#4285F4",
+          },
+        });
+      }
+    })
+    .catch((error) => {
+      console.log("Google login error:", error.response?.data);
+      
+      if (error.response) {
+        const { status, data } = error.response;
+        
+        if (status === 400 || status >= 500) {
+          if (data) {
+            // Process and collect error messages
+            const errors = Object.entries(data).reduce((acc, [field, messages]) => {
+              if (Array.isArray(messages)) {
+                const cleanedMessages = messages.map((msg) => msg.replace(/^\d+:\s*/, ""));
+                acc.push(`${field}: ${cleanedMessages.join(", ")}`);
+              } else if (typeof messages === "string") {
+                acc.push(`${field}: ${messages.replace(/^\d+:\s*/, "")}`);
+              } else {
+                acc.push(`${field}: Unknown error format`);
+              }
+              return acc;
+            }, []);
+            
+            const errorMessage = errors.join("\n");
+            parameter?.setErrors(errorMessage);
+            if (parameter?.showErrorMessage) {
+              parameter.showErrorMessage(errorMessage);
+            }
+          }
+        } else if (status === 401) {
+          const unauthorizedMessage = "Unauthorized access. Please try again.";
+          alert(unauthorizedMessage);
+          parameter?.setErrors(unauthorizedMessage);
+          if (parameter?.showErrorMessage) {
+            parameter.showErrorMessage(unauthorizedMessage);
+          }
+        }
+      } else if (error.request) {
+        const noResponseMessage = "No response received from the server. Please try again.";
+        console.error("No response received:", error.request);
+        parameter?.setErrors(noResponseMessage);
+        if (parameter?.showErrorMessage) {
+          parameter.showErrorMessage(noResponseMessage);
+        }
+      } else {
+        const requestErrorMessage = `An error occurred: ${error.message}`;
+        console.error("Error setting up the request:", error.message);
+        parameter?.setErrors(requestErrorMessage);
+        if (parameter?.showErrorMessage) {
+          parameter.showErrorMessage(requestErrorMessage);
+        }
+      }
+    });
+};
+
 const deleteDataV2 = (parameter) => {
   if (!getToken()) {
     console.error("JWT token not found in local storage");
@@ -1794,4 +1984,4 @@ const fetchDataObjectV2 = (parameter) => {
 };
 
 
-export {convertDateTime, fetchDataWithTokenV2, fetchDataV2, fetchDataObjectV2, postDataV2, updateDataV2, deleteDataV2, postDataWithoutToken, postDataReturnId, postDataReturnResponse, postDataWithFetchV2, updateDataReturnId, justpostDataWithoutToken, registration, justUpdateDataV2 ,ReturnResponseFormdataWithoutToken,ReturnPutResponseFormdataWithoutToken,putDataWithFetchV2,justputDataWithoutToken,updatePostDataReturnId};
+export {convertDateTime, fetchDataWithTokenV2, fetchDataV2, fetchDataObjectV2, postDataV2, updateDataV2, deleteDataV2, postDataWithoutToken, postDataReturnId, postDataReturnResponse, postDataWithFetchV2, updateDataReturnId, justpostDataWithoutToken, registration, justUpdateDataV2 ,ReturnResponseFormdataWithoutToken,ReturnPutResponseFormdataWithoutToken,putDataWithFetchV2,justputDataWithoutToken,updatePostDataReturnId, googleLogin};

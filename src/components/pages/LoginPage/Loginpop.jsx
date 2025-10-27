@@ -62,13 +62,45 @@ const LoginPopup = () => {
         localStorage.setItem("token", access);
         localStorage.setItem("refresh", refresh);
         localStorage.setItem("loginTime", currentDate);
+        
+        let userId = "";
+        let profileCompleted = false;
+        let profilePercentage = 0;
+        
         if (access) {
           const decoded = jwtDecode(access);
-          const userId = decoded.user_id ? decoded.user_id : "";
+          userId = decoded.user_id ? decoded.user_id : "";
           localStorage.setItem("userId", userId ? userId : "");
+          
+          // Check if profile completion info is in the JWT token
+          profileCompleted = decoded.profile_completed || false;
+          profilePercentage = decoded.profile_percentage || 0;
         }
 
-        navigate("/newdashboard", { state: { data: "reload" } });
+        // Check profile completion from API response if available
+        if (data.profile_completed !== undefined) {
+          profileCompleted = data.profile_completed;
+        }
+        if (data.profile_percentage !== undefined) {
+          profilePercentage = data.profile_percentage;
+        }
+
+        console.log("Loginpop - Profile completed:", profileCompleted);
+        console.log("Loginpop - Profile percentage:", profilePercentage);
+
+        // Navigate based on profile completion status
+        let navUrl;
+        if (profileCompleted === true || profilePercentage >= 100) {
+          // Profile is complete, go to dashboard
+          navUrl = "/newdashboard";
+          console.log("Profile complete - navigating to dashboard");
+        } else {
+          // Profile incomplete, go to MemStepOne
+          navUrl = `/memstepone/${userId}`;
+          console.log("Profile incomplete - navigating to MemStepOne");
+        }
+
+        navigate(navUrl, { state: { data: "reload" } });
       } catch (error) {
         console.log(error.message);
       }
