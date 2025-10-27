@@ -200,17 +200,50 @@ const UserDashboard = () => {
       console.log('UserDashboard - Request API URL for user:', parameter.url);
       fetchDataWithTokenV2(parameter);
     } else {
-      // For agent role, use the API
+      // For agent role, use the photo request counts API
       const parameter = {
-        url: `/api/agent/request/count/`,
+        url: `/api/agent/photo-request/counts/`,
         setterFunction: (data) => {
-          console.log('Request count data received for agent:', data);
-          setApiData(data);
+          console.log('Photo request count data received for agent:', data);
+          
+          // Map API response to expected format for photo requests
+          const summary = data?.summary || {};
+          const members = data?.members || [];
+          
+          // Calculate totals from all members
+          let totalSentAccepted = 0;
+          let totalSentRejected = 0;
+          let totalReceivedAccepted = 0;
+          let totalReceivedRejected = 0;
+          
+          members.forEach(member => {
+            const photoRequests = member.photo_requests || {};
+            const sent = photoRequests.sent || {};
+            const received = photoRequests.received || {};
+            
+            totalSentAccepted += sent.breakdown?.accepted || 0;
+            totalSentRejected += sent.breakdown?.rejected || 0;
+            totalReceivedAccepted += received.breakdown?.accepted || 0;
+            totalReceivedRejected += received.breakdown?.rejected || 0;
+          });
+          
+          const mappedData = {
+            total_request_count: summary.total_interactions || 0,
+            request_sent: summary.total_sent_requests || 0,
+            request_received: summary.total_received_requests || 0,
+            sent_request_accepted: totalSentAccepted,
+            sent_request_rejected: totalSentRejected,
+            received_request_accepted: totalReceivedAccepted,
+            received_request_rejected: totalReceivedRejected
+          };
+          
+          console.log('Mapped agent photo request data:', mappedData);
+          setApiData(mappedData);
         },
         setErrors: setErrors,
         setLoading: setLoading,
       };
-      console.log('UserDashboard - Request API URL for agent:', parameter.url);
+      console.log('UserDashboard - Photo Request API URL for agent:', parameter.url);
       fetchDataWithTokenV2(parameter);
     }
 
