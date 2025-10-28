@@ -15,6 +15,7 @@ import UserPop from "../sections/UserPop";
 import DashboadrCard from "./dashboardCard/DashboardCard";
 import SimpleProfileCard from "./dashboardCard/SimpleProfileCard";
 import MemberSendInterest from "./AgentActions/MemberSendInterest";
+import AgentMessageSidebar from "./AgentActions/AgentMessageSidebar";
 
 // Shimmer Loading Component
 const ShimmerCard = () => (
@@ -81,6 +82,10 @@ const NewDashboard = () => {
   const role = localStorage.getItem("role");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showWelcomeSection, setShowWelcomeSection] = useState(false);
+  
+  // Agent Message Sidebar state
+  const [showAgentMessageSidebar, setShowAgentMessageSidebar] = useState(false);
+  const [selectedProfileForMessage, setSelectedProfileForMessage] = useState(null);
   const [showMemberSendInterest, setShowMemberSendInterest] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   // console.log(activeUser);
@@ -89,6 +94,25 @@ const NewDashboard = () => {
   const handleShowMemberSendInterest = (profile) => {
     setSelectedProfile(profile);
     setShowMemberSendInterest(true);
+  };
+
+  // Handler for agent message sidebar
+  const handleAgentMessage = (profile, options = {}) => {
+    console.log('=== HANDLE AGENT MESSAGE CALLED ===');
+    console.log('Profile:', profile);
+    console.log('Options:', options);
+    console.log('isAgent flag:', options.isAgent);
+    
+    if (options.isAgent) {
+      console.log('✅ Opening agent message sidebar');
+      setSelectedProfileForMessage(profile);
+      setShowAgentMessageSidebar(true);
+    } else {
+      console.log('❌ Normal user - navigating to inbox');
+      // Normal user message handling
+      const meId = localStorage.getItem('userId');
+      navigate(`/${meId}/inbox/`, { state: { openUserId: Number(profile.id) } });
+    }
   };
 
   // Handler for closing member send interest bottom sheet
@@ -585,7 +609,7 @@ useEffect(() => {
                               onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
                               onShortlist={undefined}
                               onIgnore={() => console.log('Ignore:', user.name)}
-                              onMessage={() => console.log('Message:', user.name)}
+                              onMessage={handleAgentMessage}
                               onViewProfile={() => navigate(`/details/${user.id}`)}
                             />
                           </div>
@@ -686,7 +710,7 @@ useEffect(() => {
                                 onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
                                 onShortlist={undefined}
                                 onIgnore={() => console.log('Ignore:', user.name)}
-                                onMessage={() => console.log('Message:', user.name)}
+                              onMessage={handleAgentMessage}
                                 onViewProfile={() => navigate(`/details/${user.id}`)}
                               />
                             </div>
@@ -803,7 +827,7 @@ useEffect(() => {
                                 onInterested={shouldUseCallback ? () => handleInterested(user) : undefined}
                                 onShortlist={undefined}
                                 onIgnore={() => console.log('Ignore:', user.name)}
-                                onMessage={() => console.log('Message:', user.name)}
+                                onMessage={handleAgentMessage}
                                 onViewProfile={() => navigate(`/details/${user.id}`)}
                               />
                             </div>
@@ -866,6 +890,22 @@ useEffect(() => {
           background: #f1f1f1;
         }
       `}</style>
+
+      {/* Agent Message Sidebar */}
+      {showAgentMessageSidebar && selectedProfileForMessage && (
+        <AgentMessageSidebar
+          isOpen={showAgentMessageSidebar}
+          onClose={() => {
+            setShowAgentMessageSidebar(false);
+            setSelectedProfileForMessage(null);
+          }}
+          targetUserId={selectedProfileForMessage.id}
+          targetUserName={selectedProfileForMessage.name}
+          targetUserPhoto={selectedProfileForMessage.profile_photo}
+          targetUserGender={selectedProfileForMessage.gender}
+          targetUserData={selectedProfileForMessage}
+        />
+      )}
     </div>
   );
 };

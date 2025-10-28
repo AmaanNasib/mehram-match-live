@@ -336,6 +336,15 @@ const AllRoutes = () => {
           }
         />
         <Route
+          path="/inbox"
+          element={
+            <PrivateRoute>
+              {" "}
+              <Inbox />{" "}
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/:userId/inbox/"
           element={
             <PrivateRoute>

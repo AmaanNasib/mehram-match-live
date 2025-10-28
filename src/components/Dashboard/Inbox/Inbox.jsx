@@ -43,6 +43,7 @@ const Inbox = () => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [userScrolling, setUserScrolling] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
   const location = useLocation();
   // Only honor the target user passed via navigation state; do not use route param (which is current user id)
   const requestedOpenUserId = location.state?.openUserId ? Number(location.state.openUserId) : null;
@@ -133,6 +134,62 @@ const Inbox = () => {
   const token = localStorage.getItem("token");
   const EMOJI_API_KEY = '855ca2a096c697a0c8e2da3a525e509acd7d1847';
 
+  // Load member conversation messages
+  const loadMemberConversation = async (user) => {
+    if (!user.member_id) return;
+    
+    try {
+      console.log('=== LOADING MEMBER CONVERSATION ===');
+      console.log('User:', user);
+      console.log('Member ID:', user.member_id);
+      
+      // Get messages for this member
+      const messagesResponse = await api.get(`/api/agent/member/${user.member_id}/messages/`);
+      const messages = messagesResponse.data.messages || [];
+      
+      console.log('Member messages:', messages);
+      
+      // Filter messages for this specific conversation
+      const conversationMessages = messages.filter(
+        msg => msg.other_user.id === user.id
+      );
+      
+      console.log('Filtered conversation messages:', conversationMessages);
+      
+      // Convert to inbox format
+      const formattedMessages = conversationMessages.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        timestamp: msg.timestamp,
+        is_sent_by_member: msg.is_sent_by_member,
+        sender: {
+          ...msg.sender,
+          id: msg.is_sent_by_member ? user.member_id : user.id
+        },
+        receiver: {
+          ...msg.other_user,
+          id: msg.is_sent_by_member ? user.id : user.member_id
+        },
+        file: msg.file,
+        created_at: msg.timestamp,
+        time: msg.timestamp
+      }));
+      
+      console.log('Formatted messages for inbox:', formattedMessages);
+      setUserInteraction(formattedMessages);
+      
+      // Set the selected member for message rendering
+      setSelectedMember({
+        id: user.member_id,
+        name: user.member_name
+      });
+      
+    } catch (error) {
+      console.error('Error loading member conversation:', error);
+      setErrors('Error loading conversation. Please try again.');
+    }
+  };
+
   // Keep selection stable across refreshes
   const initialSelectionDoneRef = React.useRef(false);
   // Right-side user info panel with smooth transitions
@@ -209,8 +266,285 @@ const Inbox = () => {
     }
   }, [errors]);
 
+  // Handle agent inbox loading
+  useEffect(() => {
+    const loadAgentInbox = async () => {
+      const currentRole = localStorage.getItem('role');
+      const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+      
+      // Check if user is an agent and not impersonating
+      if (currentRole === 'agent' && !isImpersonating) {
+        console.log('=== AGENT INBOX LOADING ===');
+        console.log('Agent role detected, loading member conversations');
+        
+        try {
+          // Get agent's members
+          const membersResponse = await api.get('/api/agent/user_agent/?agent_id=' + userId);
+          const members = membersResponse.data.member || [];
+          
+          console.log('Agent members:', members);
+          
+          if (members.length > 0) {
+            // Get conversations for each member
+            const allConversations = [];
+            
+            for (const member of members) {
+              try {
+                const conversationsResponse = await api.get(`/api/agent/member/${member.id}/conversations/`);
+                const conversations = conversationsResponse.data.conversations || [];
+                
+                console.log(`Conversations for member ${member.name}:`, conversations);
+                
+                // Add member info to each conversation
+                const conversationsWithMember = conversations.map(conv => ({
+                  ...conv,
+                  member: member,
+                  member_id: member.id,
+                  member_name: member.name
+                }));
+                
+                allConversations.push(...conversationsWithMember);
+              } catch (error) {
+                console.error(`Error fetching conversations for member ${member.id}:`, error);
+              }
+            }
+            
+            console.log('All member conversations:', allConversations);
+            
+            // Convert to inbox format
+            const inboxUsers = allConversations.map(conv => ({
+              id: conv.other_user.id,
+              name: conv.other_user.name,
+              profile_photo: conv.other_user.profile_photo,
+              gender: conv.other_user.gender,
+              last_message: conv.last_message?.content || 'No messages',
+              last_message_time: conv.last_message?.timestamp || conv.created_at,
+              unread_count: conv.unread_count || 0,
+              is_online: false,
+              member_id: conv.member_id,
+              member_name: conv.member_name
+            }));
+            
+            console.log('Formatted inbox users:', inboxUsers);
+            
+            // Remove duplicates based on user ID
+            const uniqueUsers = inboxUsers.reduce((acc, user) => {
+              const existing = acc.find(u => u.id === user.id);
+              if (!existing) {
+                acc.push(user);
+              } else if (new Date(user.last_message_time) > new Date(existing.last_message_time)) {
+                // Keep the user with more recent message
+                const index = acc.indexOf(existing);
+                acc[index] = user;
+              }
+              return acc;
+            }, []);
+            
+            console.log('Unique users for inbox:', uniqueUsers);
+            
+            setRecentUsers(uniqueUsers);
+            
+            // If there are conversations, select the first one
+            if (uniqueUsers.length > 0) {
+              setSelectedMessage(0);
+              // Load messages for the first conversation
+              loadMemberConversation(uniqueUsers[0]);
+            }
+          } else {
+            console.log('No members found for agent');
+            setRecentUsers([]);
+          }
+        } catch (error) {
+          console.error('Error loading agent inbox:', error);
+          setErrors('Error loading conversations. Please try again.');
+        }
+      }
+    };
+    
+    loadAgentInbox();
+  }, [userId]);
+
+  // Handle agent message functionality
+  useEffect(() => {
+    const handleAgentMessage = async () => {
+      // Check if coming from agent message
+      const urlParams = new URLSearchParams(window.location.search);
+      const isAgentMessage = urlParams.get('agentMessage') === 'true';
+      
+      if (isAgentMessage) {
+        try {
+          // Get stored data from localStorage
+          const selectedMemberData = localStorage.getItem('selectedMemberForMessage');
+          const targetUserData = localStorage.getItem('targetUserForMessage');
+          
+          if (selectedMemberData && targetUserData) {
+            const selectedMember = JSON.parse(selectedMemberData);
+            const targetUser = JSON.parse(targetUserData);
+            
+            console.log('=== AGENT MESSAGE DETECTED ===');
+            console.log('Selected Member:', selectedMember);
+            console.log('Target User:', targetUser);
+            console.log('Expected conversation with:', targetUser.name, 'ID:', targetUser.id);
+            
+            // Set the selected member for message rendering
+            setSelectedMember(selectedMember);
+            
+            // Send message using agent API
+            const response = await api.post('/api/agent/member/send-message/', {
+              member_id: selectedMember.id,
+              receiver_id: targetUser.id,
+              content: `Hi! I'm ${selectedMember.name || selectedMember.first_name}. I'd like to connect with you.`
+            });
+            
+            console.log('Agent message sent successfully:', response.data);
+            
+            // Clear stored data
+            localStorage.removeItem('selectedMemberForMessage');
+            localStorage.removeItem('targetUserForMessage');
+            
+            // Show success message
+            setErrors('Message sent successfully on behalf of member!');
+            
+            // For agent, we need to use agent-specific APIs to get member's conversations
+            setTimeout(async () => {
+              try {
+                console.log('=== FETCHING AGENT MEMBER CONVERSATIONS ===');
+                console.log('Member ID:', selectedMember.id);
+                
+                // Get member's conversations using agent API
+                const conversationsResponse = await api.get(`/api/agent/member/${selectedMember.id}/conversations/`);
+                console.log('Member conversations:', conversationsResponse.data);
+                
+                // Find the conversation with target user
+                const targetConversation = conversationsResponse.data.conversations.find(
+                  conv => conv.other_user.id === targetUser.id
+                );
+                
+                if (targetConversation) {
+                  console.log('Found target conversation:', targetConversation);
+                  
+                  // Get messages for this specific conversation
+                  const messagesResponse = await api.get(`/api/agent/member/${selectedMember.id}/messages/`);
+                  console.log('Member messages:', messagesResponse.data);
+                  
+                  // Filter messages for this specific conversation
+                  const conversationMessages = messagesResponse.data.messages.filter(
+                    msg => msg.other_user.id === targetUser.id
+                  );
+                  
+                  console.log('Conversation messages with target user:', conversationMessages);
+                  
+                  // Create a user object for the conversation list
+                  const conversationUser = {
+                    id: targetUser.id,
+                    name: targetUser.name || `User ${targetUser.id}`,
+                    profile_photo: targetUser.photo || null,
+                    gender: targetUser.gender || null,
+                    last_message: conversationMessages.length > 0 ? conversationMessages[conversationMessages.length - 1].content : 'New conversation',
+                    last_message_time: conversationMessages.length > 0 ? conversationMessages[conversationMessages.length - 1].timestamp : new Date().toISOString(),
+                    unread_count: 0,
+                    is_online: false,
+                  };
+                  
+                  // Update the conversation list
+                  setRecentUsers([conversationUser]);
+                  setSelectedMessage(0);
+                  
+                  // Convert agent messages to inbox format and set as user interaction
+                  const formattedMessages = conversationMessages.map(msg => ({
+                    id: msg.id,
+                    content: msg.content,
+                    timestamp: msg.timestamp,
+                    is_sent_by_member: msg.is_sent_by_member,
+                    sender: {
+                      ...msg.sender,
+                      id: msg.is_sent_by_member ? selectedMember.id : targetUser.id
+                    },
+                    receiver: {
+                      ...msg.other_user,
+                      id: msg.is_sent_by_member ? targetUser.id : selectedMember.id
+                    },
+                    file: msg.file,
+                    created_at: msg.timestamp,
+                    time: msg.timestamp
+                  }));
+                  
+                  console.log('Formatted messages for inbox:', formattedMessages);
+                  setUserInteraction(formattedMessages);
+                  
+                } else {
+                  console.log('No existing conversation found, creating new one');
+                  
+                  // Create new conversation entry
+                  const newUser = {
+                    id: targetUser.id,
+                    name: targetUser.name || `User ${targetUser.id}`,
+                    profile_photo: targetUser.photo || null,
+                    gender: targetUser.gender || null,
+                    last_message: `Hi! I'm ${selectedMember.name || selectedMember.first_name}. I'd like to connect with you.`,
+                    last_message_time: new Date().toISOString(),
+                    unread_count: 0,
+                    is_online: false,
+                  };
+                  
+                  setRecentUsers([newUser]);
+                  setSelectedMessage(0);
+                  
+                  // Set the sent message as the conversation starter
+                  const newMessage = {
+                    id: Date.now(),
+                    content: `Hi! I'm ${selectedMember.name || selectedMember.first_name}. I'd like to connect with you.`,
+                    timestamp: new Date().toISOString(),
+                    is_sent_by_member: true,
+                    sender: {
+                      id: selectedMember.id,
+                      name: selectedMember.name || selectedMember.first_name,
+                      is_member: true
+                    },
+                    receiver: targetUser,
+                    file: null,
+                    created_at: new Date().toISOString(),
+                    time: new Date().toISOString()
+                  };
+                  
+                  setUserInteraction([newMessage]);
+                }
+                
+              } catch (error) {
+                console.error('Error fetching agent conversations:', error);
+                setErrors('Error loading conversation. Please try again.');
+              }
+            }, 1000);
+            
+          } else {
+            console.log('No agent message data found in localStorage');
+          }
+        } catch (error) {
+          console.error('Failed to send agent message:', error);
+          setErrors(error.response?.data?.error || 'Failed to send message. Please try again.');
+          
+          // Clear stored data even on error
+          localStorage.removeItem('selectedMemberForMessage');
+          localStorage.removeItem('targetUserForMessage');
+        }
+      }
+    };
+    
+    handleAgentMessage();
+  }, []);
+
   useEffect(() => {
   const fetchRecentUsers = async () => {
+    // Check if user is an agent and not impersonating
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
+    // Only run this for regular users, not for agents
+    if (currentRole === 'agent' && !isImpersonating) {
+      console.log('Skipping regular user inbox loading for agent');
+      return;
+    }
+    
     try {
       const response = await api.get(
         `/api/chats/recent-users/`
@@ -460,34 +794,70 @@ const Inbox = () => {
     if ((!newMessage.trim() && selectedImages.length === 0) || selectedMessage === null) return;
 
     const receiverId = recentUsers[selectedMessage]?.id;
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    const selectedUser = recentUsers[selectedMessage];
 
     try {
-      // If only text message, send as JSON
-      if (selectedImages.length === 0) {
-      await api.post(
-        `/api/user/messages/`,
-        {
-          receiver_id: receiverId,
-          content: newMessage,
-        },
-        );
-      } else {
-        // Send each image as a separate message (WhatsApp style)
-        const messageContent = newMessage.trim() || '📷 Photo';
-        
-        for (let i = 0; i < selectedImages.length; i++) {
-          const formData = new FormData();
-          formData.append('receiver_id', receiverId);
-          formData.append('content', i === 0 ? messageContent : '📷 Photo');
-          formData.append('file', selectedImages[i]);
+      // Check if this is an agent conversation
+      if (currentRole === 'agent' && !isImpersonating && selectedUser?.member_id) {
+        // Agent sending message on behalf of member
+        if (selectedImages.length === 0) {
+          await api.post('/api/agent/member/send-message/', {
+            member_id: selectedUser.member_id,
+            receiver_id: receiverId,
+            content: newMessage,
+          });
+        } else {
+          // Send each image as a separate message (WhatsApp style)
+          const messageContent = newMessage.trim() || '📷 Photo';
+          
+          for (let i = 0; i < selectedImages.length; i++) {
+            const formData = new FormData();
+            formData.append('member_id', selectedUser.member_id);
+            formData.append('receiver_id', receiverId);
+            formData.append('content', i === 0 ? messageContent : '📷 Photo');
+            formData.append('file', selectedImages[i]);
 
-          await api.post(
-            `/api/user/messages/`,
-            formData,
-        );
+            await api.post('/api/agent/member/send-message/', formData);
+          }
+          
+          console.log(`✅ Sent ${selectedImages.length} images as agent`);
         }
         
-        console.log(`✅ Sent ${selectedImages.length} images`);
+        // Reload member conversation after sending
+        loadMemberConversation(selectedUser);
+      } else {
+        // Regular user message sending
+        if (selectedImages.length === 0) {
+          await api.post(
+            `/api/user/messages/`,
+            {
+              receiver_id: receiverId,
+              content: newMessage,
+            },
+          );
+        } else {
+          // Send each image as a separate message (WhatsApp style)
+          const messageContent = newMessage.trim() || '📷 Photo';
+          
+          for (let i = 0; i < selectedImages.length; i++) {
+            const formData = new FormData();
+            formData.append('receiver_id', receiverId);
+            formData.append('content', i === 0 ? messageContent : '📷 Photo');
+            formData.append('file', selectedImages[i]);
+
+            await api.post(
+              `/api/user/messages/`,
+              formData,
+          );
+          }
+          
+          console.log(`✅ Sent ${selectedImages.length} images`);
+        }
+        
+        // Reload user interaction after sending
+        fetchUserInteraction(receiverId);
       }
 
       setNewMessage("");
@@ -496,7 +866,6 @@ const Inbox = () => {
       if (imageInputRef.current) {
         imageInputRef.current.value = "";
       }
-      fetchUserInteraction(receiverId);
       
       // Auto scroll to bottom after sending message
       setTimeout(() => {
@@ -833,11 +1202,21 @@ const Inbox = () => {
                       );
                       setSelectedMessage(actualIndex);
                       
-                      // Immediately clear unread count
-                      markMessagesAsRead(user.id);
+                      // Check if this is an agent conversation
+                      const currentRole = localStorage.getItem('role');
+                      const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
                       
-                      // Fetch messages
-                      fetchUserInteraction(user.id);
+                      if (currentRole === 'agent' && !isImpersonating && user.member_id) {
+                        // Load member conversation
+                        loadMemberConversation(user);
+                      } else {
+                        // Regular user conversation
+                        // Immediately clear unread count
+                        markMessagesAsRead(user.id);
+                        
+                        // Fetch messages
+                        fetchUserInteraction(user.id);
+                      }
                       
                       // Auto scroll to bottom when switching conversation
                       setTimeout(() => {
@@ -849,12 +1228,13 @@ const Inbox = () => {
                           clearInterval(pollingIntervalId);
                         }
 
-                      // Start new polling for this conversation
+                      // Start new polling for this conversation (only for regular users)
+                      if (!(currentRole === 'agent' && !isImpersonating)) {
                         const intervalId = setInterval(() => {
-                        fetchUserInteraction(user.id);
-                      }, 5000);
-
+                          fetchUserInteraction(user.id);
+                        }, 5000);
                         setPollingIntervalId(intervalId);
+                      }
                       }}
                     >
                     <div className="inbox-user-avatar">
@@ -882,7 +1262,14 @@ const Inbox = () => {
                       )}
                     </div>
                     <div className="inbox-user-info">
-                      <div className="inbox-user-name">{user.name}</div>
+                      <div className="inbox-user-name">
+                        {user.name}
+                        {user.member_name && (
+                          <span style={{ fontSize: '12px', color: '#666', marginLeft: '8px' }}>
+                            (via {user.member_name})
+                          </span>
+                        )}
+                      </div>
                       <div className="inbox-user-last-message">
                         {user.last_message && user.last_message.trim() !== "" ? user.last_message : getUserStatusText(user)}
                       </div>
@@ -994,7 +1381,7 @@ const Inbox = () => {
                 <div
                   key={idx}
                         className={`inbox-message ${
-                          item.data.sender?.id === userId
+                          item.data.sender?.id === (selectedMember?.id || userId)
                             ? "inbox-message-sent"
                             : "inbox-message-received"
                         }`}
@@ -1016,7 +1403,7 @@ const Inbox = () => {
                           }
                         }}
                 >
-                  {item.data.sender?.id !== userId && (
+                  {item.data.sender?.id !== (selectedMember?.id || userId) && (
                     <img
                             src={
                               recentUsers[selectedMessage]?.profile_photo
@@ -1045,7 +1432,7 @@ const Inbox = () => {
                               <div className="reply-line"></div>
                               <div className="reply-content">
                                 <div className="reply-sender">
-                                  {replyToMessage.sender?.id === userId ? 'You' : recentUsers[selectedMessage]?.name}
+                                  {replyToMessage.sender?.id === (selectedMember?.id || userId) ? 'You' : recentUsers[selectedMessage]?.name}
                                 </div>
                                 <div className="reply-text">
                                    {(replyToMessage.file_url || replyToMessage.file) ? (
@@ -1119,7 +1506,7 @@ const Inbox = () => {
                           </div>
                           <span className="inbox-message-time" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {formatTimeOnly(item.data.timestamp)}
-                            {item.data.sender?.id === userId && (
+                            {item.data.sender?.id === (selectedMember?.id || userId) && (
                               <span
                                 className={`msg-status ${getMessageStatus(item.data)}`}
                                 title={getMessageStatus(item.data)}

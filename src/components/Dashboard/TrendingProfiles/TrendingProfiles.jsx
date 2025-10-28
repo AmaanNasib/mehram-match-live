@@ -164,8 +164,9 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
                       console.log('Ignore clicked for', user.name);
                     }}
                     onMessage={() => {
-                      // Handle message click
-                      console.log('Message clicked for', user.name);
+                      const meId = localStorage.getItem('userId');
+                      if (!meId) return alert('Login required');
+                      navigate(`/${meId}/inbox/`, { state: { openUserId: Number(user.id) } });
                     }}
                     onViewProfile={() => {
                       // Handle view profile click

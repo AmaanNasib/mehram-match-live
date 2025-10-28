@@ -1,9 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SimpleProfileCard.css";
 
 const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMessage, onViewProfile, isInterested }) => {
   const [loading, setLoading] = useState(false);
   const [loadingShortlist, setLoadingShortlist] = useState(false);
+  const [actualInterestStatus, setActualInterestStatus] = useState(isInterested || false);
+  const [interestStatus, setInterestStatus] = useState(null); // Track the actual interest status
+  const navigate = useNavigate();
+
+  // Check actual interest status on component mount
+  useEffect(() => {
+    const checkInterestStatus = async () => {
+      if (!profile?.id) return;
+      
+      const currentUserId = localStorage.getItem('userId');
+      if (!currentUserId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${profile.id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const interestRecords = data.filter(record => 
+            record.interest === true && 
+            record.action_by_id === parseInt(currentUserId) &&
+            record.action_on_id === parseInt(profile.id)
+          );
+          
+          if (interestRecords.length > 0) {
+            const latestRecord = interestRecords[0];
+            const status = latestRecord.status;
+            
+            console.log('Button state check - status:', status);
+            
+            // Show as interested if status is accepted, pending, or null (not rejected)
+            if (status === 'accepted' || status === 'pending' || status === 'Pending' || status === null) {
+              console.log('Setting button to FILLED - status:', status);
+              setActualInterestStatus(true);
+              setInterestStatus(status);
+            } else if (status && status.toLowerCase() === 'rejected') {
+              console.log('Setting button to UNFILLED - status:', status);
+              setActualInterestStatus(false);
+              setInterestStatus(status);
+            } else {
+              // For any other status, default to not interested
+              console.log('Setting button to UNFILLED - unknown status:', status);
+              setActualInterestStatus(false);
+              setInterestStatus(status);
+            }
+          } else {
+            console.log('No interest records found - setting button to UNFILLED');
+            setActualInterestStatus(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking interest status:', error);
+        // Fallback to prop value
+        setActualInterestStatus(isInterested || false);
+      }
+    };
+
+    checkInterestStatus();
+  }, [profile?.id, isInterested]);
 
   // Handle shortlist button click - for regular users
   const handleShortlistClick = async () => {
@@ -89,6 +156,92 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
         return;
       }
 
+      // Check current interest status using better endpoint
+      const statusResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/user/interested/?user_id=${currentUserId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        console.log('API Response data:', statusData);
+        
+        // Use interest_status field if available, otherwise fallback to old method
+        let interestRecords = [];
+        
+        if (statusData.sent_interests) {
+          // New API format with sent_interests field
+          interestRecords = statusData.sent_interests.filter(record => 
+            record.user && record.user.id === parseInt(targetUserId)
+          ).map(record => {
+            console.log('Record details:', {
+              id: record.id,
+              status: record.status,
+              interest_status: record.interest_status,
+              user: record.user
+            });
+            return {
+              interest: true,
+              status: record.interest_status || record.status, // Use interest_status if available, fallback to status
+              action_by_id: parseInt(currentUserId),
+              action_on_id: parseInt(targetUserId)
+            };
+          });
+        } else if (statusData.interest_status) {
+          // Alternative API format with interest_status field
+          const targetUserInterest = statusData.interest_status.find(item => 
+            item.target_user_id === parseInt(targetUserId)
+          );
+          if (targetUserInterest) {
+            interestRecords = [{
+              interest: targetUserInterest.interest,
+              status: targetUserInterest.status,
+              action_by_id: parseInt(currentUserId),
+              action_on_id: parseInt(targetUserId)
+            }];
+          }
+        } else {
+          // Fallback to old API format (direct array)
+          interestRecords = Array.isArray(statusData) ? statusData.filter(record => 
+            record.interest === true && 
+            record.action_by_id === parseInt(currentUserId) &&
+            record.action_on_id === parseInt(targetUserId)
+          ) : [];
+        }
+        
+        console.log('Found interest records:', interestRecords.length, interestRecords);
+        
+        if (interestRecords.length > 0) {
+          const latestRecord = interestRecords[0];
+          const status = latestRecord.status;
+          
+          console.log('Current interest status:', status, 'Full record:', latestRecord);
+          
+          // If interest exists and status is NOT rejected, show already sent
+          const normalizedStatus = status ? status.toString().toLowerCase().trim() : '';
+          console.log('Normalized status:', normalizedStatus, 'Original status:', status);
+          
+          // Only block if status is 'accepted' - allow re-send for 'pending', 'sent', and 'rejected'
+          if (status && normalizedStatus === 'accepted') {
+            console.log('Interest already accepted - status:', status, 'normalized:', normalizedStatus);
+            alert('Interest already accepted by this user');
+            return;
+          }
+          
+          // Allow re-send for 'pending', 'sent', and 'rejected' statuses
+          if (status && (normalizedStatus === 'pending' || normalizedStatus === 'sent' || normalizedStatus === 'rejected')) {
+            console.log('Interest was pending/sent/rejected, allowing re-send - status:', status);
+            // Continue to send new interest below
+          }
+        }
+      }
+
+      // Send interest (either new or after rejection)
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/recieved/`,
         {
@@ -108,12 +261,19 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
       if (!response.ok) {
         const errorData = await response.json();
         
+        console.log('API Error Response:', errorData);
+        
         // Handle specific errors
         if (errorData.detail && errorData.detail.includes('Gender')) {
           alert('Gender compatibility required: Male can only send interest to Female and vice versa');
         } else if (errorData.detail && errorData.detail.includes('blocked')) {
           alert('Cannot send interest. User interaction is blocked.');
+        } else if (errorData.detail && errorData.detail.includes('interest accept')) {
+          alert('Message bhejne ke liye pehle interest accept hona zaroori hai');
         } else if (errorData.already_sent) {
+          // Backend says already sent, but we checked status above
+          // If we reached here, it means status was rejected and we should allow
+          console.log('Backend says already sent, but status was rejected - this should not happen');
           alert('Interest already sent to this user');
         } else {
           alert(errorData.detail || 'Failed to send interest');
@@ -122,12 +282,16 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
       }
 
       const data = await response.json();
+      console.log('Interest API response:', data);
       
       if (data.already_sent) {
+        console.log('Backend says already_sent is true');
         alert('Interest already sent to this user!');
       } else {
+        console.log('Interest sent successfully');
         alert('Interest sent successfully! ✅');
-        // Optionally refresh the data or update UI
+        // Update local state to show as interested
+        setActualInterestStatus(true);
       }
       
     } catch (error) {
@@ -136,6 +300,20 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle message button click -> open Inbox and focus this user
+  const handleMessageClick = () => {
+    const meId = localStorage.getItem('userId');
+    if (!meId) {
+      alert('Login required');
+      return;
+    }
+    if (!profile?.id) {
+      alert('Receiver not found');
+      return;
+    }
+    navigate(`/${meId}/inbox/`, { state: { openUserId: Number(profile.id) } });
   };
   
   return (
@@ -195,7 +373,7 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
               <path d="M9 9.5C10.3807 9.5 11.5 8.38071 11.5 7C11.5 5.61929 10.3807 4.5 9 4.5C7.61929 4.5 6.5 5.61929 6.5 7C6.5 8.38071 7.61929 9.5 9 9.5Z" stroke="currentColor" strokeWidth="1.5"/>
               <path d="M2.75 7C2.75 11.0041 5.74594 14 9.75 14C10.3679 14 10.966 13.9315 11.5387 13.8029C12.6216 13.5801 13.75 13.316 13.75 13.25V7C13.75 2.99594 10.7541 0 6.75 0C2.74594 0 -0.25 2.99594 -0.25 7H2.75Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
             </svg>
-            <span>{profile?.location || "Location N/A"}</span>
+            <span>{profile?.city || "Location N/A"}</span>
           </div>
 
           {/* Profession */}
@@ -214,9 +392,14 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
         <div className="simple-quick-actions">
           {/* Interest/Heart Button */}
           <button 
-            className={`simple-icon-btn interest-btn ${isInterested ? 'interested' : ''}`}
+            className={`simple-icon-btn interest-btn ${actualInterestStatus ? 'interested' : ''}`}
             onClick={handleInterestClick}
-            title={loading ? "Sending..." : isInterested ? "Interest Sent" : "Send Interest"}
+            title={
+              loading ? "Sending..." : 
+              actualInterestStatus ? "Interest Sent" : 
+              interestStatus === 'rejected' ? "Send Interest Again" : 
+              "Send Interest"
+            }
             disabled={loading}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" strokeWidth="2">
@@ -264,7 +447,51 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
         {/* Message Button - Primary Action */}
         <button 
           className="simple-message-btn"
-          onClick={() => onMessage && onMessage(profile)}
+          onClick={() => {
+            console.log('=== MESSAGE BUTTON CLICKED ===');
+            console.log('onMessage prop exists:', !!onMessage);
+            console.log('Profile:', profile);
+            
+            // Always check for agent role first, regardless of onMessage prop
+            const currentRole = localStorage.getItem('role');
+            const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+            
+            console.log('Agent check - currentRole:', currentRole);
+            console.log('isImpersonating:', isImpersonating);
+            console.log('All localStorage keys:', Object.keys(localStorage));
+            
+            if (currentRole === 'agent' && !isImpersonating) {
+              console.log('✅ AGENT DETECTED - calling onMessage with agent flag');
+              // Call onMessage with agent flag to open sidebar at page level
+              if (onMessage) {
+                console.log('Calling onMessage function...');
+                console.log('onMessage function:', onMessage);
+                console.log('onMessage function name:', onMessage.name);
+                try {
+                  onMessage(profile, { isAgent: true });
+                  console.log('onMessage called successfully');
+                } catch (error) {
+                  console.error('Error calling onMessage:', error);
+                }
+              } else {
+                console.log('❌ No onMessage prop - agent needs custom handling');
+              }
+              
+              // Fallback: If onMessage doesn't work, try to trigger sidebar directly
+              // This is a temporary solution to test if the issue is with the prop
+              console.log('🔧 FALLBACK: Trying to trigger sidebar directly...');
+              // We'll add a custom event or use a different approach here
+            } else {
+              console.log('❌ NORMAL USER - using original handler');
+              if (onMessage) {
+                console.log('Using onMessage prop');
+                onMessage(profile);
+              } else {
+                console.log('Using handleMessageClick');
+                handleMessageClick();
+              }
+            }
+          }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
