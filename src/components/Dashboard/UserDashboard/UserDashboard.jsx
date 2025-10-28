@@ -82,7 +82,7 @@ const UserDashboard = () => {
     setChartLoading(true);
     try {
       const url = role === "agent" 
-        ? `/api/agent/graph/?agent_id=${userId}&based_on=${period}` 
+        ? `/api/agent/graph/?based_on=${period}` 
         : `/api/user/graph/?user_id=${userId}&based_on=${period}`;
         
       console.log('Graph API URL:', url);
@@ -123,6 +123,15 @@ const UserDashboard = () => {
             // Fallback to API response if apiData3 is not available
             mergedData.total_blocked = data?.agent_direct_blocks || data?.total_blocked_count || 0;
             console.log('Using blocked data from API response for agent graph:', mergedData.total_blocked, 'from data:', data);
+          }
+          
+          // Special handling for photo request data for agent - use data from API response
+          if (role === "agent" && data?.photo_requests?.total) {
+            mergedData.total_requests = data.photo_requests.total;
+            console.log('Using photo request data from API response for agent graph:', data.photo_requests.total);
+          } else if (role === "agent" && apiData?.total_request_count) {
+            mergedData.total_requests = apiData.total_request_count;
+            console.log('Using photo request data from apiData for agent graph:', apiData.total_request_count);
           }
           
           console.log('Merged data:', mergedData);

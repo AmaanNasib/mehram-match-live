@@ -117,6 +117,58 @@
   letter-spacing: 0.5px;
 }
 
+/* Agent Info Cell Styles */
+.agent-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.agent-name {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.call-agent-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.call-agent-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.call-agent-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.call-agent-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.no-call-available {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 14px;
+}
+
 .results-summary {
   display: flex;
   gap: 20px;

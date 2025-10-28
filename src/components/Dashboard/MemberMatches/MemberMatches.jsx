@@ -3689,6 +3689,7 @@ const MemberMatches = () => {
                   </span>
                 )}
               </th>
+              <th>Call Agent</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -3699,7 +3700,9 @@ const MemberMatches = () => {
                 <td>{match?.name || match?.user_name || "No Name"}</td>
                 <td onClick={(e) => e.stopPropagation()}>
                   {match?.agent_info?.agent_name ?? match?.agent_info?.name ? (
-                    match?.agent_info?.agent_name ?? match?.agent_info?.name
+                    <span className="agent-name">
+                      {match?.agent_info?.agent_name ?? match?.agent_info?.name}
+                    </span>
                   ) : (
                     <span className="self-badge">Self</span>
                   )}
@@ -3724,6 +3727,42 @@ const MemberMatches = () => {
                     ></div>
                     <span className="progress-text">{calculateMatchPercentage(match)}%</span>
                   </div>
+                </td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  {(() => {
+                    // Debug: Log agent info to console
+                    if (match?.agent_info) {
+                      console.log('Agent Info for', match.name, ':', match.agent_info);
+                    }
+                    
+                    return (match?.agent_info?.contact_number || 
+                            match?.agent_info?.phone || 
+                            match?.agent_info?.mobile || 
+                            match?.agent_info?.phone_number ||
+                            match?.agent_info?.agent_phone) ? (
+                      <button 
+                        className="call-agent-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const phoneNumber = match.agent_info.contact_number || 
+                                            match.agent_info.phone || 
+                                            match.agent_info.mobile || 
+                                            match.agent_info.phone_number ||
+                                            match.agent_info.agent_phone;
+                          console.log('Calling agent with number:', phoneNumber);
+                          window.open(`tel:${phoneNumber}`, '_self');
+                        }}
+                        title={`Call ${match?.agent_info?.agent_name ?? match?.agent_info?.name}`}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        Call
+                      </button>
+                    ) : (
+                      <span className="no-call-available">-</span>
+                    );
+                  })()}
                 </td>
                 <td>
                   <button 
