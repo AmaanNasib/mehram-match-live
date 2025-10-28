@@ -154,7 +154,34 @@ const Inbox = () => {
         msg => msg.other_user.id === user.id
       );
       
+      // Sort messages by timestamp in ascending order (oldest first, newest last)
+      conversationMessages.sort((a, b) => {
+        const timeA = new Date(a.timestamp || a.created_at || a.time);
+        const timeB = new Date(b.timestamp || b.created_at || b.time);
+        return timeA - timeB;
+      });
+      
       console.log('Filtered conversation messages:', conversationMessages);
+      
+      // Log messages with images
+      const messagesWithImages = conversationMessages.filter(msg => msg.file || msg.file_url);
+      if (messagesWithImages.length > 0) {
+        console.log('📸 Agent conversation messages with images:', messagesWithImages);
+        messagesWithImages.forEach((msg, index) => {
+          console.log(`📸 Agent Image ${index + 1}:`, {
+            id: msg.id,
+            content: msg.content,
+            file: msg.file,
+            file_url: msg.file_url,
+            timestamp: msg.timestamp,
+            is_sent_by_member: msg.is_sent_by_member,
+            fullImageUrl: msg.file_url || 
+              (msg.file?.startsWith('http') 
+                ? msg.file 
+                : `${process.env.REACT_APP_API_URL}${msg.file}`)
+          });
+        });
+      }
       
       // Convert to inbox format
       const formattedMessages = conversationMessages.map(msg => ({
@@ -164,13 +191,16 @@ const Inbox = () => {
         is_sent_by_member: msg.is_sent_by_member,
         sender: {
           ...msg.sender,
-          id: msg.is_sent_by_member ? user.member_id : user.id
+          id: msg.is_sent_by_member ? user.member_id : user.id,
+          name: msg.is_sent_by_member ? user.member_name : user.name
         },
         receiver: {
           ...msg.other_user,
-          id: msg.is_sent_by_member ? user.id : user.member_id
+          id: msg.is_sent_by_member ? user.id : user.member_id,
+          name: msg.is_sent_by_member ? user.name : user.member_name
         },
         file: msg.file,
+        file_url: msg.file_url,
         created_at: msg.timestamp,
         time: msg.timestamp
       }));
@@ -364,6 +394,107 @@ const Inbox = () => {
     loadAgentInbox();
   }, [userId]);
 
+  // Poll conversation list for real-time updates
+  useEffect(() => {
+    const pollConversationList = async () => {
+      const currentRole = localStorage.getItem('role');
+      const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+      
+      if (currentRole === 'agent' && !isImpersonating) {
+        // Poll agent inbox for updates
+        try {
+          const membersResponse = await api.get('/api/agent/user_agent/?agent_id=' + userId);
+          const members = membersResponse.data.member || [];
+          
+          if (members.length > 0) {
+            const allConversations = [];
+            
+            for (const member of members) {
+              try {
+                const conversationsResponse = await api.get(`/api/agent/member/${member.id}/conversations/`);
+                const conversations = conversationsResponse.data.conversations || [];
+                
+                const conversationsWithMember = conversations.map(conv => ({
+                  ...conv,
+                  member: member,
+                  member_id: member.id,
+                  member_name: member.name
+                }));
+                
+                allConversations.push(...conversationsWithMember);
+              } catch (error) {
+                console.error(`Error fetching conversations for member ${member.id}:`, error);
+              }
+            }
+            
+            // Convert to inbox format
+            const inboxUsers = allConversations.map(conv => ({
+              id: conv.other_user.id,
+              name: conv.other_user.name,
+              profile_photo: conv.other_user.profile_photo,
+              gender: conv.other_user.gender,
+              last_message: conv.last_message?.content || 'No messages',
+              last_message_time: conv.last_message?.timestamp || conv.created_at,
+              unread_count: conv.unread_count || 0,
+              is_online: false,
+              member_id: conv.member_id,
+              member_name: conv.member_name
+            }));
+            
+            // Remove duplicates and update
+            const uniqueUsers = inboxUsers.reduce((acc, user) => {
+              const existing = acc.find(u => u.id === user.id);
+              if (!existing) {
+                acc.push(user);
+              } else if (new Date(user.last_message_time) > new Date(existing.last_message_time)) {
+                const index = acc.indexOf(existing);
+                acc[index] = user;
+              }
+              return acc;
+            }, []);
+            
+            setRecentUsers(prevUsers => {
+              // Check for new messages and play notification sound
+              uniqueUsers.forEach(newUser => {
+                const prevUser = prevUsers.find(u => u.id === newUser.id);
+                if (prevUser && newUser.unread_count > prevUser.unread_count) {
+                  // New message received, play notification sound
+                  try {
+                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBz2BzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBS13yO/eizEIHWq+8+OWT');
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                  } catch (e) {
+                    console.log('Notification sound failed:', e);
+                  }
+                }
+              });
+              
+              // Preserve currently selected conversation
+              const currentSelected = prevUsers[selectedMessage];
+              if (currentSelected) {
+                const updatedUser = uniqueUsers.find(u => u.id === currentSelected.id);
+                if (updatedUser) {
+                  uniqueUsers[uniqueUsers.findIndex(u => u.id === currentSelected.id)] = {
+                    ...updatedUser,
+                    unread_count: currentSelected.unread_count // Preserve current unread count
+                  };
+                }
+              }
+              return uniqueUsers;
+            });
+          }
+        } catch (error) {
+          console.error('Error polling agent inbox:', error);
+        }
+      }
+    };
+    
+    // Poll every 5 seconds
+    const interval = setInterval(pollConversationList, 5000);
+    
+    return () => clearInterval(interval);
+  }, [userId, selectedMessage]);
+
   // Handle agent message functionality
   useEffect(() => {
     const handleAgentMessage = async () => {
@@ -432,6 +563,13 @@ const Inbox = () => {
                     msg => msg.other_user.id === targetUser.id
                   );
                   
+                  // Sort messages by timestamp in ascending order (oldest first, newest last)
+                  conversationMessages.sort((a, b) => {
+                    const timeA = new Date(a.timestamp || a.created_at || a.time);
+                    const timeB = new Date(b.timestamp || b.created_at || b.time);
+                    return timeA - timeB;
+                  });
+                  
                   console.log('Conversation messages with target user:', conversationMessages);
                   
                   // Create a user object for the conversation list
@@ -458,11 +596,13 @@ const Inbox = () => {
                     is_sent_by_member: msg.is_sent_by_member,
                     sender: {
                       ...msg.sender,
-                      id: msg.is_sent_by_member ? selectedMember.id : targetUser.id
+                      id: msg.is_sent_by_member ? selectedMember.id : targetUser.id,
+                      name: msg.is_sent_by_member ? selectedMember.name : targetUser.name
                     },
                     receiver: {
                       ...msg.other_user,
-                      id: msg.is_sent_by_member ? targetUser.id : selectedMember.id
+                      id: msg.is_sent_by_member ? targetUser.id : selectedMember.id,
+                      name: msg.is_sent_by_member ? targetUser.name : selectedMember.name
                     },
                     file: msg.file,
                     created_at: msg.timestamp,
@@ -668,13 +808,32 @@ const Inbox = () => {
       )
     );
 
-    // Update on backend with PATCH method
+    // Check if this is an agent conversation
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    const selectedUser = recentUsers.find(user => user.id === receiverId);
+
+    // Update on backend with appropriate API
     try {
-      const response = await api.post(
-        `/api/chats/${receiverId}/mark-read/`,
-        {}
-      );
-      console.log(`✓ Backend synced: ${response.data.messages_marked_read} messages marked as read`);
+      if (currentRole === 'agent' && !isImpersonating && selectedUser?.member_id) {
+        // Agent marking messages as read for their member
+        console.log(`🔍 Agent marking messages as read for member ${selectedUser.member_name} (ID: ${selectedUser.member_id}) with other_user_id: ${receiverId}`);
+        
+        const response = await api.patch(
+          `/api/agent/member/${selectedUser.member_id}/mark-read/`,
+          {
+            other_user_id: receiverId
+          }
+        );
+        console.log(`✓ Agent backend synced: ${response.data.messages_marked_read} messages marked as read for member ${selectedUser.member_name}`);
+      } else {
+        // Regular user marking messages as read
+        const response = await api.post(
+          `/api/chats/${receiverId}/mark-read/`,
+          {}
+        );
+        console.log(`✓ Backend synced: ${response.data.messages_marked_read} messages marked as read`);
+      }
     } catch (error) {
       // Log error - backend sync failed
       console.error("⚠️ Backend sync failed - CORS issue. Count will reappear on refresh.");
@@ -689,9 +848,19 @@ const Inbox = () => {
       );
       console.log("📩 Messages received:", response.data);
       // Log to check if file field exists
-      const messagesWithFiles = response.data.filter(m => m.file || m.image);
+      const messagesWithFiles = response.data.filter(m => m.file || m.image || m.file_url);
       if (messagesWithFiles.length > 0) {
         console.log("📸 Messages with images:", messagesWithFiles);
+        messagesWithFiles.forEach((msg, index) => {
+          console.log(`📸 Image ${index + 1}:`, {
+            id: msg.id,
+            content: msg.content,
+            file: msg.file,
+            file_url: msg.file_url,
+            image: msg.image,
+            timestamp: msg.timestamp
+          });
+        });
       }
       
       // Check if new messages arrived
@@ -702,7 +871,14 @@ const Inbox = () => {
       }
       setLastMessageCount(currentMessageCount);
       
-      setUserInteraction(response.data);
+      // Sort messages by timestamp in ascending order (oldest first, newest last)
+      const sortedMessages = response.data.sort((a, b) => {
+        const timeA = new Date(a.timestamp || a.created_at || a.time);
+        const timeB = new Date(b.timestamp || b.created_at || b.time);
+        return timeA - timeB;
+      });
+      
+      setUserInteraction(sortedMessages);
       
       // Only auto scroll to bottom if user is not actively scrolling
       setTimeout(() => {
@@ -819,7 +995,27 @@ const Inbox = () => {
             formData.append('content', i === 0 ? messageContent : '📷 Photo');
             formData.append('file', selectedImages[i]);
 
-            await api.post('/api/agent/member/send-message/', formData);
+            console.log(`📤 Sending image ${i + 1}/${selectedImages.length} as agent:`, {
+              member_id: selectedUser.member_id,
+              receiver_id: receiverId,
+              content: i === 0 ? messageContent : '📷 Photo',
+              file: selectedImages[i],
+              fileType: selectedImages[i].type,
+              fileSize: selectedImages[i].size
+            });
+
+            const response = await api.post('/api/agent/member/send-message/', formData);
+            
+            console.log(`✅ Image ${i + 1} sent successfully as agent:`, response.data);
+            
+            // Check if image was properly saved
+            if (response.data.file_url) {
+              console.log(`📸 Agent Image URL generated: ${response.data.file_url}`);
+            } else if (response.data.file) {
+              console.log(`📸 Agent Image file path: ${response.data.file}`);
+            } else {
+              console.warn(`⚠️ No image URL/file path in agent response:`, response.data);
+            }
           }
           
           console.log(`✅ Sent ${selectedImages.length} images as agent`);
@@ -827,6 +1023,15 @@ const Inbox = () => {
         
         // Reload member conversation after sending
         loadMemberConversation(selectedUser);
+        
+        // Update unread count for the receiver in the conversation list
+        setRecentUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === receiverId 
+              ? { ...user, unread_count: (user.unread_count || 0) + 1 }
+              : user
+          )
+        );
       } else {
         // Regular user message sending
         if (selectedImages.length === 0) {
@@ -847,10 +1052,29 @@ const Inbox = () => {
             formData.append('content', i === 0 ? messageContent : '📷 Photo');
             formData.append('file', selectedImages[i]);
 
-            await api.post(
+            console.log(`📤 Sending image ${i + 1}/${selectedImages.length}:`, {
+              receiver_id: receiverId,
+              content: i === 0 ? messageContent : '📷 Photo',
+              file: selectedImages[i],
+              fileType: selectedImages[i].type,
+              fileSize: selectedImages[i].size
+            });
+
+            const response = await api.post(
               `/api/user/messages/`,
               formData,
           );
+          
+          console.log(`✅ Image ${i + 1} sent successfully:`, response.data);
+          
+          // Check if image was properly saved
+          if (response.data.file_url) {
+            console.log(`📸 Image URL generated: ${response.data.file_url}`);
+          } else if (response.data.file) {
+            console.log(`📸 Image file path: ${response.data.file}`);
+          } else {
+            console.warn(`⚠️ No image URL/file path in response:`, response.data);
+          }
           }
           
           console.log(`✅ Sent ${selectedImages.length} images`);
@@ -888,8 +1112,9 @@ const Inbox = () => {
   const handleEmojiClick = (emoji) => {
     const emojiChar = typeof emoji === 'string' ? emoji : emoji.character;
     setNewMessage((prev) => prev + emojiChar);
-    setShowEmojiPicker(false);
-    setEmojiSearch('');
+    // Don't close emoji picker - allow multiple emoji selection
+    // setShowEmojiPicker(false);
+    // setEmojiSearch('');
   };
 
   const handleImageSelect = (e) => {
@@ -1194,7 +1419,7 @@ const Inbox = () => {
                       key={user.id}
                     className={`inbox-user-item ${
                       selectedMessage === index ? "active" : ""
-                      }`}
+                      } ${user.unread_count > 0 ? "has-unread" : ""}`}
                       onClick={() => {
                       // Find the actual index in recentUsers array
                       const actualIndex = recentUsers.findIndex(
@@ -1209,6 +1434,9 @@ const Inbox = () => {
                       if (currentRole === 'agent' && !isImpersonating && user.member_id) {
                         // Load member conversation
                         loadMemberConversation(user);
+                        
+                        // Mark messages as read for agent conversation
+                        markMessagesAsRead(user.id);
                       } else {
                         // Regular user conversation
                         // Immediately clear unread count
@@ -1228,13 +1456,17 @@ const Inbox = () => {
                           clearInterval(pollingIntervalId);
                         }
 
-                      // Start new polling for this conversation (only for regular users)
-                      if (!(currentRole === 'agent' && !isImpersonating)) {
-                        const intervalId = setInterval(() => {
+                      // Start new polling for this conversation
+                      const intervalId = setInterval(() => {
+                        if (currentRole === 'agent' && !isImpersonating && user.member_id) {
+                          // Poll agent member conversation
+                          loadMemberConversation(user);
+                        } else {
+                          // Poll regular user conversation
                           fetchUserInteraction(user.id);
-                        }, 5000);
-                        setPollingIntervalId(intervalId);
-                      }
+                        }
+                      }, 3000); // Reduced to 3 seconds for faster updates
+                      setPollingIntervalId(intervalId);
                       }}
                     >
                     <div className="inbox-user-avatar">
@@ -1459,45 +1691,68 @@ const Inbox = () => {
                           <div className="inbox-message-bubble">
                             {/* Display image if exists - Backend returns file_url */}
                             {(item.data.file_url || item.data.file) && (
-                              <img
-                                src={
-                                  item.data.file_url || 
-                                  (item.data.file?.startsWith('http') 
-                                    ? item.data.file 
-                                    : `${process.env.REACT_APP_API_URL}/media/${item.data.file}`)
-                                }
-                                alt="Shared image"
-                                className="inbox-message-image"
-                                onClick={() => {
-                                  const imageUrl = item.data.file_url || 
+                              <div className="inbox-message-image-container">
+                                <img
+                                  src={
+                                    item.data.file_url || 
                                     (item.data.file?.startsWith('http') 
                                       ? item.data.file 
-                                      : `${process.env.REACT_APP_API_URL}/media/${item.data.file}`);
-                                  
-                                  // Collect all images from current conversation
-                                  const allImages = userInteraction
-                                    .filter(m => m.file_url || m.file)
-                                    .map(m => m.file_url || 
-                                      (m.file?.startsWith('http') 
-                                        ? m.file 
-                                        : `${process.env.REACT_APP_API_URL}/media/${m.file}`)
-                                    );
-                                  
-                                  // Find current image index
-                                  const currentIndex = allImages.indexOf(imageUrl);
-                                  
-                                  setViewingImages(allImages);
-                                  setCurrentImageIndex(currentIndex >= 0 ? currentIndex : 0);
-                                }}
-                                onError={(e) => {
-                                  console.error("❌ Image failed to load:", {
-                                    file: item.data.file,
-                                    file_url: item.data.file_url,
-                                    content: item.data.content
-                                  });
-                                  e.target.style.display = 'none';
-                                }}
-                              />
+                                      : `${process.env.REACT_APP_API_URL}${item.data.file}`)
+                                  }
+                                  alt="Shared image"
+                                  className="inbox-message-image"
+                                  style={{
+                                    maxWidth: '200px',
+                                    maxHeight: '200px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    objectFit: 'cover'
+                                  }}
+                                  onClick={() => {
+                                    const imageUrl = item.data.file_url || 
+                                      (item.data.file?.startsWith('http') 
+                                        ? item.data.file 
+                                        : `${process.env.REACT_APP_API_URL}${item.data.file}`);
+                                    
+                                    // Collect all images from current conversation
+                                    const allImages = userInteraction
+                                      .filter(m => m.file_url || m.file)
+                                      .map(m => m.file_url || 
+                                        (m.file?.startsWith('http') 
+                                          ? m.file 
+                                          : `${process.env.REACT_APP_API_URL}${m.file}`)
+                                      );
+                                    
+                                    // Find current image index
+                                    const currentIndex = allImages.indexOf(imageUrl);
+                                    
+                                    setViewingImages(allImages);
+                                    setCurrentImageIndex(currentIndex >= 0 ? currentIndex : 0);
+                                  }}
+                                  onError={(e) => {
+                                    console.error("❌ Image failed to load:", {
+                                      file: item.data.file,
+                                      file_url: item.data.file_url,
+                                      content: item.data.content,
+                                      fullUrl: item.data.file_url || 
+                                        (item.data.file?.startsWith('http') 
+                                          ? item.data.file 
+                                          : `${process.env.REACT_APP_API_URL}${item.data.file}`)
+                                    });
+                                    e.target.style.display = 'none';
+                                  }}
+                                  onLoad={() => {
+                                    console.log("✅ Image loaded successfully:", {
+                                      file: item.data.file,
+                                      file_url: item.data.file_url,
+                                      content: item.data.content
+                                    });
+                                  }}
+                                />
+                                <div className="inbox-message-image-overlay">
+                                  <span className="inbox-message-image-text">📷 Photo</span>
+                                </div>
+                              </div>
                             )}
                             {/* Display text content */}
                             {item.data.content && item.data.content !== '📷 Photo' && (
