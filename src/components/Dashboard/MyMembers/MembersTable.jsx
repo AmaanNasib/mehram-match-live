@@ -185,7 +185,7 @@ const MembersTable = ({
                       className="edit-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/memstepone`, { 
+                        navigate(`/memstepone/${member.id}`, { 
                           state: { editMode: true, memberId: member.id } 
                         });
                       }}

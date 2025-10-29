@@ -18,6 +18,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { fetchDataObjectV2, fetchDataV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { format } from "date-fns";
 import { HiOutlineDotsHorizontal  } from "react-icons/hi";
+import api from "../../../api";
 
 // Age is handled by the backend age field
 
@@ -1403,13 +1404,38 @@ const MyMembers = () => {
   });
   // Handle change in the search input
 
-  const handleClick = () => {
-    navigate("/memstepone", {
-      state: { 
-        isNewMember: true,
-        clearForm: true 
-      },
-    });
+  const [creatingMember, setCreatingMember] = useState(false);
+
+  const handleClick = async () => {
+    if (creatingMember) return;
+    try {
+      setCreatingMember(true);
+      const agentId = localStorage.getItem("userId");
+      const payload = {
+        source: "app",
+        agent_id: agentId ? Number(agentId) : undefined,
+      };
+      const response = await api.post("/api/user/", payload);
+      const newMemberId = response?.data?.id || response?.data?.member_id || response?.data?.user?.id;
+      if (newMemberId) {
+        navigate(`/memstepone/${newMemberId}`, {
+          state: {
+            isNewMember: true,
+            clearForm: true,
+          },
+        });
+      } else {
+        // Fallback: navigate to step one without id if backend didn't return it
+        navigate("/memstepone/0", {
+          state: { isNewMember: true, clearForm: true },
+        });
+      }
+    } catch (err) {
+      console.error("Failed to create member:", err);
+      alert("Member create karne me problem aayi. Thodi der baad try karein.");
+    } finally {
+      setCreatingMember(false);
+    }
   };
 
   // Remove member function - now shows modal instead of window.confirm
@@ -2121,9 +2147,10 @@ useEffect(() => {
               <button 
                 className="add-member-btn"
                 onClick={handleClick}
+                disabled={creatingMember}
               >
-                <span className="btn-icon">+</span>
-                Add New Member
+                <span className="btn-icon">{creatingMember ? "…" : "+"}</span>
+                {creatingMember ? "Creating…" : "Add New Member"}
               </button>
             </div>
           </div>
@@ -2360,7 +2387,7 @@ useEffect(() => {
                     key={member.id}
                     member={member}
                     onDelete={_confirmRemove}
-                    onEdit={(member) => navigate(`/memstepone`, { state: { editMode: true, memberId: member.id } })}
+                    onEdit={(member) => navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } })}
                     onViewMatches={(member) => navigate(`/member-matches/${member.member_id}`)}
                     onViewProfile={(memberId) => navigate(`/details/${memberId}`)}
                   />

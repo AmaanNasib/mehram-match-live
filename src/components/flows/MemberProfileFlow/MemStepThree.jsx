@@ -316,7 +316,7 @@ const MemStepThree = () => {
   const naviagteNextStep = () => {
     if (handleValidForm()) {
       const parameters = {
-        url: `/api/user/${userId}`,
+        url: `/api/user/${currentUserId}`,
         payload: {
           father_name: profileData.father_name,
           father_occupation: profileData.father_occupation,

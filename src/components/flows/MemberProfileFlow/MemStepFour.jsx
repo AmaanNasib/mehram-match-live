@@ -333,7 +333,7 @@ const MemStepFour = () => {
 
   const naviagteNextStep = () => {
     const parameters = {
-      url: `/api/user/${userId}`,
+      url: `/api/user/${currentUserId}`,
       payload: {
         preferred_surname: ensureArray(profileData.preferred_surname),
         preferred_dargah_fatiha_niyah: ensureArray(profileData.preferred_dargah_fatiha_niyah),

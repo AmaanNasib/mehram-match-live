@@ -77,7 +77,7 @@ const MemberCard = memo(({
     if (onEdit) {
       onEdit(member);
     } else {
-      navigate(`/memstepone`, { state: { editMode: true, memberId: member.id } });
+      navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } });
     }
   }, [member, onEdit, navigate]);
 

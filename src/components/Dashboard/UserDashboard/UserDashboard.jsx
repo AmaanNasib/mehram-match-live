@@ -50,6 +50,7 @@ const UserDashboard = () => {
   const [apiData6, setApiData6] = useState([]);
   const [apiData7, setApiData7] = useState({});
   const [apiData8, setApiData8] = useState({});
+  const [agentInteractionData, setAgentInteractionData] = useState({});
   const [userProfile, setUserProfile] = useState({});
   const [userProfilePhoto, setUserProfilePhoto] = useState({});
   const [agentProfilePhoto, setAgentProfilePhoto] = useState({});
@@ -134,6 +135,23 @@ const UserDashboard = () => {
             console.log('Using photo request data from apiData for agent graph:', apiData.total_request_count);
           }
           
+          // Special handling for interaction data for agent - use agentInteractionData
+          if (role === "agent") {
+            if (agentInteractionData?.total_interactions) {
+              mergedData.total_interactions = agentInteractionData.total_interactions;
+              console.log('Using agent interaction data for graph:', {
+                total_interactions: agentInteractionData.total_interactions,
+                sent_count: agentInteractionData.sent_count,
+                received_count: agentInteractionData.received_count,
+                members_count: agentInteractionData.members_count
+              });
+            } else {
+              // Fallback to API response if agentInteractionData is not available yet
+              mergedData.total_interactions = data?.total_interactions || 0;
+              console.log('Using fallback interaction data for agent graph:', mergedData.total_interactions);
+            }
+          }
+          
           console.log('Merged data:', mergedData);
           
           setApiData5(mergedData);
@@ -163,6 +181,34 @@ const UserDashboard = () => {
       fetchGraphData(selectedTimePeriod);
     }
   }, [selectedTimePeriod, userId, role]);
+
+  // useEffect to refresh graph when agent interaction data changes
+  useEffect(() => {
+    if (role === "agent" && agentInteractionData?.total_interactions && selectedTimePeriod) {
+      console.log('Agent interaction data updated, refreshing graph...');
+      fetchGraphData(selectedTimePeriod);
+    }
+  }, [agentInteractionData, role, selectedTimePeriod]);
+
+  // useEffect to refresh graph when agent interaction data is first loaded
+  useEffect(() => {
+    if (role === "agent" && agentInteractionData && Object.keys(agentInteractionData).length > 0 && selectedTimePeriod) {
+      console.log('Agent interaction data loaded, refreshing graph...');
+      fetchGraphData(selectedTimePeriod);
+    }
+  }, [agentInteractionData, role, selectedTimePeriod]);
+
+  // useEffect to refresh graph when agent interaction data changes (comprehensive)
+  useEffect(() => {
+    if (role === "agent" && agentInteractionData && selectedTimePeriod) {
+      console.log('Agent interaction data changed, refreshing graph...', {
+        total_interactions: agentInteractionData.total_interactions,
+        sent_count: agentInteractionData.sent_count,
+        received_count: agentInteractionData.received_count
+      });
+      fetchGraphData(selectedTimePeriod);
+    }
+  }, [agentInteractionData?.total_interactions, agentInteractionData?.sent_count, agentInteractionData?.received_count, role, selectedTimePeriod]);
 
 
   // Update userId and role when localStorage changes
@@ -684,6 +730,25 @@ const UserDashboard = () => {
         setLoading: setLoading,
       };
       fetchDataWithTokenV2(agentPhotoParam);
+      
+      // Fetch agent interaction data
+      const agentInteractionParam = {
+        url: `/api/agent/interaction/count/`,
+        setterFunction: (data) => {
+          console.log('Agent interaction data received:', data);
+          console.log('Agent interaction details:', {
+            total_interactions: data?.total_interactions,
+            sent_count: data?.sent_count,
+            received_count: data?.received_count,
+            members_count: data?.members_count,
+            recent_activity_count: data?.recent_activity?.length
+          });
+          setAgentInteractionData(data);
+        },
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      fetchDataWithTokenV2(agentInteractionParam);
     }
   };
 
@@ -1584,7 +1649,10 @@ const UserDashboard = () => {
                     </svg>
                 </div>
                 <div className="stat-number">
-                  {(apiData7?.sent_interactions || 0) + (apiData7?.received_interactions || 0)}
+                  {role === "agent" 
+                    ? (agentInteractionData?.total_interactions || 0)
+                    : (apiData7?.sent_interactions || 0) + (apiData7?.received_interactions || 0)
+                  }
                 </div>
                 <div className="stat-details">
                   <div className="stat-row">
@@ -1604,7 +1672,10 @@ const UserDashboard = () => {
                       Sent
                     </span>
                     <span className="stat-value">
-                      {(apiData7?.sent_interactions || 0)}
+                      {role === "agent" 
+                        ? (agentInteractionData?.sent_count || 0)
+                        : (apiData7?.sent_interactions || 0)
+                      }
                     </span>
                   </div>
                   <div className="stat-row">
@@ -1631,96 +1702,142 @@ const UserDashboard = () => {
                       Received
                     </span>
                     <span className="stat-value">
-                      {(apiData7?.received_interactions || 0)}
+                      {role === "agent" 
+                        ? (agentInteractionData?.received_count || 0)
+                        : (apiData7?.received_interactions || 0)
+                      }
                     </span>
                   </div>
                 </div>{" "}
-                <div className="stat-details stat-sub-details-margin">
-                  <div className="stat-sub-details">
-                    <span className="pending">
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 15 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          opacity="0.99"
-                          d="M6.44576 10.0582C6.36357 10.0584 6.28216 10.0423 6.20621 10.0109C6.13027 9.97944 6.06129 9.9333 6.00326 9.8751L4.24576 8.11697C4.13191 7.9991 4.06891 7.84122 4.07034 7.67735C4.07176 7.51348 4.13749 7.35672 4.25337 7.24084C4.36925 7.12496 4.52601 7.05923 4.68988 7.0578C4.85375 7.05638 5.01163 7.11938 5.12951 7.23322L6.44513 8.54947L9.87076 5.12447C9.98909 5.01336 10.146 4.95263 10.3083 4.95515C10.4706 4.95767 10.6256 5.02324 10.7404 5.13798C10.8552 5.25272 10.9209 5.40763 10.9235 5.56993C10.9262 5.73223 10.8655 5.88919 10.7545 6.0076L6.88701 9.8751C6.82905 9.93322 6.76017 9.97932 6.68434 10.0107C6.60851 10.0422 6.52784 10.0583 6.44576 10.0582Z"
-                          fill="#FD2C79"
-                        />
-                        <path
-                          d="M7.5 1.25C6.26387 1.25 5.0555 1.61656 4.02769 2.30331C2.99988 2.99007 2.1988 3.96619 1.72576 5.10823C1.25271 6.25027 1.12894 7.50693 1.37009 8.71931C1.61125 9.9317 2.20651 11.0453 3.08059 11.9194C3.95466 12.7935 5.06831 13.3888 6.28069 13.6299C7.49307 13.8711 8.74974 13.7473 9.89178 13.2742C11.0338 12.8012 12.0099 12.0001 12.6967 10.9723C13.3834 9.94451 13.75 8.73613 13.75 7.5C13.7482 5.84296 13.0891 4.2543 11.9174 3.08259C10.7457 1.91088 9.15705 1.25182 7.5 1.25ZM10.7544 6.00812L6.88688 9.87562C6.76967 9.99279 6.61073 10.0586 6.445 10.0586C6.27928 10.0586 6.12033 9.99279 6.00313 9.87562L4.24563 8.1175C4.13178 7.99962 4.06878 7.84175 4.07021 7.67787C4.07163 7.514 4.13736 7.35724 4.25324 7.24136C4.36912 7.12548 4.52588 7.05975 4.68975 7.05833C4.85362 7.0569 5.0115 7.1199 5.12938 7.23375L6.445 8.55L9.87063 5.125C9.98896 5.01388 10.1459 4.95316 10.3082 4.95568C10.4705 4.9582 10.6254 5.02377 10.7403 5.13851C10.8551 5.25324 10.9208 5.40815 10.9234 5.57046C10.926 5.73276 10.8654 5.88972 10.7544 6.00812Z"
-                          fill="#FED2E2"
-                        />
-                      </svg>
-                      {stats.totalRequests.sent_details.pending}
-                    </span>
-                    <span className="accepted">
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle cx="6" cy="6" r="6" fill="#FFAAAA" />
-                        <path
-                          d="M3.46531 9L3 8.5347L8.5347 3L9 3.4653L3.46531 9Z"
-                          fill="#FF0000"
-                        />
-                        <path
-                          d="M8.5347 9L3 3.4653L3.46531 3L9 8.5347L8.5347 9Z"
-                          fill="#FF0000"
-                        />
-                      </svg>
-                      {stats.totalRequests.sent_details.accepted}
-                    </span>
+                {role === "agent" ? (
+                  <div className="stat-details stat-sub-details-margin">
+                    <div className="stat-sub-details">
+                      <span className="members-count">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.5 7.5C9.15685 7.5 10.5 6.15685 10.5 4.5C10.5 2.84315 9.15685 1.5 7.5 1.5C5.84315 1.5 4.5 2.84315 4.5 4.5C4.5 6.15685 5.84315 7.5 7.5 7.5Z"
+                            fill="#3B82F6"
+                          />
+                          <path
+                            d="M12.5 13.5C12.5 11.0147 10.2353 9 7.5 9C4.76471 9 2.5 11.0147 2.5 13.5H12.5Z"
+                            fill="#3B82F6"
+                          />
+                        </svg>
+                        {agentInteractionData?.members_count || 0} Members
+                      </span>
+                    </div>
+                    <div className="stat-sub-details">
+                      <span className="recent-activity">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.5 1.5C4.18629 1.5 1.5 4.18629 1.5 7.5C1.5 10.8137 4.18629 13.5 7.5 13.5C10.8137 13.5 13.5 10.8137 13.5 7.5C13.5 4.18629 10.8137 1.5 7.5 1.5ZM7.5 9.75C7.08579 9.75 6.75 9.41421 6.75 9V6C6.75 5.58579 7.08579 5.25 7.5 5.25C7.91421 5.25 8.25 5.58579 8.25 6V9C8.25 9.41421 7.91421 9.75 7.5 9.75Z"
+                            fill="#10B981"
+                          />
+                        </svg>
+                        {agentInteractionData?.recent_activity?.length || 0} Recent Messages
+                      </span>
+                    </div>
                   </div>
-                  <div className="stat-sub-details">
-                    <span className="pending">
-                      <svg
-                        width="15"
-                        height="15"
-                        viewBox="0 0 15 15"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          opacity="0.99"
-                          d="M6.44576 10.0582C6.36357 10.0584 6.28216 10.0423 6.20621 10.0109C6.13027 9.97944 6.06129 9.9333 6.00326 9.8751L4.24576 8.11697C4.13191 7.9991 4.06891 7.84122 4.07034 7.67735C4.07176 7.51348 4.13749 7.35672 4.25337 7.24084C4.36925 7.12496 4.52601 7.05923 4.68988 7.0578C4.85375 7.05638 5.01163 7.11938 5.12951 7.23322L6.44513 8.54947L9.87076 5.12447C9.98909 5.01336 10.146 4.95263 10.3083 4.95515C10.4706 4.95767 10.6256 5.02324 10.7404 5.13798C10.8552 5.25272 10.9209 5.40763 10.9235 5.56993C10.9262 5.73223 10.8655 5.88919 10.7545 6.0076L6.88701 9.8751C6.82905 9.93322 6.76017 9.97932 6.68434 10.0107C6.60851 10.0422 6.52784 10.0583 6.44576 10.0582Z"
-                          fill="#FD2C79"
-                        />
-                        <path
-                          d="M7.5 1.25C6.26387 1.25 5.0555 1.61656 4.02769 2.30331C2.99988 2.99007 2.1988 3.96619 1.72576 5.10823C1.25271 6.25027 1.12894 7.50693 1.37009 8.71931C1.61125 9.9317 2.20651 11.0453 3.08059 11.9194C3.95466 12.7935 5.06831 13.3888 6.28069 13.6299C7.49307 13.8711 8.74974 13.7473 9.89178 13.2742C11.0338 12.8012 12.0099 12.0001 12.6967 10.9723C13.3834 9.94451 13.75 8.73613 13.75 7.5C13.7482 5.84296 13.0891 4.2543 11.9174 3.08259C10.7457 1.91088 9.15705 1.25182 7.5 1.25ZM10.7544 6.00812L6.88688 9.87562C6.76967 9.99279 6.61073 10.0586 6.445 10.0586C6.27928 10.0586 6.12033 9.99279 6.00313 9.87562L4.24563 8.1175C4.13178 7.99962 4.06878 7.84175 4.07021 7.67787C4.07163 7.514 4.13736 7.35724 4.25324 7.24136C4.36912 7.12548 4.52588 7.05975 4.68975 7.05833C4.85362 7.0569 5.0115 7.1199 5.12938 7.23375L6.445 8.55L9.87063 5.125C9.98896 5.01388 10.1459 4.95316 10.3082 4.95568C10.4705 4.9582 10.6254 5.02377 10.7403 5.13851C10.8551 5.25324 10.9208 5.40815 10.9234 5.57046C10.926 5.73276 10.8654 5.88972 10.7544 6.00812Z"
-                          fill="#FED2E2"
-                        />
-                      </svg>
-                      {stats.totalRequests.sent_details.pending}
-                    </span>
-                    <span className="accepted">
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle cx="6" cy="6" r="6" fill="#FFAAAA" />
-                        <path
-                          d="M3.46531 9L3 8.5347L8.5347 3L9 3.4653L3.46531 9Z"
-                          fill="#FF0000"
-                        />
-                        <path
-                          d="M8.5347 9L3 3.4653L3.46531 3L9 8.5347L8.5347 9Z"
-                          fill="#FF0000"
-                        />
-                      </svg>
-                      {stats.totalRequests.sent_details.accepted}
-                    </span>
+                ) : (
+                  <div className="stat-details stat-sub-details-margin">
+                    <div className="stat-sub-details">
+                      <span className="pending">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            opacity="0.99"
+                            d="M6.44576 10.0582C6.36357 10.0584 6.28216 10.0423 6.20621 10.0109C6.13027 9.97944 6.06129 9.9333 6.00326 9.8751L4.24576 8.11697C4.13191 7.9991 4.06891 7.84122 4.07034 7.67735C4.07176 7.51348 4.13749 7.35672 4.25337 7.24084C4.36925 7.12496 4.52601 7.05923 4.68988 7.0578C4.85375 7.05638 5.01163 7.11938 5.12951 7.23322L6.44513 8.54947L9.87076 5.12447C9.98909 5.01336 10.146 4.95263 10.3083 4.95515C10.4706 4.95767 10.6256 5.02324 10.7404 5.13798C10.8552 5.25272 10.9209 5.40763 10.9235 5.56993C10.9262 5.73223 10.8655 5.88919 10.7545 6.0076L6.88701 9.8751C6.82905 9.93322 6.76017 9.97932 6.68434 10.0107C6.60851 10.0422 6.52784 10.0583 6.44576 10.0582Z"
+                            fill="#FD2C79"
+                          />
+                          <path
+                            d="M7.5 1.25C6.26387 1.25 5.0555 1.61656 4.02769 2.30331C2.99988 2.99007 2.1988 3.96619 1.72576 5.10823C1.25271 6.25027 1.12894 7.50693 1.37009 8.71931C1.61125 9.9317 2.20651 11.0453 3.08059 11.9194C3.95466 12.7935 5.06831 13.3888 6.28069 13.6299C7.49307 13.8711 8.74974 13.7473 9.89178 13.2742C11.0338 12.8012 12.0099 12.0001 12.6967 10.9723C13.3834 9.94451 13.75 8.73613 13.75 7.5C13.7482 5.84296 13.0891 4.2543 11.9174 3.08259C10.7457 1.91088 9.15705 1.25182 7.5 1.25ZM10.7544 6.00812L6.88688 9.87562C6.76967 9.99279 6.61073 10.0586 6.445 10.0586C6.27928 10.0586 6.12033 9.99279 6.00313 9.87562L4.24563 8.1175C4.13178 7.99962 4.06878 7.84175 4.07021 7.67787C4.07163 7.514 4.13736 7.35724 4.25324 7.24136C4.36912 7.12548 4.52588 7.05975 4.68975 7.05833C4.85362 7.0569 5.0115 7.1199 5.12938 7.23375L6.445 8.55L9.87063 5.125C9.98896 5.01388 10.1459 4.95316 10.3082 4.95568C10.4705 4.9582 10.6254 5.02377 10.7403 5.13851C10.8551 5.25324 10.9208 5.40815 10.9234 5.57046C10.926 5.73276 10.8654 5.88972 10.7544 6.00812Z"
+                            fill="#FED2E2"
+                          />
+                        </svg>
+                        {stats.totalRequests.sent_details.pending}
+                      </span>
+                      <span className="accepted">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="6" cy="6" r="6" fill="#FFAAAA" />
+                          <path
+                            d="M3.46531 9L3 8.5347L8.5347 3L9 3.4653L3.46531 9Z"
+                            fill="#FF0000"
+                          />
+                          <path
+                            d="M8.5347 9L3 3.4653L3.46531 3L9 8.5347L8.5347 9Z"
+                            fill="#FF0000"
+                          />
+                        </svg>
+                        {stats.totalRequests.sent_details.accepted}
+                      </span>
+                    </div>
+                    <div className="stat-sub-details">
+                      <span className="pending">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            opacity="0.99"
+                            d="M6.44576 10.0582C6.36357 10.0584 6.28216 10.0423 6.20621 10.0109C6.13027 9.97944 6.06129 9.9333 6.00326 9.8751L4.24576 8.11697C4.13191 7.9991 4.06891 7.84122 4.07034 7.67735C4.07176 7.51348 4.13749 7.35672 4.25337 7.24084C4.36925 7.12496 4.52601 7.05923 4.68988 7.0578C4.85375 7.05638 5.01163 7.11938 5.12951 7.23322L6.44513 8.54947L9.87076 5.12447C9.98909 5.01336 10.146 4.95263 10.3083 4.95515C10.4706 4.95767 10.6256 5.02324 10.7404 5.13798C10.8552 5.25272 10.9209 5.40763 10.9235 5.56993C10.9262 5.73223 10.8655 5.88919 10.7545 6.0076L6.88701 9.8751C6.82905 9.93322 6.76017 9.97932 6.68434 10.0107C6.60851 10.0422 6.52784 10.0583 6.44576 10.0582Z"
+                            fill="#FD2C79"
+                          />
+                          <path
+                            d="M7.5 1.25C6.26387 1.25 5.0555 1.61656 4.02769 2.30331C2.99988 2.99007 2.1988 3.96619 1.72576 5.10823C1.25271 6.25027 1.12894 7.50693 1.37009 8.71931C1.61125 9.9317 2.20651 11.0453 3.08059 11.9194C3.95466 12.7935 5.06831 13.3888 6.28069 13.6299C7.49307 13.8711 8.74974 13.7473 9.89178 13.2742C11.0338 12.8012 12.0099 12.0001 12.6967 10.9723C13.3834 9.94451 13.75 8.73613 13.75 7.5C13.7482 5.84296 13.0891 4.2543 11.9174 3.08259C10.7457 1.91088 9.15705 1.25182 7.5 1.25ZM10.7544 6.00812L6.88688 9.87562C6.76967 9.99279 6.61073 10.0586 6.445 10.0586C6.27928 10.0586 6.12033 9.99279 6.00313 9.87562L4.24563 8.1175C4.13178 7.99962 4.06878 7.84175 4.07021 7.67787C4.07163 7.514 4.13736 7.35724 4.25324 7.24136C4.36912 7.12548 4.52588 7.05975 4.68975 7.05833C4.85362 7.0569 5.0115 7.1199 5.12938 7.23375L6.445 8.55L9.87063 5.125C9.98896 5.01388 10.1459 4.95316 10.3082 4.95568C10.4705 4.9582 10.6254 5.02377 10.7403 5.13851C10.8551 5.25324 10.9208 5.40815 10.9234 5.57046C10.926 5.73276 10.8654 5.88972 10.7544 6.00812Z"
+                            fill="#FED2E2"
+                          />
+                        </svg>
+                        {stats.totalRequests.sent_details.pending}
+                      </span>
+                      <span className="accepted">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="6" cy="6" r="6" fill="#FFAAAA" />
+                          <path
+                            d="M3.46531 9L3 8.5347L8.5347 3L9 3.4653L3.46531 9Z"
+                            fill="#FF0000"
+                          />
+                          <path
+                            d="M8.5347 9L3 3.4653L3.46531 3L9 8.5347L8.5347 9Z"
+                            fill="#FF0000"
+                          />
+                        </svg>
+                        {stats.totalRequests.sent_details.accepted}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
