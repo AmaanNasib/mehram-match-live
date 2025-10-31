@@ -14,9 +14,32 @@ import { fetchDataWithTokenV2 } from "../../../apiUtils";
 
 // Match Details Modal Component
 const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
+  const navigate = useNavigate();
   if (!isOpen || !member || !currentMember) return null;
   
   console.log('Current member data:', currentMember);
+
+  // Get numeric user ID from member object
+  const getNumericUserId = (record) => {
+    const candidates = [
+      record?.actual_user_id,
+      record?.user?.id,
+      record?.user_id,
+      record?.matched_user?.id,
+      record?.source_user_id,
+      record?.target_user_id,
+      record?.action_on?.id,
+      record?.action_on_id,
+      record?.action_by?.id,
+      record?.action_by_id,
+      record?.id,
+    ];
+    for (const v of candidates) {
+      if (typeof v === 'number') return v;
+      if (typeof v === 'string' && /^\d+$/.test(v)) return v;
+    }
+    return null;
+  };
 
   // Simple function to get match data from backend only - no frontend calculations
   const getBackendMatchData = (member) => {
@@ -298,10 +321,10 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
   };
 
   return (
-    <div className="match-details-modal-overlay">
-      <div className="match-details-modal">
+    <div className="member-matches-modal-overlay">
+      <div className="member-matches-modal">
 
-        <div className="modal-content">
+        <div className="member-matches-modal-content">
 
           {/* User Comparison Section */}
           <div className="user-comparison-section">
@@ -644,7 +667,13 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             Close
           </button>
           <button className="action-btn primary" onClick={() => {
-            // Navigate to detailed profile or start conversation
+            const numericUserId = getNumericUserId(member);
+            if (numericUserId) {
+              navigate(`/details/${numericUserId}`);
+            } else {
+              console.error('No valid numeric user ID found for navigation:', member);
+              alert('Unable to navigate: User ID not found');
+            }
             onClose();
           }}>
             View Full Profile
@@ -654,7 +683,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
 
       <style>
         {`
-          .match-details-modal-overlay {
+          .member-matches-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -668,11 +697,11 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             padding: 20px;
           }
 
-          .match-details-modal {
+          .member-matches-modal {
             background: white;
             border-radius: 8px;
-            max-width: 800px;
-            width: 100%;
+            width: 95vw; /* near full width */
+            max-width: 1400px; /* hard cap to prevent overflow on ultra-wide */
             max-height: 90vh;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -779,7 +808,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             background: #e5e7eb;
           }
 
-          .modal-content {
+          .member-matches-modal-content {
             padding: 20px;
             max-height: 60vh;
             overflow-y: auto;
@@ -3152,6 +3181,7 @@ const MemberMatches = () => {
                         return {
                           id: match.user?.member_id || match.user?.id || match.id,
                           member_id: match.user?.member_id || match.user?.id || match.id,
+                          actual_user_id: match.user?.id || match.user_id || match.target_user_id || match.source_user_id || null,
                           name: match.user?.first_name && match.user?.last_name 
                             ? `${match.user.first_name} ${match.user.last_name}`.trim()
                             : match.user?.name || match.name || 'No Name',
@@ -3228,6 +3258,7 @@ const MemberMatches = () => {
                     return {
                       id: matchedUser?.member_id || matchedUser?.id || match.id,
                       member_id: matchedUser?.member_id || matchedUser?.id || match.id,
+                      actual_user_id: matchedUser?.id || match.user_id || match.target_user_id || match.source_user_id || null,
                       name: matchedUser?.first_name && matchedUser?.last_name 
                         ? `${matchedUser.first_name} ${matchedUser.last_name}`.trim()
                         : matchedUser?.name || match.name || 'No Name',
@@ -3695,7 +3726,7 @@ const MemberMatches = () => {
           </thead>
           <tbody>
             {currentItems.map((match) => (
-              <tr key={match?.id} onClick={() => navigate(`/details/${match?.id}`)} style={{ cursor: "pointer" }}>
+              <tr key={match?.id} onClick={() => { const uid = match?.actual_user_id && /^\d+$/.test(String(match.actual_user_id)) ? match.actual_user_id : null; if (uid) navigate(`/details/${uid}`); }} style={{ cursor: "pointer" }}>
                 <td>{match?.member_id || match?.id}</td>
                 <td>{match?.name || match?.user_name || "No Name"}</td>
                 <td onClick={(e) => e.stopPropagation()}>

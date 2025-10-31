@@ -446,8 +446,160 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
   );
 };
 
+// Static Sect Options (all available options)
+const ALL_SECT_OPTIONS = [
+  "Ahle Qur'an",
+  "Ahamadi",
+  "Barelvi",
+  "Bohra",
+  "Deobandi",
+  "Hanabali",
+  "Hanafi",
+  "Ibadi",
+  "Ismaili",
+  "Jamat e Islami",
+  "Maliki",
+  "Pathan",
+  "Salafi",
+  "Salafi/Ahle Hadees",
+  "Sayyid",
+  "Shafi",
+  "Shia",
+  "Sunni",
+  "Sufism",
+  "Tableeghi Jama'at",
+  "Zahiri",
+  "Muslim",
+  "Other",
+  "Prefer not to say",
+];
 
-
+// Static Profession Options (all available options)
+const ALL_PROFESSION_OPTIONS = [
+  "accountant",
+  "Acting Professional",
+  "actor",
+  "administrator",
+  "Advertising Professional",
+  "air_hostess",
+  "airline_professional",
+  "airforce",
+  "architect",
+  "artist",
+  "Assistant Professor",
+  "audiologist",
+  "auditor",
+  "Bank Officer",
+  "Bank Staff",
+  "beautician",
+  "Biologist / Botanist",
+  "Business Person",
+  "captain",
+  "CEO / CTO / President",
+  "chemist",
+  "Civil Engineer",
+  "Clerical Official",
+  "Clinical Pharmacist",
+  "Company Secretary",
+  "Computer Engineer",
+  "Computer Programmer",
+  "consultant",
+  "contractor",
+  "Content Creator",
+  "counsellor",
+  "Creative Person",
+  "Customer Support Professional",
+  "Data Analyst",
+  "Defence Employee",
+  "dentist",
+  "designer",
+  "Director / Chairman",
+  "doctor",
+  "economist",
+  "Electrical Engineer",
+  "engineer",
+  "Entertainment Professional",
+  "Event Manager",
+  "executive",
+  "Factory Worker",
+  "farmer",
+  "Fashion Designer",
+  "Finance Professional",
+  "Food Technologist",
+  "Government Employee",
+  "Graphic Designer",
+  "Hair Dresser",
+  "Health Care Professional",
+  "Hospitality Professional",
+  "Hotel & Restaurant Professional",
+  "Human Resource Professional",
+  "HSE Officer",
+  "influencer",
+  "Insurance Advisor",
+  "Insurance Agent",
+  "Interior Designer",
+  "Investment Professional",
+  "IT / Telecom Professional",
+  "Islamic Scholar",
+  "Islamic Teacher",
+  "journalist",
+  "lawyer",
+  "lecturer",
+  "Legal Professional",
+  "librarian",
+  "Logistics Professional",
+  "manager",
+  "Marketing Professional",
+  "Mechanical Engineer",
+  "Medical Representative",
+  "Medical Transcriptionist",
+  "Merchant Naval Officer",
+  "microbiologist",
+  "military",
+  "Nanny / Child Care Worker",
+  "Navy Officer",
+  "nurse",
+  "Occupational Therapist",
+  "Office Staff",
+  "optician",
+  "optometrist",
+  "pharmacist",
+  "physician",
+  "Physician Assistant",
+  "pilot",
+  "Police Officer",
+  "priest",
+  "Product Manager / Professional",
+  "professor",
+  "Project Manager",
+  "Public Relations Professional",
+  "Real Estate Professional",
+  "Research Scholar",
+  "Retail Professional",
+  "Sales Professional",
+  "scientist",
+  "Self-Employed",
+  "Social Worker",
+  "Software Consultant",
+  "Software Developer",
+  "Speech Therapist",
+  "sportsman",
+  "supervisor",
+  "teacher",
+  "technician",
+  "Tour Guide",
+  "trainer",
+  "Transportation Professional",
+  "tutor",
+  "Veterinary Doctor",
+  "videographer",
+  "Web Designer",
+  "Web Developer",
+  "Wholesale Businessman",
+  "writer",
+  "zoologist",
+  "other",
+];
 
 const TotalIgnoredList = () => {
   const navigate = useNavigate();
@@ -462,16 +614,13 @@ const TotalIgnoredList = () => {
   const [errors, setErrors] = useState({});
   const [filteredItems, setFilteredItems] = useState([]);
   let [filters, setFilters] = useState({
-    id: '',
+    member_id: '',
     name: '',
     city: '',
     date: '',
     sectSchoolInfo: '',
     profession: '',
-    status: '',
-    martialStatus: '',
-    startDate: '',
-    endDate: ''
+    martialStatus: ''
   });
   let [gender] = useState(localStorage.getItem("gender"));
 
@@ -485,16 +634,13 @@ const TotalIgnoredList = () => {
   };
   const onClearFilterClick = () => {
     let clear = {
-      id: '',
+      member_id: '',
       name: '',
       city: '',
       date: '',
       sectSchoolInfo: '',
       profession: '',
-      status: '',
-      martialStatus: '',
-      startDate: '',
-      endDate: ''
+      martialStatus: ''
     }
     setFilters(clear)
     applyFilters(clear)
@@ -505,22 +651,23 @@ const TotalIgnoredList = () => {
 
     setFilteredItems(
       matchDetails?.ignored_users?.filter((match) => {
+        const matchDate = (() => {
+          if (!match?.date) return '';
+          try { return new Date(match.date).toISOString().slice(0,10); } catch { return String(match.date).slice(0,10); }
+        })();
         return (
-          (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
+          (updatedFilters.member_id ? String(match?.user?.member_id || '').toLowerCase().includes(String(updatedFilters.member_id).toLowerCase()) : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.user?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-          (updatedFilters.startDate && updatedFilters.endDate
-            ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
-            : true) &&
+          (updatedFilters.date ? matchDate === updatedFilters.date : true) &&
           (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
           (updatedFilters.profession ? match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
-          (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
           (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
         );
       })
     );
   };
-  const distinctIds = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.id))];
+  const distinctIds = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.member_id))];
   const distinctNames = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.name))];
   const distinctCities = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.city))];
   const distinctDobs = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.dob))];
@@ -673,13 +820,21 @@ const TotalIgnoredList = () => {
           <input
             className="filter-dropdown"
             type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter Member ID"
+            value={filters.member_id}
+            onChange={(e) => handleFilterChange('member_id', e.target.value)}
+            placeholder="Member ID"
             list="distinct-ids"
             style={{ width: '70px' }}
           />
 
+          <input
+            className="filter-dropdown"
+            type="text"
+            value={filters.name}
+            onChange={(e) => handleFilterChange('name', e.target.value)}
+            placeholder="Name"
+            style={{ width: '140px' }}
+          />
 
           <input
             className="filter-dropdown"
@@ -690,18 +845,12 @@ const TotalIgnoredList = () => {
             list="distinct-ids"
             style={{ width: '70px' }}
           />
-          {/* Replace your current date picker implementation with this */}
+          {/* Single Date Filter */}
 <div className="date-filters-container">
   <CustomDatePicker
-    selectedDate={filters.startDate}
-    onChange={(date) => handleFilterChange("startDate", date)}
-    placeholder="Start Date"
-  />
-  
-  <CustomDatePicker
-    selectedDate={filters.endDate}
-    onChange={(date) => handleFilterChange("endDate", date)}
-    placeholder="End Date"
+              selectedDate={filters.date}
+              onChange={(date) => handleFilterChange("date", date)}
+              placeholder="Date"
   />
 </div>
 
@@ -721,7 +870,7 @@ const TotalIgnoredList = () => {
             onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
           >
             <option value="">Sect</option>
-            {distinctSchoolInfo?.map((info, index) => (
+            {ALL_SECT_OPTIONS.map((info, index) => (
               <option key={index} value={info}>
                 {info}
               </option>
@@ -734,7 +883,7 @@ const TotalIgnoredList = () => {
             onChange={(e) => handleFilterChange('profession', e.target.value)}
           >
             <option value="">Profession</option>
-            {distinctProfessions?.map((profession, index) => (
+            {ALL_PROFESSION_OPTIONS.map((profession, index) => (
               <option key={index} value={profession}>
                 {profession}
               </option>

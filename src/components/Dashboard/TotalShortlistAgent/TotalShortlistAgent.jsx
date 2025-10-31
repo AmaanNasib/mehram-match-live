@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
+import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai";
 import './TotalShortlistAgent.css';
 
 const TotalShortlistAgent = () => {
@@ -14,6 +15,15 @@ const TotalShortlistAgent = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [filters, setFilters] = useState({
+    id: '',
+    name: '',
+    city: '',
+    sectSchoolInfo: '',
+    profession: '',
+    martialStatus: '',
+    gender: '',
+  });
 
   // Fetch agent shortlist data
   useEffect(() => {
@@ -105,6 +115,76 @@ const TotalShortlistAgent = () => {
     setShowUserModal(true);
   };
 
+  const handleFilterChange = (column, value) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, [column]: value };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
+
+  const onClearFilterClick = () => {
+    const clear = {
+      id: '',
+      name: '',
+      city: '',
+      sectSchoolInfo: '',
+      profession: '',
+      martialStatus: '',
+      gender: '',
+    };
+    setFilters(clear);
+    applyFilters(clear);
+  };
+
+  const applyFilters = (updatedFilters) => {
+    const filteredResults = shortlistData.filter((item) => {
+      const user = item.action_on || {};
+      return (
+        (updatedFilters.id ? 
+          updatedFilters.id.split(' ').every(word => {
+            const w = String(word).toLowerCase();
+            const idStr = user?.id != null ? String(user.id) : '';
+            const mid = user?.member_id || '';
+            const idMatch = idStr.toLowerCase().includes(w);
+            const memberIdMatch = mid.toLowerCase().includes(w);
+            return idMatch || memberIdMatch;
+          }) : true) &&
+        (updatedFilters.name
+          ? user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase())
+          : true) &&
+        (updatedFilters.city
+          ? (() => {
+              const haystack = [
+                user?.location,
+                user?.city,
+                user?.state,
+                user?.country
+              ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+              const words = String(updatedFilters.city).trim().split(/\s+/);
+              return words.every((w) => haystack.includes(w.toLowerCase()));
+            })()
+          : true) &&
+        (updatedFilters.sectSchoolInfo
+          ? user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase())
+          : true) &&
+        (updatedFilters.profession
+          ? user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase())
+          : true) &&
+        (updatedFilters.martialStatus
+          ? user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase())
+          : true) &&
+        (updatedFilters.gender
+          ? user?.gender?.toLowerCase() === updatedFilters.gender.toLowerCase()
+          : true)
+      );
+    });
+    setFilteredData(filteredResults);
+  };
+
   const handleSort = (column) => {
     let direction = 'asc';
     if (sortConfig.key === column && sortConfig.direction === 'asc') {
@@ -113,9 +193,17 @@ const TotalShortlistAgent = () => {
     setSortConfig({ key: column, direction });
   };
 
+  // Apply filters when shortlistData or filters change
+  useEffect(() => {
+    applyFilters(filters);
+  }, [shortlistData]);
+
   // Sort functionality
   useEffect(() => {
-    if (!sortConfig.key) return;
+    if (!sortConfig.key) {
+      applyFilters(filters);
+      return;
+    }
 
     const sortedData = [...filteredData].sort((a, b) => {
       let aValue, bValue;
@@ -215,6 +303,176 @@ const TotalShortlistAgent = () => {
           </div>
         )}
 
+        {!loading && !error && (
+          <>
+            {/* Stats Card */}
+            <div className="shortlist-agent-stats-section">
+              <div className="shortlist-agent-stat-card">
+                <span className="shortlist-agent-stat-number">{filteredData.length}</span>
+                <span className="shortlist-agent-stat-label">TOTAL SHORTLISTED USERS</span>
+              </div>
+            </div>
+
+            {/* Filters Section */}
+            <div className="shortlist-agent-filter-container">
+              <button className="shortlist-agent-filter-button">
+                <AiOutlineFilter className="icon" /> Filter
+              </button>
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange("id", e.target.value)}
+                placeholder="Enter ID"
+                style={{ width: "70px" }}
+              />
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.name}
+                onChange={(e) => handleFilterChange("name", e.target.value)}
+                placeholder="Name"
+                style={{ width: "100px" }}
+              />
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange("city", e.target.value)}
+                placeholder="Location"
+                style={{ width: "100px" }}
+              />
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.martialStatus}
+                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+              >
+                <option value="">Marital Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Khula">Khula</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.gender}
+                onChange={(e) => handleFilterChange('gender', e.target.value)}
+              >
+                <option value="">Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+              <button
+                type="button"
+                className="shortlist-agent-reset-filter"
+                onClick={onClearFilterClick}
+              >
+                <AiOutlineRedo className="icon" /> Reset
+              </button>
+            </div>
+          </>
+        )}
+
         {!loading && !error && filteredData.length > 0 && (
           <table className="interest-table">
             <thead>
@@ -298,7 +556,7 @@ const TotalShortlistAgent = () => {
                   <td>{item.action_on?.sect_school_info || "N/A"}</td>
                   <td>{item.action_on?.profession || "N/A"}</td>
                   <td>
-                    <span className={`marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                    <span className={`shortlist-agent-marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                       {item.action_on?.martial_status || "Not mentioned"}
                     </span>
                   </td>

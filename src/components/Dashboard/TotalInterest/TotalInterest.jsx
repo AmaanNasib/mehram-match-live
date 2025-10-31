@@ -4,7 +4,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineClose  } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2, putDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
@@ -651,6 +651,7 @@ const TotalInterest = () => {
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
+  const [interestStatus, setInterestStatus] = useState({}); // Track status for each user: { userId: { status: 'Pending'|'Accepted'|'Rejected', direction: 'sent'|'received'|'mutual', record_id: 123 } }
   let [filters, setFilters] = useState({
     id: '',
     name: '',
@@ -679,6 +680,140 @@ const TotalInterest = () => {
       fetchDataObjectV2(parameter);
     }
   }, [userId]);
+
+  // Fetch interest status for each user when apiData changes
+  useEffect(() => {
+    if (!userId || !apiData?.sent_interests) return;
+    
+    const fetchStatuses = async () => {
+      const statusMap = {};
+      
+      // helper to fetch single pair status
+      const fetchPair = async (otherUserId) => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/user/check-interest/?action_by_id=${userId}&action_on_id=${otherUserId}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+              }
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            // Store whichever direction is applicable
+            if (data.interest_sent || data.interest_received || data.mutual_interest) {
+              statusMap[otherUserId] = {
+                status: data.status || 'Pending',
+                direction: data.direction, // 'sent' | 'received' | 'mutual'
+                record_id: data.record_id,
+              };
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching status for user ${otherUserId}:`, error);
+        }
+      };
+      
+      // Fetch for all users we have in both sent and received lists
+      const sentList = apiData.sent_interests || [];
+      const recvList = apiData.received_interests || [];
+      const userIds = new Set();
+      sentList.forEach((m) => {
+        const u = (m?.user || m?.action_on || m?.action_by || m)?.id || m?.action_on_id || m?.action_by_id;
+        if (u) userIds.add(u);
+      });
+      recvList.forEach((m) => {
+        const u = (m?.user || m?.action_on || m?.action_by || m)?.id || m?.action_on_id || m?.action_by_id;
+        if (u) userIds.add(u);
+      });
+      
+      for (const otherUserId of userIds) {
+        await fetchPair(otherUserId);
+      }
+      
+      setInterestStatus(statusMap);
+    };
+    
+    fetchStatuses();
+  }, [apiData, userId]);
+
+  // Handle withdraw interest
+  const handleWithdraw = async (targetUserId, e) => {
+    e.stopPropagation(); // Prevent row click navigation
+    if (!userId || !targetUserId) return;
+    
+    const statusInfo = interestStatus[targetUserId];
+    if (!statusInfo || statusInfo.direction !== 'sent') {
+      alert('Can only withdraw interests that you have sent');
+      return;
+    }
+    
+    try {
+      const parameter = {
+        url: `/api/recieved/`,
+        payload: {
+          action_by_id: Number(userId),
+          action_on_id: Number(targetUserId),
+          interest: false,
+        },
+        setErrors: setErrors,
+        tofetch: {
+          items: [
+            {
+              fetchurl: `/api/user/interested/?user_id=${userId}`,
+              dataset: setApiData,
+              setErrors: setErrors,
+            },
+          ],
+        },
+      };
+      
+      await postDataWithFetchV2(parameter);
+      
+      // Remove from status map
+      setInterestStatus(prev => {
+        const updated = { ...prev };
+        delete updated[targetUserId];
+        return updated;
+      });
+      
+    } catch (error) {
+      console.error('Error withdrawing interest:', error);
+    }
+  };
+
+  // Handle accept interest when received & pending
+  const handleAccept = async (targetUserId, e) => {
+    e.stopPropagation();
+    const statusInfo = interestStatus[targetUserId];
+    if (!statusInfo || statusInfo.direction !== 'received' || (statusInfo.status && statusInfo.status.toLowerCase() !== 'pending')) return;
+
+    try {
+      const parameter = {
+        url: `/api/recieved/${statusInfo.record_id}/status/`,
+        payload: { status: 'Accepted' },
+        setErrors: setErrors,
+      };
+      await putDataWithFetchV2(parameter);
+      // Refresh list
+      const refetchParam = {
+        url: `/api/user/interested/?user_id=${userId}`,
+        setterFunction: setApiData,
+        setLoading: setLoading,
+        setErrors: setErrors
+      };
+      fetchDataObjectV2(refetchParam);
+      // Update local map
+      setInterestStatus(prev => ({
+        ...prev,
+        [targetUserId]: { ...prev[targetUserId], status: 'Accepted' }
+      }));
+    } catch (err) {
+      console.error('Error accepting interest:', err);
+    }
+  };
   const matchDetails = [
     { id: "00001", name: "Christine Brooks", location: "089 Kutch Green Apt. 448", date: "04 Sep 2019", sect: "Sunni-Hanafi", profession: "Software-Designer", status: "Sent", maritalStatus: "Never Married" },
     { id: "00002", name: "Rosie Pearson", location: "979 Immanuel Ferry Suite 526", date: "28 May 2019", sect: "Sunni-Hanafi", profession: "Software-Designer", status: "Received", maritalStatus: "Divorced" },
@@ -722,7 +857,7 @@ const TotalInterest = () => {
   const distinctMaritalStatuses = getDistinctValues('martial_status');
 
    const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 5;
+   const itemsPerPage = 10;
  
    // Get current items
    const indexOfLastItem = currentPage * itemsPerPage;
@@ -820,44 +955,63 @@ const TotalInterest = () => {
       
     
       useEffect(() => {
-        const sortedData = [...filteredItems].sort((a, b) => {
-          // Sorting by user field or date
-          if (sortConfig.key === 'date') {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            if (dateA < dateB) {
-              return sortConfig.direction === 'asc' ? -1 : 1;
+        const key = sortConfig.key;
+        const dir = sortConfig.direction === 'asc' ? 1 : -1;
+        const normalize = (v) => (v === null || v === undefined ? '' : v);
+        const sortedData = [...(filteredItems || [])].sort((a, b) => {
+          if (!key) return 0;
+          
+          // Flexible user data access
+          const userDataA = a?.user || a?.action_on || a?.action_by || a;
+          const userDataB = b?.user || b?.action_on || b?.action_by || b;
+          const userIdA = userDataA?.id || a?.action_on_id || a?.action_by_id;
+          const userIdB = userDataB?.id || b?.action_on_id || b?.action_by_id;
+          
+          if (key === 'date') {
+            const dateA = new Date(a?.created_at || a?.date || 0).getTime();
+            const dateB = new Date(b?.created_at || b?.date || 0).getTime();
+            if (isNaN(dateA) || isNaN(dateB)) {
+              const sa = String(a?.created_at || a?.date || '');
+              const sb = String(b?.created_at || b?.date || '');
+              if (sa < sb) return -1 * dir;
+              if (sa > sb) return 1 * dir;
+              return 0;
             }
-            if (dateA > dateB) {
-              return sortConfig.direction === 'asc' ? 1 : -1;
-            }
-            return 0;
-          } else if (sortConfig.key === 'member_id') {
-            // Sorting by member_id
-            const memberIdA = a.user?.member_id || '';
-            const memberIdB = b.user?.member_id || '';
-            if (memberIdA < memberIdB) {
-              return sortConfig.direction === 'asc' ? -1 : 1;
-            }
-            if (memberIdA > memberIdB) {
-              return sortConfig.direction === 'asc' ? 1 : -1;
-            }
-            return 0;
-          } else {
-               // Sorting by other user fields
-          if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
+            return dateA === dateB ? 0 : dateA < dateB ? -1 * dir : 1 * dir;
           }
-          if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
+          
+          if (key === 'member_id') {
+            const va = Number(userDataA?.member_id || 0);
+            const vb = Number(userDataB?.member_id || 0);
+            return va === vb ? 0 : va < vb ? -1 * dir : 1 * dir;
           }
+          
+          if (key === 'status') {
+            // Sort by status from interestStatus map
+            const statusInfoA = interestStatus[userIdA];
+            const statusInfoB = interestStatus[userIdB];
+            const statusA = statusInfoA?.status || 'Pending';
+            const statusB = statusInfoB?.status || 'Pending';
+            const directionA = statusInfoA?.direction || '';
+            const directionB = statusInfoB?.direction || '';
+            const combinedA = `${directionA} - ${statusA}`;
+            const combinedB = `${directionB} - ${statusB}`;
+            if (combinedA < combinedB) return -1 * dir;
+            if (combinedA > combinedB) return 1 * dir;
+            return 0;
+          }
+          
+          // String fields: name, city, sect_school_info, profession, martial_status
+          const va = normalize(userDataA?.[key]);
+          const vb = normalize(userDataB?.[key]);
+          const sva = typeof va === 'string' ? va.toLowerCase() : va;
+          const svb = typeof vb === 'string' ? vb.toLowerCase() : vb;
+          if (sva < svb) return -1 * dir;
+          if (sva > svb) return 1 * dir;
           return 0;
-          }
-    
-       
         });
-        setFilteredItems(sortedData)
-      }, [sortConfig.direction])
+        setFilteredItems(sortedData);
+      }, [sortConfig.key, sortConfig.direction, interestStatus])
 
 
 
@@ -1145,25 +1299,27 @@ const TotalInterest = () => {
             <th onClick={() => handleSort('member_id')}>
             MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
           </th>
-              <th>Name</th>
-              <th>Location</th>
+              <th onClick={() => handleSort('name')}>Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('city')}>Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th  onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Status</th>
-              <th>Marital Status</th>
+              <th onClick={() => handleSort('sect_school_info')}>Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('profession')}>Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              
+              <th onClick={() => handleSort('martial_status')}>Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('status')}>Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                   Loading data...
                 </td>
               </tr>
             ) : currentItems?.length === 0 ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
+                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                   {filteredItems?.length === 0 && filters.status ? 
                     `No ${filters.status.toLowerCase()} interests found` : 
                     "No data available"
@@ -1227,12 +1383,58 @@ const TotalInterest = () => {
                     <td>{userData?.sect_school_info ||"N/A"}</td>
                     <td>{userData?.profession ||"N/A"}</td>
                     <td>
-                      <span className={`status-badge ${match?.status?match?.status?.toLowerCase():"unspecified"}`}>{match?.status ||"Unspecified"}</span>
-                    </td>
-                    <td>
                       <span className={`marital-badge ${userData?.martial_status?userData?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
                         {userData?.martial_status||"Not mentioned"}
                       </span>
+                    </td>
+                    <td>
+                      {(() => {
+                        const statusInfo = interestStatus[userId];
+                        const displayStatus = statusInfo?.status || 'Pending';
+                        const direction = statusInfo?.direction ? statusInfo.direction.charAt(0).toUpperCase() + statusInfo.direction.slice(1) : '';
+                        const statusLower = displayStatus.toLowerCase();
+                        return (
+                          <span className={`status-badge ${statusLower === 'pending' ? 'pending' : statusLower === 'accepted' ? 'approved' : statusLower === 'rejected' ? 'rejected' : 'unspecified'}`}>
+                            {direction ? `${direction} - ${displayStatus}` : displayStatus}
+                          </span>
+                        );
+                      })()}
+                    </td>
+                    <td>
+                      {(() => {
+                        const statusInfo = interestStatus[userId];
+                        if (statusInfo && statusInfo.direction === 'sent' && statusInfo.status === 'Pending') {
+                          return (
+                            <button
+                              onClick={(e) => handleWithdraw(userId, e)}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: 6,
+                                border: '1px solid #dc2626',
+                                background: '#fef2f2',
+                                color: '#dc2626',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                fontSize: '13px'
+                              }}
+                            >
+                              Withdraw
+                            </button>
+                          );
+                        }
+                        if (statusInfo && (statusInfo.direction === 'received' || statusInfo.direction === 'mutual') && (statusInfo.status || 'Pending') === 'Pending') {
+                          return (
+                            <button
+                              onClick={(e) => handleAccept(userId, e)}
+                              className="accept-btn"
+                              style={{ padding: '6px 12px', borderRadius: 6, background: '#e8f5e9', color: '#16a34a', border: '1px solid #16a34a', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}
+                            >
+                              Accept
+                            </button>
+                          );
+                        }
+                        return '-';
+                      })()}
                     </td>
                   </tr>
                 );

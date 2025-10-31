@@ -866,7 +866,8 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                           activeSubNav === "Shortlist" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
                         }`}
                         onClick={() => {
-                          handleSubNavClick("/total-shortlist");
+                          const shortlistPath = role === "agent" ? "/total-shortlist-agent" : "/total-shortlist";
+                          handleSubNavClick(shortlistPath);
                           setIsMobileMenuOpen(false);
                         }}
                       >
@@ -1033,7 +1034,10 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
             <a
               href="#"
               className={activeSubNav === "Shortlist" ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick("/total-shortlist")}
+              onClick={() => {
+                const shortlistPath = role === "agent" ? "/total-shortlist-agent" : "/total-shortlist";
+                handleSubNavClick(shortlistPath);
+              }}
             >
               <i className="icon">
                 <img src={hamburger} alt="" />
