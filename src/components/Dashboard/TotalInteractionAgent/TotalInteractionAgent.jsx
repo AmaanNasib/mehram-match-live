@@ -14,6 +14,8 @@ const TotalInteractionAgent = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [memberDetails, setMemberDetails] = useState({});
+  const [loadingDetails, setLoadingDetails] = useState({});
   const itemsPerPage = 10;
 
   // Filter states
@@ -33,11 +35,13 @@ const TotalInteractionAgent = () => {
   useEffect(() => {
     setLoading(true);
     const parameter = {
-      url: `/api/agent/interactions/`,
+      url: `/api/agent/members/interaction-table/`,
       setterFunction: (data) => {
         console.log('Agent interaction data received:', data);
-        setInteractionData(data || []);
-        setFilteredData(data || []);
+        // Extract interaction_table from response
+        const interactionTable = data?.interaction_table || [];
+        setInteractionData(interactionTable);
+        setFilteredData(interactionTable);
         setLoading(false);
       },
       setErrors: (error) => {
@@ -79,6 +83,51 @@ const TotalInteractionAgent = () => {
     }
   };
 
+  // Fetch individual member details
+  const fetchMemberDetails = async (memberId) => {
+    if (memberDetails[memberId] || loadingDetails[memberId]) return;
+    
+    setLoadingDetails(prev => ({ ...prev, [memberId]: true }));
+    
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${memberId}/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMemberDetails(prev => ({ ...prev, [memberId]: data }));
+      }
+    } catch (error) {
+      console.error(`Error fetching details for member ${memberId}:`, error);
+    } finally {
+      setLoadingDetails(prev => ({ ...prev, [memberId]: false }));
+    }
+  };
+
+  // Calculate age from date of birth
+  const calculateAge = (dob) => {
+    if (!dob) return "N/A";
+    try {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      return age > 0 ? age : "N/A";
+    } catch (e) {
+      return "N/A";
+    }
+  };
+
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({
       ...prev,
@@ -91,49 +140,49 @@ const TotalInteractionAgent = () => {
 
     if (filters.memberId) {
       filtered = filtered.filter(item => 
-        item.action_on?.member_id?.toString().includes(filters.memberId)
+        item.member?.member_id?.toString().includes(filters.memberId)
       );
     }
 
     if (filters.name) {
       filtered = filtered.filter(item => 
-        item.action_on?.name?.toLowerCase().includes(filters.name.toLowerCase())
+        item.member?.name?.toLowerCase().includes(filters.name.toLowerCase())
       );
     }
 
     if (filters.city) {
       filtered = filtered.filter(item => 
-        item.action_on?.city?.toLowerCase().includes(filters.city.toLowerCase())
+        item.member?.city?.toLowerCase().includes(filters.city.toLowerCase())
       );
     }
 
     if (filters.profession) {
       filtered = filtered.filter(item => 
-        item.action_on?.profession?.toLowerCase().includes(filters.profession.toLowerCase())
+        item.member?.profession?.toLowerCase().includes(filters.profession.toLowerCase())
       );
     }
 
     if (filters.sect) {
       filtered = filtered.filter(item => 
-        item.action_on?.sect_school_info?.toLowerCase().includes(filters.sect.toLowerCase())
+        item.member?.sect_school_info?.toLowerCase().includes(filters.sect.toLowerCase())
       );
     }
 
     if (filters.maritalStatus) {
       filtered = filtered.filter(item => 
-        item.action_on?.martial_status?.toLowerCase().includes(filters.maritalStatus.toLowerCase())
+        item.member?.martial_status?.toLowerCase().includes(filters.maritalStatus.toLowerCase())
       );
     }
 
     if (filters.status) {
       filtered = filtered.filter(item => 
-        item.interaction_type?.toLowerCase().includes(filters.status.toLowerCase())
+        item.interaction_summary?.total_interactions?.toString().includes(filters.status)
       );
     }
 
     if (filters.startDate && filters.endDate) {
       filtered = filtered.filter(item => {
-        const itemDate = new Date(item.created_at);
+        const itemDate = new Date(item.member?.created_at);
         const startDate = new Date(filters.startDate);
         const endDate = new Date(filters.endDate);
         return itemDate >= startDate && itemDate <= endDate;
@@ -185,11 +234,11 @@ const TotalInteractionAgent = () => {
   };
 
   // Get unique values for filter dropdowns
-  const uniqueCities = [...new Set(interactionData.map(item => item.action_on?.city).filter(Boolean))];
-  const uniqueProfessions = [...new Set(interactionData.map(item => item.action_on?.profession).filter(Boolean))];
-  const uniqueSects = [...new Set(interactionData.map(item => item.action_on?.sect_school_info).filter(Boolean))];
-  const uniqueMaritalStatuses = [...new Set(interactionData.map(item => item.action_on?.martial_status).filter(Boolean))];
-  const uniqueStatuses = [...new Set(interactionData.map(item => item.interaction_type).filter(Boolean))];
+  const uniqueCities = [...new Set(interactionData.map(item => item.member?.city).filter(Boolean))];
+  const uniqueProfessions = [...new Set(interactionData.map(item => item.member?.profession).filter(Boolean))];
+  const uniqueSects = [...new Set(interactionData.map(item => item.member?.sect_school_info).filter(Boolean))];
+  const uniqueMaritalStatuses = [...new Set(interactionData.map(item => item.member?.martial_status).filter(Boolean))];
+  const uniqueStatuses = [...new Set(interactionData.map(item => item.interaction_summary?.total_interactions).filter(Boolean))];
 
   return (
     <DashboardLayout>
@@ -341,26 +390,46 @@ const TotalInteractionAgent = () => {
                     <th>Profession</th>
                     <th>Sect</th>
                     <th>Location</th>
-                    <th>Interaction Type</th>
-                    <th>Date</th>
+                    <th>Total Interactions</th>
+                    <th>Sent</th>
+                    <th>Received</th>
+                    <th>Last Activity</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((item, index) => (
-                    <tr key={item.id || index} className="table-row">
+                  {currentItems.map((item, index) => {
+                    const memberId = item.member?.id;
+                    const details = memberDetails[memberId];
+                    const isLoadingDetail = loadingDetails[memberId];
+                    
+                    // Fetch member details if not already loaded
+                    if (memberId && !details && !isLoadingDetail) {
+                      fetchMemberDetails(memberId);
+                    }
+                    
+                    // Get last activity date from interactions
+                    const lastActivity = item.sent_interactions?.length > 0 || item.received_interactions?.length > 0
+                      ? Math.max(
+                          ...(item.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+                          ...(item.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+                        )
+                      : null;
+                    
+                    return (
+                      <tr key={item.member?.id || index} className="table-row">
                       <td>
-                        <span className="member-id-badge">
-                          {item.action_on?.member_id || "N/A"}
+                        <span className="tia-member-id-badge">
+                          {item.member?.member_id || "N/A"}
                         </span>
                       </td>
                       <td>
-                        <div className="member-photo-cell">
-                          <div className="member-avatar">
+                        <div className="tia-member-photo-cell">
+                          <div className="tia-member-avatar">
                             <img
-                              src={getProfileImageUrl(item.action_on?.profile_photo)}
-                              alt={item.action_on?.name || "Member"}
-                              className="avatar-img"
+                              src={getProfileImageUrl(details?.profile_photo || item.member?.profile_photo)}
+                              alt={item.member?.name || "Member"}
+                              className="tia-avatar-img"
                               onError={(e) => {
                                 e.target.src = "https://via.placeholder.com/50";
                               }}
@@ -369,32 +438,62 @@ const TotalInteractionAgent = () => {
                         </div>
                       </td>
                       <td>
-                        <span className="simple-member-name">
-                          {item.action_on?.name || "N/A"}
+                        <span className="tia-simple-member-name">
+                          {item.member?.name || "N/A"}
                         </span>
                       </td>
-                      <td>{item.action_on?.age || "N/A"}</td>
-                      <td>
-                        <span className={`marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                          {item.action_on?.martial_status || "Not mentioned"}
-                        </span>
-                      </td>
-                      <td>{item.action_on?.profession || "N/A"}</td>
-                      <td>{item.action_on?.sect_school_info || "N/A"}</td>
-                      <td>{item.action_on?.city || "N/A"}</td>
-                      <td>
-                        <span className={`interaction-badge ${item.interaction_type?.toLowerCase()}`}>
-                          {item.interaction_type || "N/A"}
-                        </span>
-                      </td>
-                      <td>{formatDate(item.created_at)}</td>
-                      <td>
-                        <div className="table-actions">
-                          <button
-                            className="action-btn view-btn modern-btn"
-                            onClick={() => handleViewUserDetails(item.action_on)}
-                            title="View User Details"
-                          >
+                        <td>
+                          {isLoadingDetail ? (
+                            <span className="tia-loading-text">Loading...</span>
+                          ) : (
+                            calculateAge(details?.dob)
+                          )}
+                        </td>
+                        <td>
+                          <span className={`tia-marital-badge ${details?.martial_status ? details?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                            {details?.martial_status || "Not mentioned"}
+                          </span>
+                        </td>
+                        <td>
+                          {isLoadingDetail ? (
+                            <span className="tia-loading-text">Loading...</span>
+                          ) : (
+                            details?.profession || "N/A"
+                          )}
+                        </td>
+                        <td>
+                          {isLoadingDetail ? (
+                            <span className="tia-loading-text">Loading...</span>
+                          ) : (
+                            details?.sect_school_info || "N/A"
+                          )}
+                        </td>
+                        <td>{item.member?.city || "N/A"}</td>
+                        <td>
+                          <span className="tia-interaction-count tia-total">
+                            {item.interaction_summary?.total_interactions || 0}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="tia-interaction-count tia-sent">
+                            {item.interaction_summary?.sent_count || 0}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="tia-interaction-count tia-received">
+                            {item.interaction_summary?.received_count || 0}
+                          </span>
+                        </td>
+                        <td>
+                          {lastActivity ? formatDate(new Date(lastActivity).toISOString()) : "N/A"}
+                        </td>
+                        <td>
+                          <div className="tia-table-actions">
+                            <button
+                              className="tia-action-btn tia-view-btn tia-modern-btn"
+                              onClick={() => handleViewUserDetails(item.member)}
+                              title="View User Details"
+                            >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                               <circle cx="12" cy="12" r="3"/>
@@ -403,7 +502,8 @@ const TotalInteractionAgent = () => {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
 

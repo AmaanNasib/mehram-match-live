@@ -259,11 +259,10 @@ const ViewAllUser = () => {
     setIgnoredUsers(prev => new Set([...prev, selectedUserId]));
 
     const parameter = {
-      url: `/api/recieved/`,
+      url: `/api/recieved/ignore/`,
       payload: {
         action_by_id: userId,
         action_on_id: selectedUserId,
-        blocked: true,
       },
       setErrors: setErrors,
       tofetch: {

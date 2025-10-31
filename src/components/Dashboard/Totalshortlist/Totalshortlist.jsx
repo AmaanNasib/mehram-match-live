@@ -4,7 +4,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineClose } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
@@ -611,34 +611,38 @@ const TotalShortlist = () => {
     
     setIsRemoving(true);
     try {
-      // API call to remove from shortlist
-      const removeData = {
-        action_by_id: userId,
-        action_on_id: selectedUserForRemoval.id,
-        shortlisted: false // Set to false to remove from shortlist
-      };
-
       const parameter = {
         url: `/api/recieved/`,
-        method: 'POST',
-        data: removeData,
-        setLoading: setIsRemoving,
-        setErrors: setError
+        payload: {
+          action_by_id: userId,
+          action_on_id: selectedUserForRemoval.id,
+          shortlisted: false,
+        },
+        setErrors: setError,
+        tofetch: {
+          items: [
+            {
+              fetchurl: `/api/user/shortlisted/?user_id=${userId}`,
+              dataset: setMatchDetails,
+              setErrors: setError,
+            },
+          ],
+          setErrors: setError,
+        },
       };
 
-      await fetchDataObjectV2(parameter);
-      
-      // Remove from local state after successful API call
-      setMatchDetails({ 
+      postDataWithFetchV2(parameter);
+
+      // Optimistic UI: remove immediately
+      setMatchDetails({
         shortlisted_users: matchDetails?.shortlisted_users?.filter(
-          match => match?.user?.id !== selectedUserForRemoval.id
-        ) 
+          (match) => match?.user?.id !== selectedUserForRemoval.id
+        ),
       });
-      
-      // Close modal and reset
+
       setShowRemovalModal(false);
       setSelectedUserForRemoval(null);
-      
+
     } catch (error) {
       console.error('Error removing from shortlist:', error);
       setError('Failed to remove from shortlist. Please try again.');

@@ -9,6 +9,7 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [agentCurrentMembers, setAgentCurrentMembers] = useState(new Set());
+  const [ignoredVersion, setIgnoredVersion] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -27,6 +28,13 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Re-render when any user is ignored
+  useEffect(() => {
+    const handler = () => setIgnoredVersion(v => v + 1);
+    window.addEventListener('userIgnored', handler);
+    return () => window.removeEventListener('userIgnored', handler);
   }, []);
 
   // Fetch agent's current members to filter deleted members
@@ -95,6 +103,21 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
               profiles.filter(profile => {
+                // Hide globally ignored users via localStorage too
+                try {
+                  const ignored = new Set(JSON.parse(localStorage.getItem('ignoredUserIds') || '[]'));
+                  const user = profile && profile.user ? profile.user : profile;
+                  const profileId = user?.id || profile?.id;
+                  if (ignored.has(profileId)) return false;
+                } catch (_) {}
+                // Hide globally ignored users
+                try {
+                  const ignored = new Set(JSON.parse(localStorage.getItem('ignoredUserIds') || '[]'));
+                  const user = profile && profile.user ? profile.user : profile;
+                  const profileId = user?.id || profile?.id;
+                  if (ignored.has(profileId)) return false;
+                } catch (_) {}
+
                 // Check if profile is completed - only show completed profiles
                 const user = profile && profile.user ? profile.user : profile;
                 const isProfileCompleted = user?.profile_completed === true;
@@ -158,10 +181,6 @@ const TrendingProfiles = ({ profiles, setApiData, url, activeUser }) => {
                     onShortlist={() => {
                       // Handle shortlist click
                       console.log('Shortlist clicked for', user.name);
-                    }}
-                    onIgnore={() => {
-                      // Handle ignore click
-                      console.log('Ignore clicked for', user.name);
                     }}
                     onMessage={() => {
                       const meId = localStorage.getItem('userId');

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [ignoredVersion, setIgnoredVersion] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,6 +27,13 @@ const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Re-render when any user is ignored
+  useEffect(() => {
+    const handler = () => setIgnoredVersion(v => v + 1);
+    window.addEventListener('userIgnored', handler);
+    return () => window.removeEventListener('userIgnored', handler);
   }, []);
 
     const navigate =useNavigate();
@@ -65,6 +73,14 @@ const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
           <div className="profile-cards">
             {profiles && profiles.length > 0 ? (
               profiles.filter(profile => {
+                // Hide globally ignored users
+                try {
+                  const ignored = new Set(JSON.parse(localStorage.getItem('ignoredUserIds') || '[]'));
+                  const user = profile && profile.user ? profile.user : profile;
+                  const profileId = user?.id || profile?.id;
+                  if (ignored.has(profileId)) return false;
+                } catch (_) {}
+
                 // Check if profile is completed - only show completed profiles
                 const user = profile && profile.user ? profile.user : profile;
                 const isProfileCompleted = user?.profile_completed === true;
@@ -113,9 +129,6 @@ const RecommendedProfiles = ({ profiles, setApiData, url, activeUser }) => {
                     }}
                     onShortlist={() => {
                       console.log('Shortlist clicked for', user.name);
-                    }}
-                    onIgnore={() => {
-                      console.log('Ignore clicked for', user.name);
                     }}
                     onMessage={() => {
                       console.log('Message clicked for', user.name);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SimpleProfileCard.css";
 
@@ -7,6 +7,9 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
   const [loadingShortlist, setLoadingShortlist] = useState(false);
   const [actualInterestStatus, setActualInterestStatus] = useState(isInterested || false);
   const [interestStatus, setInterestStatus] = useState(null); // Track the actual interest status
+  const [removing, setRemoving] = useState(false);
+  const [inlineHeight, setInlineHeight] = useState(undefined);
+  const cardRef = useRef(null);
   const navigate = useNavigate();
 
   // Check actual interest status on component mount
@@ -302,6 +305,67 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
     }
   };
 
+  // Handle ignore button click - set ignore true for regular users
+  const handleIgnoreClick = async () => {
+    // Agents may have custom flows; normal users should always hit API
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    const shouldUseProp = currentRole === 'agent' && !isImpersonating && typeof onIgnore === 'function';
+
+    if (shouldUseProp) {
+      onIgnore(profile);
+      return;
+    }
+
+    try {
+      const currentUserId = localStorage.getItem('userId');
+      const targetUserId = profile?.id;
+
+      if (!currentUserId || !targetUserId) {
+        alert('Error: User information not available');
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/recieved/ignore/`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action_by_id: parseInt(currentUserId),
+            action_on_id: parseInt(targetUserId)
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.detail || 'Failed to ignore user');
+        return;
+      }
+
+      // Immediately persist and notify so parent reflows grid instantly
+      try {
+        const key = 'ignoredUserIds';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const targetIdNum = parseInt(targetUserId);
+        if (!existing.includes(targetIdNum)) {
+          localStorage.setItem(key, JSON.stringify([...existing, targetIdNum]));
+        }
+        window.dispatchEvent(new CustomEvent('userIgnored', { detail: { userId: targetIdNum } }));
+      } catch (_) {}
+
+      // Optional: brief visual hint (won't always show before unmount)
+      setRemoving(true);
+    } catch (error) {
+      console.error('Error ignoring user:', error);
+      alert('An error occurred while ignoring user');
+    }
+  };
+
   // Handle message button click -> open Inbox and focus this user
   const handleMessageClick = () => {
     const meId = localStorage.getItem('userId');
@@ -317,7 +381,24 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
   };
   
   return (
-    <div className="simple-profile-card">
+    <div
+      ref={cardRef}
+      className="simple-profile-card"
+      style={removing ? {
+        height: inlineHeight !== undefined ? inlineHeight : undefined,
+        maxHeight: inlineHeight !== undefined ? inlineHeight : undefined,
+        width: 0,
+        flex: '0 0 0',
+        margin: 0,
+        padding: 0,
+        borderWidth: 0,
+        boxShadow: 'none',
+        overflow: 'hidden',
+        opacity: 0,
+        transform: 'translateY(-8px) scale(0.98)',
+        transition: 'height 240ms ease, max-height 240ms ease, width 240ms ease, margin 240ms ease, padding 240ms ease, border-width 240ms ease, opacity 200ms ease, transform 200ms ease'
+      } : undefined}
+    >
       {/* Agent Verified Badge - Simple */}
       {profile?.agent_id && (
         <div className="agent-verified-badge">
@@ -434,7 +515,7 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
           {/* Ignore Button */}
           <button 
             className="simple-icon-btn ignore-btn"
-            onClick={() => onIgnore && onIgnore(profile)}
+            onClick={handleIgnoreClick}
             title="Ignore"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

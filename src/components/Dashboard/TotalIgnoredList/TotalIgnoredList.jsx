@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineClose  } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
@@ -504,7 +504,7 @@ const TotalIgnoredList = () => {
     console.log(updatedFilters.id, ">>>");
 
     setFilteredItems(
-      matchDetails?.blocked_users?.filter((match) => {
+      matchDetails?.ignored_users?.filter((match) => {
         return (
           (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
@@ -520,22 +520,22 @@ const TotalIgnoredList = () => {
       })
     );
   };
-  const distinctIds = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.id))];
-  const distinctNames = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.name))];
-  const distinctCities = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.city))];
-  const distinctDobs = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.dob))];
-  const distinctSchoolInfo = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.sect_school_info))];
-  const distinctProfessions = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.profession))];
-  const distinctStatuses = [...new Set(matchDetails?.blocked_users?.map((match) => match?.status))];
-  const distinctMaritalStatuses = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.martial_status))];
+  const distinctIds = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.id))];
+  const distinctNames = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.name))];
+  const distinctCities = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.city))];
+  const distinctDobs = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.dob))];
+  const distinctSchoolInfo = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.sect_school_info))];
+  const distinctProfessions = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.profession))];
+  const distinctStatuses = [...new Set(matchDetails?.ignored_users?.map((match) => match?.status))];
+  const distinctMaritalStatuses = [...new Set(matchDetails?.ignored_users?.map((match) => match?.user?.martial_status))];
   useEffect(() => {
     // Apply filters when `currentItems` or filters change
-    setFilteredItems(matchDetails?.blocked_users)
+    setFilteredItems(matchDetails?.ignored_users)
   }, [matchDetails]);
   useEffect(() => {
     if (userId) {
       const parameter = {
-        url: `/api/user/blocked/?user_id=${userId}`,
+        url: `/api/user/ignored/?user_id=${userId}`,
         setterFunction: setMatchDetails,
         setLoading: setLoading,
         setErrors: setErrors
@@ -545,17 +545,88 @@ const TotalIgnoredList = () => {
     }
   }, [userId]);
 
+  const handleUnignore = async (targetUserId) => {
+    if (!userId || !targetUserId) return;
+    const parameter = {
+      url: `/api/recieved/unignore/`,
+      payload: {
+        action_by_id: Number(userId),
+        action_on_id: Number(targetUserId),
+      },
+      setErrors: setErrors,
+      tofetch: {
+        items: [
+          {
+            fetchurl: `/api/user/ignored/?user_id=${userId}`,
+            dataset: setMatchDetails,
+            setErrors: setErrors,
+          },
+        ],
+      },
+    };
+    try {
+      await postDataWithFetchV2(parameter);
+      // Update local ignored cache and notify others
+      try {
+        const key = 'ignoredUserIds';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const updated = existing.filter((id) => id !== Number(targetUserId));
+        localStorage.setItem(key, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('userUnignored', { detail: { userId: Number(targetUserId) } }));
+      } catch (_) {}
+      // Optimistically update current filtered list
+      setFilteredItems((prev) => prev?.filter((m) => m?.user?.id !== Number(targetUserId)));
+    } catch (e) {
+      // no-op; errors handled via setErrors
+    }
+  };
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Get current items
+  // Sorting (memoized, do not mutate filteredItems)
+  const sortedItems = useMemo(() => {
+    const key = sortConfig.key;
+    const dir = sortConfig.direction === 'asc' ? 1 : -1;
+    const normalize = (v) => (v === null || v === undefined ? '' : v);
+    const arr = [...(filteredItems || [])];
+    if (!key) return arr;
+    return arr.sort((a, b) => {
+      if (key === 'date') {
+        const dateA = new Date(a?.date || 0).getTime();
+        const dateB = new Date(b?.date || 0).getTime();
+        if (isNaN(dateA) || isNaN(dateB)) {
+          const sa = String(a?.date || '');
+          const sb = String(b?.date || '');
+          if (sa < sb) return -1 * dir;
+          if (sa > sb) return 1 * dir;
+          return 0;
+        }
+        return dateA === dateB ? 0 : dateA < dateB ? -1 * dir : 1 * dir;
+      }
+      if (key === 'member_id') {
+        const va = Number(a?.user?.member_id || 0);
+        const vb = Number(b?.user?.member_id || 0);
+        return va === vb ? 0 : va < vb ? -1 * dir : 1 * dir;
+      }
+      const va = normalize(a?.user?.[key]);
+      const vb = normalize(b?.user?.[key]);
+      const sva = typeof va === 'string' ? va.toLowerCase() : va;
+      const svb = typeof vb === 'string' ? vb.toLowerCase() : vb;
+      if (sva < svb) return -1 * dir;
+      if (sva > svb) return 1 * dir;
+      return 0;
+    });
+  }, [filteredItems, sortConfig.key, sortConfig.direction]);
+
+  // Get current items (from sorted set)
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedItems?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Total pages
-  const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
+  const totalPages = Math.ceil((sortedItems?.length || 0) / itemsPerPage);
 
   // Handle Page Change
   const handlePageChange = (pageNumber) => {
@@ -573,35 +644,7 @@ const TotalIgnoredList = () => {
   // Function to sort the data based on the current sortConfig
 
 
-  useEffect(() => {
-    const sortedData = [...filteredItems].sort((a, b) => {
-      // Sorting by user field or date
-      if (sortConfig.key === 'date') {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        if (dateA < dateB) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (dateA > dateB) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      } else {
-        // Sorting by user field
-        if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      }
-
-
-    });
-    setFilteredItems(sortedData)
-  }, [sortConfig.direction])
-
+  // removed sorting useEffect to avoid mutating filteredItems
 
 
   const handleMaritalStatusChange = (selectedStatus) => {
@@ -728,22 +771,38 @@ const TotalIgnoredList = () => {
         <table className="interest-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('id')}>
-                ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('member_id')}>
+                Member ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Name</th>
-              <th>Location</th>
+              <th>Photo</th>
+              <th onClick={() => handleSort('name')}>Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('city')}>Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Marital Status</th>
+              <th onClick={() => handleSort('sect_school_info')}>Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('profession')}>Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('martial_status')}>Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {currentItems?.map((match) => (
-              <tr key={match?.user?.id} onClick={() => navigate(`/details/${match?.user?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.user?.id}</td>
-                <td>{match?.user?.name || '-'}</td>
+              <tr key={match?.user?.id}>
+                <td>{match?.user?.member_id || '-'}</td>
+                <td>
+                  <img
+                    src={match?.user?.profile_photo || match?.user?.profile_pic || "https://via.placeholder.com/48"}
+                    alt={match?.user?.name || 'User'}
+                    style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                </td>
+                <td>
+                  <button
+                    onClick={() => navigate(`/details/${match?.user?.id}`)}
+                    style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    {match?.user?.name || '-'}
+                  </button>
+                </td>
                 <td>{match?.user?.city || '-'}</td>
                 <td>{match?.date || '-'}</td>
                 <td>{match?.user?.sect_school_info || '-'}</td>
@@ -752,6 +811,22 @@ const TotalIgnoredList = () => {
                   <span className={`marital-badge ${match?.user?.martial_status ? match?.user?.martial_status?.toLowerCase()?.replace(" ", "-") : ''}`}>
                     {match?.user?.martial_status || '-'}
                   </span>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleUnignore(match?.user?.id)}
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: 8,
+                      border: '1px solid #dc2626',
+                      background: '#fef2f2',
+                      color: '#dc2626',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Unignore
+                  </button>
                 </td>
               </tr>
             ))}

@@ -230,11 +230,10 @@ const ViewAllRecommendedProfiles = () => {
     setIgnoredUsers(prev => new Set([...prev, selectedUserId]));
 
     const parameter = {
-      url: role === "agent" ? "/api/agent/ignore/" : `/api/ignore/`,
+      url: `/api/recieved/ignore/`,
       payload: {
         action_by_id: userId,
         action_on_id: selectedUserId,
-        ignored: true,
       },
       setErrors: setErrors,
       tofetch: {

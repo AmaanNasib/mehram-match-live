@@ -29,6 +29,7 @@ const ViewAllTrendingProfiles = () => {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showIgnoreModal, setShowIgnoreModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [ignoredVersion, setIgnoredVersion] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const profilesPerPage = 15;
 
@@ -102,6 +103,17 @@ const ViewAllTrendingProfiles = () => {
       };
       fetchDataWithTokenV2(parameter2);
     }
+  }, []);
+
+  // Re-render and also honor global ignored users set by cards
+  useEffect(() => {
+    const handler = (e) => {
+      const id = e?.detail?.userId;
+      if (id) setIgnoredUsers(prev => new Set([...prev, id]));
+      setIgnoredVersion(v => v + 1);
+    };
+    window.addEventListener('userIgnored', handler);
+    return () => window.removeEventListener('userIgnored', handler);
   }, []);
 
   const handleInterestClick = (actionOnId) => {
@@ -245,11 +257,10 @@ const ViewAllTrendingProfiles = () => {
     setIgnoredUsers(prev => new Set([...prev, selectedUserId]));
 
     const parameter = {
-      url: role === "agent" ? "/api/agent/ignore/" : `/api/ignore/`,
+      url: `/api/recieved/ignore/`,
       payload: {
         action_by_id: userId,
         action_on_id: selectedUserId,
-        ignored: true,
       },
       setErrors: setErrors,
       tofetch: {
@@ -401,7 +412,13 @@ const ViewAllTrendingProfiles = () => {
                   
                   const filteredProfiles = trendingProfiles.filter(profile => {
                     // Filter out ignored users
-                    if (ignoredUsers.has(profile.user?.id)) return false;
+                    try {
+                      if (ignoredUsers.has(profile.user?.id)) return false;
+                      const ignored = new Set(JSON.parse(localStorage.getItem('ignoredUserIds') || '[]'));
+                      const user = profile && profile.user ? profile.user : profile;
+                      const profileId = user?.id || profile?.id;
+                      if (ignored.has(profileId)) return false;
+                    } catch (_) {}
                     
                     // Check if profile is completed - only show completed profiles
                     const user = profile && profile.user ? profile.user : profile;
