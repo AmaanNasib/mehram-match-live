@@ -104,10 +104,12 @@ const UserDashboard = () => {
             total_requests: 0,
             total_interactions: 0,
             total_shortlisted: 0,
-            total_blocked: 0
+            total_blocked: 0,
+            total_blocked_count: 0
           };
           
           const mergedData = { ...defaultData, ...data };
+          console.log('Merged data with defaults:', mergedData);
           
           // Special handling for shortlist data - use the same value as card
           if (role === "agent" && apiData2?.total_shortlisted_count) {
@@ -116,14 +118,24 @@ const UserDashboard = () => {
             console.log('Using shortlist data from apiData2 for graph:', apiData2.total_shortlisted_count);
           }
           
-          // Special handling for blocked data for agent - use agent_direct_blocks from apiData3
+          // Special handling for blocked data
           if (role === "agent" && apiData3?.total_blocked_count) {
             mergedData.total_blocked = apiData3.total_blocked_count;
+            mergedData.total_blocked_count = apiData3.total_blocked_count;
             console.log('Using blocked data from apiData3 for agent graph:', mergedData.total_blocked);
           } else if (role === "agent") {
-            // Fallback to API response if apiData3 is not available
+            // Fallback to API response if apiData3 is not available for agent
             mergedData.total_blocked = data?.agent_direct_blocks || data?.total_blocked_count || 0;
+            mergedData.total_blocked_count = mergedData.total_blocked;
             console.log('Using blocked data from API response for agent graph:', mergedData.total_blocked, 'from data:', data);
+          } else {
+            // For user role, use blocked count from graph API response
+            mergedData.total_blocked_count = data?.total_blocked_count || 0;
+            mergedData.total_blocked = mergedData.total_blocked_count;
+            console.log('Using blocked data from graph API for user:', {
+              total_blocked_count: mergedData.total_blocked_count,
+              from_api: data?.total_blocked_count
+            });
           }
           
           // Special handling for photo request data for agent - use data from API response
@@ -152,7 +164,8 @@ const UserDashboard = () => {
             }
           }
           
-          console.log('Merged data:', mergedData);
+          console.log('Final merged data being set to apiData5:', mergedData);
+          console.log('Key values - Interest:', mergedData.total_interest, '| Requests:', mergedData.total_requests, '| Interactions:', mergedData.total_interactions, '| Shortlisted:', mergedData.shortlisted, '| Blocked:', mergedData.total_blocked_count);
           
           setApiData5(mergedData);
         },
@@ -473,26 +486,8 @@ const UserDashboard = () => {
       fetchDataWithTokenV2(parameter2);
     }
 
-    // For user role, use the correct API endpoint with user_id parameter
-    if (role === "user" || role === "individual") {
-      const parameter3 = {
-        url: `/api/user/blocked/?user_id=${userId}`,
-        setterFunction: (data) => {
-          console.log('Blocked data received for user:', data);
-          // Map API response to expected format - API returns array, count the length
-          const mappedData = {
-            total_blocked_count: data?.length || 0
-          };
-          console.log('Mapped blocked data:', mappedData);
-          setApiData3(mappedData);
-        },
-        setErrors: setErrors,
-        setLoading: setLoading,
-      };
-      console.log('UserDashboard - Blocked API URL for user:', parameter3.url);
-      fetchDataWithTokenV2(parameter3);
-    } else {
-      // For agent role, use the API
+    // For agent role, use the API for blocked count
+    if (role === "agent") {
       const parameter3 = {
         url: '/api/agent/blocked/count/',
         setterFunction: (data) => {
@@ -510,6 +505,7 @@ const UserDashboard = () => {
       console.log('UserDashboard - Blocked API URL for agent:', parameter3.url);
       fetchDataWithTokenV2(parameter3);
     }
+    // For user role, blocked count comes from graph API (apiData5.total_blocked_count)
 
     // For user role, fetch matches data
     if (role === "user" || role === "individual") {
@@ -840,7 +836,7 @@ const UserDashboard = () => {
   console.log('Selected time period:', selectedTimePeriod);
   
   // Force chart re-render when apiData5 changes
-  const chartKey = `chart-${selectedTimePeriod}-${apiData5?.total_interest || 0}-${apiData5?.total_requests || 0}-${apiData5?.shortlisted || 0}`;
+  const chartKey = `chart-${selectedTimePeriod}-${apiData5?.total_interest || 0}-${apiData5?.total_requests || 0}-${apiData5?.shortlisted || 0}-${apiData5?.total_blocked_count || 0}`;
 
   // Helper function to get agent graph data with multiple possible field names
   const getAgentGraphValue = (fieldName, fallbackValue = 0) => {
@@ -896,21 +892,28 @@ const UserDashboard = () => {
       apiData5?.total_interest || 0,
       apiData5?.total_requests || 0,
       apiData5?.total_interactions || (apiData5?.sent_interest || 0) + (apiData5?.received_interest || 0),
-      apiData5?.shortlisted || apiData5?.total_shortlisted || 0,
-      apiData5?.total_blocked || 0
+      apiData5?.shortlisted || 0,
+      apiData5?.total_blocked_count || 0
     ];
     
     console.log('Chart data recalculated with apiData5:', apiData5);
     console.log('Breakdown: total_interest =', apiData5?.total_interest, '| total_requests =', apiData5?.total_requests, '| total_interactions =', apiData5?.total_interactions, '| sent_interest =', apiData5?.sent_interest, '| received_interest =', apiData5?.received_interest, '| calculated =', (apiData5?.sent_interest || 0) + (apiData5?.received_interest || 0));
-    console.log('Chart data values:', data);
+    console.log('Shortlisted =', apiData5?.shortlisted, '| Blocked Count =', apiData5?.total_blocked_count);
+    console.log('Chart data values for', role, ':', data);
     
     return {
-      labels: [
+      labels: role === "agent" ? [
         "Total Interests",
         "Total Requests", 
         "Total Interactions",
         "Members Shortlisted",
         "Blocked Members",
+      ] : [
+        "Total Interests",
+        "Total Requests", 
+        "Total Interactions",
+        "Total Shortlisted",
+        "Total Blocked",
       ],
       datasets: [
         {
@@ -927,7 +930,7 @@ const UserDashboard = () => {
         },
       ],
     };
-  }, [apiData5, apiData1, apiData, apiData2, apiData3, role, selectedTimePeriod]);
+  }, [apiData5, apiData1, apiData, apiData2, apiData3, role, selectedTimePeriod, apiData5?.total_blocked_count]);
 
   const chartOptions = {
     responsive: true,
@@ -1931,9 +1934,10 @@ const UserDashboard = () => {
                   {/* </div> */}
                 </div>
                 <div className="stat-number">
-                  {apiData3?.total_blocked_count
-                    ? apiData3?.total_blocked_count
-                    : 0}
+                  {role === "agent" 
+                    ? (apiData3?.total_blocked_count || 0)
+                    : (apiData5?.total_blocked_count || 0)
+                  }
                 </div>
               </div>
             </div>

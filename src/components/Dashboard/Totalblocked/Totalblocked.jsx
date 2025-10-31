@@ -4,13 +4,12 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineClose } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataObjectV2, postDataWithFetchV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
 
 
 
-const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CustomDatePicker = ({ selectedDate, onChange, placeholder, isOpen, onToggle }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [internalDate, setInternalDate] = useState(selectedDate ? new Date(selectedDate) : null);
@@ -49,7 +48,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
     const newDate = new Date(currentYear, currentMonth, day);
     setInternalDate(newDate);
     onChange(format(newDate, 'yyyy-MM-dd'));
-    setIsOpen(false);
+    onToggle(false);
   };
 
   const isDateSelected = (day) => {
@@ -86,7 +85,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
     <div className="custom-date-picker-container">
       <div
         className="custom-date-picker-toggle"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => onToggle(!isOpen)}
       >
         {selectedDate || placeholder}
       </div>
@@ -151,7 +150,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
           <button
             className="apply-now-btn"
-            onClick={() => setIsOpen(false)}
+            onClick={() => onToggle(false)}
           >
             Apply Now
           </button>
@@ -184,13 +183,18 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             position: absolute;
             top: 105%;
             left: 0;
-            width: 300px;
+            width: 320px;
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 15px;
             padding: 15px;
             z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+          }
+          
+          .date-filters-container .custom-date-picker-container:last-child .custom-date-picker-menu {
+            left: auto;
+            right: 0;
           }
           
           .month-navigation {
@@ -261,16 +265,21 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
           
           .apply-now-btn {
             width: 100%;
-            padding: 8px;
-            background-color: #FF1493;
+            padding: 10px;
+            background: linear-gradient(135deg, #CB3B8B 0%, #FF59B6 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
           }
           
           .apply-now-btn:hover {
-            background-color: rgb(20, 255, 134);
+            background: linear-gradient(135deg, #EB53A7 0%, #CB3B8B 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(203, 59, 139, 0.3);
           }
         `}
       </style>
@@ -285,9 +294,7 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
   const [selectedStatuses, setSelectedStatuses] = useState(value || []);
 
   const maritalStatusOptions = [
-    "Never-Married", "Married", "Divorced",
-    "Khula", "Awaiting Divorce", "Widowed",
-    "Separated", "Annulled"
+    "Single", "Married", "Divorced", "Khula", "Widowed"
   ];
 
   useEffect(() => {
@@ -464,9 +471,9 @@ const TotalShortlist = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDate1, setSelectedDate1] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showDatePicker1, setShowDatePicker1] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: 'member_id', direction: 'asc' });
   const [matchDetails, setMatchDetails] = useState([]);
   const [userId] = useState(localStorage.getItem("userId"));
   const [loading, setLoading] = useState(false);
@@ -518,13 +525,14 @@ const TotalShortlist = () => {
     setFilteredItems(
       matchDetails?.blocked_users?.filter((match) => {
         return (
-          (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
+          (updatedFilters.id ? match?.user?.member_id == updatedFilters.id : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.user?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
           (updatedFilters.date ? match?.date?.toLowerCase().includes(updatedFilters.date.toLowerCase()) : true) &&
           (updatedFilters.startDate && updatedFilters.endDate
             ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
             : true) &&
+          (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
           (updatedFilters.profession ? match?.user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
           (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
           (updatedFilters.martialStatus ? match?.user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
@@ -532,14 +540,6 @@ const TotalShortlist = () => {
       })
     );
   };
-  const distinctIds = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.id))];
-  const distinctNames = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.name))];
-  const distinctCities = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.city))];
-  const distinctDobs = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.date))];
-  const distinctSchoolInfo = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.sect_school_info))];
-  const distinctProfessions = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.profession))];
-  const distinctStatuses = [...new Set(matchDetails?.blocked_users?.map((match) => match?.status))];
-  const distinctMaritalStatuses = [...new Set(matchDetails?.blocked_users?.map((match) => match?.user?.martial_status))];
   useEffect(() => {
     // Apply filters when `currentItems` or filters change
     setFilteredItems(matchDetails?.blocked_users)
@@ -556,9 +556,34 @@ const TotalShortlist = () => {
 
     }
   }, [userId]);
-  // Function to handle delete action
+  // Function to handle unblock action
   const handleDelete = (id) => {
-    setMatchDetails({ blocked_users: matchDetails?.blocked_users?.filter(match => match?.user?.id !== id) });
+    if (window.confirm('Are you sure you want to unblock this user?')) {
+      const parameter = {
+        url: `/api/recieved/unblock/`,
+        payload: {
+          action_by_id: userId,
+          action_on_id: id
+        },
+        setErrors: setErrors,
+        tofetch: {
+          items: [{
+            fetchurl: `/api/user/${userId}/`,
+            dataset: setMatchDetails,
+            setErrors: setErrors
+          }],
+          setErrors: setErrors
+        }
+      };
+
+      postDataWithFetchV2(parameter);
+      
+      // Update local state immediately
+      setMatchDetails({ 
+        blocked_users: matchDetails?.blocked_users?.filter(match => match?.user?.id !== id) 
+      });
+      setFilteredItems(filteredItems?.filter(match => match?.user?.id !== id));
+    }
   };
 
   // Pagination
@@ -589,8 +614,12 @@ const TotalShortlist = () => {
 
 
   useEffect(() => {
+    if (!filteredItems || filteredItems.length === 0) return;
+    
     const sortedData = [...filteredItems].sort((a, b) => {
-      // Sorting by user field or date
+      let valueA, valueB;
+
+      // Sorting by date
       if (sortConfig.key === 'date') {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -601,21 +630,54 @@ const TotalShortlist = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } else {
-        // Sorting by user field
-        if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
+      } 
+      // Sorting by member_id
+      else if (sortConfig.key === 'member_id') {
+        valueA = a.user?.member_id || a.user?.id || '';
+        valueB = b.user?.member_id || b.user?.id || '';
+      }
+      // Sorting by name
+      else if (sortConfig.key === 'name') {
+        valueA = (a.user?.name || '').toLowerCase();
+        valueB = (b.user?.name || '').toLowerCase();
+      }
+      // Sorting by location/city
+      else if (sortConfig.key === 'city') {
+        valueA = (a.user?.city || '').toLowerCase();
+        valueB = (b.user?.city || '').toLowerCase();
+      }
+      // Sorting by sect
+      else if (sortConfig.key === 'sect_school_info') {
+        valueA = (a.user?.sect_school_info || '').toLowerCase();
+        valueB = (b.user?.sect_school_info || '').toLowerCase();
+      }
+      // Sorting by profession
+      else if (sortConfig.key === 'profession') {
+        valueA = (a.user?.profession || '').toLowerCase();
+        valueB = (b.user?.profession || '').toLowerCase();
+      }
+      // Sorting by marital status
+      else if (sortConfig.key === 'martial_status') {
+        valueA = (a.user?.martial_status || '').toLowerCase();
+        valueB = (b.user?.martial_status || '').toLowerCase();
+      }
+      // Default: sorting by user field
+      else {
+        valueA = (a.user?.[sortConfig.key] || '').toString().toLowerCase();
+        valueB = (b.user?.[sortConfig.key] || '').toString().toLowerCase();
+      }
+
+      // Compare values
+      if (valueA < valueB) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
+      if (valueA > valueB) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      }
-
-
     });
     setFilteredItems(sortedData)
-  }, [sortConfig.direction])
+  }, [sortConfig.direction, sortConfig.key])
 
 
 
@@ -648,11 +710,19 @@ const TotalShortlist = () => {
             type="text"
             value={filters.id}
             onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter ID"
+            placeholder="Member ID"
             list="distinct-ids"
-            style={{ width: '70px' }}
+            style={{ width: '100px' }}
           />
 
+          <input
+            className="filter-dropdown"
+            type="text"
+            value={filters.name}
+            onChange={(e) => handleFilterChange('name', e.target.value)}
+            placeholder="Name"
+            style={{ width: '120px' }}
+          />
 
           <input
             className="filter-dropdown"
@@ -660,8 +730,7 @@ const TotalShortlist = () => {
             value={filters.city}
             onChange={(e) => handleFilterChange('city', e.target.value)}
             placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '70px' }}
+            style={{ width: '100px' }}
           />
           {/* Replace your current date picker implementation with this */}
           <div className="date-filters-container">
@@ -669,12 +738,22 @@ const TotalShortlist = () => {
               selectedDate={filters.startDate}
               onChange={(date) => handleFilterChange("startDate", date)}
               placeholder="Start Date"
+              isOpen={showStartDatePicker}
+              onToggle={(open) => {
+                setShowStartDatePicker(open);
+                if (open) setShowEndDatePicker(false);
+              }}
             />
 
             <CustomDatePicker
               selectedDate={filters.endDate}
               onChange={(date) => handleFilterChange("endDate", date)}
               placeholder="End Date"
+              isOpen={showEndDatePicker}
+              onToggle={(open) => {
+                setShowEndDatePicker(open);
+                if (open) setShowStartDatePicker(false);
+              }}
             />
           </div>
 
@@ -682,7 +761,9 @@ const TotalShortlist = () => {
             {`
   .date-filters-container {
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    position: relative;
+    z-index: 1;
   }
 `}
           </style>
@@ -694,11 +775,30 @@ const TotalShortlist = () => {
             onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
           >
             <option value="">Sect</option>
-            {distinctSchoolInfo?.map((info, index) => (
-              <option key={index} value={info}>
-                {info}
-              </option>
-            ))}
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
 
           <select
@@ -707,11 +807,67 @@ const TotalShortlist = () => {
             onChange={(e) => handleFilterChange('profession', e.target.value)}
           >
             <option value="">Profession</option>
-            {distinctProfessions?.map((profession, index) => (
-              <option key={index} value={profession}>
-                {profession}
-              </option>
-            ))}
+            <option value="accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="actor">Actor</option>
+            <option value="administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="air_hostess">Air Hostess</option>
+            <option value="airline_professional">Airline Professional</option>
+            <option value="airforce">Airforce</option>
+            <option value="architect">Architect</option>
+            <option value="artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="audiologist">Audiologist</option>
+            <option value="auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="chef">Chef</option>
+            <option value="civil_servant">Civil Servant</option>
+            <option value="clerk">Clerk</option>
+            <option value="coach">Coach</option>
+            <option value="consultant">Consultant</option>
+            <option value="counselor">Counselor</option>
+            <option value="dentist">Dentist</option>
+            <option value="designer">Designer</option>
+            <option value="doctor">Doctor</option>
+            <option value="engineer">Engineer</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="farmer">Farmer</option>
+            <option value="fashion_designer">Fashion Designer</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="government_employee">Government Employee</option>
+            <option value="graphic_designer">Graphic Designer</option>
+            <option value="homemaker">Homemaker</option>
+            <option value="interior_designer">Interior Designer</option>
+            <option value="journalist">Journalist</option>
+            <option value="lawyer">Lawyer</option>
+            <option value="manager">Manager</option>
+            <option value="marketing_professional">Marketing Professional</option>
+            <option value="nurse">Nurse</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="photographer">Photographer</option>
+            <option value="pilot">Pilot</option>
+            <option value="police">Police</option>
+            <option value="professor">Professor</option>
+            <option value="psychologist">Psychologist</option>
+            <option value="researcher">Researcher</option>
+            <option value="sales_executive">Sales Executive</option>
+            <option value="scientist">Scientist</option>
+            <option value="social_worker">Social Worker</option>
+            <option value="software_consultant">Software Consultant</option>
+            <option value="sportsman">Sportsman</option>
+            <option value="teacher">Teacher</option>
+            <option value="technician">Technician</option>
+            <option value="therapist">Therapist</option>
+            <option value="veterinarian">Veterinarian</option>
+            <option value="writer">Writer</option>
+            <option value="other">Other</option>
           </select>
 
           {/* Use the MaritalStatusDropdown component */}
@@ -744,23 +900,49 @@ const TotalShortlist = () => {
         <table className="interest-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('id')}>
-                ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              <th onClick={() => handleSort('member_id')} style={{ cursor: 'pointer' }}>
+                Member ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Name</th>
-              <th>Location</th>
-              <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Marital Status</th>
+              <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('city')} style={{ cursor: 'pointer' }}>
+                Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
+                Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('sect_school_info')} style={{ cursor: 'pointer' }}>
+                Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('profession')} style={{ cursor: 'pointer' }}>
+                Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('martial_status')} style={{ cursor: 'pointer' }}>
+                Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {currentItems?.map((match) => (
               <tr key={match?.user?.id} style={{ cursor: "pointer" }}>
-                <td>{match?.user?.id}</td>
-                <td>{match?.user?.name}</td>
+                <td>{match?.user?.member_id || match?.user?.id}</td>
+                <td>
+                  <div className="user-photo-name">
+                    <img 
+                      src={match?.user?.profile_photo || 'https://via.placeholder.com/50'} 
+                      alt={match?.user?.name}
+                      className="table-user-photo"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/details/${match?.user?.id}`);
+                      }}
+                      title="View Profile"
+                    />
+                    <span>{match?.user?.name}</span>
+                  </div>
+                </td>
                 <td>{match?.user?.city || "-"}</td>
                 <td>{match?.date || "-"}</td>
                 <td>{match?.user?.sect_school_info || "-"}</td>
@@ -773,6 +955,7 @@ const TotalShortlist = () => {
                 <td>
                   <AiOutlineDelete
                     className="delete-icon"
+                    title="Unblock User"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent row click event
                       handleDelete(match?.user?.id);
@@ -883,17 +1066,55 @@ const TotalShortlist = () => {
             background: #fff;
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           }
           .interest-table th {
             background: #f0f0f0;
             color: #333;
             font-weight: bold;
             text-transform: uppercase;
+            user-select: none;
+          }
+          .interest-table th:last-child {
+            text-align: center;
+          }
+          .interest-table th[style*="cursor: pointer"]:hover {
+            background: #e0e0e0;
+            color: #CB3B8B;
           }
           .interest-table th, .interest-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
+            border-right: 1px solid #e5e7eb;
+          }
+          .interest-table th:last-child,
+          .interest-table td:last-child {
+            border-right: none;
+          }
+          .interest-table td:last-child {
+            text-align: center;
+          }
+          .user-photo-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .table-user-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #ddd;
+            flex-shrink: 0;
+          }
+          .table-user-photo:hover {
+            transform: scale(1.15);
+            border-color: #CB3B8B;
+            box-shadow: 0 4px 12px rgba(203, 59, 139, 0.4);
           }
           .table-row {
             cursor: pointer;
@@ -979,12 +1200,15 @@ const TotalShortlist = () => {
           .delete-icon {
             cursor: pointer;
             color: #ff4d4d;
-            font-size: 18px;
+            font-size: 20px;
+            display: inline-flex;
             align-items: center;
-
+            justify-content: center;
+            transition: all 0.3s ease;
           }
           .delete-icon:hover {
             color: #cc0000;
+            transform: scale(1.2);
           }
         `}
       </style>

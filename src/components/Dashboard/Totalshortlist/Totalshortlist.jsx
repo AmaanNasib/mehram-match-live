@@ -500,7 +500,7 @@ const TotalShortlist = () => {
   const [selectedDate1, setSelectedDate1] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDatePicker1, setShowDatePicker1] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'member_id', direction: 'asc' });
   const [matchDetails, setMatchDetails] = useState({ shortlisted_users: [] });
   const [useError, setError] = useState(false);
   const [useLoading, setLoading] = useState(false);
@@ -684,8 +684,12 @@ const TotalShortlist = () => {
 
 
   useEffect(() => {
+    if (!filteredItems || filteredItems.length === 0) return;
+    
     const sortedData = [...filteredItems].sort((a, b) => {
-      // Sorting by user field or date
+      let valueA, valueB;
+
+      // Sorting by date
       if (sortConfig.key === 'date') {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -696,21 +700,54 @@ const TotalShortlist = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } else {
-        // Sorting by user field
-        if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
+      } 
+      // Sorting by member_id
+      else if (sortConfig.key === 'member_id') {
+        valueA = a.user?.member_id || a.user?.id || '';
+        valueB = b.user?.member_id || b.user?.id || '';
+      }
+      // Sorting by name
+      else if (sortConfig.key === 'name') {
+        valueA = (a.user?.name || '').toLowerCase();
+        valueB = (b.user?.name || '').toLowerCase();
+      }
+      // Sorting by location/city
+      else if (sortConfig.key === 'city') {
+        valueA = (a.user?.city || '').toLowerCase();
+        valueB = (b.user?.city || '').toLowerCase();
+      }
+      // Sorting by sect
+      else if (sortConfig.key === 'sect_school_info') {
+        valueA = (a.user?.sect_school_info || '').toLowerCase();
+        valueB = (b.user?.sect_school_info || '').toLowerCase();
+      }
+      // Sorting by profession
+      else if (sortConfig.key === 'profession') {
+        valueA = (a.user?.profession || '').toLowerCase();
+        valueB = (b.user?.profession || '').toLowerCase();
+      }
+      // Sorting by marital status
+      else if (sortConfig.key === 'martial_status') {
+        valueA = (a.user?.martial_status || '').toLowerCase();
+        valueB = (b.user?.martial_status || '').toLowerCase();
+      }
+      // Default: sorting by user field
+      else {
+        valueA = (a.user?.[sortConfig.key] || '').toString().toLowerCase();
+        valueB = (b.user?.[sortConfig.key] || '').toString().toLowerCase();
       }
 
-
+      // Compare values
+      if (valueA < valueB) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
     });
     setFilteredItems(sortedData)
-  }, [sortConfig.direction])
+  }, [sortConfig.direction, sortConfig.key])
 
 
 
@@ -981,15 +1018,27 @@ const TotalShortlist = () => {
         <table className="interest-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('member_id')}>
+              <th onClick={() => handleSort('member_id')} style={{ cursor: 'pointer' }}>
                 MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Name</th>
-              <th>Location</th>
-              <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Marital Status</th>
+              <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('city')} style={{ cursor: 'pointer' }}>
+                Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
+                Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('sect_school_info')} style={{ cursor: 'pointer' }}>
+                Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('profession')} style={{ cursor: 'pointer' }}>
+                Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('martial_status')} style={{ cursor: 'pointer' }}>
+                Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
               <th>Action</th>
             </tr>
           </thead>
@@ -1310,10 +1359,19 @@ const TotalShortlist = () => {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
             border-bottom: 1px solid #e5e7eb;
             border-right: 1px solid #e5e7eb;
+            user-select: none;
+          }
+          
+          .interest-table th[style*="cursor: pointer"] {
+            cursor: pointer;
+          }
+          
+          .interest-table th[style*="cursor: pointer"]:hover {
+            background: #e0e0e0;
+            color: #CB3B8B;
           }
           
           .interest-table th:hover {

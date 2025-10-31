@@ -383,6 +383,66 @@
     color: #6c757d;
 }
 
+/* Basic Info Styles */
+.basic-info-header {
+    margin-top: 20px;
+    padding: 15px 0;
+    /* border-bottom: 2px solid #e91e63; */
+}
+
+.basic-info-header .cardText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.basic-info-content {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.basic-info-content .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.basic-info-content .info-row:last-child {
+    border-bottom: none;
+}
+
+.basic-info-content .info-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.basic-info-content .info-value {
+    color: #2c3e50;
+    font-size: 14px;
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
+}
+
+.basic-info-content .about-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.basic-info-content .about-text {
+    text-align: left;
+    line-height: 1.6;
+    color: #495057;
+}
+
 .matchedIcondDiv{
     display: flex;
     justify-content: center;

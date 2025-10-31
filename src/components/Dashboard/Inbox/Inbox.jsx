@@ -1390,9 +1390,9 @@ const Inbox = () => {
               <div className="inbox-header-user">
                 <h2 className="inbox-username">Your Messages</h2>
               </div>
-              <button className="inbox-compose-btn" title="New Message">
+              {/* <button className="inbox-compose-btn" title="New Message">
                 <MdEdit size={20} />
-              </button>
+              </button> */}
           </div>
 
             <div className="inbox-search-container">
@@ -1573,12 +1573,7 @@ const Inbox = () => {
                     </div>
                   </div>
                   <div className="inbox-chat-header-actions">
-                    <button className="inbox-action-btn" title="Voice Call">
-                      <FaPhone size={18} />
-                    </button>
-                    <button className="inbox-action-btn" title="Video Call">
-                      <FaVideo size={18} />
-                    </button>
+
                     <button className="inbox-action-btn" title="User Info" onClick={() => { setShowInfoPanel(true); setTimeout(() => setInfoVisible(true), 10); }}>
                       <FaInfoCircle size={18} />
                     </button>

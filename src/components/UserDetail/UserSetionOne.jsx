@@ -215,103 +215,87 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
   };
 
 
-  // Set interest and shortlist status from API data
+  // Set loading state from API data
   useEffect(() => {
     if (apiData) {
       setLoading(false);
-
-      // Only set status for other users' profiles
-      if (!isOwnProfile) {
-        // Interest status detection
-        let interestValue = false;
-        if (apiData.is_interested !== undefined) {
-          interestValue = apiData.is_interested === true;
-        } else if (apiData.interested_id) {
-          interestValue = true;
-        } else {
-          interestValue = apiData.interest === true || apiData.interest === "true";
-        }
-        setInterestStatus(interestValue);
-
-        // Shortlist status detection
-        let shortlistValue = false;
-        if (apiData.is_shortlisted !== undefined) {
-          shortlistValue = apiData.is_shortlisted === true;
-        } else if (apiData.shortlisted_id) {
-          shortlistValue = true;
-        } else {
-          shortlistValue = apiData.shortlisted === true || apiData.shortlisted === "true";
-        }
-        setShortlistStatus(shortlistValue);
-
-        // Block status detection
-        let blockValue = false;
-        if (apiData.is_blocked !== undefined) {
-          blockValue = apiData.is_blocked === true;
-        } else if (apiData.blocked_id) {
-          blockValue = true;
-        } else {
-          blockValue = apiData.blocked === true || apiData.blocked === "true";
-        }
-        setBlockStatus(blockValue);
-      }
     }
-  }, [apiData, isOwnProfile]);
+  }, [apiData]);
 
-  // Manual interest status check for other users' profiles
+  // Check interest, shortlist, and block status for other users' profiles
   useEffect(() => {
     if (apiData && !isOwnProfile && userId) {
-      const checkInterestStatus = async () => {
+      const checkActionStatus = async () => {
         try {
           const response = await fetchDataWithTokenV2({
             url: `/api/recieved/?action_by_id=${userId}&action_on_id=${apiData.id}`,
             setterFunction: (data) => {
               let hasInterest = false;
+              let hasShortlist = false;
+              let hasBlock = false;
 
               if (Array.isArray(data)) {
-                hasInterest = data.some(item =>
-                  (item.action_by && item.action_by.id === Number(userId)) ||
-                  (item.action_by_id === Number(userId)) &&
-                  ((item.action_on && item.action_on.id === Number(apiData.id)) ||
-                   (item.action_on_id === Number(apiData.id))) &&
-                  (item.interest === true || item.interest === "true")
-                );
+                // Check each item in the array
+                data.forEach(item => {
+                  const isCurrentUserAction = 
+                    (item.action_by && item.action_by.id === Number(userId)) ||
+                    (item.action_by_id === Number(userId));
+                  
+                  const isTargetUser = 
+                    (item.action_on && item.action_on.id === Number(apiData.id)) ||
+                    (item.action_on_id === Number(apiData.id));
+
+                  if (isCurrentUserAction && isTargetUser) {
+                    // Check interest status
+                    if (item.interest === true || item.interest === "true") {
+                      hasInterest = true;
+                    }
+                    // Check shortlist status
+                    if (item.shortlisted === true || item.shortlisted === "true") {
+                      hasShortlist = true;
+                    }
+                    // Check block status
+                    if (item.blocked === true || item.blocked === "true") {
+                      hasBlock = true;
+                    }
+                  }
+                });
               } else if (data && typeof data === 'object') {
-                hasInterest = (data.action_by && data.action_by.id === Number(userId)) ||
-                           (data.action_by_id === Number(userId)) &&
-                           ((data.action_on && data.action_on.id === Number(apiData.id)) ||
-                            (data.action_on_id === Number(apiData.id))) &&
-                           (data.interest === true || data.interest === "true");
+                const isCurrentUserAction = 
+                  (data.action_by && data.action_by.id === Number(userId)) ||
+                  (data.action_by_id === Number(userId));
+                
+                const isTargetUser = 
+                  (data.action_on && data.action_on.id === Number(apiData.id)) ||
+                  (data.action_on_id === Number(apiData.id));
+
+                if (isCurrentUserAction && isTargetUser) {
+                  hasInterest = data.interest === true || data.interest === "true";
+                  hasShortlist = data.shortlisted === true || data.shortlisted === "true";
+                  hasBlock = data.blocked === true || data.blocked === "true";
+                }
               }
 
               setInterestStatus(hasInterest);
+              setShortlistStatus(hasShortlist);
+              setBlockStatus(hasBlock);
             },
             setErrors: (error) => {
-              // Enhanced fallback: Check multiple possible fields
-              const fallbackInterest = apiData.interested_id ||
-                                     apiData.is_interested ||
-                                     apiData.interest ||
-                                     (apiData.received_interests && apiData.received_interests.some(item =>
-                                       item.action_by && item.action_by.id === Number(userId) && item.interest === true
-                                     ));
-
-              setInterestStatus(!!fallbackInterest);
+              // Fallback: set all to false if API call fails
+              setInterestStatus(false);
+              setShortlistStatus(false);
+              setBlockStatus(false);
             }
           });
         } catch (error) {
-          // Enhanced fallback
-          const fallbackInterest = apiData.interested_id ||
-                                 apiData.is_interested ||
-                                 apiData.interest ||
-                                 (apiData.received_interests && apiData.received_interests.some(item =>
-                                   item.action_by && item.action_by.id === Number(userId) && item.interest === true
-                                 ));
-
-          setInterestStatus(!!fallbackInterest);
+          // Fallback: set all to false if error occurs
+          setInterestStatus(false);
+          setShortlistStatus(false);
+          setBlockStatus(false);
         }
       };
 
-      checkInterestStatus();
+      checkActionStatus();
     }
   }, [apiData, isOwnProfile, userId]);
 
@@ -521,7 +505,7 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
           )}
         </div> */}
         
-        <div className="matchCard">
+        <>
           {isOwnProfile ? (
             // Show profile completion progress for own profile
             <>
@@ -607,12 +591,11 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
           </div>
             </>
           ) : (
-            // Show basic information for other users
-            <div className="basic-info">
+            // Show basic information (no inner card wrapper)
+            <>
               <div className="basic-info-header">
                 <h6 className="cardText">Basic Information</h6>
               </div>
-              
               <div className="basic-info-content">
                 <div className="info-row">
                   <span className="info-label">Name:</span>
@@ -650,10 +633,12 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
                   </div>
                 )}
               </div>
-            </div>
+            </>
           )}
           
-          <div className='matchedIcondDiv'>
+          {/* Action Buttons - Only show for other users' profiles */}
+          {!isOwnProfile && (
+            <div className='matchedIcondDiv'>
               {/* Interest Button */}
               <button 
                 className='matchedIcond' 
@@ -737,18 +722,9 @@ const UserSetionOne = ({ apiData, setApiData ,setMessage,setErrors, profileOwner
                 <p>{blockStatus === true ?"Blocked":"Ignore"}</p>
               </button>
             </div>
+          )}
 
-          </div>
-      </div>
-      
-      <div className="planDetail">
-        <div className="starts">
-          <img src={start1} alt="" />
-          <h2>Upgrade Your Profile</h2>
-          <img src={strat2} alt="" />
-        </div>
-        <h5>Upgrade your profile to view contact details of interested profiles, send Super Interests, send personal messages, enjoy increased profile visibility, and access advanced search features for better matches. Unlock these premium features and elevate your experience</h5>
-        <button className='planBtn'>Upgrade Now</button>
+          </>
       </div>
     </div>
   );
