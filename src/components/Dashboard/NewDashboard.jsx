@@ -201,32 +201,56 @@ const NewDashboard = () => {
     console.log('Raw list sample:', rawList[0]);
 
     try {
-      // Directly use the filtered results as-is from API
-      // No need to normalize or categorize - just show them in "Browse All Profiles"
+      // Categorize search results into their respective sections
       const inTrending = [];
       const inRecommended = [];
       const inAll = [];
 
-      // Simply pass all filtered results to "Browse All Profiles" section
+      // Create Sets of IDs for faster lookup
+      const trendingIds = new Set((apiData || []).map(profile => {
+        const userId = profile?.user?.id || profile?.id;
+        return userId;
+      }));
+      
+      const recommendedIds = new Set((apiRecommend || []).map(profile => {
+        const userId = profile?.user?.id || profile?.id;
+        return userId;
+      }));
+
+      console.log('Trending IDs count:', trendingIds.size);
+      console.log('Recommended IDs count:', recommendedIds.size);
+
       rawList.forEach((item) => {
-        console.log('Adding filtered result:', item);
-        console.log('Item keys:', Object.keys(item));
-        console.log('Item user:', item?.user);
-        console.log('Item has user property:', !!item?.user);
-        console.log('Item age:', item?.age || item?.user?.age);
-        console.log('User profile_completed:', item?.user?.profile_completed || item?.profile_completed);
+        console.log('Processing filtered result:', item);
         
         // Normalize the item structure to ensure it has consistent format
-        // Agent API returns direct user objects, while user filter API returns wrapped objects
         const normalizedItem = item?.user ? item : { user: item };
+        const itemUserId = normalizedItem?.user?.id || item?.id;
         
+        console.log('Item user ID:', itemUserId);
+        console.log('Is in trending?', trendingIds.has(itemUserId));
+        console.log('Is in recommended?', recommendedIds.has(itemUserId));
+        
+        // Check if this profile is in trending
+        if (trendingIds.has(itemUserId)) {
+          inTrending.push(normalizedItem);
+          console.log('Added to trending:', normalizedItem?.user?.name || normalizedItem?.name);
+        }
+        
+        // Check if this profile is in recommended
+        if (recommendedIds.has(itemUserId)) {
+          inRecommended.push(normalizedItem);
+          console.log('Added to recommended:', normalizedItem?.user?.name || normalizedItem?.name);
+        }
+        
+        // Always add to all profiles
         inAll.push(normalizedItem);
       });
 
-      console.log('Results - trending:', inTrending.length, 'recommended:', inRecommended.length, 'all:', inAll.length);
-      console.log('Filtered results count:', inAll.length);
-      console.log('Setting filterActive to: true');
-      console.log('Setting displayAll to:', inAll);
+      console.log('✅ Results categorized:');
+      console.log('  - Trending:', inTrending.length);
+      console.log('  - Recommended:', inRecommended.length);
+      console.log('  - All:', inAll.length);
 
       console.log('About to set states...');
       
@@ -237,7 +261,7 @@ const NewDashboard = () => {
       setFilterActive(true);
       setNoResults(inAll.length === 0);
       
-      console.log('States set. filterActive will be:', true, 'displayAll will be:', inAll);
+      console.log('States set. filterActive:', true);
     } catch (error) {
       console.error('Error in handleFilterResults:', error);
       setFilterActive(false);

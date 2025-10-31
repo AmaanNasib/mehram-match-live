@@ -491,6 +491,12 @@ const StatusDropdown = ({ value, onChange }) => {
     setIsOpen(false); // Close dropdown after selection
   };
 
+  const clearStatus = () => {
+    setSelectedStatus("");
+    onChange("");
+    setIsOpen(false);
+  };
+
   return (
     <div className="status-dropdown-container" ref={statusDropdownRef}>
       <div 
@@ -498,6 +504,17 @@ const StatusDropdown = ({ value, onChange }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedStatus || "Status"}
+        {selectedStatus && (
+          <span 
+            className="clear-status-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              clearStatus();
+            }}
+          >
+            ✕
+          </span>
+        )}
       </div>
       
       {isOpen && (
@@ -541,6 +558,7 @@ const StatusDropdown = ({ value, onChange }) => {
             min-height: 36px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             font-weight: 500;
             color: #374151;
             outline: none;
@@ -549,6 +567,21 @@ const StatusDropdown = ({ value, onChange }) => {
           
           .status-dropdown-toggle:hover {
             border-color: #9ca3af;
+          }
+          
+          .clear-status-btn {
+            margin-left: 8px;
+            color: #ff4d4d;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 0 4px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+          }
+          
+          .clear-status-btn:hover {
+            background: #fee;
+            color: #cc0000;
           }
           
           .status-dropdown-menu {
@@ -664,12 +697,50 @@ const StatusDropdown = ({ value, onChange }) => {
           }
           
           .block-btn {
-            background-color: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
             color: #212529;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+          }
+          
+          .block-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
           }
           
           .block-btn:hover {
-            background-color: #e0a800;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
+          }
+          
+          .block-btn:hover::before {
+            width: 300px;
+            height: 300px;
+          }
+          
+          .block-btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+          }
+          
+          .block-btn svg {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+          }
+          
+          .block-btn:hover svg {
+            transform: rotate(90deg) scale(1.1);
           }
           
           .report-btn {
@@ -767,7 +838,7 @@ const TotalRequests = () => {
   const [selectedDate1, setSelectedDate1] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDatePicker1, setShowDatePicker1] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'member_id', direction: 'asc' });
   const [matchDetails, setMatchDetails] = useState({
     sent_request: [],
     received_request: [],
@@ -781,6 +852,9 @@ const TotalRequests = () => {
   const [userId] = useState(localStorage.getItem("userId"));
   const [filteredItems, setFilteredItems] = useState([]);
   const [resetKey, setResetKey] = useState(0);
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [userToBlock, setUserToBlock] = useState(null);
+  const [blockedUsers, setBlockedUsers] = useState(new Set());
   let [filters, setFilters] = useState({
     id: '',
     name: '',
@@ -997,8 +1071,14 @@ const TotalRequests = () => {
   
   // Status distribution calculated successfully
   const applyFilters = (updatedFilters) => {
+    console.log('Applying filters:', updatedFilters);
     setFilteredItems(
       combinedRequestsUnique?.filter((match) => {
+        const statusMatch = updatedFilters.status && updatedFilters.status !== "" 
+          ? (match?.status?.toLowerCase() === updatedFilters.status.toLowerCase() || 
+             (updatedFilters.status.toLowerCase() === 'approved' && match?.status?.toLowerCase() === 'accepted'))
+          : true;
+        
         return (
           (updatedFilters.member_id ? match?.user?.member_id?.toLowerCase().includes(updatedFilters.member_id.toLowerCase()) : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
@@ -1012,8 +1092,8 @@ const TotalRequests = () => {
             match?.user?.profession?.toLowerCase().replace(/\s+/g, '_').includes(updatedFilters.profession.toLowerCase().replace(/\s+/g, '_')) ||
             match?.user?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
           ) : true) &&
-          (updatedFilters.status ? match?.status?.toLowerCase() === updatedFilters.status.toLowerCase() : true) &&
-          (updatedFilters.martialStatus ? 
+          statusMatch &&
+          (updatedFilters.martialStatus && updatedFilters.martialStatus !== "" ? 
             match?.user?.martial_status?.toLowerCase() === updatedFilters.martialStatus.toLowerCase() : true)
         );
       })
@@ -1167,14 +1247,24 @@ const TotalRequests = () => {
   };
 
   const handleBlockUser = (targetUserId) => {
+    setUserToBlock(targetUserId);
+    setShowBlockModal(true);
+  };
+
+  const confirmBlockUser = () => {
+    if (!userToBlock) return;
+    
     const parameter = {
       url: `/api/recieved/block/`,
       payload: {
         action_by_id: Number(userId),
-        action_on_id: Number(targetUserId),
+        action_on_id: Number(userToBlock),
         blocked: true
       },
       setSuccessMessage: (message) => {
+        // Add to blocked users set
+        setBlockedUsers(prev => new Set([...prev, userToBlock]));
+        
         // Reload data
         const reloadParameter = {
           url: `/api/user/requested/?user_id=${userId}`,
@@ -1183,8 +1273,16 @@ const TotalRequests = () => {
           setErrors: setError,
         };
         fetchDataObjectV2(reloadParameter);
+        
+        // Close modal
+        setShowBlockModal(false);
+        setUserToBlock(null);
       },
-      setErrors: setError,
+      setErrors: (error) => {
+        setError(error);
+        setShowBlockModal(false);
+        setUserToBlock(null);
+      },
     };
     postDataWithFetchV2(parameter);
   };
@@ -1245,8 +1343,12 @@ const TotalRequests = () => {
 
 
   useEffect(() => {
+    if (!filteredItems || filteredItems.length === 0) return;
+    
     const sortedData = [...filteredItems].sort((a, b) => {
-      // Sorting by user field or date
+      let valueA, valueB;
+
+      // Sorting by date
       if (sortConfig.key === 'date') {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -1257,32 +1359,59 @@ const TotalRequests = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } else if (sortConfig.key === 'member_id') {
+      } 
         // Sorting by member_id
-        const memberIdA = a.user?.member_id || '';
-        const memberIdB = b.user?.member_id || '';
-        if (memberIdA < memberIdB) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (memberIdA > memberIdB) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      } else {
-        // Sorting by other user fields
-        if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
+      else if (sortConfig.key === 'member_id') {
+        valueA = a.user?.member_id || a.user?.id || '';
+        valueB = b.user?.member_id || b.user?.id || '';
+      }
+      // Sorting by name
+      else if (sortConfig.key === 'name') {
+        valueA = (a.user?.name || '').toLowerCase();
+        valueB = (b.user?.name || '').toLowerCase();
+      }
+      // Sorting by location/city
+      else if (sortConfig.key === 'city') {
+        valueA = (a.user?.city || '').toLowerCase();
+        valueB = (b.user?.city || '').toLowerCase();
+      }
+      // Sorting by sect
+      else if (sortConfig.key === 'sect_school_info') {
+        valueA = (a.user?.sect_school_info || '').toLowerCase();
+        valueB = (b.user?.sect_school_info || '').toLowerCase();
+      }
+      // Sorting by profession
+      else if (sortConfig.key === 'profession') {
+        valueA = (a.user?.profession || '').toLowerCase();
+        valueB = (b.user?.profession || '').toLowerCase();
+      }
+      // Sorting by status
+      else if (sortConfig.key === 'status') {
+        valueA = (a.status || '').toLowerCase();
+        valueB = (b.status || '').toLowerCase();
+      }
+      // Sorting by marital status
+      else if (sortConfig.key === 'martial_status') {
+        valueA = (a.user?.martial_status || '').toLowerCase();
+        valueB = (b.user?.martial_status || '').toLowerCase();
+      }
+      // Default: sorting by user field
+      else {
+        valueA = (a.user?.[sortConfig.key] || '').toString().toLowerCase();
+        valueB = (b.user?.[sortConfig.key] || '').toString().toLowerCase();
       }
 
-
+      // Compare values
+      if (valueA < valueB) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+      if (valueA > valueB) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
     });
     setFilteredItems(sortedData)
-  }, [sortConfig.direction])
+  }, [sortConfig.direction, sortConfig.key])
   return (
     <DashboardLayout>
       <div className="total-interest-container">
@@ -1602,16 +1731,30 @@ const TotalRequests = () => {
           <table className="interest-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('member_id')}>
+                <th onClick={() => handleSort('member_id')} style={{ cursor: 'pointer' }}>
                   MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>{gender === "male" ? "TARGET USER" : "REQUESTER"}</th>
-                <th>Location</th>
-                <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-                <th>Sect</th>
-                <th>Profession</th>
-                <th>Status</th>
-                <th>Marital Status</th>
+                <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                  {gender === "male" ? "TARGET USER" : "REQUESTER"} {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('city')} style={{ cursor: 'pointer' }}>
+                  Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('date')} style={{ cursor: 'pointer' }}>
+                  Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('sect_school_info')} style={{ cursor: 'pointer' }}>
+                  Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('profession')} style={{ cursor: 'pointer' }}>
+                  Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>
+                  Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th onClick={() => handleSort('martial_status')} style={{ cursor: 'pointer' }}>
+                  Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
                 {gender == "female" && <th>Action</th>}
               </tr>
             </thead>
@@ -1698,6 +1841,20 @@ const TotalRequests = () => {
                       {(() => {
                         const raw = user.status;
                         const isMale = gender === 'male';
+                        const isBlocked = blockedUsers.has(user?.user?.id);
+                        
+                        if (isBlocked) {
+                          return (
+                            <span className="status-badge blocked-badge">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                <path d="M4.93 4.93l14.14 14.14" stroke="currentColor" strokeWidth="2"/>
+                              </svg>
+                              Blocked
+                            </span>
+                          );
+                        }
+                        
                         if (raw === 'Accepted' || raw === 'Approved') {
                           return (
                             <>
@@ -1737,15 +1894,7 @@ const TotalRequests = () => {
                         }
                         return <span className={`status-badge ${(raw || '').toLowerCase()}`}>{raw || 'N/A'}</span>;
                       })()}
-                      
-                      {/* Request direction info */}
-                      <div style={{ fontSize: "10px", color: "#666", marginTop: "2px" }}>
-                        {gender === "male" ? (
-                          "Request Sent to Female User"
-                        ) : (
-                          "Request Received from Male User"
-                        )}
-                      </div>
+              
                     </div>
                   </td>
                   <td>
@@ -1974,10 +2123,19 @@ const TotalRequests = () => {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
             border-bottom: 1px solid #e5e7eb;
             border-right: 1px solid #e5e7eb;
+            user-select: none;
+          }
+          
+          .interest-table th[style*="cursor: pointer"] {
+            cursor: pointer;
+          }
+          
+          .interest-table th[style*="cursor: pointer"]:hover {
+            background: #e0e0e0;
+            color: #CB3B8B;
           }
           
           .interest-table th:hover {
@@ -2054,6 +2212,22 @@ const TotalRequests = () => {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: #ffffff;
             border-color: #b91c1c;
+          }
+          .status-badge.blocked-badge {
+            background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%);
+            color: #ffffff;
+            border-color: #990000;
+            display: inline-flex;
+            align-items: center;
+            animation: blockBadgePulse 2s infinite;
+          }
+          @keyframes blockBadgePulse {
+            0%, 100% {
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(255, 77, 77, 0.7);
+            }
+            50% {
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 8px rgba(255, 77, 77, 0);
+            }
           }
           .marital-badge {
             padding: 6px 12px;
@@ -2157,6 +2331,148 @@ const TotalRequests = () => {
           }
         `}
       </style>
+
+      {/* Block Confirmation Modal */}
+      {showBlockModal && (
+        <div className="block-modal-overlay" onClick={() => setShowBlockModal(false)}>
+          <div className="block-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="block-modal-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#ff4d4d" strokeWidth="2" fill="#fee"/>
+                <path d="M4.93 4.93l14.14 14.14" stroke="#ff4d4d" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <h2>Block User?</h2>
+            <p>Are you sure you want to block this user? They won't be able to send you requests or interact with your profile.</p>
+            <div className="block-modal-actions">
+              <button className="modal-btn cancel-btn" onClick={() => setShowBlockModal(false)}>
+                Cancel
+              </button>
+              <button className="modal-btn confirm-btn" onClick={confirmBlockUser}>
+                Yes, Block User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .block-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .block-modal-content {
+          background: white;
+          padding: 40px;
+          border-radius: 20px;
+          max-width: 450px;
+          width: 90%;
+          text-align: center;
+          animation: slideUp 0.3s ease;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideUp {
+          from {
+            transform: translateY(50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        .block-modal-icon {
+          margin-bottom: 20px;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        .block-modal-content h2 {
+          font-size: 28px;
+          color: #333;
+          margin-bottom: 15px;
+          font-weight: 700;
+        }
+
+        .block-modal-content p {
+          font-size: 16px;
+          color: #666;
+          line-height: 1.6;
+          margin-bottom: 30px;
+        }
+
+        .block-modal-actions {
+          display: flex;
+          gap: 15px;
+          justify-content: center;
+        }
+
+        .modal-btn {
+          padding: 12px 30px;
+          border: none;
+          border-radius: 10px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          min-width: 140px;
+        }
+
+        .cancel-btn {
+          background: #f0f0f0;
+          color: #666;
+        }
+
+        .cancel-btn:hover {
+          background: #e0e0e0;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .confirm-btn {
+          background: linear-gradient(135deg, #ff4d4d, #cc0000);
+          color: white;
+        }
+
+        .confirm-btn:hover {
+          background: linear-gradient(135deg, #cc0000, #990000);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255, 77, 77, 0.4);
+        }
+
+        .modal-btn:active {
+          transform: translateY(0);
+        }
+      `}</style>
     </DashboardLayout>
   );
 };
@@ -2167,381 +2483,3 @@ export default TotalRequests;
 
 
 
-// import React, { useState ,useEffect} from "react";
-// import DashboardLayout from "../UserDashboard/DashboardLayout";
-// import { AiOutlineFilter, AiOutlineRedo, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai"; // Import icons
-// import DatePicker from "react-datepicker";
-// import "react-datepicker/dist/react-datepicker.css";
-// import { fetchDataObjectV2 } from "../../../apiUtils";
-
-// const TotalRequests = () => {
-//   const [selectedDate, setSelectedDate] = useState(null);
-//   const [showDatePicker, setShowDatePicker] = useState(false);
-//   const [matchDetails, setMatchDetails] = useState({
-//     "sent_request": [],
-//     "received_request": [],
-//     "sent_request_accepted": [],
-//     "sent_request_rejected": [],
-//     "received_request_accepted": [],
-//     "received_request_rejected": []
-// });
-//   const [useError, setError] = useState(false);
-//   const [useLoading, setLoading] = useState(false);
-//   const [userId] = useState(localStorage.getItem("userId"));
-
-//   useEffect(() => {
-//     if (userId) {
-//       const parameter = {
-//         url: `/api/user/requested/?user_id=${userId}`,
-//         setterFunction: setMatchDetails,
-//         setLoading: setLoading,
-//         setErrors: setError,
-//       };
-//       fetchDataObjectV2(parameter);
-//     }
-//   }, [userId])
-//   const requestData = matchDetails
-
-//   // Function to handle delete action
-//   const handleDelete = (id) => {
-//     // Remove the item with the given id from the data
-//     Object.keys(requestData).forEach((key) => {
-//       requestData[key] = requestData[key].filter((item) => item?.user?.id !== id);
-//     });
-//   };
-
-//   // Function to handle edit action
-//   const handleEdit = (id) => {
-//     // Add your edit logic here
-//     console.log(`Edit item with ID: ${id}`);
-//   };
-
-//   // Reusable RequestTable component
-//   const RequestTable = ({ title, data }) => {
-//     // Pagination for each table
-//     const [currentPage, setCurrentPage] = useState(1);
-//     const itemsPerPage = 5;
-
-//     // Get current items
-//     const indexOfLastItem = currentPage * itemsPerPage;
-//     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-//     const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-
-//     // Total pages
-//     const totalPages = Math.ceil(data.length / itemsPerPage);
-
-//     // Handle Page Change
-//     const handlePageChange = (pageNumber) => {
-//       setCurrentPage(pageNumber);
-//     };
-
-//     return (
-//       <div style={{ marginBottom: "30px" }}>
-//         <h2 style={{ fontWeight: "500", fontSize: "18px", color: "#444", textAlign: "left", marginBottom: "10px" }}>{title}</h2>
-//         <table className="interest-table">
-//           <thead>
-//             <tr>
-//               <th>ID</th>
-//               <th>Name</th>
-//               <th>Location</th>
-//               <th>Date</th>
-//               <th>Sect</th>
-//               <th>Profession</th>
-//               <th>Status</th>
-//               <th>Action</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {currentItems.map((user) => (
-//               <tr key={user?.user?.id}>
-//                 <td>{user?.user?.id}</td>
-//                 <td>{user?.user?.name}</td>
-//                 <td>{user?.user?.city||"-"}</td>
-//                 <td>{user?.user?.dob||"-"}</td>
-//                 <td>{user?.user?.sect_school_info||"-"}</td>
-//                 <td>{user?.user?.profession ||"-"}</td>
-//                 <td>
-//                   <span className={`status-badge ${user?.user?.status?user?.user?.status.toLowerCase():'not-mentioned'}`}>
-//                     {user?.user?.status ||"N/A"}
-//                   </span>
-//                 </td>
-//                 <td>
-//                   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-//                     <AiOutlineEdit
-//                       className="edit-icon"
-//                       onClick={(e) => {
-//                         e.stopPropagation(); // Prevent row click event
-//                         handleEdit(user?.user?.id);
-//                       }}
-//                     />
-//                     <AiOutlineDelete
-//                       className="delete-icon"
-//                       onClick={(e) => {
-//                         e.stopPropagation(); // Prevent row click event
-//                         handleDelete(user?.user?.id);
-//                       }}
-//                     />
-//                   </div>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-
-//         {/* Pagination */}
-//         <div className="pagination">
-//           <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-//             &laquo; Previous
-//           </button>
-
-//           {Array.from({ length: totalPages }, (_, i) => (
-//             <button
-//               key={i + 1}
-//               className={`pagination-btn ${currentPage === i + 1 ? "active" : ""}`}
-//               onClick={() => handlePageChange(i + 1)}
-//             >
-//               {i + 1}
-//             </button>
-//           ))}
-
-//           <button className="pagination-btn" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-//             Next &raquo;
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   };
-
-//   return (
-//     <DashboardLayout>
-//       <div className="total-interest-container">
-//         <h1 className="page-title">Total Requests</h1>
-
-//         {/* Filters Section */}
-//         <div className="filter-container">
-//           <button className="filter-button">
-//             <AiOutlineFilter className="icon" /> Filter By
-//           </button>
-//           <select className="filter-dropdown">
-//             <option>ID</option>
-//           </select> 
-
-       
-//           <select className="filter-dropdown">
-//             <option>Location</option>
-//           </select>
-//           {/* Date Picker Dropdown */}
-//           <div className="date-filter">
-//             <button
-//               className="date-picker-btn"
-//               onClick={() => setShowDatePicker(!showDatePicker)}
-//             >
-//               Select Date
-//             </button>
-//             {showDatePicker && (
-//               <DatePicker
-//                 selected={selectedDate}
-//                 onChange={(date) => {
-//                   setSelectedDate(date);
-//                   setShowDatePicker(false);
-//                 }}
-//                 inline
-//               />
-//             )}
-//           </div>
-//           <select className="filter-dropdown">
-//             <option>Sect</option>
-//           </select>
-//           <select className="filter-dropdown">
-//             <option>Profession</option>
-//           </select>
-//           <select className="filter-dropdown">
-//             <option>Status</option>
-//           </select>
-
-
-          
-
-//           <button className="reset-filter">
-//             <AiOutlineRedo className="icon" /> Reset Filter
-//           </button>
-//         </div>
-
-//         {/* Render each category as a separate table */}
-//         <RequestTable title="Requests Sent" data={requestData.sent_request} />
-//         <RequestTable title="Requests Received" data={requestData.received_request} />
-//         <RequestTable title="Sent Requests - Accepted" data={requestData.sent_request_accepted} />
-//         <RequestTable title="Sent Requests - Rejected" data={requestData.sent_request_rejected} />
-//         <RequestTable title="Received Requests - Accepted" data={requestData.received_request_accepted} />
-//         <RequestTable title="Received Requests - Rejected" data={requestData.received_request_rejected} />
-//       </div>
-
-//       <style>
-//         {`
-//           .total-interest-container {
-//             padding: 20px;
-//             background: #f8f9fa;
-//           }
-//           .date-filter {
-//             border-radius: 5px;
-//             background: #fff;
-//             font-size: 14px;
-//             font-weight: 500;
-//           }
-//           .date-picker-btn {
-//             padding: 8px;
-//             border: 1px solid #ccc;
-//             border-radius: 5px;
-//             cursor: pointer;
-//             background: #fff;
-//           }
-//           .date-picker-btn:hover {
-//             background: #007bff;
-//             color: #fff;
-//           }
-//           .react-datepicker {
-//             position: absolute;
-//             z-index: 999;
-//             background: white;
-//             border: 1px solid #ccc;
-//             padding: 10px;
-//             border-radius: 8px;
-//             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-//           }
-//           .page-title {
-//             font-weight: 700;
-//             font-size: 24px;
-//             text-align: left;
-//             margin-bottom: 20px;
-//           }
-//           .filter-container {
-//             display: flex;
-//             align-items: center;
-//             gap: 10px;
-//             margin-bottom: 20px;
-//           }
-//           .filter-button, .reset-filter {
-//             display: flex;
-//             align-items: center;
-//             gap: 5px;
-//             padding: 8px 12px;
-//             background: #fff;
-//             border: 1px solid #ccc;
-//             border-radius: 5px;
-//             cursor: pointer;
-//             font-size: 14px;
-//             font-weight: 500;
-//           }
-//           .reset-filter {
-//             color: red;
-//           }
-//           .icon {
-//             font-size: 14px;
-//           }
-//           .filter-dropdown {
-//             padding: 8px;
-//             border: 1px solid #ccc;
-//             border-radius: 5px;
-//             background: #fff;
-//             font-size: 14px;
-//             font-weight: 500;
-//           }
-//           .interest-table {
-//             width: 100%;
-//             border-collapse: collapse;
-//             background: #fff;
-//             border-radius: 10px;
-//             overflow: hidden;
-//           }
-//           .interest-table th {
-//             background: #f0f0f0;
-//             color: #333;
-//             font-weight: bold;
-//             text-transform: uppercase;
-//           }
-//           .interest-table th, .interest-table td {
-//             padding: 12px;
-//             text-align: left;
-//             border-bottom: 1px solid #ddd;
-//           }
-//           .table-row {
-//             cursor: pointer;
-//           }
-//           .table-row:hover {
-//             background: #f1f1f1;
-//           }
-//           .status-badge {
-//             padding: 5px 10px;
-//             border-radius: 12px;
-//             font-size: 12px;
-//             font-weight: bold;
-//             text-transform: capitalize;
-//             display: inline-block;
-//           }
-//           .status-badge.sent {
-//             background: #e3f7f0;
-//             color: #18a558;
-//           }
-//           .status-badge.received {
-//             background: #f3e8ff;
-//             color: #8e44ad;
-//           }
-//           .status-badge.accepted {
-//             background: #d1f8d1;
-//             color: #2c7a2c;
-//           }
-//           .status-badge.rejected {
-//             background: #ffc0cb;
-//             color: #c4002b;
-//           }
-//           .delete-icon {
-//             cursor: pointer;
-//             color: #ff4d4d;
-//             font-size: 18px;
-//           }
-//           .delete-icon:hover {
-//             color: #cc0000;
-//           }
-//           .edit-icon {
-//             cursor: pointer;
-//             color: #007bff;
-//             font-size: 18px;
-//           }
-//           .edit-icon:hover {
-//             color: #0056b3;
-//           }
-//           .pagination {
-//             display: flex;
-//             justify-content: center;
-//             align-items: center;
-//             margin-top: 20px;
-//             gap: 8px;
-//           }
-//           .pagination-btn {
-//             padding: 8px 12px;
-//             border: 1px solid #ccc;
-//             background: #fff;
-//             border-radius: 5px;
-//             cursor: pointer;
-//             transition: 0.3s;
-//           }
-//           .pagination-btn.active {
-//             background: #007bff;
-//             color: #fff;
-//             font-weight: bold;
-//           }
-//           .pagination-btn:hover {
-//             background: #007bff;
-//             color: #fff;
-//           }
-//           .pagination-btn:disabled {
-//             cursor: not-allowed;
-//             opacity: 0.6;
-//           }
-//         `}
-//       </style>
-//     </DashboardLayout>
-//   );
-// };
-
-// export default TotalRequests;
