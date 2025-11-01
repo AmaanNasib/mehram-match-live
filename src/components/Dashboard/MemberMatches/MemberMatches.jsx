@@ -3330,38 +3330,38 @@ const MemberMatches = () => {
 
         {/* Member Info Cards */}
         {memberInfo && (
-          <div className="member-info-section">
-            <div className="member-info-cards">
-              <div className="info-card">
-                <span className="info-label">MEMBER ID:</span>
-                <span className="info-value">{memberInfo.member_id || memberId}</span>
+          <div className="mm-member-info-section">
+            <div className="mm-member-info-cards">
+              <div className="mm-info-card">
+                <span className="mm-info-label">MEMBER ID:</span>
+                <span className="mm-info-value">{memberInfo.member_id || memberId}</span>
               </div>
-              <div className="info-card">
-                <span className="info-label">LOCATION:</span>
-                <span className="info-value">{memberInfo.city || '-'}</span>
+              <div className="mm-info-card">
+                <span className="mm-info-label">LOCATION:</span>
+                <span className="mm-info-value">{memberInfo.city || '-'}</span>
               </div>
-              <div className="info-card">
-                <span className="info-label">AGE:</span>
-                <span className="info-value">{memberInfo.age || '-'}</span>
+              <div className="mm-info-card">
+                <span className="mm-info-label">AGE:</span>
+                <span className="mm-info-value">{memberInfo.age || '-'}</span>
               </div>
-              <div className="info-card">
-                <span className="info-label">SECT:</span>
-                <span className="info-value">{memberInfo.sect_school_info || '-'}</span>
+              <div className="mm-info-card">
+                <span className="mm-info-label">SECT:</span>
+                <span className="mm-info-value">{memberInfo.sect_school_info || '-'}</span>
               </div>
             </div>
             
-            <div className="match-summary-cards">
-              <div className="summary-card">
-                <span className="summary-number">{filteredItems.length}</span>
-                <span className="summary-label">TOTAL MATCHES</span>
+            <div className="mm-match-summary-cards">
+              <div className="mm-summary-card">
+                <span className="mm-summary-number">{filteredItems.length}</span>
+                <span className="mm-summary-label">TOTAL MATCHES</span>
               </div>
-              <div className="summary-card">
-                <span className="summary-number">
+              <div className="mm-summary-card">
+                <span className="mm-summary-number">
                   {filteredItems.length > 0 
                     ? Math.round(filteredItems.reduce((sum, match) => sum + calculateMatchPercentage(match), 0) / filteredItems.length)
                     : 0}%
                 </span>
-                <span className="summary-label">AVG COMPATIBILITY</span>
+                <span className="mm-summary-label">AVG COMPATIBILITY</span>
               </div>
             </div>
           </div>
@@ -3885,20 +3885,20 @@ const MemberMatches = () => {
             margin-bottom: 0;
           }
           
-          .member-info-section {
+          .mm-member-info-section {
             display: flex;
             gap: 20px;
             margin-bottom: 30px;
             flex-wrap: wrap;
           }
           
-          .member-info-cards {
+          .mm-member-info-cards {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
           }
           
-          .info-card {
+          .mm-info-card {
             background: #fff;
             border: 2px solid #ff69b4;
             border-radius: 12px;
@@ -3907,7 +3907,7 @@ const MemberMatches = () => {
             text-align: center;
           }
           
-          .info-label {
+          .mm-info-label {
             display: block;
             font-size: 12px;
             font-weight: 600;
@@ -3917,20 +3917,20 @@ const MemberMatches = () => {
             margin-bottom: 4px;
           }
           
-          .info-value {
+          .mm-info-value {
             display: block;
             font-size: 16px;
             font-weight: 700;
             color: #333;
           }
           
-          .match-summary-cards {
+          .mm-match-summary-cards {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
           }
           
-          .summary-card {
+          .mm-summary-card {
             background: #fff;
             border: 2px solid #ff69b4;
             border-radius: 12px;
@@ -3939,7 +3939,7 @@ const MemberMatches = () => {
             text-align: center;
           }
           
-          .summary-number {
+          .mm-summary-number {
             display: block;
             font-size: 24px;
             font-weight: 700;
@@ -3947,7 +3947,7 @@ const MemberMatches = () => {
             margin-bottom: 4px;
           }
           
-          .summary-label {
+          .mm-summary-label {
             display: block;
             font-size: 12px;
             font-weight: 600;
@@ -4267,11 +4267,11 @@ const MemberMatches = () => {
           }
           
           @media (max-width: 768px) {
-            .member-info-section {
+            .mm-member-info-section {
               flex-direction: column;
             }
             
-            .member-info-cards, .match-summary-cards {
+            .mm-member-info-cards, .mm-match-summary-cards {
               justify-content: center;
             }
             

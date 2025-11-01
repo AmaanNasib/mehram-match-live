@@ -18,6 +18,7 @@ const MemberRequestSend_Received = ({ isOpen, onClose, targetUserId, targetUserN
   const [tabActive, setTabActive] = useState("sent"); // 'sent' or 'received'
   const [memberId, setMemberId] = useState(null);
   const [memberData, setMemberData] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc', table: null }); // table: 'sent' or 'received'
 
   // Handle URL parameters
   useEffect(() => {
@@ -424,6 +425,145 @@ const MemberRequestSend_Received = ({ isOpen, onClose, targetUserId, targetUserN
     }
   };
 
+  // Handle sorting
+  const handleSort = (columnKey, tableType) => {
+    let direction = 'asc';
+    if (sortConfig.key === columnKey && sortConfig.direction === 'asc' && sortConfig.table === tableType) {
+      direction = 'desc';
+    }
+    setSortConfig({ key: columnKey, direction, table: tableType });
+  };
+
+  // Handle accept photo request
+  const handleAcceptPhotoRequest = async (senderUserId, memberId) => {
+    if (!window.confirm('Are you sure you want to accept this photo request?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/photo-request-action/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_id: parseInt(memberId),
+          sender_user_id: parseInt(senderUserId),
+          action: 'accept'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Photo request accepted successfully');
+        // Refresh the data
+        if (memberId) {
+          fetchMemberPhotoRequests(memberId);
+        } else {
+          window.location.reload();
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to accept photo request: ${errorData.error || errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Error accepting photo request: ' + error.message);
+    }
+  };
+
+  // Handle reject photo request
+  const handleRejectPhotoRequest = async (senderUserId, memberId) => {
+    if (!window.confirm('Are you sure you want to reject this photo request?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/photo-request-action/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_id: parseInt(memberId),
+          sender_user_id: parseInt(senderUserId),
+          action: 'reject'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Photo request rejected successfully');
+        // Refresh the data
+        if (memberId) {
+          fetchMemberPhotoRequests(memberId);
+        } else {
+          window.location.reload();
+        }
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to reject photo request: ${errorData.error || errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Error rejecting photo request: ' + error.message);
+    }
+  };
+
+  // Sort data function - case insensitive
+  const getSortedData = (data, tableType) => {
+    if (!sortConfig.key || !data || data.length === 0 || sortConfig.table !== tableType) {
+      return data;
+    }
+
+    return [...data].sort((a, b) => {
+      let aValue, bValue;
+
+      // Get the value based on sort key
+      switch (sortConfig.key) {
+        case 'user_name':
+          aValue = ((a.user?.name || a.user?.first_name || '').toString()).toLowerCase();
+          bValue = ((b.user?.name || b.user?.first_name || '').toString()).toLowerCase();
+          break;
+        case 'user_id':
+          aValue = parseInt(a.user?.id || 0);
+          bValue = parseInt(b.user?.id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'date':
+          aValue = new Date(a.created_at || 0);
+          bValue = new Date(b.created_at || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'status':
+          aValue = ((a.status || '').toString()).toLowerCase();
+          bValue = ((b.status || '').toString()).toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      // For string comparisons (case insensitive) - already handled above
+      if (sortConfig.key === 'date' || sortConfig.key === 'user_id') {
+        return 0; // Already handled above
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
   // If memberId is provided, show as full page, otherwise show as modal
   const isModalMode = !memberId && isOpen;
   const isPageMode = memberId && !isOpen;
@@ -556,19 +696,79 @@ const MemberRequestSend_Received = ({ isOpen, onClose, targetUserId, targetUserN
                   <table className="member-interests-table">
                      <thead>
                        <tr>
-                         <th>Target User</th>
-                         <th>Member ID</th>
-                         <th>Date Sent</th>
-                         <th>Status</th>
+                         <th 
+                           className={sortConfig.table === 'sent' && sortConfig.key === 'user_name' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('user_name', 'sent')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Target User
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'sent' && sortConfig.key === 'user_name' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'sent' && sortConfig.key === 'user_id' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('user_id', 'sent')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Member ID
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'sent' && sortConfig.key === 'user_id' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'sent' && sortConfig.key === 'date' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('date', 'sent')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Date Sent
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'sent' && sortConfig.key === 'date' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'sent' && sortConfig.key === 'status' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('status', 'sent')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Status
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'sent' && sortConfig.key === 'status' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
                        </tr>
                      </thead>
                     <tbody>
-                      {sentRequests.map((request, index) => (
+                      {getSortedData(sentRequests, 'sent').map((request, index) => (
                         <tr key={index}>
-                          <td>{request.user?.name || request.user?.first_name || "N/A"}</td>
-                          <td>{request.user?.id || "N/A"}</td>
-                          <td>{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
-                          <td>
+                          <td style={{ textAlign: 'center' }}>{request.user?.name || request.user?.first_name || "N/A"}</td>
+                          <td style={{ textAlign: 'center' }}>{request.user?.id || "N/A"}</td>
+                          <td style={{ textAlign: 'center' }}>{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
+                          <td style={{ textAlign: 'center' }}>
                             <span className={`member-interests-table-status-badge member-interests-table-status-${request.status?.toLowerCase() || 'pending'}`}>
                               {request.status || "Pending"}
                             </span>
@@ -593,25 +793,122 @@ const MemberRequestSend_Received = ({ isOpen, onClose, targetUserId, targetUserN
                   <table className="member-interests-table">
                      <thead>
                        <tr>
-                         <th>From User</th>
-                         <th>Member ID</th>
-                         <th>Date Received</th>
-                         <th>Status</th>
+                         <th 
+                           className={sortConfig.table === 'received' && sortConfig.key === 'user_name' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('user_name', 'received')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             From User
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'received' && sortConfig.key === 'user_name' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'received' && sortConfig.key === 'user_id' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('user_id', 'received')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Member ID
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'received' && sortConfig.key === 'user_id' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'received' && sortConfig.key === 'date' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('date', 'received')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Date Received
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'received' && sortConfig.key === 'date' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th 
+                           className={sortConfig.table === 'received' && sortConfig.key === 'status' ? 'sortable-header active' : 'sortable-header'}
+                           onClick={() => handleSort('status', 'received')}
+                           style={{ cursor: 'pointer', textAlign: 'center' }}
+                         >
+                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                             Status
+                             <span className="sort-indicator">
+                               {sortConfig.table === 'received' && sortConfig.key === 'status' ? (
+                                 sortConfig.direction === 'asc' ? '↑' : '↓'
+                               ) : (
+                                 '⇅'
+                               )}
+                             </span>
+                           </div>
+                         </th>
+                         <th style={{ textAlign: 'center' }}>
+                           Action
+                         </th>
                        </tr>
                      </thead>
                     <tbody>
-                      {receivedRequests.map((request, index) => (
-                        <tr key={index}>
-                          <td>{request.user?.name || request.user?.first_name || "N/A"}</td>
-                          <td>{request.user?.id || "N/A"}</td>
-                          <td>{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
-                          <td>
-                            <span className={`member-interests-table-status-badge member-interests-table-status-${request.status?.toLowerCase() || 'pending'}`}>
-                              {request.status || "Pending"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {getSortedData(receivedRequests, 'received').map((request, index) => {
+                        const status = request.status?.toLowerCase() || 'pending';
+                        const isPending = status === 'pending' || status === 'open' || status === 'requested';
+                        const senderUserId = request.user?.id || request.sender_id;
+                        
+                        return (
+                          <tr key={index}>
+                            <td style={{ textAlign: 'center' }}>{request.user?.name || request.user?.first_name || "N/A"}</td>
+                            <td style={{ textAlign: 'center' }}>{request.user?.id || "N/A"}</td>
+                            <td style={{ textAlign: 'center' }}>{request.created_at ? new Date(request.created_at).toLocaleDateString() : "N/A"}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`member-interests-table-status-badge member-interests-table-status-${status}`}>
+                                {request.status || "Pending"}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {isPending && senderUserId && memberId ? (
+                                <div className="action-buttons" style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                                  <button
+                                    className="member-interest-agent-accept-btn"
+                                    onClick={() => handleAcceptPhotoRequest(senderUserId, memberId)}
+                                    title="Accept Photo Request"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                      <path d="M20 6 9 17l-5-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Accept
+                                  </button>
+                                  <button
+                                    className="member-interest-agent-reject-btn"
+                                    onClick={() => handleRejectPhotoRequest(senderUserId, memberId)}
+                                    title="Reject Photo Request"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                      <path d="M18 6 6 18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="no-action">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

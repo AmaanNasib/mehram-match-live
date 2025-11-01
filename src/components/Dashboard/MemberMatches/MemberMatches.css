@@ -46,20 +46,20 @@
   margin-bottom: 0;
 }
 
-.member-info-section {
+.mm-member-info-section {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
   flex-wrap: wrap;
 }
 
-.member-info-cards {
+.mm-member-info-cards {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
 }
 
-.info-card {
+.mm-info-card {
   background: #fff;
   border: 2px solid #ff69b4;
   border-radius: 12px;
@@ -68,7 +68,7 @@
   text-align: center;
 }
 
-.info-label {
+.mm-info-label {
   display: block;
   font-size: 12px;
   font-weight: 600;
@@ -78,20 +78,20 @@
   margin-bottom: 4px;
 }
 
-.info-value {
+.mm-info-value {
   display: block;
   font-size: 16px;
   font-weight: 700;
   color: #333;
 }
 
-.match-summary-cards {
+.mm-match-summary-cards {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
 }
 
-.summary-card {
+.mm-summary-card {
   background: #fff;
   border: 2px solid #ff69b4;
   border-radius: 12px;
@@ -100,7 +100,7 @@
   text-align: center;
 }
 
-.summary-number {
+.mm-summary-number {
   display: block;
   font-size: 24px;
   font-weight: 700;
@@ -108,7 +108,7 @@
   margin-bottom: 4px;
 }
 
-.summary-label {
+.mm-summary-label {
   display: block;
   font-size: 12px;
   font-weight: 600;
@@ -248,11 +248,11 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .member-info-section {
+  .mm-member-info-section {
     flex-direction: column;
   }
   
-  .member-info-cards, .match-summary-cards {
+  .mm-member-info-cards, .mm-match-summary-cards {
     justify-content: center;
   }
   
@@ -273,7 +273,7 @@
     font-size: 24px;
   }
   
-  .info-card, .summary-card {
+  .mm-info-card, .mm-summary-card {
     min-width: 120px;
   }
 }

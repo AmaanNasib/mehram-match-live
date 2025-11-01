@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MemberCard.css';
+import '../../../shared-styles.css';
 
 const MemberCard = memo(({ 
   member, 
@@ -222,7 +223,7 @@ const MemberCard = memo(({
             <span className="detail-value">{member?.profession || "N/A"}</span>
           </div>
           <div className="detail-row">
-            <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+            <span className={`mm-marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
               {member?.martial_status || "Not mentioned"}
             </span>
           </div>

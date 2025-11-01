@@ -12,6 +12,7 @@ const Member_Interest = () => {
   const [receivedInterests, setReceivedInterests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   // Fetch all member interests for the agent
   useEffect(() => {
@@ -251,6 +252,93 @@ const Member_Interest = () => {
     }
   };
 
+  // Handle sorting
+  const handleSort = (columnKey) => {
+    let direction = 'asc';
+    if (sortConfig.key === columnKey && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key: columnKey, direction });
+  };
+
+  // Sort data function - case insensitive
+  const getSortedData = (data) => {
+    if (!sortConfig.key || !data || data.length === 0) {
+      return data;
+    }
+
+    return [...data].sort((a, b) => {
+      let aValue, bValue;
+
+      // Get the value based on sort key
+      switch (sortConfig.key) {
+        case 'member_name':
+          aValue = (a.member_name || '').toString().toLowerCase();
+          bValue = (b.member_name || '').toString().toLowerCase();
+          break;
+        case 'recipient_name':
+          aValue = (a.recipient_name || '').toString().toLowerCase();
+          bValue = (b.recipient_name || '').toString().toLowerCase();
+          break;
+        case 'sender_name':
+          aValue = (a.sender_name || '').toString().toLowerCase();
+          bValue = (b.sender_name || '').toString().toLowerCase();
+          break;
+        case 'date':
+          aValue = new Date(a.created_at || 0);
+          bValue = new Date(b.created_at || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'status':
+          aValue = (a.status || '').toString().toLowerCase();
+          bValue = (b.status || '').toString().toLowerCase();
+          break;
+        case 'member_id':
+          aValue = parseInt(a.member_id || 0);
+          bValue = parseInt(b.member_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'recipient_id':
+          aValue = parseInt(a.recipient_id || 0);
+          bValue = parseInt(b.recipient_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'sender_id':
+          aValue = parseInt(a.sender_id || 0);
+          bValue = parseInt(b.sender_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        default:
+          return 0;
+      }
+
+      // For string comparisons (case insensitive)
+      if (sortConfig.key === 'date' || sortConfig.key.includes('_id')) {
+        return 0; // Already handled above
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
   // Define columns for sent interests table
   const sentColumns = [
     {
@@ -258,28 +346,37 @@ const Member_Interest = () => {
       label: 'Sent By',
       photoKey: 'member_photo',
       nameKey: 'member_name',
-      idKey: 'member_id'
+      idKey: 'member_id',
+      sortKey: 'member_name',
+      sortable: true
     },
     {
       key: 'member-info',
       label: 'Sent To',
       photoKey: 'recipient_photo',
       nameKey: 'recipient_name',
-      idKey: 'recipient_id'
+      idKey: 'recipient_id',
+      sortKey: 'recipient_name',
+      sortable: true
     },
     {
       key: 'date',
       label: 'Date',
-      dataKey: 'created_at'
+      dataKey: 'created_at',
+      sortKey: 'date',
+      sortable: true
     },
     {
       key: 'status',
       label: 'Status',
-      dataKey: 'status'
+      dataKey: 'status',
+      sortKey: 'status',
+      sortable: true
     },
     {
       key: 'custom',
       label: 'Action',
+      sortable: false,
       render: (row, index) => {
         // Show withdraw button if status is pending or if status is not present (assume pending)
         const isPending = !row.status || row.status?.toLowerCase() === 'pending';
@@ -314,28 +411,37 @@ const Member_Interest = () => {
       label: 'Received By',
       photoKey: 'member_photo',
       nameKey: 'member_name',
-      idKey: 'member_id'
+      idKey: 'member_id',
+      sortKey: 'member_name',
+      sortable: true
     },
     {
       key: 'member-info',
       label: 'Received From',
       photoKey: 'sender_photo',
       nameKey: 'sender_name',
-      idKey: 'sender_id'
+      idKey: 'sender_id',
+      sortKey: 'sender_name',
+      sortable: true
     },
     {
       key: 'date',
       label: 'Date',
-      dataKey: 'created_at'
+      dataKey: 'created_at',
+      sortKey: 'date',
+      sortable: true
     },
     {
       key: 'status',
       label: 'Status',
-      dataKey: 'status'
+      dataKey: 'status',
+      sortKey: 'status',
+      sortable: true
     },
     {
       key: 'custom',
       label: 'Action',
+      sortable: false,
       render: (row, index) => {
         // Show accept/reject buttons if status is pending
         if (row.status?.toLowerCase() === 'pending') {
@@ -381,7 +487,10 @@ const Member_Interest = () => {
         <div className="interest-tabs">
           <button
             className={`tab-button ${tabActive === "sent" ? "active" : ""}`}
-            onClick={() => setTabActive("sent")}
+            onClick={() => {
+              setTabActive("sent");
+              setSortConfig({ key: null, direction: 'asc' });
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M22 2L11 13" strokeWidth="2" />
@@ -391,7 +500,10 @@ const Member_Interest = () => {
           </button>
           <button
             className={`tab-button ${tabActive === "received" ? "active" : ""}`}
-            onClick={() => setTabActive("received")}
+            onClick={() => {
+              setTabActive("received");
+              setSortConfig({ key: null, direction: 'asc' });
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeWidth="2" />
@@ -406,11 +518,13 @@ const Member_Interest = () => {
         <div className="interest-content">
           {tabActive === "sent" && (
             <MemberCommonTable
-              data={sentInterests}
+              data={getSortedData(sentInterests)}
               columns={sentColumns}
               loading={loading}
               getProfileImageUrl={getProfileImageUrl}
               formatDate={formatDate}
+              sortConfig={sortConfig}
+              onSort={handleSort}
               emptyMessage={{
                 title: "No Sent Interests",
                 description: "Your members haven't sent any interests yet"
@@ -420,11 +534,13 @@ const Member_Interest = () => {
 
           {tabActive === "received" && (
             <MemberCommonTable
-              data={receivedInterests}
+              data={getSortedData(receivedInterests)}
               columns={receivedColumns}
               loading={loading}
               getProfileImageUrl={getProfileImageUrl}
               formatDate={formatDate}
+              sortConfig={sortConfig}
+              onSort={handleSort}
               emptyMessage={{
                 title: "No Received Interests",
                 description: "Your members haven't received any interests yet"

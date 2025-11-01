@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SimpleProfileCard.css";
 
-const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMessage, onViewProfile, isInterested }) => {
+const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onBlock, onMessage, onViewProfile, isInterested }) => {
   const [loading, setLoading] = useState(false);
   const [loadingShortlist, setLoadingShortlist] = useState(false);
   const [actualInterestStatus, setActualInterestStatus] = useState(isInterested || false);
   const [interestStatus, setInterestStatus] = useState(null); // Track the actual interest status
   const [removing, setRemoving] = useState(false);
   const [inlineHeight, setInlineHeight] = useState(undefined);
+  const [isBlocked, setIsBlocked] = useState(profile?.is_blocked || false);
   const cardRef = useRef(null);
   const navigate = useNavigate();
 
@@ -75,11 +76,11 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
     checkInterestStatus();
   }, [profile?.id, isInterested]);
 
-  // Handle shortlist button click - for regular users
+  // Handle shortlist button click - for regular users and agents
   const handleShortlistClick = async () => {
     console.log('Shortlist button clicked', { profile, onShortlist });
     
-    // If onShortlist callback is provided, use it (e.g., for agents)
+    // If onShortlist callback is provided, use it (e.g., for custom handlers)
     if (onShortlist) {
       console.log('Using onShortlist callback');
       onShortlist(profile);
@@ -88,48 +89,60 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
 
     console.log('Making direct API call for shortlist');
     
-    // Direct API call for regular users
+    // Direct API call - check role first
     try {
       setLoadingShortlist(true);
       
       const currentUserId = localStorage.getItem('userId');
       const targetUserId = profile?.id;
+      const role = localStorage.getItem('role');
+      const isAgent = role === 'agent';
 
-      console.log('Shortlist API payload:', { currentUserId, targetUserId });
+      console.log('Shortlist API payload:', { currentUserId, targetUserId, isAgent });
 
       if (!currentUserId || !targetUserId) {
         alert('Error: User information not available');
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/recieved/`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+      // For agent, use agent shortlist API
+      // For regular user, use regular shortlist API
+      const url = isAgent 
+        ? `${process.env.REACT_APP_API_URL}/api/agent/shortlist/`
+        : `${process.env.REACT_APP_API_URL}/api/recieved/`;
+      
+      const payload = isAgent
+        ? {
+            action_on_id: parseInt(targetUserId),
+            shortlisted: true
+          }
+        : {
             action_by_id: parseInt(currentUserId),
             action_on_id: parseInt(targetUserId),
             shortlisted: true
-          })
-        }
-      );
+          };
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
 
       console.log('Shortlist API response:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Shortlist error:', errorData);
-        alert(errorData.detail || 'Failed to shortlist user');
+        alert(errorData.detail || errorData.error || 'Failed to shortlist user');
         return;
       }
 
       const data = await response.json();
       console.log('Shortlist success:', data);
-      alert('User shortlisted successfully! ✅');
+      alert(isAgent ? 'User added to your shortlist successfully! ✅' : 'User shortlisted successfully! ✅');
       
     } catch (error) {
       console.error('Error shortlisting user:', error);
@@ -366,6 +379,115 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
     }
   };
 
+  // Handle block/unblock button click - for agents only
+  const handleBlockClick = async () => {
+    const currentRole = localStorage.getItem('role');
+    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+    
+    // Only agents (not impersonating) can block
+    if (currentRole !== 'agent' || isImpersonating) {
+      return;
+    }
+
+    // If already blocked, unblock it
+    if (isBlocked) {
+      await handleUnblockClick();
+      return;
+    }
+
+    // If onBlock callback is provided, use it
+    if (typeof onBlock === 'function') {
+      try {
+        await onBlock(profile);
+        setIsBlocked(true);
+      } catch (error) {
+        console.error('Error blocking user:', error);
+        alert('Failed to block user');
+      }
+      return;
+    }
+
+    // Otherwise, make direct API call - Agent Direct Block
+    try {
+      const targetUserId = profile?.id;
+
+      if (!targetUserId) {
+        alert('Error: User information not available');
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/agent/block/`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action_on_id: parseInt(targetUserId)
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message || errorData.detail || 'Failed to block user');
+        return;
+      }
+
+      const result = await response.json();
+      console.log('User blocked successfully:', result);
+      
+      setIsBlocked(true);
+      alert(result.message || 'User blocked successfully by agent');
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      alert('An error occurred while blocking user');
+    }
+  };
+
+  // Handle unblock button click - for agents only
+  const handleUnblockClick = async () => {
+    try {
+      const targetUserId = profile?.id;
+
+      if (!targetUserId) {
+        alert('Error: User information not available');
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/agent/unblock/`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action_on_id: parseInt(targetUserId)
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message || errorData.detail || 'Failed to unblock user');
+        return;
+      }
+
+      const result = await response.json();
+      console.log('User unblocked successfully:', result);
+      
+      setIsBlocked(false);
+      alert(result.message || 'User unblocked successfully');
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      alert('An error occurred while unblocking user');
+    }
+  };
+
   // Handle message button click -> open Inbox and focus this user
   const handleMessageClick = () => {
     const meId = localStorage.getItem('userId');
@@ -406,6 +528,16 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Agent Verified
+        </div>
+      )}
+
+      {/* Blocked Badge - For Agents */}
+      {isBlocked && (
+        <div className="blocked-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9l10.21 10.21C14.55 19.37 13.35 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/>
+          </svg>
+          BLOCKED
         </div>
       )}
       
@@ -512,17 +644,51 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onMes
             </svg>
           </button>
 
-          {/* Ignore Button */}
-          <button 
-            className="simple-icon-btn ignore-btn"
-            onClick={handleIgnoreClick}
-            title="Ignore"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+          {/* Ignore/Block Button - Changes based on role */}
+          {(() => {
+            const currentRole = localStorage.getItem('role');
+            const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
+            const isAgent = currentRole === 'agent' && !isImpersonating;
+
+            if (isAgent) {
+              // Show Block/Unblock button for agents
+              return (
+                <button 
+                  className={`simple-icon-btn block-btn ${isBlocked ? 'blocked' : ''}`}
+                  onClick={handleBlockClick}
+                  title={isBlocked ? "Click to Unblock" : "Block User"}
+                >
+                  {isBlocked ? (
+                    // Unblock icon (checkmark in circle)
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                  ) : (
+                    // Block icon (circle with slash)
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                    </svg>
+                  )}
+                </button>
+              );
+            } else {
+              // Show Ignore button for regular users
+              return (
+                <button 
+                  className="simple-icon-btn ignore-btn"
+                  onClick={handleIgnoreClick}
+                  title="Ignore"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              );
+            }
+          })()}
         </div>
 
         {/* Message Button - Primary Action */}

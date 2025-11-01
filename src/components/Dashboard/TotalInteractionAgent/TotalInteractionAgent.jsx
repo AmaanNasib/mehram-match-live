@@ -4,6 +4,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
 import './TotalInteractionAgent.css';
+import '../../../shared-styles.css';
 
 const TotalInteractionAgent = () => {
   const navigate = useNavigate();
@@ -450,7 +451,7 @@ const TotalInteractionAgent = () => {
                           )}
                         </td>
                         <td>
-                          <span className={`tia-marital-badge ${details?.martial_status ? details?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                          <span className={`mm-marital-badge ${details?.martial_status ? details?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                             {details?.martial_status || "Not mentioned"}
                           </span>
                         </td>
@@ -491,8 +492,13 @@ const TotalInteractionAgent = () => {
                           <div className="tia-table-actions">
                             <button
                               className="tia-action-btn tia-view-btn tia-modern-btn"
-                              onClick={() => handleViewUserDetails(item.member)}
-                              title="View User Details"
+                              onClick={() => {
+                                const userId = item.member?.id || item.member?.member_id;
+                                if (userId) {
+                                  navigate(`/details/${userId}`);
+                                }
+                              }}
+                              title="View User Profile"
                             >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>

@@ -4,6 +4,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
 import { AiOutlineReload } from "react-icons/ai";
 import "./TotalBlockedAgent.css";
+import "../../../shared-styles.css";
 
 const TotalBlockedAgent = () => {
   const navigate = useNavigate();
@@ -195,18 +196,19 @@ const TotalBlockedAgent = () => {
   const handleViewProfile = (user) => {
     const userId = user?.user?.id || user?.id;
     if (userId) {
-      navigate(`/dashboard/member-profile/${userId}`);
+      // Navigate to user profile details page
+      navigate(`/profile/${userId}`);
     }
   };
 
   return (
     <DashboardLayout>
-      <div className="total-interest-container">
-        <div className="page-header">
-          <h1 className="page-title">Blocked Users List</h1>
-          <div className="header-actions">
+      <div className="tba-container">
+        <div className="tba-page-header">
+          <h1 className="tba-page-title">Blocked Users List</h1>
+          <div className="tba-header-actions">
             <button
-              className="refresh-btn"
+              className="tba-refresh-btn"
               onClick={refreshData}
               title="Refresh"
             >
@@ -217,27 +219,27 @@ const TotalBlockedAgent = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="stats-container">
-          <div className="stat-card">
-            <div className="stat-number">{matchDetails?.total_blocked_users || 0}</div>
-            <div className="stat-label">Total Blocked Users</div>
+        <div className="tba-stats-container">
+          <div className="tba-stat-card">
+            <div className="tba-stat-number">{matchDetails?.total_blocked_users || 0}</div>
+            <div className="tba-stat-label">Total Blocked Users</div>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="search-container">
+        <div className="tba-search-container">
           <input
             type="text"
             placeholder="Search by name, ID, location, profession..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
+            className="tba-search-input"
           />
         </div>
 
         {/* Table */}
-        <div className="table-container">
-          <table className="data-table">
+        <div className="tba-table-container">
+          <table className="tba-data-table">
             <thead>
               <tr>
                 <th onClick={() => handleSort('member_id')}>
@@ -290,7 +292,7 @@ const TotalBlockedAgent = () => {
               {loading ? (
                 <tr>
                   <td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>
-                    <div className="loading-spinner">Loading...</div>
+                    <div className="tba-loading-spinner">Loading...</div>
                   </td>
                 </tr>
               ) : currentItems?.length > 0 ? (
@@ -334,21 +336,21 @@ const TotalBlockedAgent = () => {
                     <td style={{ textAlign: 'center' }}>{match?.user?.sect || match?.user?.sect_school_info || "N/A"}</td>
                     <td style={{ textAlign: 'center' }}>{match?.user?.profession || "N/A"}</td>
                     <td style={{ textAlign: 'center' }}>
-                      <span className={`marital-badge ${match?.user?.martial_status ? match?.user?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                      <span className={`mm-marital-badge ${match?.user?.martial_status ? match?.user?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                         {match?.user?.martial_status || "Not mentioned"}
                       </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <div className="action-buttons">
+                      <div className="tba-action-buttons">
                         <button 
-                          className="action-btn unblock-btn"
+                          className="tba-action-btn tba-unblock-btn"
                           onClick={() => handleUnblockClick(match)}
                           title="Unblock User"
                         >
                           Unblock
                         </button>
                         <button 
-                          className="action-btn view-btn"
+                          className="tba-action-btn tba-view-btn"
                           onClick={() => handleViewProfile(match)}
                           title="View Profile"
                         >
@@ -371,9 +373,9 @@ const TotalBlockedAgent = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="pagination">
+          <div className="tba-pagination">
             <button
-              className="pagination-btn"
+              className="tba-pagination-btn"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -383,7 +385,7 @@ const TotalBlockedAgent = () => {
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i + 1}
-                className={`pagination-btn ${currentPage === i + 1 ? "active" : ""}`}
+                className={`tba-pagination-btn ${currentPage === i + 1 ? "active" : ""}`}
                 onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}
@@ -391,7 +393,7 @@ const TotalBlockedAgent = () => {
             ))}
 
             <button
-              className="pagination-btn"
+              className="tba-pagination-btn"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -402,29 +404,29 @@ const TotalBlockedAgent = () => {
 
         {/* Unblock Confirmation Modal */}
         {showUnblockModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
+          <div className="tba-modal-overlay">
+            <div className="tba-modal-content">
+              <div className="tba-modal-header">
                 <h3>Confirm Unblock</h3>
               </div>
-              <div className="modal-body">
+              <div className="tba-modal-body">
                 <p>
                   Are you sure you want to unblock <strong>{selectedUser?.user?.name || 'this user'}</strong>?
                 </p>
-                <p className="modal-warning">
+                <p className="tba-modal-warning">
                   This action will allow the user to interact with your members again.
                 </p>
               </div>
-              <div className="modal-footer">
+              <div className="tba-modal-footer">
                 <button 
-                  className="modal-btn cancel-btn"
+                  className="tba-modal-btn tba-cancel-btn"
                   onClick={handleUnblockCancel}
                   disabled={loading}
                 >
                   Cancel
                 </button>
                 <button 
-                  className="modal-btn confirm-btn"
+                  className="tba-modal-btn tba-confirm-btn"
                   onClick={handleUnblockConfirm}
                   disabled={loading}
                 >

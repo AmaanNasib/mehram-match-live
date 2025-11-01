@@ -15,7 +15,8 @@
 
 .members-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 14px;
   min-width: 1200px;
 }
@@ -33,13 +34,18 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 2px solid #e5e7eb;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
+.members-table th:last-child {
+  border-right: none;
+}
+
 .members-table tbody tr {
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
   transition: all 0.2s ease;
 }
 
@@ -49,10 +55,23 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.members-table tbody tr:last-child {
+  border-bottom: none;
+}
+
 .members-table td {
   padding: 16px 12px;
   vertical-align: middle;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.members-table td:last-child {
+  border-right: none;
+}
+
+.members-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 /* Sortable Headers */
@@ -155,42 +174,8 @@
   line-height: 1.2;
 }
 
-/* Marital Status Badge */
-.marital-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-  display: inline-block;
-  min-width: 80px;
-  text-align: center;
-}
-
-.marital-badge.single {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.marital-badge.married {
-  background-color: #fef3c7;
-  color: #d97706;
-}
-
-.marital-badge.divorced {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-
-.marital-badge.widowed {
-  background-color: #f3e8ff;
-  color: #7c3aed;
-}
-
-.marital-badge.not-mentioned {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
+/* Marital Status Badge - Moved to shared-styles.css for consistency */
+/* Use .mm-marital-badge class instead */
 
 /* Table Actions */
 .table-actions {
@@ -370,11 +355,7 @@
     min-width: 50px;
   }
   
-  .marital-badge {
-    padding: 4px 8px;
-    font-size: 11px;
-    min-width: 70px;
-  }
+  /* Marital badge responsive styles handled in shared-styles.css */
   
   .table-actions {
     min-width: 80px;

@@ -7,7 +7,9 @@ const MemberCommonTable = ({
   emptyMessage,
   loading = false,
   getProfileImageUrl,
-  formatDate
+  formatDate,
+  sortConfig = null,
+  onSort = null
 }) => {
   
   const renderCellContent = (column, row, index) => {
@@ -94,9 +96,33 @@ const MemberCommonTable = ({
       <table className="common-table">
         <thead>
           <tr>
-            {columns.map((column, index) => (
-              <th key={index}>{column.label}</th>
-            ))}
+            {columns.map((column, index) => {
+              const isSortable = column.sortable !== false && column.sortKey && onSort;
+              const isActive = sortConfig && sortConfig.key === column.sortKey;
+              const sortDirection = isActive ? sortConfig.direction : null;
+              
+              return (
+                <th 
+                  key={index}
+                  className={isSortable ? 'sortable-header' : ''}
+                  onClick={() => isSortable && onSort(column.sortKey)}
+                  style={isSortable ? { cursor: 'pointer', userSelect: 'none' } : {}}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    {column.label}
+                    {isSortable && (
+                      <span className="sort-indicator">
+                        {isActive ? (
+                          sortDirection === 'asc' ? '↑' : '↓'
+                        ) : (
+                          '⇅'
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

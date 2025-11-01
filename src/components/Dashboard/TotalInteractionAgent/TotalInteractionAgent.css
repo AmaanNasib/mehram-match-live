@@ -185,14 +185,25 @@
   font-size: 12px;
   letter-spacing: 0.5px;
   padding: 16px 12px;
-  text-align: left;
+  text-align: center;
   border-bottom: 2px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+}
+
+.interactions-table th:last-child {
+  border-right: none;
 }
 
 .interactions-table td {
   padding: 16px 12px;
   border-bottom: 1px solid #f1f3f4;
+  border-right: 1px solid #f1f3f4;
   vertical-align: middle;
+  text-align: center;
+}
+
+.interactions-table td:last-child {
+  border-right: none;
 }
 
 .table-row {
@@ -243,52 +254,8 @@
   font-size: 14px;
 }
 
-/* Total Interaction Agent - Marital Status Badge */
-.tia-marital-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: capitalize;
-  display: inline-block;
-}
-
-.tia-marital-badge.never-married,
-.tia-marital-badge.single,
-.tia-marital-badge.unmarried {
-  background: #d1f8d1;
-  color: #2c7a2c;
-}
-
-.tia-marital-badge.divorced {
-  background: #ffc0cb;
-  color: #c4002b;
-}
-
-.tia-marital-badge.widowed {
-  background: #ffe4b5;
-  color: #b8860b;
-}
-
-.tia-marital-badge.not-mentioned {
-  background: #f8f9fa;
-  color: #6c757d;
-}
-
-.tia-marital-badge.married {
-  background: #ff6666;
-  color: #800000;
-}
-
-.tia-marital-badge.awaiting-divorce {
-  background: #ffdd99;
-  color: #a35400;
-}
-
-.tia-marital-badge.khula {
-  background: #e6ccff;
-  color: #6a0dad;
-}
+/* Marital badge styles moved to shared-styles.css for consistency */
+/* Use .mm-marital-badge class instead */
 
 /* Interaction Details */
 .interaction-details {
@@ -395,6 +362,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  justify-content: center;
 }
 
 .tia-action-btn {

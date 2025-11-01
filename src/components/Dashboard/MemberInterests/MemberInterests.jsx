@@ -232,8 +232,8 @@ const MemberInterests = () => {
             </div>
             <div className="member-details">
               <h2>{memberData.name || "N/A"}</h2>
-              <p className="member-id">Member ID: {memberData.member_id || "N/A"}</p>
-              <p className="member-email">{memberData.email || "N/A"}</p>
+              <p className="member-id">Member ID: {memberData.id || memberData.member_id || "N/A"}</p>
+              {/* <p className="member-email">{memberData.email || "N/A"}</p> */}
             </div>
           </div>
         )}
@@ -326,7 +326,7 @@ const MemberInterests = () => {
                     {sentInterests.map((interest, index) => (
                       <tr key={index}>
                         <td>{interest.target_user?.name || "N/A"}</td>
-                        <td>{interest.target_user?.member_id || "N/A"}</td>
+                        <td>{interest.target_user?.id || interest.target_user?.member_id || "N/A"}</td>
                         <td>{interest.date ? new Date(interest.date).toLocaleDateString() : "N/A"}</td>
                         <td>
                           <span className={`member-interests-table-status-badge member-interests-table-status-${interest.status?.toLowerCase() || 'pending'}`}>
@@ -381,7 +381,7 @@ const MemberInterests = () => {
                     {receivedInterests.map((interest, index) => (
                       <tr key={index}>
                         <td>{interest.from_user?.name || "N/A"}</td>
-                        <td>{interest.from_user?.member_id || "N/A"}</td>
+                        <td>{interest.from_user?.id || interest.from_user?.member_id || "N/A"}</td>
                         <td>{interest.date ? new Date(interest.date).toLocaleDateString() : "N/A"}</td>
                         <td>
                           <span className={`member-interests-table-status-badge member-interests-table-status-${interest.status?.toLowerCase() || 'pending'}`}>

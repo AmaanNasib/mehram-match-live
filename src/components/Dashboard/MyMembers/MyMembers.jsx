@@ -2591,50 +2591,7 @@ useEffect(() => {
             border-color: #b91c1c;
           }
 
-          .marital-badge {
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            border: 1px solid transparent;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-left: auto;
-            margin-right: 0;
-          }
-          .marital-badge.single {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #ffffff;
-            border-color: #047857;
-          }
-          .marital-badge.married {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: #ffffff;
-            border-color: #1e40af;
-          }
-          .marital-badge.divorced {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: #ffffff;
-            border-color: #b91c1c;
-          }
-          .marital-badge.khula {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: #ffffff;
-            border-color: #b45309;
-          }
-          .marital-badge.widowed {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-            color: #ffffff;
-            border-color: #374151;
-          }
-          .marital-badge.not-mentioned {
-            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-            color: #6b7280;
-            border-color: #9ca3af;
-          }
+          /* Marital badge styles moved to shared-styles.css - use .mm-marital-badge */
 
           /* Action buttons styling */
           .action-btn {
@@ -3862,6 +3819,11 @@ useEffect(() => {
             letter-spacing: 0.8px;
             position: relative;
             white-space: nowrap;
+            border-right: 1px solid rgba(102, 126, 234, 0.2);
+          }
+          
+          .members-table th:last-child {
+            border-right: none;
           }
 
           .sortable-header {
@@ -3884,11 +3846,6 @@ useEffect(() => {
           .members-table th:first-child {
             border-top-left-radius: 16px;
             padding-left: 24px;
-          }
-
-          .members-table th:last-child {
-            border-top-right-radius: 16px;
-            padding-right: 24px;
           }
 
           .members-table tbody tr {
@@ -3922,15 +3879,16 @@ useEffect(() => {
             text-align: center;
             font-size: 14px;
             color: #2d3748;
-            border: none;
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          
+          .members-table td:last-child {
+            border-right: none;
           }
 
           .members-table td:first-child {
             padding-left: 24px;
-          }
-
-          .members-table td:last-child {
-            padding-right: 24px;
           }
 
           /* Modern Member Photo Column */
@@ -4504,46 +4462,7 @@ useEffect(() => {
             background: #ffc0cb;
             color: #c4002b;
           }
-          .marital-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-          }
-          .marital-badge.never-married {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }.marital-badge.unmarried {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }.marital-badge.single {
-            background: #d1f8d1;
-            color: #2c7a2c;
-          }
-          .marital-badge.divorced {
-            background: #ffc0cb;
-            color: #c4002b;
-          }
-          .marital-badge.widowed {
-            background: #ffe4b5;
-            color: #b8860b;
-          }
-          .marital-badge.not-mentioned {
-            background: #ff6666;
-            color: #800000;
-          }.marital-badge.married {
-            background: #ff6666;
-            color: #800000;
-          }
-          .marital-badge.awaiting-divorce {
-            background: #ffdd99;
-            color: #a35400;
-          }
-          .marital-badge.khula {
-            background: #e6ccff;
-            color: #6a0dad;
-          }
+          /* Marital badge styles moved to shared-styles.css - use .mm-marital-badge */
             .accept-btn, .reject-btn {
             padding: 5px 10px;
             border: none;

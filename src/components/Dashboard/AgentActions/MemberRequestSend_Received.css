@@ -1,6 +1,9 @@
 /* Import MemberInterests styles for consistent design */
 @import '../MemberInterests/MemberInterests.css';
 
+/* Import Member Interest styles for accept/reject buttons */
+@import './Member_Interest.css';
+
 .member-request-send-received-page .member-request-send-received-header {
   display: flex;
   align-items: center;
@@ -569,4 +572,10 @@
   background-color: #fef2f2;
   color: #dc2626;
   border-color: #fecaca;
+}
+
+/* No Action */
+.no-action {
+  color: #9ca3af;
+  font-size: 14px;
 }

@@ -4,6 +4,7 @@ import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
 import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai";
 import './TotalShortlistAgent.css';
+import '../../../shared-styles.css';
 
 const TotalShortlistAgent = () => {
   const navigate = useNavigate();
@@ -556,7 +557,7 @@ const TotalShortlistAgent = () => {
                   <td>{item.action_on?.sect_school_info || "N/A"}</td>
                   <td>{item.action_on?.profession || "N/A"}</td>
                   <td>
-                    <span className={`shortlist-agent-marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                    <span className={`mm-marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                       {item.action_on?.martial_status || "Not mentioned"}
                     </span>
                   </td>

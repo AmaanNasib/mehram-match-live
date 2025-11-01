@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchDataObjectV2, postDataWithFetchV2, fetchDataWithTokenV2 } from '../../apiUtils';
 import Header from '../Dashboard/header/Header';
+import MemberSendInterest from '../Dashboard/AgentActions/MemberSendInterest';
 import './UserDetailProfessional.css';
 import Footer from '../sections/Footer';
 
@@ -9,6 +10,7 @@ const UserDetailProfessional = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const currentUserId = localStorage.getItem("userId");
+  const role = localStorage.getItem("role");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
@@ -19,7 +21,11 @@ const UserDetailProfessional = () => {
   const [shortlistStatus, setShortlistStatus] = useState(false);
   const [blockStatus, setBlockStatus] = useState(false);
 
+  // Agent member selection modal
+  const [showMemberSendInterest, setShowMemberSendInterest] = useState(false);
+
   const isOwnProfile = currentUserId && userId && currentUserId.toString() === userId.toString();
+  const isAgent = role === "agent";
 
   useEffect(() => {
     if (userId) {
@@ -38,66 +44,134 @@ const UserDetailProfessional = () => {
     if (userData && !isOwnProfile && currentUserId) {
       const checkActionStatus = async () => {
         try {
-          await fetchDataWithTokenV2({
-            url: `/api/recieved/?action_by_id=${currentUserId}&action_on_id=${userId}`,
-            setterFunction: (data) => {
-              let hasInterest = false;
-              let hasShortlist = false;
-              let hasBlock = false;
+          // For agent, check shortlist separately from agent API
+          if (isAgent) {
+            // Check shortlist status from agent API
+            try {
+              await fetchDataWithTokenV2({
+                url: `/api/agent/shortlist/?agent_id=${currentUserId}`,
+                setterFunction: (data) => {
+                  // Find if this user is in agent's shortlist
+                  const shortlistItem = (data || []).find(item => 
+                    item.action_on && item.action_on.id === Number(userId) && item.shortlisted === true
+                  );
+                  setShortlistStatus(shortlistItem ? true : false);
+                },
+                setErrors: (error) => {
+                  setShortlistStatus(false);
+                }
+              });
+            } catch (error) {
+              setShortlistStatus(false);
+            }
 
-              if (Array.isArray(data)) {
-                // Check each item in the array
-                data.forEach(item => {
+            // Check interest and block from regular API
+            await fetchDataWithTokenV2({
+              url: `/api/recieved/?action_by_id=${currentUserId}&action_on_id=${userId}`,
+              setterFunction: (data) => {
+                let hasInterest = false;
+                let hasBlock = false;
+
+                if (Array.isArray(data)) {
+                  data.forEach(item => {
+                    const isCurrentUserAction = 
+                      (item.action_by && item.action_by.id === Number(currentUserId)) ||
+                      (item.action_by_id === Number(currentUserId));
+                    
+                    const isTargetUser = 
+                      (item.action_on && item.action_on.id === Number(userId)) ||
+                      (item.action_on_id === Number(userId));
+
+                    if (isCurrentUserAction && isTargetUser) {
+                      if (item.interest === true || item.interest === "true") {
+                        hasInterest = true;
+                      }
+                      if (item.blocked === true || item.blocked === "true") {
+                        hasBlock = true;
+                      }
+                    }
+                  });
+                } else if (data && typeof data === 'object') {
                   const isCurrentUserAction = 
-                    (item.action_by && item.action_by.id === Number(currentUserId)) ||
-                    (item.action_by_id === Number(currentUserId));
+                    (data.action_by && data.action_by.id === Number(currentUserId)) ||
+                    (data.action_by_id === Number(currentUserId));
                   
                   const isTargetUser = 
-                    (item.action_on && item.action_on.id === Number(userId)) ||
-                    (item.action_on_id === Number(userId));
+                    (data.action_on && data.action_on.id === Number(userId)) ||
+                    (data.action_on_id === Number(userId));
 
                   if (isCurrentUserAction && isTargetUser) {
-                    // Check interest status
-                    if (item.interest === true || item.interest === "true") {
-                      hasInterest = true;
-                    }
-                    // Check shortlist status
-                    if (item.shortlisted === true || item.shortlisted === "true") {
-                      hasShortlist = true;
-                    }
-                    // Check block status
-                    if (item.blocked === true || item.blocked === "true") {
-                      hasBlock = true;
-                    }
+                    hasInterest = data.interest === true || data.interest === "true";
+                    hasBlock = data.blocked === true || data.blocked === "true";
                   }
-                });
-              } else if (data && typeof data === 'object') {
-                const isCurrentUserAction = 
-                  (data.action_by && data.action_by.id === Number(currentUserId)) ||
-                  (data.action_by_id === Number(currentUserId));
-                
-                const isTargetUser = 
-                  (data.action_on && data.action_on.id === Number(userId)) ||
-                  (data.action_on_id === Number(userId));
-
-                if (isCurrentUserAction && isTargetUser) {
-                  hasInterest = data.interest === true || data.interest === "true";
-                  hasShortlist = data.shortlisted === true || data.shortlisted === "true";
-                  hasBlock = data.blocked === true || data.blocked === "true";
                 }
-              }
 
-              setInterestStatus(hasInterest);
-              setShortlistStatus(hasShortlist);
-              setBlockStatus(hasBlock);
-            },
-            setErrors: (error) => {
-              // Fallback: set all to false if API call fails
-              setInterestStatus(false);
-              setShortlistStatus(false);
-              setBlockStatus(false);
-            }
-          });
+                setInterestStatus(hasInterest);
+                setBlockStatus(hasBlock);
+              },
+              setErrors: (error) => {
+                setInterestStatus(false);
+                setBlockStatus(false);
+              }
+            });
+          } else {
+            // Regular user - check all from regular API
+            await fetchDataWithTokenV2({
+              url: `/api/recieved/?action_by_id=${currentUserId}&action_on_id=${userId}`,
+              setterFunction: (data) => {
+                let hasInterest = false;
+                let hasShortlist = false;
+                let hasBlock = false;
+
+                if (Array.isArray(data)) {
+                  data.forEach(item => {
+                    const isCurrentUserAction = 
+                      (item.action_by && item.action_by.id === Number(currentUserId)) ||
+                      (item.action_by_id === Number(currentUserId));
+                    
+                    const isTargetUser = 
+                      (item.action_on && item.action_on.id === Number(userId)) ||
+                      (item.action_on_id === Number(userId));
+
+                    if (isCurrentUserAction && isTargetUser) {
+                      if (item.interest === true || item.interest === "true") {
+                        hasInterest = true;
+                      }
+                      if (item.shortlisted === true || item.shortlisted === "true") {
+                        hasShortlist = true;
+                      }
+                      if (item.blocked === true || item.blocked === "true") {
+                        hasBlock = true;
+                      }
+                    }
+                  });
+                } else if (data && typeof data === 'object') {
+                  const isCurrentUserAction = 
+                    (data.action_by && data.action_by.id === Number(currentUserId)) ||
+                    (data.action_by_id === Number(currentUserId));
+                  
+                  const isTargetUser = 
+                    (data.action_on && data.action_on.id === Number(userId)) ||
+                    (data.action_on_id === Number(userId));
+
+                  if (isCurrentUserAction && isTargetUser) {
+                    hasInterest = data.interest === true || data.interest === "true";
+                    hasShortlist = data.shortlisted === true || data.shortlisted === "true";
+                    hasBlock = data.blocked === true || data.blocked === "true";
+                  }
+                }
+
+                setInterestStatus(hasInterest);
+                setShortlistStatus(hasShortlist);
+                setBlockStatus(hasBlock);
+              },
+              setErrors: (error) => {
+                setInterestStatus(false);
+                setShortlistStatus(false);
+                setBlockStatus(false);
+              }
+            });
+          }
         } catch (error) {
           // Fallback: set all to false if error occurs
           setInterestStatus(false);
@@ -108,7 +182,7 @@ const UserDetailProfessional = () => {
 
       checkActionStatus();
     }
-  }, [userData, isOwnProfile, currentUserId, userId]);
+  }, [userData, isOwnProfile, currentUserId, userId, isAgent]);
 
   // Profile Image
   const getProfileImage = () => {
@@ -137,35 +211,72 @@ const UserDetailProfessional = () => {
         sendAction('interest', false);
       }
     } else {
-      sendAction('interest', true);
+      // If agent, open MemberSendInterest modal
+      if (isAgent) {
+        setShowMemberSendInterest(true);
+      } else {
+        // Regular user - send directly
+        sendAction('interest', true);
+      }
     }
   };
 
   const handleShortlist = () => {
     const newShortlistStatus = !shortlistStatus;
     
-    const parameter = {
-      url: `/api/recieved/`,
-      payload: {
-        action_by_id: currentUserId,
-        action_on_id: userId,
-        shortlisted: newShortlistStatus
-      },
-      setErrors: setErrors,
-      tofetch: {
-        items: [{
-          fetchurl: `/api/user/${userId}/`,
-          dataset: setUserData,
+    // For agent, use agent shortlist API endpoint
+    // For regular user, use regular shortlist API
+    if (isAgent) {
+      // Agent shortlist API
+      const parameter = {
+        url: `/api/agent/shortlist/`,
+        payload: {
+          action_on_id: parseInt(userId),
+          shortlisted: newShortlistStatus
+        },
+        setErrors: setErrors,
+        tofetch: {
+          items: [{
+            fetchurl: `/api/user/${userId}/`,
+            dataset: setUserData,
+            setErrors: setErrors
+          }],
           setErrors: setErrors
-        }],
-        setErrors: setErrors
-      }
-    };
+        }
+      };
 
-    postDataWithFetchV2(parameter);
+      postDataWithFetchV2(parameter);
+    } else {
+      // Regular user shortlist API
+      const parameter = {
+        url: `/api/recieved/`,
+        payload: {
+          action_by_id: currentUserId,
+          action_on_id: userId,
+          shortlisted: newShortlistStatus
+        },
+        setErrors: setErrors,
+        tofetch: {
+          items: [{
+            fetchurl: `/api/user/${userId}/`,
+            dataset: setUserData,
+            setErrors: setErrors
+          }],
+          setErrors: setErrors
+        }
+      };
+
+      postDataWithFetchV2(parameter);
+    }
     
     // Update local state
     setShortlistStatus(newShortlistStatus);
+    
+    if (newShortlistStatus) {
+      alert(isAgent ? 'Added to your shortlist successfully!' : 'Added to shortlist successfully!');
+    } else {
+      alert(isAgent ? 'Removed from your shortlist!' : 'Removed from shortlist!');
+    }
   };
 
   const handleBlock = () => {
@@ -493,6 +604,20 @@ const UserDetailProfessional = () => {
           )}
         </div>
       </div>
+
+      {/* Member Send Interest Modal for Agent */}
+      {isAgent && (
+        <MemberSendInterest
+          isOpen={showMemberSendInterest}
+          onClose={() => setShowMemberSendInterest(false)}
+          targetUserId={userId}
+          targetUserName={userData?.name || userData?.first_name || 'N/A'}
+          targetUserPhoto={userData?.profile_photo}
+          targetUserGender={userData?.gender}
+          targetUserData={userData}
+        />
+      )}
+
       <Footer />
     </div>
   );

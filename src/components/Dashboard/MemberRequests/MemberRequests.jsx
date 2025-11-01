@@ -12,6 +12,7 @@ const MemberRequests = () => {
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc', table: null }); // table: 'sent' or 'received'
   
   // Photo modal states
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -82,7 +83,9 @@ const MemberRequests = () => {
                       // Sender details from request.user
                       sender_name: request.user?.name || request.user?.first_name || request.user?.username || "N/A",
                       sender_id: request.user?.id || "N/A",
-                      sender_photo: request.user?.profile_photo || request.user?.upload_photo || null
+                      sender_photo: request.user?.profile_photo || request.user?.upload_photo || null,
+                      // Request ID for accept/reject actions
+                      request_id: request.request_id || request.id || request.photo_request_id
                     })));
                   }
                 }
@@ -141,6 +144,161 @@ const MemberRequests = () => {
       });
     } catch (e) {
       return dateString;
+    }
+  };
+
+  // Handle sorting
+  const handleSort = (columnKey, tableType) => {
+    let direction = 'asc';
+    if (sortConfig.key === columnKey && sortConfig.direction === 'asc' && sortConfig.table === tableType) {
+      direction = 'desc';
+    }
+    setSortConfig({ key: columnKey, direction, table: tableType });
+  };
+
+  // Sort data function - case insensitive
+  const getSortedData = (data, tableType) => {
+    if (!sortConfig.key || !data || data.length === 0 || sortConfig.table !== tableType) {
+      return data;
+    }
+
+    return [...data].sort((a, b) => {
+      let aValue, bValue;
+
+      // Get the value based on sort key
+      switch (sortConfig.key) {
+        case 'member_name':
+          aValue = ((a.member_name || '').toString()).toLowerCase();
+          bValue = ((b.member_name || '').toString()).toLowerCase();
+          break;
+        case 'recipient_name':
+          aValue = ((a.recipient_name || '').toString()).toLowerCase();
+          bValue = ((b.recipient_name || '').toString()).toLowerCase();
+          break;
+        case 'sender_name':
+          aValue = ((a.sender_name || '').toString()).toLowerCase();
+          bValue = ((b.sender_name || '').toString()).toLowerCase();
+          break;
+        case 'member_id':
+          aValue = parseInt(a.member_id || 0);
+          bValue = parseInt(b.member_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'recipient_id':
+          aValue = parseInt(a.recipient_id || 0);
+          bValue = parseInt(b.recipient_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'sender_id':
+          aValue = parseInt(a.sender_id || 0);
+          bValue = parseInt(b.sender_id || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'date':
+          aValue = new Date(a.created_at || 0);
+          bValue = new Date(b.created_at || 0);
+          if (sortConfig.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        case 'status':
+          aValue = ((a.status || '').toString()).toLowerCase();
+          bValue = ((b.status || '').toString()).toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      // For string comparisons (case insensitive) - already handled above
+      if (sortConfig.key === 'date' || sortConfig.key.includes('_id')) {
+        return 0; // Already handled above
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  // Handle accept photo request
+  const handleAcceptPhotoRequest = async (senderUserId, memberId) => {
+    if (!window.confirm('Are you sure you want to accept this photo request?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/photo-request-action/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_id: parseInt(memberId),
+          sender_user_id: parseInt(senderUserId),
+          action: 'accept'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Photo request accepted successfully');
+        // Refresh the data
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to accept photo request: ${errorData.error || errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Error accepting photo request: ' + error.message);
+    }
+  };
+
+  // Handle reject photo request
+  const handleRejectPhotoRequest = async (senderUserId, memberId) => {
+    if (!window.confirm('Are you sure you want to reject this photo request?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/member/photo-request-action/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_id: parseInt(memberId),
+          sender_user_id: parseInt(senderUserId),
+          action: 'reject'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Photo request rejected successfully');
+        // Refresh the data
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to reject photo request: ${errorData.error || errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert('Error rejecting photo request: ' + error.message);
     }
   };
 
@@ -220,7 +378,10 @@ const MemberRequests = () => {
         <div className="requests-tabs">
           <button
             className={`tab-button ${tabActive === "sent" ? "active" : ""}`}
-            onClick={() => setTabActive("sent")}
+            onClick={() => {
+              setTabActive("sent");
+              setSortConfig({ key: null, direction: 'asc', table: null });
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M22 2L11 13" strokeWidth="2" />
@@ -230,7 +391,10 @@ const MemberRequests = () => {
           </button>
           <button
             className={`tab-button ${tabActive === "received" ? "active" : ""}`}
-            onClick={() => setTabActive("received")}
+            onClick={() => {
+              setTabActive("received");
+              setSortConfig({ key: null, direction: 'asc', table: null });
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeWidth="2" />
@@ -261,16 +425,76 @@ const MemberRequests = () => {
                   <table className="requests-table">
                     <thead>
                       <tr>
-                        <th>Sent By</th>
-                        <th>Sent To</th>
-                        <th>Date</th>
-                        <th>Status</th>
+                        <th 
+                          className={sortConfig.table === 'sent' && sortConfig.key === 'member_name' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('member_name', 'sent')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Sent By
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'sent' && sortConfig.key === 'member_name' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'sent' && sortConfig.key === 'recipient_name' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('recipient_name', 'sent')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Sent To
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'sent' && sortConfig.key === 'recipient_name' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'sent' && sortConfig.key === 'date' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('date', 'sent')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Date
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'sent' && sortConfig.key === 'date' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'sent' && sortConfig.key === 'status' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('status', 'sent')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Status
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'sent' && sortConfig.key === 'status' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sentRequests.map((request, index) => (
+                      {getSortedData(sentRequests, 'sent').map((request, index) => (
                         <tr key={index}>
-                          <td>
+                          <td style={{ textAlign: 'center' }}>
                             <div className="table-member-info">
                               <img
                                 src={getProfileImageUrl(request.member_photo)}
@@ -283,7 +507,7 @@ const MemberRequests = () => {
                               </div>
                             </div>
                           </td>
-                          <td>
+                          <td style={{ textAlign: 'center' }}>
                             <div className="table-member-info">
                               <img
                                 src={getProfileImageUrl(request.recipient_photo)}
@@ -296,8 +520,8 @@ const MemberRequests = () => {
                               </div>
                             </div>
                           </td>
-                          <td>{formatDate(request.created_at)}</td>
-                          <td>
+                          <td style={{ textAlign: 'center' }}>{formatDate(request.created_at)}</td>
+                          <td style={{ textAlign: 'center' }}>
                             {request.status?.toLowerCase() === 'accepted' ? (
                               <button
                                 className={`status clickable-status ${request.status?.toLowerCase() || 'open'}`}
@@ -338,59 +562,156 @@ const MemberRequests = () => {
                   <table className="requests-table">
                     <thead>
                       <tr>
-                        <th>Received By</th>
-                        <th>Received From</th>
-                        <th>Date</th>
-                        <th>Status</th>
+                        <th 
+                          className={sortConfig.table === 'received' && sortConfig.key === 'member_name' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('member_name', 'received')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Received By
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'received' && sortConfig.key === 'member_name' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'received' && sortConfig.key === 'sender_name' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('sender_name', 'received')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Received From
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'received' && sortConfig.key === 'sender_name' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'received' && sortConfig.key === 'date' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('date', 'received')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Date
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'received' && sortConfig.key === 'date' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th 
+                          className={sortConfig.table === 'received' && sortConfig.key === 'status' ? 'sortable-header active' : 'sortable-header'}
+                          onClick={() => handleSort('status', 'received')}
+                          style={{ cursor: 'pointer', textAlign: 'center' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            Status
+                            <span className="sort-indicator">
+                              {sortConfig.table === 'received' && sortConfig.key === 'status' ? (
+                                sortConfig.direction === 'asc' ? '↑' : '↓'
+                              ) : (
+                                '⇅'
+                              )}
+                            </span>
+                          </div>
+                        </th>
+                        <th style={{ textAlign: 'center' }}>
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {receivedRequests.map((request, index) => (
-                        <tr key={index}>
-                          <td>
-                            <div className="table-member-info">
-                              <img
-                                src={getProfileImageUrl(request.member_photo)}
-                                alt={request.member_name}
-                                className="table-avatar"
-                              />
-                              <div>
-                                <div className="table-name">{request.member_name || "N/A"}</div>
-                                <div className="table-id">ID: {request.member_id}</div>
+                      {getSortedData(receivedRequests, 'received').map((request, index) => {
+                        const status = request.status?.toLowerCase() || 'open';
+                        const isPending = status === 'open' || status === 'requested';
+                        const senderUserId = request.sender_id || request.user?.id;
+                        
+                        return (
+                          <tr key={index}>
+                            <td style={{ textAlign: 'center' }}>
+                              <div className="table-member-info">
+                                <img
+                                  src={getProfileImageUrl(request.member_photo)}
+                                  alt={request.member_name}
+                                  className="table-avatar"
+                                />
+                                <div>
+                                  <div className="table-name">{request.member_name || "N/A"}</div>
+                                  <div className="table-id">ID: {request.member_id}</div>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="table-member-info">
-                              <img
-                                src={getProfileImageUrl(request.sender_photo)}
-                                alt={request.sender_name}
-                                className="table-avatar"
-                              />
-                              <div>
-                                <div className="table-name">{request.sender_name || "N/A"}</div>
-                                <div className="table-id">ID: {request.sender_id}</div>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div className="table-member-info">
+                                <img
+                                  src={getProfileImageUrl(request.sender_photo)}
+                                  alt={request.sender_name}
+                                  className="table-avatar"
+                                />
+                                <div>
+                                  <div className="table-name">{request.sender_name || "N/A"}</div>
+                                  <div className="table-id">ID: {request.sender_id}</div>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td>{formatDate(request.created_at)}</td>
-                          <td>
-                            {request.status?.toLowerCase() === 'accepted' ? (
-                              <button
-                                className={`status clickable-status ${request.status?.toLowerCase() || 'open'}`}
-                                onClick={() => handlePhotoClick(request.sender_id, request.sender_name)}
-                                title="Click to view photos"
-                              >
-                                {request.status || "Open"}
-                              </button>
-                            ) : (
-                              <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
-                                {request.status || "Open"}
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>{formatDate(request.created_at)}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              {request.status?.toLowerCase() === 'accepted' ? (
+                                <button
+                                  className={`status clickable-status ${request.status?.toLowerCase() || 'open'}`}
+                                  onClick={() => handlePhotoClick(request.sender_id, request.sender_name)}
+                                  title="Click to view photos"
+                                >
+                                  {request.status || "Open"}
+                                </button>
+                              ) : (
+                                <span className={`status ${request.status?.toLowerCase() || 'open'}`}>
+                                  {request.status || "Open"}
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {isPending && senderUserId && request.member_id ? (
+                                <div className="action-buttons" style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                                  <button
+                                    className="member-interest-agent-accept-btn"
+                                    onClick={() => handleAcceptPhotoRequest(senderUserId, request.member_id)}
+                                    title="Accept Photo Request"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                      <path d="M20 6 9 17l-5-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Accept
+                                  </button>
+                                  <button
+                                    className="member-interest-agent-reject-btn"
+                                    onClick={() => handleRejectPhotoRequest(senderUserId, request.member_id)}
+                                    title="Reject Photo Request"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                      <path d="M18 6 6 18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="no-action">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

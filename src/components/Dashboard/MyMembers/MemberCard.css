@@ -258,40 +258,8 @@
   flex: none;
 }
 
-.marital-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-  margin-left: auto;
-}
-
-.marital-badge.single {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.marital-badge.married {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.marital-badge.divorced {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.marital-badge.widowed {
-  background: #f3e8ff;
-  color: #7c3aed;
-}
-
-.marital-badge.not-mentioned {
-  background: #f1f5f9;
-  color: #64748b;
-}
+/* Marital badge styles moved to shared-styles.css for consistency */
+/* Use .mm-marital-badge class instead */
 
 /* Card Footer */
 .card-footer {

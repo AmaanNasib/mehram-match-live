@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MembersTable.css';
+import '../../../shared-styles.css';
 
 const MembersTable = ({ 
   members, 
@@ -161,7 +162,7 @@ const MembersTable = ({
                 <td>{member?.sect || member?.sect_school_info || "N/A"}</td>
                 <td>{member?.profession || "N/A"}</td>
                 <td>
-                  <span className={`marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                  <span className={`mm-marital-badge ${member?.martial_status ? member?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
                     {member?.martial_status || "Not mentioned"}
                   </span>
                 </td>
