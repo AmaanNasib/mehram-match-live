@@ -1477,12 +1477,33 @@ const MyMembers = () => {
         if (response.ok && data.success) {
           console.log('Member removed successfully:', data);
           
-          // Remove from UI after animation completes
+          // Remove from apiData (structure: { member: [] })
           setApiData(prevData => {
-            if (Array.isArray(prevData)) {
+            if (prevData && prevData.member && Array.isArray(prevData.member)) {
+              return {
+                ...prevData,
+                member: prevData.member.filter(member => member.id !== memberToDelete.id)
+              };
+            } else if (Array.isArray(prevData)) {
               return prevData.filter(member => member.id !== memberToDelete.id);
             }
             return prevData;
+          });
+          
+          // Remove from allMembers (direct array update)
+          setAllMembers(prevMembers => {
+            return prevMembers.filter(member => member.id !== memberToDelete.id);
+          });
+          
+          // Remove from filteredItems (will trigger re-render)
+          setFilteredItems(prevFiltered => {
+            const updated = prevFiltered.filter(member => member.id !== memberToDelete.id);
+            // If current page becomes empty, go to previous page
+            const newTotalPages = Math.ceil(updated.length / itemsPerPage);
+            if (currentPage > newTotalPages && newTotalPages > 0) {
+              setCurrentPage(newTotalPages);
+            }
+            return updated;
           });
           
           // Show success message
@@ -2390,6 +2411,7 @@ useEffect(() => {
                     onEdit={(member) => navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } })}
                     onViewMatches={(member) => navigate(`/member-matches/${member.member_id}`)}
                     onViewProfile={(memberId) => navigate(`/details/${memberId}`)}
+                    isDeleting={isDeleting && memberToDelete?.id === member.id}
                   />
                 ))}
               </div>

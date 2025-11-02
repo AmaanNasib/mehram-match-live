@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "./DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
+import api from "../../../api";
 import MatchDetailsComponents from "./MatchDetails";
 
 ChartJS.register(
@@ -58,6 +59,7 @@ const UserDashboard = () => {
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId'));
+  const [creatingMember, setCreatingMember] = useState(false);
   
   // Week filtering states
   const [selectedTimePeriod, setSelectedTimePeriod] = useState('till_date');
@@ -1140,49 +1142,7 @@ const UserDashboard = () => {
             </div>
           </div>
           <div className="header-right">
-            <button
-              onClick={() => {
-                console.log('=== MANUAL REFRESH DEBUG ===');
-                console.log('Current role:', role);
-                console.log('Current userId:', userId);
-                console.log('Current userProfile:', userProfile);
-                console.log('Current apiData2 (shortlist):', apiData2);
-                console.log('=== END DEBUG ===');
-                refreshDashboardData();
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                marginRight: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                <path d="M3 21v-5h5" />
-              </svg>
-              Refresh Data
-            </button>
+          
             {/* <div className="user-stats-summary">
               <div className="stat-item">
                 <span className="stat-label">
@@ -1267,15 +1227,37 @@ const UserDashboard = () => {
             </div>
             <div className="quick-actions-grid">
               <div 
-                className="quick-action-card cursor-pointer hover:shadow-lg transition-all duration-200"
-                onClick={() => {
-                  navigate('/memstepone', {
-                    state: {
-                      username: "memberCreation",
-                      isNewMember: true,
-                      clearForm: true
+                className={`quick-action-card cursor-pointer hover:shadow-lg transition-all duration-200 ${creatingMember ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={async () => {
+                  if (creatingMember) return;
+                  try {
+                    setCreatingMember(true);
+                    const agentId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
+                    const payload = {
+                      source: "app",
+                      agent_id: agentId ? Number(agentId) : undefined,
+                    };
+                    const response = await api.post("/api/user/", payload);
+                    const newMemberId = response?.data?.id || response?.data?.member_id || response?.data?.user?.id;
+                    if (newMemberId) {
+                      navigate(`/memstepone/${newMemberId}`, {
+                        state: {
+                          isNewMember: true,
+                          clearForm: true,
+                        },
+                      });
+                    } else {
+                      // Fallback: navigate to step one without id if backend didn't return it
+                      navigate("/memstepone/0", {
+                        state: { isNewMember: true, clearForm: true },
+                      });
                     }
-                  });
+                  } catch (err) {
+                    console.error("Failed to create member:", err);
+                    alert("Member create karne me problem aayi. Thodi der baad try karein.");
+                  } finally {
+                    setCreatingMember(false);
+                  }
                 }}
               >
                 <div className="action-icon">
@@ -1285,8 +1267,8 @@ const UserDashboard = () => {
                   </svg>
                 </div>
                 <div className="action-content">
-                  <h4>Add New Member</h4>
-                  <p>Register a new member profile</p>
+                  <h4>{creatingMember ? 'Creating...' : 'Add New Member'}</h4>
+                  <p>{creatingMember ? 'Please wait...' : 'Register a new member profile'}</p>
                 </div>
               </div>
               <div 

@@ -12,22 +12,28 @@ import { useLocation } from "react-router-dom";
 
 const MemStepOne = () => {
   const navigate = useNavigate();
+  const params = useParams();
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [setErrors, setsetErrors] = useState(null);
   const [member_id, setmemErrors] = useState(null);
+  const [formSubmitted, setFormSubmitted] = useState(false); // Track if form was successfully submitted
   const location = useLocation();
   const { username, age, isNewMember, clearForm, editMode, memberId } = location.state || {};
   console.log(username, ">>>>>>>");
   console.log("Edit Mode:", editMode, "Member ID:", memberId);
   
-  // Determine userId based on the context
+  // Determine userId based on the context - use params first if available
   let userId;
   if (editMode && memberId) {
     // When editing a member, use the memberId from the state
     userId = memberId;
     console.log("MemStepOne: Using memberId for edit mode:", userId);
+  } else if (params.userId && params.userId !== '0' && params.userId !== 'null') {
+    // Use userId from URL params if available and valid
+    userId = params.userId;
+    console.log("MemStepOne: Using userId from URL params:", userId);
   } else if (username == "memberCreation") {
     userId = localStorage.getItem("member_id");
   } else if (isNewMember && clearForm) {
@@ -35,6 +41,27 @@ const MemStepOne = () => {
   } else {
     userId = localStorage.getItem("userId");
   }
+  
+  // Store the created member ID for cleanup if needed
+  const createdMemberIdRef = React.useRef(userId);
+  const profileDataRef = React.useRef(null); // Will be initialized after profileData is declared
+  const formSubmittedRef = React.useRef(false);
+  const isNewMemberRef = React.useRef(isNewMember);
+  const editModeRef = React.useRef(editMode);
+  
+  // Update refs whenever they change (profileData ref will be updated after profileData is declared)
+  
+  React.useEffect(() => {
+    formSubmittedRef.current = formSubmitted;
+  }, [formSubmitted]);
+  
+  React.useEffect(() => {
+    isNewMemberRef.current = isNewMember;
+  }, [isNewMember]);
+  
+  React.useEffect(() => {
+    editModeRef.current = editMode;
+  }, [editMode]);
   
   // Debug: Log userId determination
   console.log("MemStepOne: Determined userId:", userId);
@@ -384,6 +411,8 @@ const MemStepOne = () => {
         console.log("Creating new member - using POST request");
         // Clear any existing member_id to ensure new member creation
         localStorage.removeItem("member_id");
+        // Mark form as submitted to prevent cleanup deletion
+        setFormSubmitted(true);
         // Always use POST for new member creation
         updatePostDataReturnId(parameters);
       } else if (editMode) {
@@ -396,6 +425,65 @@ const MemStepOne = () => {
       }
     }
   };
+
+  // Cleanup effect: Delete member if user navigates away without filling form
+  useEffect(() => {
+    // Store member ID for cleanup
+    if (userId && isNewMember && !editMode) {
+      createdMemberIdRef.current = userId;
+    }
+  }, [userId, isNewMember, editMode]);
+
+  // Separate cleanup effect that only runs on unmount
+  useEffect(() => {
+    // Cleanup function - runs when component unmounts
+    return () => {
+      // Only cleanup if:
+      // 1. Form was not submitted successfully
+      // 2. It's a new member (not edit mode)
+      // 3. Member ID exists
+      // 4. Form appears to be empty (no meaningful data entered)
+      if (!formSubmittedRef.current && isNewMemberRef.current && !editModeRef.current && createdMemberIdRef.current) {
+        const memberIdToCleanup = createdMemberIdRef.current;
+        
+        // Check if form has any meaningful data using ref (always current)
+        const currentProfileData = profileDataRef.current;
+        // Check if profileData exists and has any meaningful data
+        const hasFormData = currentProfileData && (
+          currentProfileData.first_name?.trim() || 
+          currentProfileData.last_name?.trim() ||
+          currentProfileData.gender?.trim() ||
+          currentProfileData.dob?.trim() ||
+          currentProfileData.city?.trim() ||
+          currentProfileData.profession?.trim()
+        );
+        
+        if (!hasFormData) {
+          console.log("Cleaning up empty member:", memberIdToCleanup);
+          
+          // Delete the member via API
+          fetch(`${process.env.REACT_APP_API_URL}/api/user/${memberIdToCleanup}/`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => {
+            if (response.ok) {
+              console.log("Empty member deleted successfully:", memberIdToCleanup);
+            } else {
+              console.warn("Failed to delete empty member:", memberIdToCleanup);
+            }
+          })
+          .catch(error => {
+            console.error("Error deleting empty member:", error);
+          });
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount/unmount
 
   const handleFieldChange = (field, value) => {
     console.log(field, value, ">>>>>");
@@ -640,6 +728,10 @@ const MemStepOne = () => {
     weight: "",
   });
 
+  // Update profileDataRef after profileData is declared
+  React.useEffect(() => {
+    profileDataRef.current = profileData;
+  }, [profileData]);
 
   // Function to get marital status options based on gender
   const getMaritalStatusOptions = (gender) => {
