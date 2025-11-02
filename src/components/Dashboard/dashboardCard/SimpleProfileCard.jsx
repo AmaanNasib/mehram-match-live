@@ -13,6 +13,32 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onBlo
   const cardRef = useRef(null);
   const navigate = useNavigate();
 
+  // Get profile photo URL with proper API base URL
+  const getProfilePhotoUrl = () => {
+    const photoUrl = profile?.profile_photo?.upload_photo || 
+                    profile?.user_profilephoto?.upload_photo ||
+                    profile?.profile_photo ||
+                    profile?.profile_image ||
+                    profile?.avatar ||
+                    profile?.photo ||
+                    profile?.image ||
+                    profile?.user_profilephoto?.photo ||
+                    profile?.user_profilephoto?.image;
+    
+    if (!photoUrl) {
+      return "https://via.placeholder.com/200";
+    }
+    
+    // If it's already a full URL, return as is
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+      return photoUrl;
+    }
+    
+    // Otherwise, prepend API base URL
+    const fullUrl = `${process.env.REACT_APP_API_URL}${photoUrl}`;
+    return fullUrl;
+  };
+
   // Check actual interest status on component mount
   useEffect(() => {
     const checkInterestStatus = async () => {
@@ -544,10 +570,13 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onBlo
       {/* Profile Photo with Online Badge */}
       <div className="simple-profile-photo">
         <img 
-          src={profile?.profile_photo || "https://via.placeholder.com/200"} 
-          alt={profile?.name || "Profile"} 
+          src={getProfilePhotoUrl()} 
+          alt={profile?.name || "Profile"}
+          onError={(e) => {
+            e.target.src = "https://via.placeholder.com/200";
+          }}
         />
-        <div className="online-badge"></div>
+        {/* <div className="online-badge"></div>0*/}
       </div>
 
       {/* Profile Info Section */}

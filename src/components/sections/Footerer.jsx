@@ -133,11 +133,35 @@ const Footer = () => {
                     </Col>
                     <Col>
                         <div className="social-icons">
-                            <FaFacebook className="social-icon facebook" />
-                            <FaTwitter className="social-icon twitter" />
-                            <FaInstagram className="social-icon instagram" />
-                            <FaYoutube className="social-icon youtube" />
+                            <a
+  href="https://www.facebook.com/mehrammatch?mibextid=ZbWKwL"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <FaFacebook className="social-icon facebook" />
+</a>
+                            <a
+  href="https://www.instagram.com/mehrammatch?igsh=MWpxMXh6eWRlZ3hxMw=="
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <FaInstagram className="social-icon instagram" />
+</a>
+                            <a
+                              href="https://youtube.com/@mehrammatch?si=HUR2BfvfiLTidsqm"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaYoutube className="social-icon youtube" />
+                              </a>
+                            
+                            <a
+  href="https://www.linkedin.com/in/mehram-match-70a197358/?originalSubdomain=in"
+  target="_blank"
+  rel="noopener noreferrer"
+>
                             <FaLinkedin className="social-icon linkedin" />
+</a>
                         </div>
                     </Col>
                 </Row>

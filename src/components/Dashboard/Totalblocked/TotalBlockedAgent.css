@@ -120,12 +120,40 @@
   color: #374151;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border-right: 1px solid #dee2e6;
   cursor: pointer;
   user-select: none;
 }
 
+.tba-data-table th:last-child {
+  border-right: none;
+}
+
 .tba-data-table th:hover {
   background: #f3f4f6;
+}
+
+.tba-data-table .tba-sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tba-data-table .tba-sortable-header:hover {
+  background: #f1f5f9;
+  color: #3b82f6;
+}
+
+.tba-data-table .tba-sort-indicator {
+  margin-left: 8px;
+  font-weight: bold;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.tba-data-table .tba-sortable-header:hover .tba-sort-indicator {
+  color: #3b82f6;
 }
 
 .tba-data-table tbody tr {
@@ -141,6 +169,24 @@
   padding: 16px;
   font-size: 14px;
   color: #374151;
+  border-right: 1px solid #f1f3f4;
+  text-align: center;
+}
+
+.tba-data-table td:last-child {
+  border-right: none;
+}
+
+/* Photo cell centering */
+.tba-data-table td img {
+  display: block;
+  margin: 0 auto;
+}
+
+.tba-data-table td > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Marital badge styles moved to shared-styles.css for consistency across all components */
@@ -335,4 +381,73 @@
 .tba-confirm-btn:hover:not(:disabled) {
   background: #b91c1c;
   transform: translateY(-1px);
+}
+
+/* Filter Container - Same as TotalShortlistAgent */
+.shortlist-agent-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.shortlist-agent-filter-button,
+.shortlist-agent-reset-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shortlist-agent-filter-button:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.shortlist-agent-reset-filter {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.shortlist-agent-reset-filter:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.shortlist-agent-filter-button .icon,
+.shortlist-agent-reset-filter .icon {
+  font-size: 16px;
+}
+
+.shortlist-agent-filter-dropdown {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff;
+  color: #374151;
+  transition: border-color 0.2s ease;
+}
+
+.shortlist-agent-filter-dropdown:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.shortlist-agent-filter-dropdown::placeholder {
+  color: #9ca3af;
 }

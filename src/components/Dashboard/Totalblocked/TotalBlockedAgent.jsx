@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
-import { AiOutlineReload } from "react-icons/ai";
+import { AiOutlineReload, AiOutlineFilter, AiOutlineRedo } from "react-icons/ai";
 import "./TotalBlockedAgent.css";
 import "../../../shared-styles.css";
 
@@ -16,6 +16,15 @@ const TotalBlockedAgent = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showUnblockModal, setShowUnblockModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [filters, setFilters] = useState({
+    id: '',
+    name: '',
+    city: '',
+    sectSchoolInfo: '',
+    profession: '',
+    martialStatus: '',
+    gender: '',
+  });
   const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
 
   // Pagination
@@ -52,46 +61,159 @@ const TotalBlockedAgent = () => {
     }
   }, [userId]);
 
-  useEffect(() => {
-    setFilteredItems(matchDetails?.blocked_users || []);
-  }, [matchDetails]);
+  // Filter functionality
+  const handleFilterChange = (column, value) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, [column]: value };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
 
-  // Search functionality
-  useEffect(() => {
-    if (!searchQuery) {
-      setFilteredItems(matchDetails?.blocked_users || []);
-      return;
-    }
+  const onClearFilterClick = () => {
+    const clear = {
+      id: '',
+      name: '',
+      city: '',
+      sectSchoolInfo: '',
+      profession: '',
+      martialStatus: '',
+      gender: '',
+    };
+    setFilters(clear);
+    applyFilters(clear);
+  };
 
-    const filtered = (matchDetails?.blocked_users || []).filter(match => {
-      const searchLower = searchQuery.toLowerCase();
+  const applyFilters = (updatedFilters) => {
+    const filteredResults = (matchDetails?.blocked_users || []).filter((item) => {
+      const user = item.user || {};
       return (
-        match?.user?.name?.toLowerCase().includes(searchLower) ||
-        match?.user?.member_id?.toLowerCase().includes(searchLower) ||
-        match?.user?.city?.toLowerCase().includes(searchLower) ||
-        match?.user?.profession?.toLowerCase().includes(searchLower) ||
-        match?.user?.sect?.toLowerCase().includes(searchLower) ||
-        match?.user?.martial_status?.toLowerCase().includes(searchLower)
+        (updatedFilters.id ? 
+          updatedFilters.id.split(' ').every(word => {
+            const w = String(word).toLowerCase();
+            const idStr = user?.id != null ? String(user.id) : '';
+            const mid = user?.member_id || '';
+            const idMatch = idStr.toLowerCase().includes(w);
+            const memberIdMatch = mid.toLowerCase().includes(w);
+            return idMatch || memberIdMatch;
+          }) : true) &&
+        (updatedFilters.name
+          ? user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase())
+          : true) &&
+        (updatedFilters.city
+          ? (() => {
+              const haystack = [
+                user?.location,
+                user?.city,
+                user?.state,
+                user?.country
+              ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+              const words = String(updatedFilters.city).trim().split(/\s+/);
+              return words.every((w) => haystack.includes(w.toLowerCase()));
+            })()
+          : true) &&
+        (updatedFilters.sectSchoolInfo
+          ? user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase())
+          : true) &&
+        (updatedFilters.profession
+          ? user?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase())
+          : true) &&
+        (updatedFilters.martialStatus
+          ? user?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase())
+          : true) &&
+        (updatedFilters.gender
+          ? user?.gender?.toLowerCase() === updatedFilters.gender.toLowerCase()
+          : true)
       );
     });
+    setFilteredItems(filteredResults);
+  };
 
-    setFilteredItems(filtered);
-  }, [searchQuery, matchDetails]);
+  useEffect(() => {
+    applyFilters(filters);
+  }, [matchDetails]);
 
   // Sort functionality
   useEffect(() => {
     if (!sortConfig.key) return;
 
     const sortedData = [...filteredItems].sort((a, b) => {
-      const aValue = sortConfig.key === 'date' ? a.date : a?.user?.[sortConfig.key];
-      const bValue = sortConfig.key === 'date' ? b.date : b?.user?.[sortConfig.key];
+      let aValue, bValue;
 
+      // Handle different sort keys
+      switch (sortConfig.key) {
+        case 'member_id':
+          aValue = a?.user?.member_id || a?.member_id || '';
+          bValue = b?.user?.member_id || b?.member_id || '';
+          break;
+        case 'name':
+          aValue = a?.user?.name || '';
+          bValue = b?.user?.name || '';
+          break;
+        case 'age':
+          aValue = parseInt(a?.user?.age) || 0;
+          bValue = parseInt(b?.user?.age) || 0;
+          break;
+        case 'city':
+          aValue = a?.user?.city || a?.user?.location || '';
+          bValue = b?.user?.city || b?.user?.location || '';
+          break;
+        case 'sect':
+          aValue = a?.user?.sect || a?.user?.sect_school_info || '';
+          bValue = b?.user?.sect || b?.user?.sect_school_info || '';
+          break;
+        case 'profession':
+          aValue = a?.user?.profession || '';
+          bValue = b?.user?.profession || '';
+          break;
+        case 'martial_status':
+          aValue = a?.user?.martial_status || '';
+          bValue = b?.user?.martial_status || '';
+          break;
+        case 'date':
+          aValue = a.date;
+          bValue = b.date;
+          break;
+        default:
+          aValue = a?.user?.[sortConfig.key] || '';
+          bValue = b?.user?.[sortConfig.key] || '';
+      }
+
+      // Handle date sorting
       if (sortConfig.key === 'date') {
         const dateA = new Date(aValue);
         const dateB = new Date(bValue);
         return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
       }
 
+      // Handle numeric sorting (age)
+      if (sortConfig.key === 'age') {
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+      // Case-insensitive string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const aLower = aValue.toLowerCase();
+        const bLower = bValue.toLowerCase();
+        if (aLower < bLower) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aLower > bLower) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+      // Fallback comparison
       if (aValue < bValue) {
         return sortConfig.direction === 'asc' ? -1 : 1;
       }
@@ -226,6 +348,164 @@ const TotalBlockedAgent = () => {
           </div>
         </div>
 
+        {/* Filters Section */}
+        <div className="shortlist-agent-filter-container">
+          <button className="shortlist-agent-filter-button">
+            <AiOutlineFilter className="icon" /> Filter
+          </button>
+          <input
+            className="shortlist-agent-filter-dropdown"
+            type="text"
+            value={filters.id}
+            onChange={(e) => handleFilterChange("id", e.target.value)}
+            placeholder="Enter ID"
+            style={{ width: "70px" }}
+          />
+          <input
+            className="shortlist-agent-filter-dropdown"
+            type="text"
+            value={filters.name}
+            onChange={(e) => handleFilterChange("name", e.target.value)}
+            placeholder="Name"
+            style={{ width: "100px" }}
+          />
+          <input
+            className="shortlist-agent-filter-dropdown"
+            type="text"
+            value={filters.city}
+            onChange={(e) => handleFilterChange("city", e.target.value)}
+            placeholder="Location"
+            style={{ width: "100px" }}
+          />
+          <select
+            className="shortlist-agent-filter-dropdown"
+            value={filters.sectSchoolInfo}
+            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+          >
+            <option value="">Sect</option>
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+          <select
+            className="shortlist-agent-filter-dropdown"
+            value={filters.profession}
+            onChange={(e) => handleFilterChange('profession', e.target.value)}
+          >
+            <option value="">Profession</option>
+            <option value="accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="actor">Actor</option>
+            <option value="administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="air_hostess">Air Hostess</option>
+            <option value="airline_professional">Airline Professional</option>
+            <option value="airforce">Airforce</option>
+            <option value="architect">Architect</option>
+            <option value="artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="audiologist">Audiologist</option>
+            <option value="auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="chef">Chef</option>
+            <option value="civil_servant">Civil Servant</option>
+            <option value="clerk">Clerk</option>
+            <option value="coach">Coach</option>
+            <option value="consultant">Consultant</option>
+            <option value="counselor">Counselor</option>
+            <option value="dentist">Dentist</option>
+            <option value="designer">Designer</option>
+            <option value="doctor">Doctor</option>
+            <option value="engineer">Engineer</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="farmer">Farmer</option>
+            <option value="fashion_designer">Fashion Designer</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="government_employee">Government Employee</option>
+            <option value="graphic_designer">Graphic Designer</option>
+            <option value="homemaker">Homemaker</option>
+            <option value="interior_designer">Interior Designer</option>
+            <option value="journalist">Journalist</option>
+            <option value="lawyer">Lawyer</option>
+            <option value="manager">Manager</option>
+            <option value="marketing_professional">Marketing Professional</option>
+            <option value="nurse">Nurse</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="photographer">Photographer</option>
+            <option value="pilot">Pilot</option>
+            <option value="police">Police</option>
+            <option value="professor">Professor</option>
+            <option value="psychologist">Psychologist</option>
+            <option value="researcher">Researcher</option>
+            <option value="sales_executive">Sales Executive</option>
+            <option value="scientist">Scientist</option>
+            <option value="social_worker">Social Worker</option>
+            <option value="software_consultant">Software Consultant</option>
+            <option value="sportsman">Sportsman</option>
+            <option value="teacher">Teacher</option>
+            <option value="technician">Technician</option>
+            <option value="therapist">Therapist</option>
+            <option value="veterinarian">Veterinarian</option>
+            <option value="writer">Writer</option>
+            <option value="other">Other</option>
+          </select>
+          <select
+            className="shortlist-agent-filter-dropdown"
+            value={filters.martialStatus}
+            onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+          >
+            <option value="">Marital Status</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Khula">Khula</option>
+            <option value="Widowed">Widowed</option>
+          </select>
+          <select
+            className="shortlist-agent-filter-dropdown"
+            value={filters.gender}
+            onChange={(e) => handleFilterChange('gender', e.target.value)}
+          >
+            <option value="">Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <button
+            type="button"
+            className="shortlist-agent-reset-filter"
+            onClick={onClearFilterClick}
+          >
+            <AiOutlineRedo className="icon" /> Reset
+          </button>
+        </div>
+
         {/* Search Bar */}
         <div className="tba-search-container">
           <input
@@ -242,47 +522,52 @@ const TotalBlockedAgent = () => {
           <table className="tba-data-table">
             <thead>
               <tr>
-                <th onClick={() => handleSort('member_id')}>
+                <th onClick={() => handleSort('member_id')} className="tba-sortable-header">
                   Member ID
                   {sortConfig.key === 'member_id' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th>Photo</th>
-                <th onClick={() => handleSort('name')}>
+                <th onClick={() => handleSort('name')} className="tba-sortable-header">
+                  Photo
+                  {sortConfig.key === 'name' && (
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('name')} className="tba-sortable-header">
                   Name
                   {sortConfig.key === 'name' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th onClick={() => handleSort('age')}>
+                <th onClick={() => handleSort('age')} className="tba-sortable-header">
                   Age
                   {sortConfig.key === 'age' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th onClick={() => handleSort('city')}>
+                <th onClick={() => handleSort('city')} className="tba-sortable-header">
                   Location
                   {sortConfig.key === 'city' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th onClick={() => handleSort('sect')}>
+                <th onClick={() => handleSort('sect')} className="tba-sortable-header">
                   Sect
                   {sortConfig.key === 'sect' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th onClick={() => handleSort('profession')}>
+                <th onClick={() => handleSort('profession')} className="tba-sortable-header">
                   Profession
                   {sortConfig.key === 'profession' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
-                <th onClick={() => handleSort('martial_status')}>
+                <th onClick={() => handleSort('martial_status')} className="tba-sortable-header">
                   Marital Status
                   {sortConfig.key === 'martial_status' && (
-                    <span>{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                    <span className="tba-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                   )}
                 </th>
                 <th>Actions</th>

@@ -17,20 +17,22 @@ const TotalInteractionAgent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [memberDetails, setMemberDetails] = useState({});
   const [loadingDetails, setLoadingDetails] = useState({});
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const itemsPerPage = 10;
 
   // Filter states
   const [filters, setFilters] = useState({
-    memberId: '',
-    name: '',
-    city: '',
-    profession: '',
-    sect: '',
-    maritalStatus: '',
-    status: '',
-    startDate: '',
-    endDate: ''
-  });
+      memberId: '',
+      name: '',
+      city: '',
+      profession: '',
+      sect: '',
+      maritalStatus: '',
+      gender: '',
+      status: '',
+      startDate: '',
+      endDate: ''
+    });
 
   // Fetch agent interaction data
   useEffect(() => {
@@ -43,6 +45,7 @@ const TotalInteractionAgent = () => {
         const interactionTable = data?.interaction_table || [];
         setInteractionData(interactionTable);
         setFilteredData(interactionTable);
+        setBaseFilteredData(interactionTable);
         setLoading(false);
       },
       setErrors: (error) => {
@@ -175,6 +178,12 @@ const TotalInteractionAgent = () => {
       );
     }
 
+    if (filters.gender) {
+      filtered = filtered.filter(item => 
+        item.member?.gender?.toLowerCase() === filters.gender.toLowerCase()
+      );
+    }
+
     if (filters.status) {
       filtered = filtered.filter(item => 
         item.interaction_summary?.total_interactions?.toString().includes(filters.status)
@@ -202,17 +211,217 @@ const TotalInteractionAgent = () => {
       profession: '',
       sect: '',
       maritalStatus: '',
+      gender: '',
       status: '',
       startDate: '',
       endDate: ''
     });
     setFilteredData(interactionData);
+    setBaseFilteredData(interactionData);
     setCurrentPage(1);
   };
 
+  // Store base filtered data (after filters, before sorting)
+  const [baseFilteredData, setBaseFilteredData] = useState([]);
+
+  // Update base filtered data when filters change
   useEffect(() => {
-    applyFilters();
-  }, [filters, interactionData]);
+    let filtered = [...interactionData];
+
+    if (filters.memberId) {
+      filtered = filtered.filter(item => 
+        item.member?.member_id?.toString().includes(filters.memberId)
+      );
+    }
+
+    if (filters.name) {
+      filtered = filtered.filter(item => 
+        item.member?.name?.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.city) {
+      filtered = filtered.filter(item => 
+        item.member?.city?.toLowerCase().includes(filters.city.toLowerCase())
+      );
+    }
+
+    if (filters.profession) {
+      filtered = filtered.filter(item => {
+        const memberProfession = item.member?.profession || '';
+        const detailsProfession = memberDetails[item.member?.id]?.profession || '';
+        const professionValue = (detailsProfession || memberProfession).toLowerCase();
+        const filterValue = filters.profession.toLowerCase();
+        return professionValue.includes(filterValue);
+      });
+    }
+
+    if (filters.sect) {
+      filtered = filtered.filter(item => {
+        const memberSect = item.member?.sect_school_info || '';
+        const detailsSect = memberDetails[item.member?.id]?.sect_school_info || '';
+        const sectValue = (detailsSect || memberSect).toLowerCase();
+        const filterValue = filters.sect.toLowerCase();
+        return sectValue.includes(filterValue);
+      });
+    }
+
+    if (filters.maritalStatus) {
+      filtered = filtered.filter(item => {
+        const memberMaritalStatus = item.member?.martial_status || '';
+        const detailsMaritalStatus = memberDetails[item.member?.id]?.martial_status || '';
+        const maritalStatusValue = (detailsMaritalStatus || memberMaritalStatus).toLowerCase();
+        const filterValue = filters.maritalStatus.toLowerCase();
+        return maritalStatusValue.includes(filterValue);
+      });
+    }
+
+    if (filters.gender) {
+      filtered = filtered.filter(item => {
+        const memberGender = item.member?.gender || '';
+        const detailsGender = memberDetails[item.member?.id]?.gender || '';
+        const genderValue = (detailsGender || memberGender).toLowerCase();
+        const filterValue = filters.gender.toLowerCase();
+        return genderValue === filterValue;
+      });
+    }
+
+    if (filters.status) {
+      filtered = filtered.filter(item => 
+        item.interaction_summary?.total_interactions?.toString().includes(filters.status)
+      );
+    }
+
+    if (filters.startDate && filters.endDate) {
+      filtered = filtered.filter(item => {
+        const itemDate = new Date(item.member?.created_at);
+        const startDate = new Date(filters.startDate);
+        const endDate = new Date(filters.endDate);
+        return itemDate >= startDate && itemDate <= endDate;
+      });
+    }
+
+    setBaseFilteredData(filtered);
+  }, [filters, interactionData, memberDetails]);
+
+  // Sort functionality
+  useEffect(() => {
+    if (!sortConfig.key) {
+      setFilteredData(baseFilteredData);
+      return;
+    }
+
+    const sortedData = [...baseFilteredData].sort((a, b) => {
+      let aValue, bValue;
+      const aDetails = memberDetails[a.member?.id];
+      const bDetails = memberDetails[b.member?.id];
+
+      // Handle different sort keys
+      switch (sortConfig.key) {
+        case 'member_id':
+          aValue = a.member?.member_id || '';
+          bValue = b.member?.member_id || '';
+          break;
+        case 'name':
+          aValue = a.member?.name || '';
+          bValue = b.member?.name || '';
+          break;
+        case 'age':
+          aValue = calculateAge(aDetails?.dob) === 'N/A' ? 0 : parseInt(calculateAge(aDetails?.dob)) || 0;
+          bValue = calculateAge(bDetails?.dob) === 'N/A' ? 0 : parseInt(calculateAge(bDetails?.dob)) || 0;
+          break;
+        case 'martial_status':
+          aValue = aDetails?.martial_status || '';
+          bValue = bDetails?.martial_status || '';
+          break;
+        case 'profession':
+          aValue = aDetails?.profession || '';
+          bValue = bDetails?.profession || '';
+          break;
+        case 'sect':
+          aValue = aDetails?.sect_school_info || '';
+          bValue = bDetails?.sect_school_info || '';
+          break;
+        case 'location':
+          aValue = a.member?.city || '';
+          bValue = b.member?.city || '';
+          break;
+        case 'total_interactions':
+          aValue = parseInt(a.interaction_summary?.total_interactions) || 0;
+          bValue = parseInt(b.interaction_summary?.total_interactions) || 0;
+          break;
+        case 'sent':
+          aValue = parseInt(a.interaction_summary?.sent_interactions) || 0;
+          bValue = parseInt(b.interaction_summary?.sent_interactions) || 0;
+          break;
+        case 'received':
+          aValue = parseInt(a.interaction_summary?.received_interactions) || 0;
+          bValue = parseInt(b.interaction_summary?.received_interactions) || 0;
+          break;
+        case 'last_activity':
+          const aLastActivity = a.sent_interactions?.length > 0 || a.received_interactions?.length > 0
+            ? Math.max(
+                ...(a.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+                ...(a.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+              )
+            : 0;
+          const bLastActivity = b.sent_interactions?.length > 0 || b.received_interactions?.length > 0
+            ? Math.max(
+                ...(b.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+                ...(b.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+              )
+            : 0;
+          aValue = aLastActivity;
+          bValue = bLastActivity;
+          break;
+        default:
+          return 0;
+      }
+
+      // Handle numeric sorting
+      if (['age', 'total_interactions', 'sent', 'received', 'last_activity'].includes(sortConfig.key)) {
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+      // Case-insensitive string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const aLower = aValue.toLowerCase();
+        const bLower = bValue.toLowerCase();
+        if (aLower < bLower) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aLower > bLower) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+      // Fallback comparison
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    setFilteredData(sortedData);
+  }, [sortConfig, memberDetails, baseFilteredData]);
+
+  const handleSort = (column) => {
+    let direction = 'asc';
+    if (sortConfig.key === column && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key: column, direction });
+  };
 
   const handleViewUserDetails = (user) => {
     setSelectedUser(user);
@@ -250,100 +459,160 @@ const TotalInteractionAgent = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="filter-container">
-          <button className="filter-button">
-            <AiOutlineFilter className="icon" /> Filter By
+        <div className="shortlist-agent-filter-container">
+          <button className="shortlist-agent-filter-button">
+            <AiOutlineFilter className="icon" /> Filter
           </button>
-          
           <input
-            className="filter-input"
+            className="shortlist-agent-filter-dropdown"
             type="text"
             value={filters.memberId}
             onChange={(e) => handleFilterChange('memberId', e.target.value)}
-            placeholder="Member ID"
+            placeholder="Enter ID"
+            style={{ width: "70px" }}
           />
-
           <input
-            className="filter-input"
+            className="shortlist-agent-filter-dropdown"
             type="text"
             value={filters.name}
             onChange={(e) => handleFilterChange('name', e.target.value)}
             placeholder="Name"
+            style={{ width: "100px" }}
           />
-
-          <select
-            className="filter-select"
+          <input
+            className="shortlist-agent-filter-dropdown"
+            type="text"
             value={filters.city}
             onChange={(e) => handleFilterChange('city', e.target.value)}
-          >
-            <option value="">All Cities</option>
-            {uniqueCities.map((city, index) => (
-              <option key={index} value={city}>{city}</option>
-            ))}
-          </select>
-
+            placeholder="Location"
+            style={{ width: "100px" }}
+          />
           <select
-            className="filter-select"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">All Professions</option>
-            {uniqueProfessions.map((profession, index) => (
-              <option key={index} value={profession}>{profession}</option>
-            ))}
-          </select>
-
-          <select
-            className="filter-select"
+            className="shortlist-agent-filter-dropdown"
             value={filters.sect}
             onChange={(e) => handleFilterChange('sect', e.target.value)}
           >
-            <option value="">All Sects</option>
-            {uniqueSects.map((sect, index) => (
-              <option key={index} value={sect}>{sect}</option>
-            ))}
+            <option value="">Sect</option>
+            <option value="Ahle Qur'an">Ahle Qur'an</option>
+            <option value="Ahamadi">Ahamadi</option>
+            <option value="Barelvi">Barelvi</option>
+            <option value="Bohra">Bohra</option>
+            <option value="Deobandi">Deobandi</option>
+            <option value="Hanabali">Hanabali</option>
+            <option value="Hanafi">Hanafi</option>
+            <option value="Ibadi">Ibadi</option>
+            <option value="Ismaili">Ismaili</option>
+            <option value="Jamat e Islami">Jamat e Islami</option>
+            <option value="Maliki">Maliki</option>
+            <option value="Pathan">Pathan</option>
+            <option value="Salafi">Salafi</option>
+            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+            <option value="Sayyid">Sayyid</option>
+            <option value="Shafi">Shafi</option>
+            <option value="Shia">Shia</option>
+            <option value="Sunni">Sunni</option>
+            <option value="Sufism">Sufism</option>
+            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+            <option value="Zahiri">Zahiri</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
-
           <select
-            className="filter-select"
+            className="shortlist-agent-filter-dropdown"
+            value={filters.profession}
+            onChange={(e) => handleFilterChange('profession', e.target.value)}
+          >
+            <option value="">Profession</option>
+            <option value="accountant">Accountant</option>
+            <option value="Acting Professional">Acting Professional</option>
+            <option value="actor">Actor</option>
+            <option value="administrator">Administrator</option>
+            <option value="Advertising Professional">Advertising Professional</option>
+            <option value="air_hostess">Air Hostess</option>
+            <option value="airline_professional">Airline Professional</option>
+            <option value="airforce">Airforce</option>
+            <option value="architect">Architect</option>
+            <option value="artist">Artist</option>
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="audiologist">Audiologist</option>
+            <option value="auditor">Auditor</option>
+            <option value="Bank Officer">Bank Officer</option>
+            <option value="Bank Staff">Bank Staff</option>
+            <option value="beautician">Beautician</option>
+            <option value="Biologist / Botanist">Biologist / Botanist</option>
+            <option value="Business Person">Business Person</option>
+            <option value="captain">Captain</option>
+            <option value="CEO / CTO / President">CEO / CTO / President</option>
+            <option value="chef">Chef</option>
+            <option value="civil_servant">Civil Servant</option>
+            <option value="clerk">Clerk</option>
+            <option value="coach">Coach</option>
+            <option value="consultant">Consultant</option>
+            <option value="counselor">Counselor</option>
+            <option value="dentist">Dentist</option>
+            <option value="designer">Designer</option>
+            <option value="doctor">Doctor</option>
+            <option value="engineer">Engineer</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="farmer">Farmer</option>
+            <option value="fashion_designer">Fashion Designer</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="government_employee">Government Employee</option>
+            <option value="graphic_designer">Graphic Designer</option>
+            <option value="homemaker">Homemaker</option>
+            <option value="interior_designer">Interior Designer</option>
+            <option value="journalist">Journalist</option>
+            <option value="lawyer">Lawyer</option>
+            <option value="manager">Manager</option>
+            <option value="marketing_professional">Marketing Professional</option>
+            <option value="nurse">Nurse</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="photographer">Photographer</option>
+            <option value="pilot">Pilot</option>
+            <option value="police">Police</option>
+            <option value="professor">Professor</option>
+            <option value="psychologist">Psychologist</option>
+            <option value="researcher">Researcher</option>
+            <option value="sales_executive">Sales Executive</option>
+            <option value="scientist">Scientist</option>
+            <option value="social_worker">Social Worker</option>
+            <option value="software_consultant">Software Consultant</option>
+            <option value="sportsman">Sportsman</option>
+            <option value="teacher">Teacher</option>
+            <option value="technician">Technician</option>
+            <option value="therapist">Therapist</option>
+            <option value="veterinarian">Veterinarian</option>
+            <option value="writer">Writer</option>
+            <option value="other">Other</option>
+          </select>
+          <select
+            className="shortlist-agent-filter-dropdown"
             value={filters.maritalStatus}
             onChange={(e) => handleFilterChange('maritalStatus', e.target.value)}
           >
-            <option value="">All Marital Status</option>
-            {uniqueMaritalStatuses.map((status, index) => (
-              <option key={index} value={status}>{status}</option>
-            ))}
+            <option value="">Marital Status</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Khula">Khula</option>
+            <option value="Widowed">Widowed</option>
           </select>
-
           <select
-            className="filter-select"
-            value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="shortlist-agent-filter-dropdown"
+            value={filters.gender}
+            onChange={(e) => handleFilterChange('gender', e.target.value)}
           >
-            <option value="">All Status</option>
-            {uniqueStatuses.map((status, index) => (
-              <option key={index} value={status}>{status}</option>
-            ))}
+            <option value="">Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
           </select>
-
-          <input
-            className="filter-input"
-            type="date"
-            value={filters.startDate}
-            onChange={(e) => handleFilterChange('startDate', e.target.value)}
-            placeholder="Start Date"
-          />
-
-          <input
-            className="filter-input"
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => handleFilterChange('endDate', e.target.value)}
-            placeholder="End Date"
-          />
-
-          <button type="button" className="reset-filter" onClick={clearFilters}>
-            <AiOutlineRedo className="icon" /> Reset Filter
+          <button
+            type="button"
+            className="shortlist-agent-reset-filter"
+            onClick={clearFilters}
+          >
+            <AiOutlineRedo className="icon" /> Reset
           </button>
         </div>
 
@@ -383,18 +652,78 @@ const TotalInteractionAgent = () => {
               <table className="interactions-table">
                 <thead>
                   <tr>
-                    <th>Member ID</th>
-                    <th>Photo</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Marital Status</th>
-                    <th>Profession</th>
-                    <th>Sect</th>
-                    <th>Location</th>
-                    <th>Total Interactions</th>
-                    <th>Sent</th>
-                    <th>Received</th>
-                    <th>Last Activity</th>
+                    <th onClick={() => handleSort('member_id')} className="tia-sortable-header">
+                      Member ID
+                      {sortConfig.key === 'member_id' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('name')} className="tia-sortable-header">
+                      Photo
+                      {sortConfig.key === 'name' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('name')} className="tia-sortable-header">
+                      Name
+                      {sortConfig.key === 'name' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('age')} className="tia-sortable-header">
+                      Age
+                      {sortConfig.key === 'age' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('martial_status')} className="tia-sortable-header">
+                      Marital Status
+                      {sortConfig.key === 'martial_status' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('profession')} className="tia-sortable-header">
+                      Profession
+                      {sortConfig.key === 'profession' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('sect')} className="tia-sortable-header">
+                      Sect
+                      {sortConfig.key === 'sect' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('location')} className="tia-sortable-header">
+                      Location
+                      {sortConfig.key === 'location' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('total_interactions')} className="tia-sortable-header">
+                      Total Interactions
+                      {sortConfig.key === 'total_interactions' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('sent')} className="tia-sortable-header">
+                      Sent
+                      {sortConfig.key === 'sent' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('received')} className="tia-sortable-header">
+                      Received
+                      {sortConfig.key === 'received' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('last_activity')} className="tia-sortable-header">
+                      Last Activity
+                      {sortConfig.key === 'last_activity' && (
+                        <span className="tia-sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
+                      )}
+                    </th>
                     <th>Actions</th>
                   </tr>
                 </thead>

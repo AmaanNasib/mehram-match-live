@@ -250,6 +250,20 @@ const TotalShortlistAgent = () => {
         return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
       }
 
+      // Case-insensitive string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const aLower = aValue.toLowerCase();
+        const bLower = bValue.toLowerCase();
+        if (aLower < bLower) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aLower > bLower) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+      // Numeric or other comparison
       if (aValue < bValue) {
         return sortConfig.direction === 'asc' ? -1 : 1;
       }
@@ -486,8 +500,22 @@ const TotalShortlistAgent = () => {
                     </span>
                   )}
                 </th>
-                <th>Photo</th>
-                <th>Name</th>
+                <th onClick={() => handleSort('name')} className="sortable-header">
+                  Photo
+                  {sortConfig.key === 'name' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
+                <th onClick={() => handleSort('name')} className="sortable-header">
+                  Name
+                  {sortConfig.key === 'name' && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </th>
                 <th onClick={() => handleSort('location')} className="sortable-header">
                   Location
                   {sortConfig.key === 'location' && (

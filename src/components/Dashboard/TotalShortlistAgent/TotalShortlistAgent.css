@@ -109,17 +109,24 @@
 .sortable-header {
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .sortable-header:hover {
-  background-color: rgba(194, 222, 247, 0.884);
+  background: #f1f5f9;
+  color: #3b82f6;
 }
 
 .sort-indicator {
   margin-left: 8px;
   font-weight: bold;
-  color: #fff;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.sortable-header:hover .sort-indicator {
+  color: #3b82f6;
 }
 
 .members-table tbody tr {
@@ -162,16 +169,26 @@
   font-weight: bold;
   text-transform: uppercase;
   border-bottom: 1px solid #ddd;
+  border-right: 1px solid #dee2e6;
   background: #f0f0f0;
   color: #333;
   font-size: 13px;
+}
+
+.interest-table th:last-child {
+  border-right: none;
 }
 
 .interest-table td {
   padding: 12px;
   text-align: center !important;
   border-bottom: 1px solid #ddd;
+  border-right: 1px solid #f1f3f4;
   vertical-align: middle;
+}
+
+.interest-table td:last-child {
+  border-right: none;
 }
 
 .interest-table td > img {

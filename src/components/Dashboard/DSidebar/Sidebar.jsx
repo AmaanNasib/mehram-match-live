@@ -662,6 +662,9 @@ const Sidebar = ({setApiData, onClose, reloadOriginalData}) => {
   const handleSearch = () => {
     setIsSearching(true);
     
+    // Smoothly scroll to top when search button is clicked
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     console.log('Search button clicked with filters:', {
       member_id: formData.memberID,
       martial_status: formData.maritalStatus,

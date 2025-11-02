@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
+import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai";
 import './MemberRequests.css';
 
 const MemberRequests = () => {
@@ -13,6 +14,17 @@ const MemberRequests = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc', table: null }); // table: 'sent' or 'received'
+  const [filters, setFilters] = useState({
+    id: '',
+    name: '',
+    city: '',
+    sectSchoolInfo: '',
+    profession: '',
+    martialStatus: '',
+    gender: '',
+  });
+  const [filteredSentRequests, setFilteredSentRequests] = useState([]);
+  const [filteredReceivedRequests, setFilteredReceivedRequests] = useState([]);
   
   // Photo modal states
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -93,6 +105,8 @@ const MemberRequests = () => {
               
               setSentRequests(allSentRequests);
               setReceivedRequests(allReceivedRequests);
+              setFilteredSentRequests(allSentRequests);
+              setFilteredReceivedRequests(allReceivedRequests);
               setLoading(false);
             })
             .catch(err => {
@@ -233,6 +247,82 @@ const MemberRequests = () => {
       return 0;
     });
   };
+
+  // Filter functionality
+  const handleFilterChange = (column, value) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, [column]: value };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
+
+  const onClearFilterClick = () => {
+    const clear = {
+      id: '',
+      name: '',
+      city: '',
+      sectSchoolInfo: '',
+      profession: '',
+      martialStatus: '',
+      gender: '',
+    };
+    setFilters(clear);
+    applyFilters(clear);
+  };
+
+  const applyFilters = (updatedFilters) => {
+    // Filter sent requests
+    const filteredSent = sentRequests.filter((item) => {
+      const memberName = item.member_name || '';
+      const recipientName = item.recipient_name || '';
+      const memberId = item.member_id || '';
+      const recipientId = item.recipient_id || '';
+      
+      return (
+        (updatedFilters.id ? 
+          updatedFilters.id.split(' ').every(word => {
+            const w = String(word).toLowerCase();
+            const idMatch = String(memberId).toLowerCase().includes(w) || 
+                          String(recipientId).toLowerCase().includes(w);
+            return idMatch;
+          }) : true) &&
+        (updatedFilters.name
+          ? memberName.toLowerCase().includes(updatedFilters.name.toLowerCase()) ||
+            recipientName.toLowerCase().includes(updatedFilters.name.toLowerCase())
+          : true)
+      );
+    });
+
+    // Filter received requests
+    const filteredReceived = receivedRequests.filter((item) => {
+      const memberName = item.member_name || '';
+      const senderName = item.sender_name || '';
+      const memberId = item.member_id || '';
+      const senderId = item.sender_id || '';
+      
+      return (
+        (updatedFilters.id ? 
+          updatedFilters.id.split(' ').every(word => {
+            const w = String(word).toLowerCase();
+            const idMatch = String(memberId).toLowerCase().includes(w) || 
+                          String(senderId).toLowerCase().includes(w);
+            return idMatch;
+          }) : true) &&
+        (updatedFilters.name
+          ? memberName.toLowerCase().includes(updatedFilters.name.toLowerCase()) ||
+            senderName.toLowerCase().includes(updatedFilters.name.toLowerCase())
+          : true)
+      );
+    });
+
+    setFilteredSentRequests(filteredSent);
+    setFilteredReceivedRequests(filteredReceived);
+  };
+
+  useEffect(() => {
+    applyFilters(filters);
+  }, [sentRequests, receivedRequests]);
 
   // Handle accept photo request
   const handleAcceptPhotoRequest = async (senderUserId, memberId) => {
@@ -492,7 +582,7 @@ const MemberRequests = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {getSortedData(sentRequests, 'sent').map((request, index) => (
+                      {getSortedData(filteredSentRequests, 'sent').map((request, index) => (
                         <tr key={index}>
                           <td style={{ textAlign: 'center' }}>
                             <div className="table-member-info">
@@ -632,7 +722,7 @@ const MemberRequests = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {getSortedData(receivedRequests, 'received').map((request, index) => {
+                      {getSortedData(filteredReceivedRequests, 'received').map((request, index) => {
                         const status = request.status?.toLowerCase() || 'open';
                         const isPending = status === 'open' || status === 'requested';
                         const senderUserId = request.sender_id || request.user?.id;
