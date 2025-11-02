@@ -182,6 +182,14 @@ const MemStepThree = () => {
     //   newErrors.number_of_siblings = "Number of siblings is required";
     // }
     if (profileData.number_of_siblings > 0) {
+      // Conditional mandatory: If siblings > 0, then number_of_brothers and number_of_sisters are required
+      if (!profileData.number_of_brothers || profileData.number_of_brothers === "") {
+        newErrors.number_of_brothers = "Number of brothers is required when you have siblings";
+      }
+      if (!profileData.number_of_sisters || profileData.number_of_sisters === "") {
+        newErrors.number_of_sisters = "Number of sisters is required when you have siblings";
+      }
+      // Validate that sum matches
       const totalSiblings = Number(profileData.number_of_brothers || 0) + Number(profileData.number_of_sisters || 0);
       if (totalSiblings !== Number(profileData.number_of_siblings)) {
         newErrors.number_of_siblings = "Number of siblings doesn't match brothers + sisters";
@@ -255,6 +263,14 @@ const MemStepThree = () => {
     //   newErrors.number_of_siblings = "Number of siblings is required";
     // }
     if (profileData.number_of_siblings > 0) {
+      // Conditional mandatory: If siblings > 0, then number_of_brothers and number_of_sisters are required
+      if (!profileData.number_of_brothers || profileData.number_of_brothers === "") {
+        newErrors.number_of_brothers = "Number of brothers is required when you have siblings";
+      }
+      if (!profileData.number_of_sisters || profileData.number_of_sisters === "") {
+        newErrors.number_of_sisters = "Number of sisters is required when you have siblings";
+      }
+      // Validate that sum matches
       const totalSiblings = Number(profileData.number_of_brothers || 0) + Number(profileData.number_of_sisters || 0);
       if (totalSiblings !== Number(profileData.number_of_siblings)) {
         newErrors.number_of_siblings = "Number of siblings doesn't match brothers + sisters";

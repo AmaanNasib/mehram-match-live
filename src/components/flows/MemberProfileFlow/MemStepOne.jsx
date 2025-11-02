@@ -76,6 +76,7 @@ const MemStepOne = () => {
     console.log("UserId in localStorage:", localStorage.getItem("userId"));
     console.log("Name in localStorage:", localStorage.getItem("name"));
     console.log("LoginTime in localStorage:", localStorage.getItem("loginTime"));
+    console.log("Role in localStorage:", localStorage.getItem("role"));
     console.log("=== END LOCALSTORAGE DEBUG ===");
     
     // Handle case where userId is null, undefined, or 'undefined'
@@ -337,6 +338,7 @@ const MemStepOne = () => {
         type_of_disability: apiData.type_of_disability,
         incomeRange: apiData.income,
         about_you: apiData.about_you,
+        contact_number: apiData.contact_number || null,
       };
       
       console.log("Form data to be set:", formDataToSet);
@@ -399,6 +401,7 @@ const MemStepOne = () => {
           hieght: profileData.hieght,
           weight: profileData.weight,
           income: profileData.incomeRange,
+          contact_number: profileData.contact_number,
           ...mem,
         },
         navigate: navigate,
@@ -563,7 +566,7 @@ const MemStepOne = () => {
       'first_name', 'last_name', 'dob', 'gender', 'marital_status',
       'country', 'state', 'city', 'native_country', 'native_state', 'native_city',
       'Education', 'profession', 'describe_job_business',
-      'disability', 'type_of_disability', 'incomeRange', 'about_you',
+      'disability', 'type_of_disability', 'incomeRange', 'about_you', 'contact_number',
     ];
 
     // Validate First Name
@@ -674,7 +677,18 @@ const MemStepOne = () => {
       newErrors.about_you = "Personal Values/About You is required";
     }
 
-    // No email, phone, password validations needed for agent member creation
+    // Validate Contact Number (mandatory only for agents adding new members or in edit mode)
+    const role = localStorage.getItem('role');
+    const shouldValidateContact = (role === 'agent' && isNewMember) || editMode;
+    
+    if (shouldValidateContact) {
+      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/; // Supports various phone formats
+      if (!profileData.contact_number?.trim()) {
+        newErrors.contact_number = "Contact Number is required";
+      } else if (!phoneRegex.test(profileData.contact_number.replace(/\s/g, ''))) {
+        newErrors.contact_number = "Please enter a valid contact number";
+      }
+    }
 
     console.log("newErrors", newErrors);
 
@@ -726,12 +740,40 @@ const MemStepOne = () => {
     about_you: "",
     height: "",
     weight: "",
+    contact_number: "",
   });
 
   // Update profileDataRef after profileData is declared
   React.useEffect(() => {
     profileDataRef.current = profileData;
   }, [profileData]);
+
+  // Auto-populate agent's contact number when agent adds a new member
+  React.useEffect(() => {
+    const role = localStorage.getItem('role');
+    if (role === 'agent' && isNewMember && !editMode && !profileData.contact_number) {
+      // Fetch agent's contact number
+      const agentParameter = {
+        url: `/api/agent/`,
+        setterFunction: (agentData) => {
+          const agentContactNumber = Array.isArray(agentData) 
+            ? (agentData.find(a => a.id == localStorage.getItem('userId'))?.contact_number || agentData[0]?.contact_number)
+            : agentData?.contact_number;
+          
+          if (agentContactNumber) {
+            console.log("Auto-populating agent contact number:", agentContactNumber);
+            setProfileData(prev => ({
+              ...prev,
+              contact_number: agentContactNumber
+            }));
+          }
+        },
+        setErrors: () => {},
+        setLoading: () => {},
+      };
+      fetchDataObjectV2(agentParameter);
+    }
+  }, [isNewMember, editMode]); // Run when isNewMember or editMode changes
 
   // Function to get marital status options based on gender
   const getMaritalStatusOptions = (gender) => {
@@ -2345,6 +2387,58 @@ const MemStepOne = () => {
                       <p className="text-red-500 text-sm">{formErrors.about_you}</p>
                     )}
                   </div>
+
+                  {/* Contact Number - Only show for agents adding new members or in edit mode */}
+                  {(() => {
+                    const role = localStorage.getItem('role');
+                    // Show field if: agent is adding new member OR in edit mode
+                    const shouldShowContactField = (role === 'agent' && isNewMember) || editMode;
+                    
+                    if (!shouldShowContactField) {
+                      return null; // Hide field for regular users who registered
+                    }
+                    
+                    return (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
+                          Contact Number <span className="text-red-500">*</span>
+                          <div className="group relative tooltip-container">
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTooltipClick('contact_number');
+                              }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'contact_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                              Enter your contact number (e.g., +91 9876543210)
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </label>
+                        <input
+                          type="tel"
+                          name="contact_number"
+                          value={profileData.contact_number || ""}
+                          onChange={(e) => handleFieldChange("contact_number", e.target.value)}
+                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
+                            formErrors.contact_number
+                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
+                          }`}
+                          placeholder="Enter your contact number"
+                        />
+                        {formErrors.contact_number && (
+                          <p className="text-red-500 text-sm">{formErrors.contact_number}</p>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
