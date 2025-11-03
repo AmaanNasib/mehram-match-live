@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import "./StepTracker.css";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const StepTracker = ({ percentage }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const pathname = location.pathname;
   const segments = pathname.split('/');
   const targetSegment = segments[1];
   const prefix = targetSegment.substring(0, 3);
   const [isTrue, setIsTrue] = useState(prefix !== "agn" ? false : false);
   const [isMobile, setIsMobile] = useState(false);
+  const routeMemberId = segments[2] || null; // e.g. /memsteptwo/:userId
+  const stateMemberId = location.state?.memberId || null;
+  const activeMemberId = stateMemberId || routeMemberId || localStorage.getItem('member_id') || localStorage.getItem('userId');
 
   // Check if device is mobile/tablet
   useEffect(() => {
@@ -46,6 +50,30 @@ const StepTracker = ({ percentage }) => {
   const currentStep = getCurrentStepFromPath();
   const totalSteps = prefix === "agn" ? 5 : 6;
   const completedSteps = currentStep - 1; // Use actual current step instead of percentage
+
+  // Build navigation path for a given step id with member context (agent editing allowed)
+  const getStepPath = (stepId) => {
+    const idSuffix = activeMemberId ? `/${activeMemberId}` : "";
+    if (prefix === 'agn') {
+      switch (stepId) {
+        case 1: return `/agnstepone${idSuffix}`;
+        case 2: return `/agnsteptwo${idSuffix}`;
+        case 3: return `/agnstepthree${idSuffix}`;
+        case 4: return `/agnstepfour${idSuffix}`;
+        case 5: return `/agnstepfive${idSuffix}`;
+        default: return `/agnstepone${idSuffix}`;
+      }
+    }
+    switch (stepId) {
+      case 1: return `/memstepone${idSuffix}`;
+      case 2: return `/memsteptwo${idSuffix}`;
+      case 3: return `/memstepthree${idSuffix}`;
+      case 4: return `/memstepfour${idSuffix}`;
+      case 5: return `/memstepfive${idSuffix}`;
+      case 6: return `/memstepsix${idSuffix}`;
+      default: return `/memstepone${idSuffix}`;
+    }
+  };
 
   // Auto-scroll to current step on mobile
   useEffect(() => {
@@ -315,7 +343,12 @@ const StepTracker = ({ percentage }) => {
     >
       <div className="step-tracker-container">
         {steps.map((step, index) => (
-          <div key={step.id} className="step-item">
+          <div
+            key={step.id}
+            className="step-item"
+            onClick={() => navigate(getStepPath(step.id))}
+            style={{ cursor: 'pointer' }}
+          >
             {/* Step Icon and Status */}
             <div className={`step-icon-container ${step.completed ? 'completed' : ''} ${step.current ? 'current' : ''}`}>
               <div className="step-icon">

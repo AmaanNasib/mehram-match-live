@@ -1,0 +1,113 @@
+{
+  "tech_stack": [
+    "JavaScript",
+    "React",
+    "React Router",
+    "Bootstrap",
+    "Tailwind CSS",
+    "Axios"
+  ],
+  "features": [
+    {
+      "name": "Member Profile Flow",
+      "description": "Multi-step profile creation flow for members with form validation and responsive design",
+      "files": [
+        "src/components/flows/MemberProfileFlow/MemStepOne.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepTwo.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepThree.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepFour.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepFive.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepSix.jsx",
+        "src/components/flows/MemberProfileFlow/MemStepPayment.jsx"
+      ]
+    },
+    {
+      "name": "Agent Profile Flow",
+      "description": "Multi-step profile creation flow for agents",
+      "files": [
+        "src/components/flows/AgentProfileFlowed/AgentStepOne.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepTwo.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepThree.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepFour.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepFive.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepSix.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepSeven.jsx",
+        "src/components/flows/AgentProfileFlowed/AgentStepPayment.jsx"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Main dashboard interface for users and agents with responsive layout",
+      "files": [
+        "src/components/Dashboard/NewDashboard.jsx",
+        "src/components/Dashboard/MobileDashboard.jsx",
+        "src/components/Dashboard/UserDashboard/UserDashboard.jsx",
+        "src/components/Dashboard/UserDashboard/DashboardLayout.jsx"
+      ]
+    },
+    {
+      "name": "Authentication",
+      "description": "Login, registration, and OTP verification system",
+      "files": [
+        "src/components/pages/LoginPage/LoginPage.jsx",
+        "src/components/pages/LoginPage/LoginOTP.jsx",
+        "src/components/pages/RegisterPage/RegisterPage.jsx",
+        "src/components/pages/LoginPage/Loginpop.jsx"
+      ]
+    },
+    {
+      "name": "Landing Page",
+      "description": "Main landing page with hero section, features, and responsive design",
+      "files": [
+        "src/components/pages/LandingPage/LandingPage.jsx",
+        "src/components/pages/LandingPage/HeroSection.jsx",
+        "src/components/pages/LandingPage/PackagesSection.jsx",
+        "src/components/pages/LandingPage/HowItWorksSection.jsx"
+      ]
+    },
+    {
+      "name": "Profile Management",
+      "description": "User profile viewing and editing functionality",
+      "files": [
+        "src/components/pages/MemProfile/MemProfile.jsx",
+        "src/components/UserProfile.jsx",
+        "src/components/sections/ProfileSection.jsx"
+      ]
+    },
+    {
+      "name": "Step Tracker",
+      "description": "Progress tracking component for multi-step forms with responsive mobile support",
+      "files": [
+        "src/components/StepTracker/StepTracker.jsx",
+        "src/components/StepTracker/StepTracker.css"
+      ]
+    },
+    {
+      "name": "API Utilities",
+      "description": "API helper functions for data fetching and posting",
+      "files": [
+        "src/apiUtils.js",
+        "src/api.js",
+        "src/services/mmApi.js"
+      ]
+    },
+    {
+      "name": "Routing",
+      "description": "Application routing configuration with private routes",
+      "files": [
+        "src/AllRoutes.js",
+        "src/components/PrivateRoute.jsx"
+      ]
+    },
+    {
+      "name": "Navigation Components",
+      "description": "Navigation bar and sidebar components with responsive design",
+      "files": [
+        "src/components/sections/TopBar.jsx",
+        "src/components/sections/Sidebar.jsx",
+        "src/components/sections/Navbar.jsx",
+        "src/components/header/MainNav.jsx"
+      ]
+    }
+  ]
+}

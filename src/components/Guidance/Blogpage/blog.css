@@ -298,6 +298,15 @@
     font-size: 1rem;
 }
 
+/* Indented quote block like PDF */
+.mm-quote{
+    margin: .5rem 0 .75rem 1.25rem;
+    padding-left: 1rem;
+    border-left: 3px solid #E754A6;
+    color: #111827;
+    font-weight: 700;
+}
+
 /* Floating action elements */
 .floating-elements {
     position: fixed;

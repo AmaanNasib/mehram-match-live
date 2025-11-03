@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000/memstepone/:userId",
+  "loginUser": "fatima@gmail.com",
+  "loginPassword": "Fatima@1234",
+  "executionArgs": {
+    "projectName": "MehramMatch_Final",
+    "projectPath": "D:\\MehramMatch_Final",
+    "testIds": [
+      "TC015"
+    ],
+    "additionalInstruction": "Start from /login, authenticate using provided credentials, then navigate to MemStepOne and perform responsiveness checks across mobile (375px), tablet (768px), and desktop (1920px). Verify no horizontal scroll and proper layout on each viewport.",
+    "envs": {
+      "API_KEY": "sk-user-1cogpvhG7o0vaL4tnc6w27uldcG_IusMp2rDuvY-GY5BNPDDUASHB-_Y6FWkps2ygVA51PnUL-pAhXouPFGyU5PU3MUHTNVeXT8vdG4DQVugwl0nOD0UGCN9xfiZLODddsc"
+    }
+  },
+  "proxy": "http://1cb6e962-6a39-4c88-9366-28faab128242:HuUzCjqOBowht4PmSRvHd2IEUH1NoQJY@tun.testsprite.com:8080"
+}

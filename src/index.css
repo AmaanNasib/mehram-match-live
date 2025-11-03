@@ -74,3 +74,15 @@ body {
 ::-webkit-scrollbar-button {
   display: none; /* Hides the scrollbar buttons */
 }
+
+/* Keep info tooltips visible within the form bounds on all devices */
+.tooltip-container > .absolute {
+  white-space: normal !important; /* allow wrapping instead of single-line overflow */
+  max-width: 18rem; /* constrain tooltip width so it stays inside form */
+  min-width: 12rem; /* avoid ultra-narrow column */
+  word-break: normal;
+  overflow-wrap: anywhere; /* wrap long words */
+  writing-mode: horizontal-tb !important; /* ensure horizontal text flow */
+  line-height: 1.25rem;
+  display: inline-block;
+}

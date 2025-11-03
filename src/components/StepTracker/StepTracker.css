@@ -1,10 +1,10 @@
 /* Modern Professional Step Tracker Styles - Clean & Professional */
 .modern-step-tracker {
-  position: fixed;
-  left: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1000;
+  position: sticky; /* prevent overlap with form on desktop */
+  top: 1rem;
+  left: auto;
+  transform: none;
+  z-index: 10;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 20px;
   padding: 2.5rem 2rem;
