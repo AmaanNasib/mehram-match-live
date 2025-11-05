@@ -5,6 +5,14 @@ import { updateDataV2 } from "../../../apiUtils";
 import { fetchDataObjectV2 } from "../../../apiUtils";
 import StepTracker from "../../StepTracker/StepTracker";
 
+// Production-safe logging helper
+const isDevelopment = process.env.NODE_ENV === 'development';
+const devLog = (...args) => {
+  if (isDevelopment) {
+    devLog(...args);
+  }
+};
+
 const MemStepTwo = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,10 +43,10 @@ const MemStepTwo = () => {
   const currentUserId = (member_id || memberIdFromStorage) || paramUserId || userId;
   
   // Debug logging for userId resolution
-  console.log("MemStepTwo: paramUserId:", paramUserId);
-  console.log("MemStepTwo: member_id from localStorage:", localStorage.getItem("member_id"));
-  console.log("MemStepTwo: userId from state:", userId);
-  console.log("MemStepTwo: currentUserId resolved:", currentUserId);
+  devLog("MemStepTwo: paramUserId:", paramUserId);
+  devLog("MemStepTwo: member_id from localStorage:", localStorage.getItem("member_id"));
+  devLog("MemStepTwo: userId from state:", userId);
+  devLog("MemStepTwo: currentUserId resolved:", currentUserId);
 
   useEffect(() => {
     if (currentUserId) {
@@ -55,9 +63,9 @@ const MemStepTwo = () => {
   useEffect(() => {
     // Check if apiData is an object with data (not empty array)
     if (apiData && typeof apiData === 'object' && !Array.isArray(apiData) && apiData.id) {
-      console.log("MemStepTwo: Loading data for user:", currentUserId);
-      console.log("MemStepTwo: API Data:", apiData);
-      console.log("MemStepTwo: Gender from API:", apiData.gender);
+      devLog("MemStepTwo: Loading data for user:", currentUserId);
+      devLog("MemStepTwo: API Data:", apiData);
+      devLog("MemStepTwo: Gender from API:", apiData.gender);
       setProfileData({
         percentage: apiData.profile_percentage || null,
         gender: apiData.gender || null,
@@ -205,7 +213,7 @@ const MemStepTwo = () => {
       };
       updateDataV2(parameters);
     } else {
-      console.log("Form has errors. Please fix them.");
+      devLog("Form has errors. Please fix them.");
     }
   };
 

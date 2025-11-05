@@ -585,10 +585,15 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                       className="dropdown-item"
                       style={{ display: "flex", alignItems: "center" }}
                       onClick={() => {
+                        const currentUserId = userId || localStorage.getItem("userId");
+                        if (!currentUserId) {
+                          console.error("No userId found for profile navigation");
+                          return;
+                        }
                         if (role === "agent") {
-                          navigate(`/agent-profile/${userId}`);
+                          navigate(`/agent-profile/${currentUserId}`);
                         } else {
-                          navigate(`/myprofile/${userId}`);
+                          navigate(`/myprofile/${currentUserId}`);
                         }
                       }}
                     >
@@ -709,9 +714,12 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
         <div className="nav-event">
           <nav className={`main-nav ${window.location.pathname === '/contact-us' ? 'contact-nav' : 'dashboard-nav'}`}>
             {/* Logo - Left Side */}
-            <div className="logo flex-shrink-0" style={{ marginLeft: "1rem" }}>
+            <div 
+              className="logo flex-shrink-0" 
+              style={{ marginLeft: "1rem", cursor: "pointer" }}
+              onClick={() => navigate("/newdashboard")}
+            >
               <img
-                href="/"
                 src="/images/MM LOGO.png"
                 style={{ height: "3rem", width: "auto" }}
                 alt="MM Logo"
@@ -762,7 +770,14 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
             <div className="flex flex-col h-full">
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <div className="flex items-center space-x-3">
+                <div 
+                  className="flex items-center space-x-3"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigate("/newdashboard");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
                   <img
                     src="/images/MM LOGO.png"
                     style={{ height: "3rem", width: "auto" }}
@@ -848,12 +863,20 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                         Dashboard
                       </a>
                       <a 
-                        href={`/myprofile/${userId}`}
+                        href="#"
                         className={`flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gradient-to-r hover:from-[#FFC0E3] hover:to-[#FFA4D6] hover:text-[#CB3B8B] transition-all duration-200 ${
                           activeSubNav === "My Profile" ? "bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] text-[#CB3B8B]" : ""
                         }`}
-                        onClick={() => {
-                          handleSubNavClick("/newdashboard");
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (userId) {
+                            handleSubNavClick(`/myprofile/${userId}`);
+                          } else {
+                            const currentUserId = localStorage.getItem("userId");
+                            if (currentUserId) {
+                              handleSubNavClick(`/myprofile/${currentUserId}`);
+                            }
+                          }
                           setIsMobileMenuOpen(false);
                         }}
                       >
@@ -1022,9 +1045,19 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
               Dashboard
             </a>
             <a
-              href={role === "agent" ? `/my-memberss/` : `/newdashboard`}
+              href={role === "agent" ? `/my-memberss/` : `/myprofile/${userId || localStorage.getItem("userId") || ""}`}
               className={activeSubNav === (role === "agent" ? "My Members" : "My Profile") ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick(role === "agent" ? "/my-memberss" : "/myprofile")}
+              onClick={(e) => {
+                e.preventDefault();
+                const currentUserId = userId || localStorage.getItem("userId");
+                if (role === "agent") {
+                  handleSubNavClick("/my-memberss");
+                } else {
+                  if (currentUserId) {
+                    handleSubNavClick(`/myprofile/${currentUserId}`);
+                  }
+                }
+              }}
             >
               <i className="icon">
                 <img src={people} alt="" />

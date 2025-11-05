@@ -581,7 +581,8 @@ useEffect(() => {
                       No profiles found for selected filters.
                     </div>
                   ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                  <div className="flex overflow-x-auto space-x-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:gap-6 pb-4 md:overflow-y-auto md:pb-0 max-h-[800px] scrollbar-hide" style={{
+                    /* On desktop, we still might want a styled scrollbar if content overflows */
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#FF59B6 #f1f1f1'
                   }}>
@@ -626,7 +627,7 @@ useEffect(() => {
                         const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
                         
                         return (
-                          <div key={keyId} className="h-fit">
+                          <div key={keyId} className="w-[80vw] sm:w-[45vw] md:w-auto flex-shrink-0">
                             <SimpleProfileCard 
                               profile={user}
                               isInterested={profile?.is_interested}
@@ -682,7 +683,8 @@ useEffect(() => {
                         No profiles found for selected filters.
                       </div>
                     ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                    <div className="flex overflow-x-auto space-x-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:gap-6 pb-4 md:overflow-y-auto md:pb-0 max-h-[800px] scrollbar-hide" style={{
+                      /* On desktop, we still might want a styled scrollbar if content overflows */
                       scrollbarWidth: 'thin',
                       scrollbarColor: '#FF59B6 #f1f1f1'
                     }}>
@@ -727,7 +729,7 @@ useEffect(() => {
                           const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
                           
                           return (
-                            <div key={keyId} className="h-fit">
+                            <div key={keyId} className="w-[80vw] sm:w-[45vw] md:w-auto flex-shrink-0">
                               <SimpleProfileCard 
                                 profile={user}
                                 isInterested={profile?.is_interested}
@@ -783,7 +785,8 @@ useEffect(() => {
                       No profiles found for selected filters.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-h-[800px] overflow-y-auto" style={{
+                    <div className="flex overflow-x-auto space-x-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:space-x-0 md:gap-6 pb-4 md:overflow-y-auto md:pb-0 max-h-[800px] scrollbar-hide" style={{
+                      /* On desktop, we still might want a styled scrollbar if content overflows */
                       scrollbarWidth: 'thin',
                       scrollbarColor: '#FF59B6 #f1f1f1'
                     }}>
@@ -844,7 +847,7 @@ useEffect(() => {
                           const shouldUseCallback = currentRole === 'agent' && !isImpersonating;
                           
                           return (
-                            <div key={keyId} className="h-fit">
+                            <div key={keyId} className="w-[80vw] sm:w-[45vw] md:w-auto flex-shrink-0">
                               <SimpleProfileCard 
                                 profile={user}
                                 isInterested={profile?.is_interested}

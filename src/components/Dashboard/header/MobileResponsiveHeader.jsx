@@ -385,7 +385,14 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
                     <div className="dropdown-content-mobile">
                       <div
                         className="dropdown-item-mobile"
-                        onClick={() => navigate(role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`)}
+                        onClick={() => {
+                          const currentUserId = userId || localStorage.getItem("userId");
+                          if (!currentUserId) {
+                            console.error("No userId found for profile navigation");
+                            return;
+                          }
+                          navigate(role === "agent" ? `/agent-profile/${currentUserId}` : `/myprofile/${currentUserId}`);
+                        }}
                       >
                         <FiUser className="dropdown-icon-mobile" />
                         My Profile
@@ -457,7 +464,11 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
         {/* Main Navigation */}
         <div className="header-main-nav">
           <nav className="main-nav-mobile">
-            <div className="logo-mobile">
+            <div 
+              className="logo-mobile"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/newdashboard")}
+            >
               <img
                 src={logo}
                 style={{ height: "2rem", width: "auto" }}
@@ -509,7 +520,14 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
             <div className="mobile-menu-content">
               {/* Mobile Menu Header */}
               <div className="mobile-menu-header">
-                <div className="mobile-menu-logo">
+                <div 
+                  className="mobile-menu-logo"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigate("/newdashboard");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
                   <img
                     src={logo}
                     style={{ height: "2rem", width: "auto" }}
@@ -581,9 +599,19 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
                       Dashboard
                     </a>
                     <a 
-                      href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`}
+                      href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId || localStorage.getItem("userId") || ""}`}
                       className={`mobile-nav-link ${activeSubNav === "My Profile" ? "active" : ""}`}
-                      onClick={() => handleSubNavClick(role === "agent" ? "/agent-profile" : "/newdashboard")}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const currentUserId = userId || localStorage.getItem("userId");
+                        if (role === "agent") {
+                          handleSubNavClick(`/agent-profile/${currentUserId}`);
+                        } else {
+                          if (currentUserId) {
+                            handleSubNavClick(`/myprofile/${currentUserId}`);
+                          }
+                        }
+                      }}
                     >
                       <img src={people} alt="" className="mobile-nav-icon" />
                       My Profile
@@ -685,9 +713,19 @@ const MobileResponsiveHeader = ({ subNavActive, apiData: propApiData, members, o
               Dashboard
             </a>
             <a
-              href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId}`}
+              href={role === "agent" ? `/agent-profile/${userId}` : `/myprofile/${userId || localStorage.getItem("userId") || ""}`}
               className={activeSubNav === "My Profile" ? "activeSubNav" : ""}
-              onClick={() => handleSubNavClick(role === "agent" ? "/agent-profile" : "/newdashboard")}
+              onClick={(e) => {
+                e.preventDefault();
+                const currentUserId = userId || localStorage.getItem("userId");
+                if (role === "agent") {
+                  handleSubNavClick(`/agent-profile/${currentUserId}`);
+                } else {
+                  if (currentUserId) {
+                    handleSubNavClick(`/myprofile/${currentUserId}`);
+                  }
+                }
+              }}
             >
               <i className="icon">
                 <img src={people} alt="" />

@@ -10,6 +10,19 @@ import StepTracker from "../../StepTracker/StepTracker";
 import findUser from "../../../images/findUser.svg";
 import { useLocation } from "react-router-dom";
 
+// Production-safe logging helper
+const isDevelopment = process.env.NODE_ENV === 'development';
+const devLog = (...args) => {
+  if (isDevelopment) {
+    devLog(...args);
+  }
+};
+const devWarn = (...args) => {
+  if (isDevelopment) {
+    devWarn(...args);
+  }
+};
+
 const MemStepOne = () => {
   const navigate = useNavigate();
   const params = useParams();
@@ -21,19 +34,19 @@ const MemStepOne = () => {
   const [formSubmitted, setFormSubmitted] = useState(false); // Track if form was successfully submitted
   const location = useLocation();
   const { username, age, isNewMember, clearForm, editMode, memberId } = location.state || {};
-  console.log(username, ">>>>>>>");
-  console.log("Edit Mode:", editMode, "Member ID:", memberId);
+  devLog(username, ">>>>>>>");
+  devLog("Edit Mode:", editMode, "Member ID:", memberId);
   
   // Determine userId based on the context - use params first if available
   let userId;
   if (editMode && memberId) {
     // When editing a member, use the memberId from the state
     userId = memberId;
-    console.log("MemStepOne: Using memberId for edit mode:", userId);
+    devLog("MemStepOne: Using memberId for edit mode:", userId);
   } else if (params.userId && params.userId !== '0' && params.userId !== 'null') {
     // Use userId from URL params if available and valid
     userId = params.userId;
-    console.log("MemStepOne: Using userId from URL params:", userId);
+    devLog("MemStepOne: Using userId from URL params:", userId);
   } else if (username == "memberCreation") {
     userId = localStorage.getItem("member_id");
   } else if (isNewMember && clearForm) {
@@ -48,6 +61,7 @@ const MemStepOne = () => {
   const formSubmittedRef = React.useRef(false);
   const isNewMemberRef = React.useRef(isNewMember);
   const editModeRef = React.useRef(editMode);
+  const fetchTimeoutRef = React.useRef(null); // For cleanup of setTimeout
   
   // Update refs whenever they change (profileData ref will be updated after profileData is declared)
   
@@ -64,27 +78,27 @@ const MemStepOne = () => {
   }, [editMode]);
   
   // Debug: Log userId determination
-  console.log("MemStepOne: Determined userId:", userId);
-  console.log("Edit Mode:", editMode, "Member ID:", memberId, "Is New Member:", isNewMember);
+  devLog("MemStepOne: Determined userId:", userId);
+  devLog("Edit Mode:", editMode, "Member ID:", memberId, "Is New Member:", isNewMember);
 
   useEffect(() => {
-    console.log("Current userId:", userId, "Edit Mode:", editMode, "Member ID:", memberId);
+    devLog("Current userId:", userId, "Edit Mode:", editMode, "Member ID:", memberId);
     
     // Debug localStorage state
-    console.log("=== LOCALSTORAGE DEBUG ===");
-    console.log("Token in localStorage:", localStorage.getItem("token"));
-    console.log("UserId in localStorage:", localStorage.getItem("userId"));
-    console.log("Name in localStorage:", localStorage.getItem("name"));
-    console.log("LoginTime in localStorage:", localStorage.getItem("loginTime"));
-    console.log("Role in localStorage:", localStorage.getItem("role"));
-    console.log("=== END LOCALSTORAGE DEBUG ===");
+    devLog("=== LOCALSTORAGE DEBUG ===");
+    devLog("Token in localStorage:", localStorage.getItem("token"));
+    devLog("UserId in localStorage:", localStorage.getItem("userId"));
+    devLog("Name in localStorage:", localStorage.getItem("name"));
+    devLog("LoginTime in localStorage:", localStorage.getItem("loginTime"));
+    devLog("Role in localStorage:", localStorage.getItem("role"));
+    devLog("=== END LOCALSTORAGE DEBUG ===");
     
     // Handle case where userId is null, undefined, or 'undefined'
     if (!userId || userId === 'undefined' || userId === 'null') {
-      console.log("No valid userId found, checking localStorage...");
+      devLog("No valid userId found, checking localStorage...");
       const fallbackUserId = localStorage.getItem("userId");
       if (fallbackUserId && fallbackUserId !== 'undefined') {
-        console.log("Using fallback userId from localStorage:", fallbackUserId);
+        devLog("Using fallback userId from localStorage:", fallbackUserId);
         // Update the userId for this component
         userId = fallbackUserId;
       } else {
@@ -105,11 +119,11 @@ const MemStepOne = () => {
       const isGoogleSignup = token && token.startsWith("google_");
       
       if (isGoogleSignup) {
-        console.log("Google sign up user - skipping API call, using form data");
+        devLog("Google sign up user - skipping API call, using form data");
         
         // Get stored Google user data
         const googleUserData = JSON.parse(localStorage.getItem("googleUserData") || "{}");
-        console.log("Using Google user data:", googleUserData);
+        devLog("Using Google user data:", googleUserData);
         
         // For Google sign up users, don't fetch from API, use the data from registration
         setApiData({
@@ -130,46 +144,46 @@ const MemStepOne = () => {
         setLoading(false);
       } else {
         // Regular user or Google login user - fetch from API
-        console.log("Fetching user data from API for userId:", userId);
-        console.log("Token type:", localStorage.getItem("token")?.startsWith("google_") ? "Google Signup" : "Regular/Google Login");
+        devLog("Fetching user data from API for userId:", userId);
+        devLog("Token type:", localStorage.getItem("token")?.startsWith("google_") ? "Google Signup" : "Regular/Google Login");
         
         const parameter = {
           url: `/api/user/${userId}/`,
           setterFunction: (data) => {
-            console.log("API setterFunction called with data:", data);
-            console.log("=== API RESPONSE DEBUG ===");
-            console.log("Raw API response data:", data);
-            console.log("Data type:", typeof data);
-            console.log("Data is null/undefined:", data === null || data === undefined);
-            console.log("Data is array:", Array.isArray(data));
-            console.log("Data length:", data?.length);
-            console.log("Available fields in API response:", Object.keys(data || {}));
+            devLog("API setterFunction called with data:", data);
+            devLog("=== API RESPONSE DEBUG ===");
+            devLog("Raw API response data:", data);
+            devLog("Data type:", typeof data);
+            devLog("Data is null/undefined:", data === null || data === undefined);
+            devLog("Data is array:", Array.isArray(data));
+            devLog("Data length:", data?.length);
+            devLog("Available fields in API response:", Object.keys(data || {}));
             
             // Check if data is an empty array
             if (Array.isArray(data) && data.length === 0) {
               console.error("API returned empty array! This might be an API issue.");
-              console.log("API URL:", `/api/user/${userId}/`);
-              console.log("Token:", localStorage.getItem("token"));
-              console.log("User ID:", userId);
+              devLog("API URL:", `/api/user/${userId}/`);
+              devLog("Token:", localStorage.getItem("token"));
+              devLog("User ID:", userId);
             }
             
             if (data) {
-              console.log("Key fields check:");
-              console.log("- first_name:", data.first_name);
-              console.log("- last_name:", data.last_name);
-              console.log("- email:", data.email);
-              console.log("- onbehalf:", data.onbehalf);
-              console.log("- gender:", data.gender);
-              console.log("- dob:", data.dob);
-              console.log("- city:", data.city);
-              console.log("- state:", data.state);
-              console.log("- country:", data.country);
+              devLog("Key fields check:");
+              devLog("- first_name:", data.first_name);
+              devLog("- last_name:", data.last_name);
+              devLog("- email:", data.email);
+              devLog("- onbehalf:", data.onbehalf);
+              devLog("- gender:", data.gender);
+              devLog("- dob:", data.dob);
+              devLog("- city:", data.city);
+              devLog("- state:", data.state);
+              devLog("- country:", data.country);
             }
             
             // Check if data is an empty array (API issue)
             if (Array.isArray(data) && data.length === 0) {
               console.error("API returned empty array - this is likely an API issue");
-              console.log("Using fallback data for empty array response");
+              devLog("Using fallback data for empty array response");
               const fallbackData = {
                 id: userId,
                 first_name: localStorage.getItem("name")?.split(" ")[0] || "",
@@ -184,28 +198,28 @@ const MemStepOne = () => {
                 profile_completed: false,
                 profile_percentage: 0
               };
-              console.log("Using fallback data for empty array:", fallbackData);
+              devLog("Using fallback data for empty array:", fallbackData);
               setApiData(fallbackData);
             }
             // Check if this is a Google login user with incomplete profile
             else if (data && typeof data === 'object' && (!data.onbehalf || !data.gender)) {
-              console.log("Google login user with incomplete profile detected");
-              console.log("onbehalf:", data.onbehalf, "gender:", data.gender);
+              devLog("Google login user with incomplete profile detected");
+              devLog("onbehalf:", data.onbehalf, "gender:", data.gender);
               // Set default values for Google login users
               const updatedData = {
                 ...data,
                 onbehalf: data.onbehalf || "Self",
                 gender: data.gender || "", // Let user choose gender
               };
-              console.log("Updated data for Google login user:", updatedData);
+              devLog("Updated data for Google login user:", updatedData);
               setApiData(updatedData);
             } else if (data && typeof data === 'object' && Object.keys(data).length > 0) {
               // Regular user or complete Google user data
-              console.log("Using complete user data from API");
+              devLog("Using complete user data from API");
               setApiData(data);
             } else {
               // Fallback: API returned empty or null data
-              console.warn("API returned empty/null data, using fallback data");
+              devWarn("API returned empty/null data, using fallback data");
               const fallbackData = {
                 id: userId,
                 first_name: localStorage.getItem("name")?.split(" ")[0] || "",
@@ -220,10 +234,10 @@ const MemStepOne = () => {
                 profile_completed: false,
                 profile_percentage: 0
               };
-              console.log("Using fallback data:", fallbackData);
+              devLog("Using fallback data:", fallbackData);
               setApiData(fallbackData);
             }
-            console.log("=== END API RESPONSE DEBUG ===");
+            devLog("=== END API RESPONSE DEBUG ===");
           },
           setLoading: setLoading,
           setErrors: (error) => {
@@ -231,43 +245,43 @@ const MemStepOne = () => {
             setsetErrors(error);
           },
         };
-        console.log("About to call fetchDataObjectV2 with parameter:", parameter);
+        devLog("About to call fetchDataObjectV2 with parameter:", parameter);
         
         // Debug: Test API call directly
-        console.log("=== DIRECT API TEST ===");
-        console.log("API URL:", `${process.env.REACT_APP_API_URL}/api/user/${userId}/`);
+        devLog("=== DIRECT API TEST ===");
+        devLog("API URL:", `${process.env.REACT_APP_API_URL}/api/user/${userId}/`);
         const token = localStorage.getItem("token");
-        console.log("Token:", token);
-        console.log("Token type:", typeof token);
-        console.log("Token length:", token?.length);
-        console.log("Token starts with 'Bearer':", token?.startsWith("Bearer"));
-        console.log("Token starts with 'google_':", token?.startsWith("google_"));
-        console.log("User ID:", userId);
+        devLog("Token:", token);
+        devLog("Token type:", typeof token);
+        devLog("Token length:", token?.length);
+        devLog("Token starts with 'Bearer':", token?.startsWith("Bearer"));
+        devLog("Token starts with 'google_':", token?.startsWith("google_"));
+        devLog("User ID:", userId);
         
         // Check if token is valid
         if (!token) {
           console.error("No token found in localStorage!");
         } else if (token.startsWith("google_")) {
-          console.warn("Google signup token detected - this might not work with regular API calls");
+          devWarn("Google signup token detected - this might not work with regular API calls");
         } else if (token.length < 10) {
           console.error("Token seems too short:", token);
         } else {
           // Check JWT token format
-          console.log("JWT Token format check:");
-          console.log("- Starts with 'eyJ':", token.startsWith("eyJ"));
-          console.log("- Contains dots:", token.includes("."));
-          console.log("- Split by dots:", token.split(".").length);
+          devLog("JWT Token format check:");
+          devLog("- Starts with 'eyJ':", token.startsWith("eyJ"));
+          devLog("- Contains dots:", token.includes("."));
+          devLog("- Split by dots:", token.split(".").length);
           if (token.includes(".")) {
-            console.log("- First part (header):", token.split(".")[0]);
-            console.log("- Second part (payload):", token.split(".")[1]);
-            console.log("- Third part (signature):", token.split(".")[2]);
+            devLog("- First part (header):", token.split(".")[0]);
+            devLog("- Second part (payload):", token.split(".")[1]);
+            devLog("- Third part (signature):", token.split(".")[2]);
           }
         }
         
         // Make a direct API call for debugging
         const authToken = localStorage.getItem("token");
         const authHeader = authToken?.startsWith("Bearer") ? authToken : `Bearer ${authToken}`;
-        console.log("Auth header:", authHeader);
+        devLog("Auth header:", authHeader);
         
         fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}/`, {
           method: 'GET',
@@ -277,14 +291,14 @@ const MemStepOne = () => {
           },
         })
         .then(response => {
-          console.log("Direct API response status:", response.status);
-          console.log("Direct API response headers:", response.headers);
+          devLog("Direct API response status:", response.status);
+          devLog("Direct API response headers:", response.headers);
           return response.json();
         })
         .then(data => {
-          console.log("Direct API response data:", data);
-          console.log("Direct API data type:", typeof data);
-          console.log("Direct API is array:", Array.isArray(data));
+          devLog("Direct API response data:", data);
+          devLog("Direct API data type:", typeof data);
+          devLog("Direct API is array:", Array.isArray(data));
         })
         .catch(error => {
           console.error("Direct API error:", error);
@@ -292,23 +306,35 @@ const MemStepOne = () => {
         
         // For recently created members, add a small delay before fetching to allow backend to process
         if (isRecentlyCreated || isBackNavigation) {
-          console.log("Recently created member - adding delay before fetch to allow backend processing");
-          setTimeout(() => {
+          // Clear any existing timeout
+          if (fetchTimeoutRef.current) {
+            clearTimeout(fetchTimeoutRef.current);
+          }
+          fetchTimeoutRef.current = setTimeout(() => {
             fetchDataObjectV2(parameter);
+            fetchTimeoutRef.current = null;
           }, 1000); // 1 second delay for backend to process new member
         } else {
           fetchDataObjectV2(parameter);
         }
+        
+        // Cleanup timeout on unmount or dependency change
+        return () => {
+          if (fetchTimeoutRef.current) {
+            clearTimeout(fetchTimeoutRef.current);
+            fetchTimeoutRef.current = null;
+          }
+        };
       }
     }
   }, [userId, editMode, memberId, location.state]);
 
   useEffect(() => {
     if (apiData && !(isNewMember && clearForm)) {
-      console.log("=== FORM DATA SETTING DEBUG ===");
-      console.log("Setting form data for user:", apiData.id, "Edit Mode:", editMode);
-      console.log("API Data received:", apiData);
-      console.log("onbehalf:", apiData.onbehalf, "gender:", apiData.gender);
+      devLog("=== FORM DATA SETTING DEBUG ===");
+      devLog("Setting form data for user:", apiData.id, "Edit Mode:", editMode);
+      devLog("API Data received:", apiData);
+      devLog("onbehalf:", apiData.onbehalf, "gender:", apiData.gender);
       
       // Auto-determine gender based on on_behalf if not already set
       let autoGender = apiData.gender;
@@ -326,7 +352,7 @@ const MemStepOne = () => {
         autoGender = apiData.gender || '';
       }
       
-      console.log("Final autoGender:", autoGender);
+      devLog("Final autoGender:", autoGender);
 
       const formDataToSet = {
         first_name: apiData.first_name || null,
@@ -354,34 +380,34 @@ const MemStepOne = () => {
         contact_number: apiData.contact_number || null,
       };
       
-      console.log("Form data to be set:", formDataToSet);
-      console.log("Key form fields:");
-      console.log("- first_name:", formDataToSet.first_name);
-      console.log("- last_name:", formDataToSet.last_name);
-      console.log("- gender:", formDataToSet.gender);
-      console.log("- on_behalf:", formDataToSet.on_behalf);
-      console.log("- dob:", formDataToSet.dob);
-      console.log("- city:", formDataToSet.city);
-      console.log("- state:", formDataToSet.state);
-      console.log("- country:", formDataToSet.country);
+      devLog("Form data to be set:", formDataToSet);
+      devLog("Key form fields:");
+      devLog("- first_name:", formDataToSet.first_name);
+      devLog("- last_name:", formDataToSet.last_name);
+      devLog("- gender:", formDataToSet.gender);
+      devLog("- on_behalf:", formDataToSet.on_behalf);
+      devLog("- dob:", formDataToSet.dob);
+      devLog("- city:", formDataToSet.city);
+      devLog("- state:", formDataToSet.state);
+      devLog("- country:", formDataToSet.country);
       
       setProfileData(formDataToSet);
-      console.log("=== END FORM DATA SETTING DEBUG ===");
+      devLog("=== END FORM DATA SETTING DEBUG ===");
     }
   }, [apiData, isNewMember, clearForm]);
 
   const naviagteNextStep = () => {
     if (handleValidForm()) {
-      console.log(profileData.hieght, "valid");
-      console.log("Navigation context:", { username, isNewMember, editMode, memberId, userId });
-      console.log("Profile data before submission:", profileData);
+      devLog(profileData.hieght, "valid");
+      devLog("Navigation context:", { username, isNewMember, editMode, memberId, userId });
+      devLog("Profile data before submission:", profileData);
       let mem = {};
       if (username == "memberCreation" || isNewMember) {
         // No additional validation needed for agent member creation
         mem = {
           agent_id: localStorage.getItem("userId") || "",
         };
-        console.log("Member creation payload:", mem);
+        devLog("Member creation payload:", mem);
       }
 
       const parameters = {
@@ -422,9 +448,9 @@ const MemStepOne = () => {
         navUrl: `/memsteptwo/${userId}`,
         setErrors: setsetErrors,
       };
-      console.log("MemStepOne: Navigating to MemStepTwo with userId:", userId);
+      devLog("MemStepOne: Navigating to MemStepTwo with userId:", userId);
       if (username == "memberCreation" || isNewMember) {
-        console.log("Creating new member - using POST request");
+        devLog("Creating new member - using POST request");
         // Clear any existing member_id to ensure new member creation
         localStorage.removeItem("member_id");
         // Mark form as submitted to prevent cleanup deletion
@@ -432,7 +458,7 @@ const MemStepOne = () => {
         // Always use POST for new member creation
         updatePostDataReturnId(parameters);
       } else if (editMode) {
-        console.log("Editing existing member - using PUT request");
+        devLog("Editing existing member - using PUT request");
         // Use PUT for editing existing member
         updateDataReturnId(parameters);
       } else {
@@ -465,7 +491,7 @@ const MemStepOne = () => {
       
       // Don't cleanup if form was submitted OR it's a back navigation OR member was recently created
       if (formSubmittedRef.current || isBackNavigation || isRecentlyCreated || editModeRef.current) {
-        console.log("Skipping cleanup - form submitted or back navigation or recently created member");
+        devLog("Skipping cleanup - form submitted or back navigation or recently created member");
         return;
       }
       
@@ -490,7 +516,7 @@ const MemStepOne = () => {
         );
         
         if (!hasFormData) {
-          console.log("Cleaning up empty member:", memberIdToCleanup);
+          devLog("Cleaning up empty member:", memberIdToCleanup);
           
           // Delete the member via API
           fetch(`${process.env.REACT_APP_API_URL}/api/user/${memberIdToCleanup}/`, {
@@ -502,9 +528,9 @@ const MemStepOne = () => {
           })
           .then(response => {
             if (response.ok) {
-              console.log("Empty member deleted successfully:", memberIdToCleanup);
+              devLog("Empty member deleted successfully:", memberIdToCleanup);
             } else {
-              console.warn("Failed to delete empty member:", memberIdToCleanup);
+              devWarn("Failed to delete empty member:", memberIdToCleanup);
             }
           })
           .catch(error => {
@@ -517,7 +543,7 @@ const MemStepOne = () => {
   }, [location.state]); // Run on mount/unmount or when location state changes
 
   const handleFieldChange = (field, value) => {
-    console.log(field, value, ">>>>>");
+    devLog(field, value, ">>>>>");
     
     // Clear any existing errors when user starts typing
     if (setErrors) {
@@ -683,7 +709,7 @@ const MemStepOne = () => {
     }
 
     // Validate describe_job_business - Only required if profession OR education is "other" (case insensitive)
-    console.log("Validation Debug - profession:", profileData.profession, "Education:", profileData.Education, "describe_job_business:", profileData.describe_job_business);
+    devLog("Validation Debug - profession:", profileData.profession, "Education:", profileData.Education, "describe_job_business:", profileData.describe_job_business);
     if ((profileData.profession?.toLowerCase() === 'other' || profileData.Education?.toLowerCase() === 'other') && !profileData.describe_job_business?.trim()) {
       newErrors.describe_job_business = "Please describe your education & job/business";
     }
@@ -718,7 +744,7 @@ const MemStepOne = () => {
       }
     }
 
-    console.log("newErrors", newErrors);
+    devLog("newErrors", newErrors);
 
     setFormErrors(newErrors);
 
@@ -789,7 +815,7 @@ const MemStepOne = () => {
             : agentData?.contact_number;
           
           if (agentContactNumber) {
-            console.log("Auto-populating agent contact number:", agentContactNumber);
+            devLog("Auto-populating agent contact number:", agentContactNumber);
             setProfileData(prev => ({
               ...prev,
               contact_number: agentContactNumber
@@ -2099,7 +2125,7 @@ const MemStepOne = () => {
                   </div>
 
                   {/* Job Description - Only show if profession or education is "other" (case insensitive) */}
-                  {console.log("Debug - profession:", profileData.profession, "Education:", profileData.Education)}
+                  {devLog("Debug - profession:", profileData.profession, "Education:", profileData.Education)}
                   {(profileData.profession?.toLowerCase() === 'other' || profileData.Education?.toLowerCase() === 'other') && (
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
