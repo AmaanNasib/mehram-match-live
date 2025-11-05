@@ -961,11 +961,42 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  gap: 8px;
 }
 
 .notif-modal-title {
   margin: 0;
   font-size: 16px;
+  flex: 1;
+}
+
+.notif-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-mark-all-btn {
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.notif-mark-all-btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.notif-mark-all-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .notif-modal-close {
@@ -976,6 +1007,7 @@
   cursor: pointer;
   color: #475569;
   transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .notif-modal-close:hover {

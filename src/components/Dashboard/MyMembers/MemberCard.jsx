@@ -102,11 +102,21 @@ const MemberCard = memo(({
   }, []);
 
   // Fetch per-member notifications (agent)
+  // Don't auto-mark as viewed when just fetching count for badge
   useEffect(() => {
     if (!memberId) return;
-    fetchNotifications(memberId, false);
+    fetchNotifications(memberId, false, false); // loadItems=false, markAsViewed=false
+    
+    // Periodically refresh count (every 30 seconds) when modal is not open
+    const intervalId = setInterval(() => {
+      if (!showNotifModal && memberId) {
+        fetchNotifications(memberId, false, false);
+      }
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memberId]);
+  }, [memberId, showNotifModal]);
 
   // API Helper - Optimized for production
   const apiFetch = useCallback(async (url, options = {}) => {
@@ -156,13 +166,20 @@ const MemberCard = memo(({
     }
   }, []);
 
-  const fetchNotifications = useCallback(async (id, loadItems = true) => {
+  const fetchNotifications = useCallback(async (id, loadItems = true, markAsViewed = true) => {
     try {
       setNotifLoading(true);
-      const data = await apiFetch(`/api/agent/member/${id}/notifications/`);
+      // Auto-mark as viewed by default (standard behavior like WhatsApp/Gmail)
+      const url = markAsViewed 
+        ? `/api/agent/member/${id}/notifications/`
+        : `/api/agent/member/${id}/notifications/?mark_as_viewed=false`;
+      
+      const data = await apiFetch(url);
       
       if (data) {
-        setNotifTotal(data?.total || 0);
+        // Use unviewed_count instead of total for badge
+        const unviewedCount = data?.unviewed_count || 0;
+        setNotifTotal(unviewedCount);
         setNotifCounts(data?.counts || {});
         if (loadItems) setNotifItems(Array.isArray(data?.notifications) ? data.notifications : []);
       } else {
@@ -225,7 +242,8 @@ const MemberCard = memo(({
     e.stopPropagation();
     if (!memberId) return;
     setShowNotifModal(true);
-    await fetchNotifications(memberId, true);
+    // Auto-mark as viewed when opening modal (standard behavior)
+    await fetchNotifications(memberId, true, true); // loadItems=true, markAsViewed=true
   }, [memberId, fetchNotifications]);
 
   const handleInterestAction = useCallback(async (notif, action) => {
@@ -279,24 +297,99 @@ const MemberCard = memo(({
   }, [memberId, apiPost, fetchNotifications]);
 
   const handleMarkAsRead = useCallback(async (notif) => {
-    if (!memberId) return;
+    if (!memberId || !notif?.from_user?.id) {
+      console.error('Mark as read: Missing memberId or sender_user_id', { memberId, senderUserId: notif?.from_user?.id, notification: notif });
+      return;
+    }
     
-    const senderUserId = parseInt(notif?.from_user?.id);
     const memId = parseInt(notif?.to_member?.id || memberId);
-    const loadingKey = `mark-read-${notif?.id || senderUserId}`;
+    const senderUserId = parseInt(notif.from_user.id);
+    const notifId = notif.id;
+    const loadingKey = `mark-read-${notifId || senderUserId}`;
     
-    if (!senderUserId || !memId) {
+    if (!memId || !senderUserId || isNaN(memId) || isNaN(senderUserId)) {
+      console.error('Mark as read: Invalid memberId or senderUserId', { memId, senderUserId, notification: notif });
       return;
     }
     
     try {
       setNotifActionLoading(loadingKey);
-      const result = await apiPost(`/api/agent/member/${memId}/notifications/mark-read/`, {
-        sender_user_id: senderUserId
+      
+      // Update local state immediately for better UX
+      setNotifItems(prevItems => 
+        prevItems.map(item => 
+          item.id === notifId && item.from_user?.id === senderUserId
+            ? { ...item, message_status: 'read' }
+            : item
+        )
+      );
+      
+      // Update count immediately
+      setNotifTotal(prev => Math.max(0, prev - 1));
+      
+      // Use inbox message read endpoint (not notification read)
+      // This marks actual inbox messages as read, not just the notification
+      const url = `/api/agent/member/${memId}/mark-read/`;
+      const body = { other_user_id: senderUserId };
+      
+      // Use direct fetch for better error handling
+      // PATCH method for inbox message read (not POST)
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(body)
       });
       
+      if (response.ok) {
+        await response.json(); // Parse response but don't log
+        // Refresh notifications to get updated count and status
+        await fetchNotifications(memberId, true, false);
+      } else {
+        // Revert local state on error
+        setNotifItems(prevItems => 
+          prevItems.map(item => 
+            item.id === notifId && item.from_user?.id === senderUserId
+              ? { ...item, message_status: 'unread' }
+              : item
+          )
+        );
+        setNotifTotal(prev => prev + 1);
+        
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Mark inbox message as read failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          url,
+          body,
+          error: errorData
+        });
+      }
+    } catch (error) {
+      // Revert local state on error
+      setNotifItems(prevItems => 
+        prevItems.map(item => 
+          item.id === notifId && item.from_user?.id === senderUserId
+            ? { ...item, message_status: 'unread' }
+            : item
+        )
+      );
+      setNotifTotal(prev => prev + 1);
+      
+      console.error('Mark inbox message as read error:', error);
+    } finally {
+      setNotifActionLoading(null);
+    }
+  }, [memberId, fetchNotifications]);
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    if (!memberId) return;
+    
+    try {
+      setNotifActionLoading('mark-all-read');
+      const result = await apiPost(`/api/agent/member/${memberId}/notifications/mark-all-read/`, {});
+      
       if (result) {
-        await fetchNotifications(memberId, true);
+        await fetchNotifications(memberId, true, false); // Don't auto-mark as we just marked all
       }
     } catch (error) {
       // Error logged in apiPost helper
@@ -425,13 +518,25 @@ const MemberCard = memo(({
         >
           <div className="notif-modal-header">
             <h3 className="notif-modal-title">Notifications ({notifTotal})</h3>
-            <button
-              className="notif-modal-close"
-              onClick={() => setShowNotifModal(false)}
-              aria-label="Close"
-            >
-              ×
-            </button>
+            <div className="notif-modal-actions">
+              {notifTotal > 0 && (
+                <button
+                  className="notif-mark-all-btn"
+                  onClick={handleMarkAllAsRead}
+                  disabled={notifActionLoading === 'mark-all-read' || notifLoading}
+                  title="Mark all notifications as read"
+                >
+                  {notifActionLoading === 'mark-all-read' ? '...' : 'Mark All as Read'}
+                </button>
+              )}
+              <button
+                className="notif-modal-close"
+                onClick={() => setShowNotifModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
           </div>
           {notifLoading ? (
             <div className="notif-loading">Loading...</div>
