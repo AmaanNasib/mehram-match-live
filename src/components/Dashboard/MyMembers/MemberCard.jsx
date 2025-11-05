@@ -41,9 +41,10 @@ const getTypeStyle = (type) => {
 };
 
 const getDecisionStatus = (n) => {
-  const raw = String(n?.status || n?.request_status || n?.interest_status || '').toLowerCase();
+  // Check multiple status fields for photo requests and interests
+  const raw = String(n?.status || n?.request_status || n?.interest_status || n?.photo_request_status || '').toLowerCase();
   const accepted = raw === 'accepted' || raw === 'approve' || raw === 'approved' || n?.accepted === true || n?.is_accepted === true;
-  const rejected = raw === 'rejected' || raw === 'decline' || raw === 'declined' || n?.rejected === true || n?.is_rejected === true;
+  const rejected = raw === 'rejected' || raw === 'reject' || raw === 'decline' || raw === 'declined' || n?.rejected === true || n?.is_rejected === true;
   
   if (accepted) return 'accepted';
   if (rejected) return 'rejected';
@@ -85,6 +86,11 @@ const MemberCard = memo(({
   const [showNotifModal, setShowNotifModal] = useState(false);
   const [notifItems, setNotifItems] = useState([]);
   const [notifActionLoading, setNotifActionLoading] = useState(null);
+  const [showPhotoUploadModal, setShowPhotoUploadModal] = useState(false);
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Memoized member ID
   const memberId = useMemo(() => member?.id || member?.member_id, [member?.id, member?.member_id]);
@@ -107,16 +113,31 @@ const MemberCard = memo(({
     if (!memberId) return;
     fetchNotifications(memberId, false, false); // loadItems=false, markAsViewed=false
     
-    // Periodically refresh count (every 30 seconds) when modal is not open
+    // Periodically refresh count (every 60 seconds) when modal is not open
+    // Reduced frequency for better performance
     const intervalId = setInterval(() => {
       if (!showNotifModal && memberId) {
         fetchNotifications(memberId, false, false);
       }
-    }, 30000); // 30 seconds
+    }, 60000); // 60 seconds (optimized for production)
     
     return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId, showNotifModal]);
+
+  // Cleanup photo preview URL on unmount or when modal closes
+  useEffect(() => {
+    if (!showPhotoUploadModal && photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+      setPhotoPreview(null);
+    }
+    
+    return () => {
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [showPhotoUploadModal, photoPreview]);
 
   // API Helper - Optimized for production
   const apiFetch = useCallback(async (url, options = {}) => {
@@ -181,7 +202,13 @@ const MemberCard = memo(({
         const unviewedCount = data?.unviewed_count || 0;
         setNotifTotal(unviewedCount);
         setNotifCounts(data?.counts || {});
-        if (loadItems) setNotifItems(Array.isArray(data?.notifications) ? data.notifications : []);
+        
+        if (loadItems) {
+          // Use backend data directly (more efficient than merge)
+          // Backend should have updated status after actions
+          const newItems = Array.isArray(data?.notifications) ? data.notifications : [];
+          setNotifItems(newItems);
+        }
       } else {
         setNotifTotal(0);
         setNotifCounts({});
@@ -239,12 +266,19 @@ const MemberCard = memo(({
   }, [apiFetch]);
 
   const openNotifications = useCallback(async (e) => {
-    e.stopPropagation();
+    e?.stopPropagation();
     if (!memberId) return;
+    
+    // Avoid duplicate fetches if modal already open
+    if (showNotifModal) return;
+    
     setShowNotifModal(true);
     // Auto-mark as viewed when opening modal (standard behavior)
-    await fetchNotifications(memberId, true, true); // loadItems=true, markAsViewed=true
-  }, [memberId, fetchNotifications]);
+    // Fetch notifications and mark as viewed
+    fetchNotifications(memberId, true, true).catch(err => {
+      console.error('Failed to fetch notifications:', err);
+    });
+  }, [memberId, showNotifModal, fetchNotifications]);
 
   const handleInterestAction = useCallback(async (notif, action) => {
     if (!memberId) return;
@@ -263,7 +297,32 @@ const MemberCard = memo(({
 
       const result = await apiPost('/api/agent/member/interest-action/', body);
       if (result) {
-        await fetchNotifications(memberId, true);
+        // Optimistic UI update: Update notification status immediately
+        const statusValue = action === 'accept' ? 'Accepted' : 'Rejected';
+        const statusLower = statusValue.toLowerCase();
+        
+        setNotifItems(prevItems =>
+          prevItems.map(item => {
+            if (item.id === notif.id || 
+                (item.from_user?.id === senderUserId && 
+                 item.type && 
+                 item.type.toLowerCase() === 'interest')) {
+              return {
+                ...item,
+                status: statusValue,
+                interest_status: statusLower,
+                can_accept_reject: false
+              };
+            }
+            return item;
+          })
+        );
+        
+        // Skip full refresh - optimistic update already shows correct status
+        // Only refresh count for badge update (better performance)
+        fetchNotifications(memberId, false, false).catch(err => {
+          console.error('Background notification count refresh failed:', err);
+        });
       }
     } catch (error) {
       console.error('Interest action error:', error);
@@ -281,16 +340,95 @@ const MemberCard = memo(({
     
     try {
       setNotifActionLoading(loadingKey);
+      
+      // Optimistic UI update: Update notification status immediately
+      setNotifItems(prevItems =>
+        prevItems.map(item =>
+          item.id === notif.id
+            ? {
+                ...item,
+                status: action === 'accept' ? 'Accepted' : 'Rejected',
+                request_status: action === 'accept' ? 'Accepted' : 'Rejected',
+                interest_status: action === 'accept' ? 'accepted' : 'rejected',
+                photo_request_status: action === 'accept' ? 'Accepted' : 'Rejected'
+              }
+            : item
+        )
+      );
+      
       const result = await apiPost('/api/agent/member/photo-request-action/', {
         member_id: memId,
         sender_user_id: senderUserId,
         action
       });
+      
       if (result) {
-        await fetchNotifications(memberId, true);
+        // Update notification with response data (status from backend)
+        const statusValue = (result.status || (action === 'accept' ? 'Accepted' : 'Rejected')).toString();
+        const statusLower = statusValue.toLowerCase();
+        
+        // Update notification immediately with response status (optimistic update)
+        setNotifItems(prevItems =>
+          prevItems.map(item => {
+            // Match by notification ID or by sender and photo request type
+            const isMatch = item.id === notif.id || 
+              (item.from_user?.id === senderUserId && 
+               item.type && 
+               item.type.toLowerCase().includes('photo') && 
+               item.type.toLowerCase().includes('request'));
+            
+            if (isMatch) {
+              return {
+                ...item,
+                status: statusValue,
+                request_status: statusValue,
+                interest_status: statusLower,
+                photo_request_status: statusValue,
+                can_accept_reject: false // Disable actions after action is taken
+              };
+            }
+            return item;
+          })
+        );
+        
+        // Skip refresh if optimistic update is working - only refresh if needed
+        // Optimistic update already shows correct status, refresh only for count sync
+        // Refresh count only (not full list) for better performance
+        fetchNotifications(memberId, false, false).catch(err => {
+          console.error('Background notification count refresh failed:', err);
+        });
+      } else {
+        // Rollback on error
+        setNotifItems(prevItems =>
+          prevItems.map(item =>
+            item.id === notif.id
+              ? {
+                  ...item,
+                  status: notif.status,
+                  request_status: notif.request_status,
+                  interest_status: notif.interest_status,
+                  photo_request_status: notif.photo_request_status
+                }
+              : item
+          )
+        );
       }
     } catch (error) {
       console.error('Photo request action error:', error);
+      // Rollback on error
+      setNotifItems(prevItems =>
+        prevItems.map(item =>
+          item.id === notif.id
+            ? {
+                ...item,
+                status: notif.status,
+                request_status: notif.request_status,
+                interest_status: notif.interest_status,
+                photo_request_status: notif.photo_request_status
+              }
+            : item
+        )
+      );
     } finally {
       setNotifActionLoading(null);
     }
@@ -460,6 +598,91 @@ const MemberCard = memo(({
     setShowMenu(false);
   }, []);
 
+  const handlePhotoUploadClick = useCallback((e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    setShowPhotoUploadModal(true);
+  }, []);
+
+  const handlePhotoFileSelect = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    // Validate file type
+    const allowedFormats = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedFormats.includes(file.type)) {
+      alert('Supported formats: JPG, PNG, or JPEG');
+      return;
+    }
+
+    setSelectedPhotoFile(file);
+    const preview = URL.createObjectURL(file);
+    setPhotoPreview(preview);
+  }, []);
+
+  const handlePhotoUpload = useCallback(async () => {
+    if (!selectedPhotoFile || !memberId) return;
+
+    try {
+      setUploadingPhoto(true);
+      const formData = new FormData();
+      formData.append('upload_photo', selectedPhotoFile);
+      formData.append('user_id', memberId);
+
+      const response = await fetch(`${API_BASE_URL}/api/user/add_photo/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        await response.json(); // Parse but don't log
+        alert('Photo successfully uploaded!');
+        
+        // Batch state updates for better performance
+        if (photoPreview) {
+          URL.revokeObjectURL(photoPreview);
+        }
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        
+        // Batch all state updates together
+        setShowPhotoUploadModal(false);
+        setSelectedPhotoFile(null);
+        setPhotoPreview(null);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Failed to upload photo: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      alert('Error uploading photo. Please try again.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }, [selectedPhotoFile, memberId, onEdit]);
+
+  const handlePhotoUploadCancel = useCallback(() => {
+    setShowPhotoUploadModal(false);
+    setSelectedPhotoFile(null);
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+    }
+    setPhotoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [photoPreview]);
+
   return (
     <>
     <div
@@ -495,6 +718,13 @@ const MemberCard = memo(({
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                   </svg>
                   <span>Edit Profile</span>
+                </button>
+                <button className="menu-item" onClick={(e) => { e.stopPropagation(); handleMenuClose(); handlePhotoUploadClick(e); }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                  <span>Upload Photo</span>
                 </button>
                 <div className="menu-divider"></div>
                 <button className="menu-item menu-item-danger" onClick={(e) => { e.stopPropagation(); handleMenuClose(); handleDeleteClick(e); }}>
@@ -548,8 +778,13 @@ const MemberCard = memo(({
                 const notifStyle = getTypeStyle(n.type);
                 const initials = getInitials(n.from_user?.name || n.from_user?.first_name);
                 const typeLower = (n.type || '').toLowerCase();
+                const messageText = (n.message || '').toLowerCase();
                 const isInterest = typeLower === 'interest';
-                const isPhotoRequest = typeLower === 'request_photo';
+                // More flexible photo request detection - check type and message content
+                // Also handle "Photo Request Rejected" or "Photo Request Accepted" types
+                const isPhotoRequest = typeLower === 'request_photo' || 
+                                     (typeLower.includes('photo') && typeLower.includes('request')) ||
+                                     (messageText.includes('photo') && messageText.includes('request'));
                 const isMessageReceived = typeLower === 'message_received' || typeLower.includes('message');
                 const isActionableType = isInterest || isPhotoRequest; // Only Interest and Photo Request can have Accept/Reject
                 
@@ -562,11 +797,44 @@ const MemberCard = memo(({
                 // Only check status for actionable types (Interest/Photo Request)
                 const interestStatus = isActionableType ? getInterestStatus(n) : null;
                 const decision = isActionableType ? getDecisionStatus(n) : null;
-                const isAccepted = isActionableType && (typeLower.includes('accepted') || decision === 'accepted' || interestStatus === 'accepted');
-                const isRejected = isActionableType && (typeLower.includes('rejected') || decision === 'rejected' || interestStatus === 'rejected');
-                const isPending = isActionableType && interestStatus === 'pending';
                 
-                const showActions = isActionableType && isPending && n.can_accept_reject !== false;
+                // For photo requests, check photo_request_status field first (priority)
+                // For interests, check interest_status
+                const photoRequestStatus = isPhotoRequest ? (n.photo_request_status || '').toString().toLowerCase() : null;
+                
+                // Check if notification is accepted or rejected
+                // Photo requests: check photo_request_status first, then other fields
+                // Interests: check interest_status
+                const isAccepted = isActionableType && (
+                  typeLower.includes('accepted') || 
+                  (isPhotoRequest && (photoRequestStatus === 'accepted' || photoRequestStatus === 'approved')) ||
+                  (!isPhotoRequest && (decision === 'accepted' || interestStatus === 'accepted')) ||
+                  messageText.includes('accepted')
+                );
+                const isRejected = isActionableType && (
+                  typeLower.includes('rejected') || 
+                  (isPhotoRequest && photoRequestStatus === 'rejected') ||
+                  (!isPhotoRequest && (decision === 'rejected' || interestStatus === 'rejected')) ||
+                  messageText.includes('rejected')
+                );
+                
+                // For photo requests, check photo_request_status field
+                // If photo_request_status is "Requested" or "Pending", consider it pending
+                // If photo_request_status is "Accepted" or "Rejected", use that status
+                // For interests, check interest_status
+                const isPending = isActionableType && (
+                  (isPhotoRequest && (photoRequestStatus === 'requested' || photoRequestStatus === 'pending' || (!photoRequestStatus && !isAccepted && !isRejected))) || // Photo requests: pending if requested/pending
+                  (isInterest && (interestStatus === 'pending' || decision === 'pending')) // Interests: check status
+                );
+                
+                // For photo requests, show actions ONLY if pending (not accepted/rejected)
+                // Explicitly prevent actions if already accepted or rejected
+                // For interests, check can_accept_reject flag
+                const showActions = isActionableType && 
+                                   !isAccepted && 
+                                   !isRejected && 
+                                   isPending && 
+                                   (isPhotoRequest ? true : (n.can_accept_reject !== false));
                 const acceptKey = `accept-${isInterest ? 'interest' : 'photo'}-${n.id}`;
                 const rejectKey = `reject-${isInterest ? 'interest' : 'photo'}-${n.id}`;
                 const isAcceptLoading = notifActionLoading === acceptKey;
@@ -606,7 +874,7 @@ const MemberCard = memo(({
                           <span className="notif-time">{formatDateTime(n.created_at)}</span>
                         </div>
                         <div className="notif-message">{n.message}</div>
-                        {showActions ? (
+                        {showActions && !isAccepted && !isRejected ? (
                           <div className="notif-actions">
                             <button
                               className="notif-btn accept"
@@ -652,6 +920,86 @@ const MemberCard = memo(({
             </ul>
           )}
         </div>
+      )}
+
+      {/* Photo Upload Modal */}
+      {showPhotoUploadModal && (
+        <>
+          <div 
+            className="photo-upload-modal-overlay"
+            onClick={handlePhotoUploadCancel}
+          />
+          <div className="photo-upload-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="photo-upload-modal-header">
+              <h3>Upload Photo to Gallery</h3>
+              <button
+                className="photo-upload-modal-close"
+                onClick={handlePhotoUploadCancel}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="photo-upload-modal-body">
+              {!selectedPhotoFile ? (
+                <div className="photo-upload-area">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/jpg"
+                    onChange={handlePhotoFileSelect}
+                    style={{ display: 'none' }}
+                  />
+                  <div 
+                    className="photo-upload-dropzone"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <p>Click to select photo or drag and drop</p>
+                    <p className="photo-upload-hint">Max size: 5MB | Formats: JPG, PNG</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="photo-upload-preview">
+                  <img src={photoPreview} alt="Preview" />
+                  <div className="photo-upload-actions">
+                    <button
+                      className="photo-upload-btn cancel"
+                      onClick={() => {
+                        setSelectedPhotoFile(null);
+                        setPhotoPreview(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                    >
+                      Change Photo
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            {selectedPhotoFile && (
+              <div className="photo-upload-modal-footer">
+                <button
+                  className="photo-upload-btn cancel"
+                  onClick={handlePhotoUploadCancel}
+                  disabled={uploadingPhoto}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="photo-upload-btn upload"
+                  onClick={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                >
+                  {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Member Profile Section */}

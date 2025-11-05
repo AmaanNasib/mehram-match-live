@@ -1278,21 +1278,31 @@ const updatePostDataReturnId = (parameter) => {
       },
     })
     .then((response) => {
-      localStorage.setItem("member_id",response?.data?.id||'')
-      if (parameter?.setUserId) {
-        parameter?.setUserId(response?.data?.id)
+      const newMemberId = response?.data?.id || '';
+      localStorage.setItem("member_id", newMemberId);
       
-
+      if (parameter?.setUserId) {
+        parameter?.setUserId(newMemberId);
       }
+      
       const successMessageColor = "#4285F4";
       const { status } = response;
+      
       if (parameter?.navigate) {
-        parameter?.navigate(`${parameter?.navUrl}`, {
+        // Replace userId in navUrl with new member_id for proper navigation
+        let navUrl = parameter?.navUrl || '';
+        // If navUrl contains /memsteptwo/ pattern, replace the ID with new member_id
+        if (navUrl.includes('/memsteptwo/')) {
+          navUrl = navUrl.replace(/\/memsteptwo\/\d+/, `/memsteptwo/${newMemberId}`);
+        }
+        
+        parameter?.navigate(navUrl, {
           state: {
             successMessage: "Successfully Created!",
             successMessageColor,
-            useracreate:parameter.useracreate,
-            member_id:response?.data?.id
+            useracreate: parameter.useracreate,
+            member_id: newMemberId,
+            isNewMember: true
           },
         });
       }

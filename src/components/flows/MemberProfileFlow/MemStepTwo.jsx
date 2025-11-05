@@ -29,8 +29,10 @@ const MemStepTwo = () => {
   const [error, setError] = useState("");
   const [errors, setErrors] = useState("");
   
-  // Determine the correct userId - prioritize URL param, then member_id, then userId
-  const currentUserId = paramUserId || localStorage.getItem("member_id") || userId;
+  // Determine the correct userId - prioritize member_id from state/localStorage (for new members), then URL param, then userId
+  // For new member creation, member_id from localStorage should be used instead of URL param
+  const memberIdFromStorage = localStorage.getItem("member_id");
+  const currentUserId = (member_id || memberIdFromStorage) || paramUserId || userId;
   
   // Debug logging for userId resolution
   console.log("MemStepTwo: paramUserId:", paramUserId);
@@ -51,7 +53,8 @@ const MemStepTwo = () => {
   }, [currentUserId, useracreate]);
 
   useEffect(() => {
-    if (apiData) {
+    // Check if apiData is an object with data (not empty array)
+    if (apiData && typeof apiData === 'object' && !Array.isArray(apiData) && apiData.id) {
       console.log("MemStepTwo: Loading data for user:", currentUserId);
       console.log("MemStepTwo: API Data:", apiData);
       console.log("MemStepTwo: Gender from API:", apiData.gender);
@@ -64,7 +67,7 @@ const MemStepTwo = () => {
         hijab_niqab_prefer: apiData.hijab_niqab_prefer || null,
       });
     }
-  }, [apiData]);
+  }, [apiData, currentUserId]);
 
   const handleFieldChange = (field, value) => {
     setProfileData((prevState) => ({

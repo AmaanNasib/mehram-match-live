@@ -95,6 +95,11 @@ const MemStepOne = () => {
     }
     
     if (userId) {
+      // Check if this is a back navigation for a newly created member
+      const isBackNavigation = location.state?.isNewMember || location.state?.member_id;
+      const recentlyCreatedMemberId = localStorage.getItem("member_id");
+      const isRecentlyCreated = recentlyCreatedMemberId && recentlyCreatedMemberId === String(userId);
+      
       // Check if this is a Google sign up user (temporary token)
       const token = localStorage.getItem("token");
       const isGoogleSignup = token && token.startsWith("google_");
@@ -285,10 +290,18 @@ const MemStepOne = () => {
           console.error("Direct API error:", error);
         });
         
-        fetchDataObjectV2(parameter);
+        // For recently created members, add a small delay before fetching to allow backend to process
+        if (isRecentlyCreated || isBackNavigation) {
+          console.log("Recently created member - adding delay before fetch to allow backend processing");
+          setTimeout(() => {
+            fetchDataObjectV2(parameter);
+          }, 1000); // 1 second delay for backend to process new member
+        } else {
+          fetchDataObjectV2(parameter);
+        }
       }
     }
-  }, [userId, editMode, memberId]);
+  }, [userId, editMode, memberId, location.state]);
 
   useEffect(() => {
     if (apiData && !(isNewMember && clearForm)) {
@@ -441,12 +454,27 @@ const MemStepOne = () => {
   useEffect(() => {
     // Cleanup function - runs when component unmounts
     return () => {
+      // Skip cleanup if:
+      // 1. Form was submitted successfully (navigation to next step)
+      // 2. It's a back navigation (isNewMember flag from location state)
+      // 3. Edit mode (editing existing member)
+      // 4. Member was recently created (check localStorage for member_id)
+      const isBackNavigation = location.state?.isNewMember || location.state?.member_id;
+      const recentlyCreatedMemberId = localStorage.getItem("member_id");
+      const isRecentlyCreated = recentlyCreatedMemberId && recentlyCreatedMemberId === String(createdMemberIdRef.current);
+      
+      // Don't cleanup if form was submitted OR it's a back navigation OR member was recently created
+      if (formSubmittedRef.current || isBackNavigation || isRecentlyCreated || editModeRef.current) {
+        console.log("Skipping cleanup - form submitted or back navigation or recently created member");
+        return;
+      }
+      
       // Only cleanup if:
       // 1. Form was not submitted successfully
       // 2. It's a new member (not edit mode)
       // 3. Member ID exists
       // 4. Form appears to be empty (no meaningful data entered)
-      if (!formSubmittedRef.current && isNewMemberRef.current && !editModeRef.current && createdMemberIdRef.current) {
+      if (isNewMemberRef.current && createdMemberIdRef.current) {
         const memberIdToCleanup = createdMemberIdRef.current;
         
         // Check if form has any meaningful data using ref (always current)
@@ -486,7 +514,7 @@ const MemStepOne = () => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount/unmount
+  }, [location.state]); // Run on mount/unmount or when location state changes
 
   const handleFieldChange = (field, value) => {
     console.log(field, value, ">>>>>");

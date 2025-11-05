@@ -954,16 +954,13 @@ const UserDetailProfessional = () => {
       return;
     }
 
-    // Check if already requested
+    // Check if already requested (pending)
     if (photoRequestStatus === 'pending') {
       alert('Photo request already sent - waiting for approval');
       return;
     }
 
-    if (photoRequestStatus === 'rejected') {
-      alert('Your photo request was rejected');
-      return;
-    }
+    // Allow sending request again if previously rejected
 
     const parameter = {
       url: `/api/user/photo-request/`,
@@ -1494,7 +1491,7 @@ const UserDetailProfessional = () => {
                     <button
                       className="photo-request-btn"
                       onClick={handlePhotoRequest}
-                      disabled={photoPrivacyLoading || photoRequestStatus === 'pending' || photoRequestStatus === 'rejected'}
+                      disabled={photoPrivacyLoading || photoRequestStatus === 'pending'}
                     >
                       {photoPrivacyLoading ? (
                         'Checking...'
@@ -1507,7 +1504,14 @@ const UserDetailProfessional = () => {
                           Request Sent
                         </>
                       ) : photoRequestStatus === 'rejected' ? (
-                        'Request Rejected'
+                        <>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          Request Again
+                        </>
                       ) : (
                         <>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1523,7 +1527,7 @@ const UserDetailProfessional = () => {
                       <p className="photo-request-status">Waiting for approval...</p>
                     )}
                     {photoRequestStatus === 'rejected' && (
-                      <p className="photo-request-status rejected">Your request was rejected</p>
+                      <p className="photo-request-status rejected">Your request was rejected. You can request again.</p>
                     )}
       </div>
                 )}
