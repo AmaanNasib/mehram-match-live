@@ -81,6 +81,13 @@ const TotalShortlistAgent = () => {
     }
   };
 
+  // Handle navigation to member profile
+  const handleMemberProfileClick = (userId) => {
+    if (userId) {
+      navigate(`/details/${userId}`);
+    }
+  };
+
   const handleRemoveFromShortlist = async (item) => {
     if (window.confirm(`Are you sure you want to unshortlist ${item.action_on?.name || 'this user'}?`)) {
       try {
@@ -572,14 +579,29 @@ const TotalShortlistAgent = () => {
                         height: "32px", 
                         borderRadius: "50%", 
                         objectFit: "cover",
-                        border: "2px solid #e0e0e0"
+                        border: "2px solid #e0e0e0",
+                        cursor: "pointer"
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMemberProfileClick(item.action_on?.id);
                       }}
                       onError={(e) => {
                         e.target.src = "https://via.placeholder.com/50";
                       }}
                     />
                   </td>
-                  <td>{item.action_on?.name || "N/A"}</td>
+                  <td>
+                    <span 
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMemberProfileClick(item.action_on?.id);
+                      }}
+                    >
+                      {item.action_on?.name || "N/A"}
+                    </span>
+                  </td>
                   <td>{item.action_on?.city || "N/A"}</td>
                   <td>{formatDate(item.created_at)}</td>
                   <td>{item.action_on?.sect_school_info || "N/A"}</td>

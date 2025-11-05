@@ -323,6 +323,14 @@ const TotalBlockedAgent = () => {
     }
   };
 
+  // Handle navigation to member profile
+  const handleMemberProfileClick = (user) => {
+    const userId = user?.user?.id || user?.id;
+    if (userId) {
+      navigate(`/details/${userId}`);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="tba-container">
@@ -593,28 +601,39 @@ const TotalBlockedAgent = () => {
                             width: '40px',
                             height: '40px',
                             borderRadius: '50%',
-                            objectFit: 'cover'
+                            objectFit: 'cover',
+                            cursor: 'pointer'
                           }}
+                          onClick={() => handleMemberProfileClick(match)}
                         />
                       ) : (
-                        <div style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '50%',
-                          backgroundColor: '#e5e7eb',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '16px',
-                          color: '#6b7280',
-                          margin: '0 auto'
-                        }}>
+                        <div 
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            backgroundColor: '#e5e7eb',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '16px',
+                            color: '#6b7280',
+                            margin: '0 auto',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleMemberProfileClick(match)}
+                        >
                           {match?.user?.name?.[0] || 'N'}
                         </div>
                       )}
                     </td>
                     <td style={{ textAlign: 'center', fontWeight: '500' }}>
-                      {match?.user?.name || "N/A"}
+                      <span 
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleMemberProfileClick(match)}
+                      >
+                        {match?.user?.name || "N/A"}
+                      </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>{match?.user?.age || "N/A"}</td>
                     <td style={{ textAlign: 'center' }}>{match?.user?.city || match?.user?.location || "N/A"}</td>
@@ -634,13 +653,7 @@ const TotalBlockedAgent = () => {
                         >
                           Unblock
                         </button>
-                        <button 
-                          className="tba-action-btn tba-view-btn"
-                          onClick={() => handleViewProfile(match)}
-                          title="View Profile"
-                        >
-                          View
-                        </button>
+                      
                       </div>
                     </td>
                   </tr>

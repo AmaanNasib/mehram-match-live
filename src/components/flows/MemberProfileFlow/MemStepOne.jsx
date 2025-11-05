@@ -2397,47 +2397,6 @@ const MemStepOne = () => {
                     if (!shouldShowContactField) {
                       return null; // Hide field for regular users who registered
                     }
-                    
-                    return (
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-                          Contact Number <span className="text-red-500">*</span>
-                          <div className="group relative tooltip-container">
-                            <svg 
-                              className="w-4 h-4 text-gray-400 hover:text-[#CB3B8B] cursor-help transition-colors" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTooltipClick('contact_number');
-                              }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg transition-opacity duration-200 whitespace-nowrap z-10 ${showTooltip === 'contact_number' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                              Enter your contact number (e.g., +91 9876543210)
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </div>
-                        </label>
-                        <input
-                          type="tel"
-                          name="contact_number"
-                          value={profileData.contact_number || ""}
-                          onChange={(e) => handleFieldChange("contact_number", e.target.value)}
-                          className={`w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-200 text-sm font-medium ${
-                            formErrors.contact_number
-                              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                              : "border-gray-300 focus:ring-[#CB3B8B] focus:border-[#CB3B8B]"
-                          }`}
-                          placeholder="Enter your contact number"
-                        />
-                        {formErrors.contact_number && (
-                          <p className="text-red-500 text-sm">{formErrors.contact_number}</p>
-                        )}
-                      </div>
-                    );
                   })()}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500">

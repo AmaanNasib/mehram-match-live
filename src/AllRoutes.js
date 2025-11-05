@@ -193,7 +193,7 @@ const AllRoutes = () => {
           element={
             <PrivateRoute>
               {" "}
-              <MyProfile />{" "}
+              <UserDetailProfessional />{" "}
             </PrivateRoute>
           }
         />

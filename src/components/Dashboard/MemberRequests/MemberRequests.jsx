@@ -161,6 +161,13 @@ const MemberRequests = () => {
     }
   };
 
+  // Handle navigation to member profile
+  const handleMemberProfileClick = (userId) => {
+    if (userId && userId !== "N/A") {
+      navigate(`/details/${userId}`);
+    }
+  };
+
   // Handle sorting
   const handleSort = (columnKey, tableType) => {
     let direction = 'asc';
@@ -585,28 +592,48 @@ const MemberRequests = () => {
                       {getSortedData(filteredSentRequests, 'sent').map((request, index) => (
                         <tr key={index}>
                           <td style={{ textAlign: 'center' }}>
-                            <div className="table-member-info">
+                            <div 
+                              className="table-member-info"
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => handleMemberProfileClick(request.member_id)}
+                            >
                               <img
                                 src={getProfileImageUrl(request.member_photo)}
                                 alt={request.member_name}
                                 className="table-avatar"
+                                style={{ cursor: 'pointer' }}
                               />
                               <div>
-                                <div className="table-name">{request.member_name || "N/A"}</div>
-                                <div className="table-id">ID: {request.member_id}</div>
+                                <div 
+                                  className="table-name"
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  {request.member_name || "N/A"}
+                                </div>
+                                <div className="table-id">Member ID: {request.member_id}</div>
                               </div>
                             </div>
                           </td>
                           <td style={{ textAlign: 'center' }}>
-                            <div className="table-member-info">
+                            <div 
+                              className="table-member-info"
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => handleMemberProfileClick(request.recipient_id)}
+                            >
                               <img
                                 src={getProfileImageUrl(request.recipient_photo)}
                                 alt={request.recipient_name}
                                 className="table-avatar"
+                                style={{ cursor: 'pointer' }}
                               />
                               <div>
-                                <div className="table-name">{request.recipient_name || "N/A"}</div>
-                                <div className="table-id">ID: {request.recipient_id}</div>
+                                <div 
+                                  className="table-name"
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  {request.recipient_name || "N/A"}
+                                </div>
+                                <div className="table-id">Member ID: {request.recipient_id}</div>
                               </div>
                             </div>
                           </td>
@@ -730,28 +757,48 @@ const MemberRequests = () => {
                         return (
                           <tr key={index}>
                             <td style={{ textAlign: 'center' }}>
-                              <div className="table-member-info">
+                              <div 
+                                className="table-member-info"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleMemberProfileClick(request.member_id)}
+                              >
                                 <img
                                   src={getProfileImageUrl(request.member_photo)}
                                   alt={request.member_name}
                                   className="table-avatar"
+                                  style={{ cursor: 'pointer' }}
                                 />
                                 <div>
-                                  <div className="table-name">{request.member_name || "N/A"}</div>
-                                  <div className="table-id">ID: {request.member_id}</div>
+                                  <div 
+                                    className="table-name"
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    {request.member_name || "N/A"}
+                                  </div>
+                                  <div className="table-id">Member ID: {request.member_id}</div>
                                 </div>
                               </div>
                             </td>
                             <td style={{ textAlign: 'center' }}>
-                              <div className="table-member-info">
+                              <div 
+                                className="table-member-info"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => handleMemberProfileClick(request.sender_id)}
+                              >
                                 <img
                                   src={getProfileImageUrl(request.sender_photo)}
                                   alt={request.sender_name}
                                   className="table-avatar"
+                                  style={{ cursor: 'pointer' }}
                                 />
                                 <div>
-                                  <div className="table-name">{request.sender_name || "N/A"}</div>
-                                  <div className="table-id">ID: {request.sender_id}</div>
+                                  <div 
+                                    className="table-name"
+                                    style={{ cursor: 'pointer' }}
+                                  >
+                                    {request.sender_name || "N/A"}
+                                  </div>
+                                  <div className="table-id">Member ID: {request.sender_id}</div>
                                 </div>
                               </div>
                             </td>

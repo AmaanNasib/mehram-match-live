@@ -87,6 +87,13 @@ const TotalInteractionAgent = () => {
     }
   };
 
+  // Handle navigation to member profile
+  const handleMemberProfileClick = (memberId) => {
+    if (memberId) {
+      navigate(`/details/${memberId}`);
+    }
+  };
+
   // Fetch individual member details
   const fetchMemberDetails = async (memberId) => {
     if (memberDetails[memberId] || loadingDetails[memberId]) return;
@@ -754,12 +761,17 @@ const TotalInteractionAgent = () => {
                         </span>
                       </td>
                       <td>
-                        <div className="tia-member-photo-cell">
+                        <div 
+                          className="tia-member-photo-cell"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleMemberProfileClick(item.member?.id)}
+                        >
                           <div className="tia-member-avatar">
                             <img
                               src={getProfileImageUrl(details?.profile_photo || item.member?.profile_photo)}
                               alt={item.member?.name || "Member"}
                               className="tia-avatar-img"
+                              style={{ cursor: 'pointer' }}
                               onError={(e) => {
                                 e.target.src = "https://via.placeholder.com/50";
                               }}
@@ -768,7 +780,11 @@ const TotalInteractionAgent = () => {
                         </div>
                       </td>
                       <td>
-                        <span className="tia-simple-member-name">
+                        <span 
+                          className="tia-simple-member-name"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleMemberProfileClick(item.member?.id)}
+                        >
                           {item.member?.name || "N/A"}
                         </span>
                       </td>

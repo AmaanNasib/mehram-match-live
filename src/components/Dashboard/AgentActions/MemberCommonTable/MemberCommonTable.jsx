@@ -9,7 +9,8 @@ const MemberCommonTable = ({
   getProfileImageUrl,
   formatDate,
   sortConfig = null,
-  onSort = null
+  onSort = null,
+  onMemberClick = null
 }) => {
   
   const renderCellContent = (column, row, index) => {
@@ -28,18 +29,32 @@ const MemberCommonTable = ({
       
       case 'member-info':
         return (
-          <div className="table-member-info">
+          <div 
+            className="table-member-info"
+            style={{ cursor: onMemberClick ? 'pointer' : 'default' }}
+            onClick={() => {
+              if (onMemberClick) {
+                onMemberClick(row, column);
+              }
+            }}
+          >
             <img
               src={getProfileImageUrl(row[column.photoKey])}
               alt={row[column.nameKey]}
               className="table-avatar"
+              style={{ cursor: onMemberClick ? 'pointer' : 'default' }}
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/40";
               }}
             />
             <div>
-              <div className="table-name">{row[column.nameKey] || "N/A"}</div>
-              <div className="table-id">ID: {row[column.idKey]}</div>
+              <div 
+                className="table-name"
+                style={{ cursor: onMemberClick ? 'pointer' : 'default' }}
+              >
+                {row[column.nameKey] || "N/A"}
+              </div>
+              <div className="table-id">Member ID: {row[column.idKey]}</div>
             </div>
           </div>
         );

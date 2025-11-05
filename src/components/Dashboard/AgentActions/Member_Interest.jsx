@@ -67,38 +67,127 @@ const Member_Interest = () => {
               const allReceivedInterests = [];
               
               results.forEach(result => {
+                // Debug: Log member object structure to understand API response
+                if (result.member && !result.member.member_id) {
+                  console.log('Member object structure:', {
+                    id: result.member.id,
+                    member_id: result.member.member_id,
+                    user: result.member.user,
+                    user_member_id: result.member.user?.member_id,
+                    all_keys: Object.keys(result.member)
+                  });
+                }
+                
                 if (result.interests) {
                   if (result.interests.sent_interests && result.interests.sent_interests.length > 0) {
-                    allSentInterests.push(...result.interests.sent_interests.map(interest => ({
+                    allSentInterests.push(...result.interests.sent_interests.map(interest => {
+                      // Extract member_id from multiple possible locations
+                      let memberId = result.member?.member_id || 
+                                    result.member?.user?.member_id ||
+                                    result.member?.user_id?.member_id;
+                      
+                      // If member_id is not found, generate one in MM2025XXX format
+                      if (!memberId && result.member?.id) {
+                        const currentYear = new Date().getFullYear();
+                        const memberIdNumber = String(result.member.id).padStart(3, '0');
+                        memberId = `MM${currentYear}${memberIdNumber}`;
+                      } else if (!memberId) {
+                        memberId = result.member?.id || "N/A";
+                      }
+                      
+                      return {
                       ...interest,
                       interest_id: interest.interest_id,
                       member_name: result.member.name || result.member.first_name || "N/A",
-                      member_id: result.member.id,
-                      member_photo: result.member.profile_photo,
+                      // Use member_id field (MM2025018 format) - check multiple possible locations
+                      member_id: memberId,
+                      // Store numeric id for navigation
+                      member_numeric_id: result.member?.id || null,
+                      // Extract member photo properly - handle both object and string formats
+                      member_photo: result.member?.profile_photo?.upload_photo || 
+                                  result.member?.user_profilephoto?.upload_photo ||
+                                  result.member?.profile_photo ||
+                                  result.member?.profile_image ||
+                                  result.member?.avatar ||
+                                  result.member?.photo ||
+                                  result.member?.image ||
+                                  null,
                       // Recipient details from interest.user (the person who received the interest)
                       recipient_name: interest.user?.name || interest.user?.first_name || interest.user?.username || "N/A",
-                      recipient_id: interest.user?.id || "N/A",
-                      recipient_photo: interest.user?.profile_photo || interest.user?.upload_photo || null,
+                      // Use member_id field (MM2025018 format) if available, otherwise fallback to id
+                      recipient_id: interest.user?.member_id || interest.user?.id || "N/A",
+                      // Store numeric id for navigation
+                      recipient_numeric_id: interest.user?.id || null,
+                      // Extract recipient photo properly - handle both object and string formats
+                      recipient_photo: interest.user?.profile_photo?.upload_photo ||
+                                     interest.user?.user_profilephoto?.upload_photo ||
+                                     interest.user?.profile_photo ||
+                                     interest.user?.upload_photo ||
+                                     interest.user?.profile_image ||
+                                     interest.user?.avatar ||
+                                     interest.user?.photo ||
+                                     interest.user?.image ||
+                                     null,
                       // Add target_user_id for withdraw API
                       target_user_id: interest.user?.id || null,
                       // Add status if available, default to 'Pending'
                       status: interest.status || 'Pending'
-                    })));
+                      };
+                    }));
                   }
                   if (result.interests.received_interests && result.interests.received_interests.length > 0) {
-                    allReceivedInterests.push(...result.interests.received_interests.map(interest => ({
+                    allReceivedInterests.push(...result.interests.received_interests.map(interest => {
+                      // Extract member_id from multiple possible locations
+                      let memberId = result.member?.member_id || 
+                                    result.member?.user?.member_id ||
+                                    result.member?.user_id?.member_id;
+                      
+                      // If member_id is not found, generate one in MM2025XXX format
+                      if (!memberId && result.member?.id) {
+                        const currentYear = new Date().getFullYear();
+                        const memberIdNumber = String(result.member.id).padStart(3, '0');
+                        memberId = `MM${currentYear}${memberIdNumber}`;
+                      } else if (!memberId) {
+                        memberId = result.member?.id || "N/A";
+                      }
+                      
+                      return {
                       ...interest,
                       interest_id: interest.interest_id,
                       member_name: result.member.name || result.member.first_name || "N/A",
-                      member_id: result.member.id,
-                      member_photo: result.member.profile_photo,
+                      // Use member_id field (MM2025018 format) - check multiple possible locations
+                      member_id: memberId,
+                      // Store numeric id for navigation
+                      member_numeric_id: result.member?.id || null,
+                      // Extract member photo properly - handle both object and string formats
+                      member_photo: result.member?.profile_photo?.upload_photo || 
+                                  result.member?.user_profilephoto?.upload_photo ||
+                                  result.member?.profile_photo ||
+                                  result.member?.profile_image ||
+                                  result.member?.avatar ||
+                                  result.member?.photo ||
+                                  result.member?.image ||
+                                  null,
                       // Sender details from interest.user (the person who sent the interest)
                       sender_name: interest.user?.name || interest.user?.first_name || interest.user?.username || "N/A",
-                      sender_id: interest.user?.id || "N/A",
-                      sender_photo: interest.user?.profile_photo || interest.user?.upload_photo || null,
+                      // Use member_id field (MM2025018 format) if available, otherwise fallback to id
+                      sender_id: interest.user?.member_id || interest.user?.id || "N/A",
+                      // Store numeric id for navigation
+                      sender_numeric_id: interest.user?.id || null,
+                      // Extract sender photo properly - handle both object and string formats
+                      sender_photo: interest.user?.profile_photo?.upload_photo ||
+                                   interest.user?.user_profilephoto?.upload_photo ||
+                                   interest.user?.profile_photo ||
+                                   interest.user?.upload_photo ||
+                                   interest.user?.profile_image ||
+                                   interest.user?.avatar ||
+                                   interest.user?.photo ||
+                                   interest.user?.image ||
+                                   null,
                       // Add status if available, default to 'Pending'
                       status: interest.status || 'Pending'
-                    })));
+                      };
+                    }));
                   }
                 }
               });
@@ -127,10 +216,38 @@ const Member_Interest = () => {
   }, [userId]);
 
   const getProfileImageUrl = (photoUrl) => {
+    // Handle null, undefined, or empty values
     if (!photoUrl) {
       return "https://via.placeholder.com/60";
     }
-    return `${process.env.REACT_APP_API_URL}${photoUrl}`;
+    
+    // If photoUrl is already a full URL (starts with http), return as is
+    if (typeof photoUrl === 'string' && (photoUrl.startsWith('http://') || photoUrl.startsWith('https://'))) {
+      return photoUrl;
+    }
+    
+    // If photoUrl is an object, try to extract the actual photo path
+    if (typeof photoUrl === 'object') {
+      const extractedUrl = photoUrl?.upload_photo || 
+                          photoUrl?.photo || 
+                          photoUrl?.image ||
+                          photoUrl?.profile_image ||
+                          photoUrl?.avatar;
+      if (extractedUrl) {
+        // If extracted URL is already full URL, return as is
+        if (typeof extractedUrl === 'string' && (extractedUrl.startsWith('http://') || extractedUrl.startsWith('https://'))) {
+          return extractedUrl;
+        }
+        // Otherwise prepend API URL
+        return `${process.env.REACT_APP_API_URL}${extractedUrl}`;
+      }
+      return "https://via.placeholder.com/60";
+    }
+    
+    // If photoUrl is a string (relative path), prepend API URL
+    // Ensure it starts with / if it doesn't already
+    const normalizedPath = photoUrl.startsWith('/') ? photoUrl : `/${photoUrl}`;
+    return `${process.env.REACT_APP_API_URL}${normalizedPath}`;
   };
 
   const formatDate = (dateString) => {
@@ -144,6 +261,28 @@ const Member_Interest = () => {
       });
     } catch (e) {
       return dateString;
+    }
+  };
+
+  // Handle navigation to member profile
+  const handleMemberClick = (row, column) => {
+    // Determine which numeric ID to use based on column
+    let numericId = null;
+    
+    if (column.label === 'Sent By' || column.label === 'Received By') {
+      // For member columns, use member_numeric_id
+      numericId = row.member_numeric_id;
+    } else if (column.label === 'Sent To') {
+      // For recipient columns, use recipient_numeric_id
+      numericId = row.recipient_numeric_id;
+    } else if (column.label === 'Received From') {
+      // For sender columns, use sender_numeric_id
+      numericId = row.sender_numeric_id;
+    }
+    
+    // Navigate to profile page if numeric ID is available
+    if (numericId) {
+      navigate(`/details/${numericId}`);
     }
   };
 
@@ -525,6 +664,7 @@ const Member_Interest = () => {
               formatDate={formatDate}
               sortConfig={sortConfig}
               onSort={handleSort}
+              onMemberClick={handleMemberClick}
               emptyMessage={{
                 title: "No Sent Interests",
                 description: "Your members haven't sent any interests yet"
@@ -541,6 +681,7 @@ const Member_Interest = () => {
               formatDate={formatDate}
               sortConfig={sortConfig}
               onSort={handleSort}
+              onMemberClick={handleMemberClick}
               emptyMessage={{
                 title: "No Received Interests",
                 description: "Your members haven't received any interests yet"
