@@ -1481,7 +1481,7 @@ const UserDetailProfessional = () => {
                         <circle cx="8.5" cy="8.5" r="1.5"/>
                         <polyline points="21 15 16 10 5 21"/>
                       </svg>
-                    </div>
+        </div>
                     <h3 className="photo-request-title">Private Photos</h3>
                     <p className="photo-request-description">
                       This user's photos are private. Request access to view their gallery.
@@ -1525,7 +1525,7 @@ const UserDetailProfessional = () => {
                     {photoRequestStatus === 'rejected' && (
                       <p className="photo-request-status rejected">Your request was rejected</p>
                     )}
-                  </div>
+      </div>
                 )}
 
                 {/* Gallery Content - Show only if can view photos or own profile */}

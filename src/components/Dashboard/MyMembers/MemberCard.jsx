@@ -1,7 +1,71 @@
-import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MemberCard.css';
 import '../../../shared-styles.css';
+
+// Constants
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+const FALLBACK_IMAGE = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNmM2Y0ZjYiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTJaIiBmaWxsPSIjOWNhM2FmIi8+CjxwYXRoIGQ9Ik0xMiAxNEM3LjU4MTcyIDE0IDQgMTcuNTgxNyA0IDIySDEyQzE2LjQxODMgMTQgMTIgMTQgMTIgMTRaIiBmaWxsPSIjOWNhM2FmIi8+Cjwvc3ZnPgo8L3N2Zz4K";
+
+// Helper Functions
+const getAuthHeaders = () => ({
+  'Authorization': `Bearer ${localStorage.getItem('token')}`,
+  'Content-Type': 'application/json'
+});
+
+const formatDateTime = (iso) => {
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso || '';
+  }
+};
+
+const getTypeStyle = (type) => {
+  const t = (type || '').toLowerCase();
+  const styles = {
+    accepted: { bg: '#dcfce7', color: '#166534', border: '#bbf7d0' },
+    rejected: { bg: '#fef2f2', color: '#991b1b', border: '#fecaca' },
+    message: { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+    request: { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+    interest: { bg: '#f5f3ff', color: '#6d28d9', border: '#ddd6fe' },
+    default: { bg: '#f1f5f9', color: '#334155', border: '#e2e8f0' }
+  };
+  
+  if (t.includes('accepted')) return styles.accepted;
+  if (t.includes('rejected')) return styles.rejected;
+  if (t.includes('message')) return styles.message;
+  if (t.includes('request')) return styles.request;
+  if (t.includes('interest')) return styles.interest;
+  return styles.default;
+};
+
+const getDecisionStatus = (n) => {
+  const raw = String(n?.status || n?.request_status || n?.interest_status || '').toLowerCase();
+  const accepted = raw === 'accepted' || raw === 'approve' || raw === 'approved' || n?.accepted === true || n?.is_accepted === true;
+  const rejected = raw === 'rejected' || raw === 'decline' || raw === 'declined' || n?.rejected === true || n?.is_rejected === true;
+  
+  if (accepted) return 'accepted';
+  if (rejected) return 'rejected';
+  return 'pending';
+};
+
+const getInterestStatus = (n) => {
+  const val = String(n?.interest_status || '').toLowerCase();
+  if (val === 'accepted') return 'accepted';
+  if (val === 'rejected') return 'rejected';
+  if (val === 'pending' || val === 'none' || val === '') return 'pending';
+  return getDecisionStatus(n);
+};
+
+const getInitials = (name) => {
+  return (name || 'U')
+    .split(' ')
+    .map(s => s[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+};
 
 const MemberCard = memo(({ 
   member, 
@@ -15,6 +79,15 @@ const MemberCard = memo(({
   const [showMenu, setShowMenu] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const menuRef = useRef(null);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifTotal, setNotifTotal] = useState(0);
+  const [notifCounts, setNotifCounts] = useState({});
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  const [notifItems, setNotifItems] = useState([]);
+  const [notifActionLoading, setNotifActionLoading] = useState(null);
+
+  // Memoized member ID
+  const memberId = useMemo(() => member?.id || member?.member_id, [member?.id, member?.member_id]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -25,13 +98,215 @@ const MemberCard = memo(({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Memoized profile image URL generation
-  const getProfileImageUrl = useCallback(() => {
+  // Fetch per-member notifications (agent)
+  useEffect(() => {
+    if (!memberId) return;
+    fetchNotifications(memberId, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memberId]);
+
+  // API Helper - Optimized for production
+  const apiFetch = useCallback(async (url, options = {}) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        ...options,
+        headers: { ...getAuthHeaders(), ...options.headers }
+      });
+      
+      if (!response.ok) {
+        return null;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('API Error:', error);
+      return null;
+    }
+  }, []);
+
+  const apiPost = useCallback(async (url, body) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(body)
+      });
+      
+      if (!response.ok) {
+        return null;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('API POST Error:', error);
+      return null;
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async (id, loadItems = true) => {
+    try {
+      setNotifLoading(true);
+      const data = await apiFetch(`/api/agent/member/${id}/notifications/`);
+      
+      if (data) {
+        setNotifTotal(data?.total || 0);
+        setNotifCounts(data?.counts || {});
+        if (loadItems) setNotifItems(Array.isArray(data?.notifications) ? data.notifications : []);
+      } else {
+        setNotifTotal(0);
+        setNotifCounts({});
+        if (loadItems) setNotifItems([]);
+      }
+    } catch (error) {
+      console.error('Fetch notifications error:', error);
+      setNotifTotal(0);
+      setNotifCounts({});
+      if (loadItems) setNotifItems([]);
+    } finally {
+      setNotifLoading(false);
+    }
+  }, [apiFetch]);
+
+  // Resolve interest_id for a member and sender - optimized for production
+  const resolveInterestId = useCallback(async (memId, senderId) => {
+    if (!memId || !senderId) return null;
+    
+    // Try pending interests first
+    const pendingData = await apiFetch(`/api/agent/member/${memId}/pending-interests/`);
+    if (pendingData) {
+      const arr = Array.isArray(pendingData?.pending_interests) 
+        ? pendingData.pending_interests 
+        : Array.isArray(pendingData) ? pendingData : [];
+      
+      const hit = arr.find(it => {
+        const userId = parseInt(it?.user?.id);
+        const senderUserId = parseInt(it?.sender_user_id);
+        return userId === senderId || senderUserId === senderId;
+      });
+      
+      if (hit?.interest_id) return parseInt(hit.interest_id);
+      if (hit?.id) return parseInt(hit.id);
+    }
+
+    // Fallback: search all interests
+    const allData = await apiFetch(`/api/agent/member/interests/?member_id=${memId}`);
+    if (allData) {
+      const received = Array.isArray(allData?.received_interests) 
+        ? allData.received_interests 
+        : Array.isArray(allData) ? allData : [];
+      
+      const hit = received.find(it => {
+        const userId = parseInt(it?.user?.id);
+        const senderUserId = parseInt(it?.sender_user_id);
+        return userId === senderId || senderUserId === senderId;
+      });
+      
+      if (hit?.interest_id) return parseInt(hit.interest_id);
+      if (hit?.id) return parseInt(hit.id);
+    }
+
+    return null;
+  }, [apiFetch]);
+
+  const openNotifications = useCallback(async (e) => {
+    e.stopPropagation();
+    if (!memberId) return;
+    setShowNotifModal(true);
+    await fetchNotifications(memberId, true);
+  }, [memberId, fetchNotifications]);
+
+  const handleInterestAction = useCallback(async (notif, action) => {
+    if (!memberId) return;
+    
+    const senderUserId = parseInt(notif?.from_user?.id);
+    const memId = parseInt(notif?.to_member?.id || memberId);
+    const loadingKey = `${action}-interest-${notif?.id || senderUserId}`;
+    
+    try {
+      setNotifActionLoading(loadingKey);
+      const resolvedInterestId = await resolveInterestId(memId, senderUserId);
+      
+      const body = resolvedInterestId
+        ? { member_id: memId, sender_user_id: senderUserId, action, interest_id: resolvedInterestId }
+        : { member_id: memId, sender_user_id: senderUserId, action };
+
+      const result = await apiPost('/api/agent/member/interest-action/', body);
+      if (result) {
+        await fetchNotifications(memberId, true);
+      }
+    } catch (error) {
+      console.error('Interest action error:', error);
+    } finally {
+      setNotifActionLoading(null);
+    }
+  }, [memberId, resolveInterestId, apiPost, fetchNotifications]);
+
+  const handlePhotoRequestAction = useCallback(async (notif, action) => {
+    if (!memberId) return;
+    
+    const senderUserId = parseInt(notif?.from_user?.id);
+    const memId = parseInt(notif?.to_member?.id || memberId);
+    const loadingKey = `${action}-photo-${notif?.id || senderUserId}`;
+    
+    try {
+      setNotifActionLoading(loadingKey);
+      const result = await apiPost('/api/agent/member/photo-request-action/', {
+        member_id: memId,
+        sender_user_id: senderUserId,
+        action
+      });
+      if (result) {
+        await fetchNotifications(memberId, true);
+      }
+    } catch (error) {
+      console.error('Photo request action error:', error);
+    } finally {
+      setNotifActionLoading(null);
+    }
+  }, [memberId, apiPost, fetchNotifications]);
+
+  const handleMarkAsRead = useCallback(async (notif) => {
+    if (!memberId) return;
+    
+    const senderUserId = parseInt(notif?.from_user?.id);
+    const memId = parseInt(notif?.to_member?.id || memberId);
+    const loadingKey = `mark-read-${notif?.id || senderUserId}`;
+    
+    if (!senderUserId || !memId) {
+      return;
+    }
+    
+    try {
+      setNotifActionLoading(loadingKey);
+      const result = await apiPost(`/api/agent/member/${memId}/notifications/mark-read/`, {
+        sender_user_id: senderUserId
+      });
+      
+      if (result) {
+        await fetchNotifications(memberId, true);
+      }
+    } catch (error) {
+      // Error logged in apiPost helper
+    } finally {
+      setNotifActionLoading(null);
+    }
+  }, [memberId, apiPost, fetchNotifications]);
+
+  // Memoized profile image URL
+  const profileImageUrl = useMemo(() => {
     const photoUrl = member?.profile_photo?.upload_photo || 
                     member?.user_profilephoto?.upload_photo ||
                     member?.profile_image ||
@@ -41,83 +316,47 @@ const MemberCard = memo(({
                     member?.user_profilephoto?.photo ||
                     member?.user_profilephoto?.image;
     
-    const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
-    
-    if (fullUrl) {
-      return fullUrl;
-    } else {
-      return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNmM2Y0ZjYiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTJaIiBmaWxsPSIjOWNhM2FmIi8+CjxwYXRoIGQ9Ik0xMiAxNEM3LjU4MTcyIDE0IDQgMTcuNTgxNyA0IDIySDEyQzE2LjQxODMgMTQgMTIgMTQgMTIgMTRaIiBmaWxsPSIjOWNhM2FmIi8+Cjwvc3ZnPgo8L3N2Zz4K";
-    }
-  }, [member?.profile_photo, member?.user_profilephoto, member?.profile_image, member?.avatar, member?.photo, member?.image, member?.gender]);
-
-  // Memoized fallback image
-  const getFallbackImage = useCallback(() => {
-    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNmM2Y0ZjYiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTEyIDEyQzE0Ljc2MTQgMTIgMTcgOS43NjE0MiAxNyA3QzE3IDQuMjM4NTggMTQuNzYxNCAyIDEyIDJDOS4yMzg1OCAyIDcgNC4yMzg1OCA3IDdDNyA5Ljc2MTQyIDkuMjM4NTggMTIgMTJaIiBmaWxsPSIjOWNhM2FmIi8+CjxwYXRoIGQ9Ik0xMiAxNEM3LjU4MTcyIDE0IDQgMTcuNTgxNyA0IDIySDEyQzE2LjQxODMgMTQgMTIgMTQgMTIgMTRaIiBmaWxsPSIjOWNhM2FmIi8+Cjwvc3ZnPgo8L3N2Zz4K";
-  }, []);
+    return photoUrl ? `${API_BASE_URL}${photoUrl}` : FALLBACK_IMAGE;
+  }, [member?.profile_photo, member?.user_profilephoto, member?.profile_image, member?.avatar, member?.photo, member?.image]);
 
   // Memoized event handlers
   const handleCardClick = useCallback(() => {
-    if (onViewProfile) {
-      onViewProfile(member?.id);
-    } else {
-      navigate(`/details/${member?.id}`);
-    }
-  }, [member?.id, onViewProfile, navigate]);
-
-  const handleViewClick = useCallback((e) => {
-    e.stopPropagation();
-    if (onViewProfile) {
-      onViewProfile(member?.id);
-    } else {
-      navigate(`/details/${member?.id}`);
-    }
+    onViewProfile ? onViewProfile(member?.id) : navigate(`/details/${member?.id}`);
   }, [member?.id, onViewProfile, navigate]);
 
   const handleEditClick = useCallback((e) => {
     e.stopPropagation();
-    if (onEdit) {
-      onEdit(member);
-    } else {
-      navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } });
-    }
+    onEdit ? onEdit(member) : navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } });
   }, [member, onEdit, navigate]);
 
   const handleMatchesClick = useCallback((e) => {
     e.stopPropagation();
-    if (onViewMatches) {
-      onViewMatches(member);
-    } else {
-      navigate(`/member-matches/${member.member_id}`);
-    }
+    onViewMatches ? onViewMatches(member) : navigate(`/member-matches/${member.member_id}`);
   }, [member, onViewMatches, navigate]);
 
   const handleDeleteClick = useCallback((e) => {
     e.stopPropagation();
-    if (onDelete) {
-      onDelete(member);
-    }
+    onDelete?.(member);
   }, [member, onDelete]);
 
   const handleInterestClick = useCallback((e) => {
     e.stopPropagation();
-    navigate(`/member-interests/${member?.id || member?.member_id}`);
-  }, [member?.id, member?.member_id, navigate]);
+    navigate(`/member-interests/${memberId}`);
+  }, [memberId, navigate]);
 
   const handleRequestClick = useCallback((e) => {
     e.stopPropagation();
-    navigate(`/member-request-send-received?memberId=${member?.id || member?.member_id}`);
-  }, [member?.id, member?.member_id, navigate]);
+    navigate(`/member-request-send-received?memberId=${memberId}`);
+  }, [memberId, navigate]);
 
   // Trigger animation when isDeleting prop becomes true
   useEffect(() => {
-    if (isDeleting) {
-      setIsAnimatingOut(true);
-    }
+    if (isDeleting) setIsAnimatingOut(true);
   }, [isDeleting]);
 
   const handleImageError = useCallback((e) => {
-    e.target.src = getFallbackImage();
-  }, [getFallbackImage]);
+    e.target.src = FALLBACK_IMAGE;
+  }, []);
 
   const handleMenuToggle = useCallback((e) => {
     e.stopPropagation();
@@ -129,28 +368,22 @@ const MemberCard = memo(({
   }, []);
 
   return (
+    <>
     <div
       className={`member-card ${isAnimatingOut ? 'animate-out' : ''} ${isDeleting ? 'is-deleting' : ''}`}
       onClick={handleCardClick}
+      style={{ position: 'relative' }}
     >
       {/* Card Header */}
       <div className="card-header">
         <div className="member-id-section">
           <span className="id-badge">{member?.member_id || "N/A"}</span>
-          {member?.notifications > 0 && (
-            <span className="notification-indicator">
-              {member.notifications}
-            </span>
-          )}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div className="notifications-info" onClick={(e) => e.stopPropagation()}>
+          <div className="notifications-info" onClick={openNotifications}>
             <span className="notifications-icon">🔔</span>
             <span className="notifications-text">
-              {member?.notifications > 0 
-                ? `${member.notifications} notification${member.notifications > 1 ? 's' : ''}`
-                : "No notifications"
-              }
+              {notifLoading ? '' : notifTotal}
             </span>
           </div>
           <div className="menu-container" ref={menuRef} onClick={handleMenuToggle}>
@@ -184,11 +417,143 @@ const MemberCard = memo(({
         </div>
       </div>
 
+      {/* Notifications Panel (inside card) */}
+      {showNotifModal && (
+        <div 
+          className="notif-modal"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="notif-modal-header">
+            <h3 className="notif-modal-title">Notifications ({notifTotal})</h3>
+            <button
+              className="notif-modal-close"
+              onClick={() => setShowNotifModal(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </div>
+          {notifLoading ? (
+            <div className="notif-loading">Loading...</div>
+          ) : notifItems.length === 0 ? (
+            <div className="notif-empty">No notifications</div>
+          ) : (
+            <ul className="notif-list">
+              {notifItems.map((n) => {
+                const notifStyle = getTypeStyle(n.type);
+                const initials = getInitials(n.from_user?.name || n.from_user?.first_name);
+                const typeLower = (n.type || '').toLowerCase();
+                const isInterest = typeLower === 'interest';
+                const isPhotoRequest = typeLower === 'request_photo';
+                const isMessageReceived = typeLower === 'message_received' || typeLower.includes('message');
+                const isActionableType = isInterest || isPhotoRequest; // Only Interest and Photo Request can have Accept/Reject
+                
+                // Check message status for Message Received notifications
+                // Only show as unread if explicitly marked as unread
+                // If message_status is 'read' or null/undefined, consider it as read
+                const messageStatus = (n.message_status || '').toLowerCase();
+                const isUnreadMessage = isMessageReceived && messageStatus === 'unread';
+                
+                // Only check status for actionable types (Interest/Photo Request)
+                const interestStatus = isActionableType ? getInterestStatus(n) : null;
+                const decision = isActionableType ? getDecisionStatus(n) : null;
+                const isAccepted = isActionableType && (typeLower.includes('accepted') || decision === 'accepted' || interestStatus === 'accepted');
+                const isRejected = isActionableType && (typeLower.includes('rejected') || decision === 'rejected' || interestStatus === 'rejected');
+                const isPending = isActionableType && interestStatus === 'pending';
+                
+                const showActions = isActionableType && isPending && n.can_accept_reject !== false;
+                const acceptKey = `accept-${isInterest ? 'interest' : 'photo'}-${n.id}`;
+                const rejectKey = `reject-${isInterest ? 'interest' : 'photo'}-${n.id}`;
+                const isAcceptLoading = notifActionLoading === acceptKey;
+                const isRejectLoading = notifActionLoading === rejectKey;
+                
+                // Status text logic: Only show Accepted/Rejected/Pending for actionable types
+                const statusText = isActionableType 
+                  ? (isAccepted ? 'Accepted' : isRejected ? 'Rejected' : isPending ? 'Pending' : 'Responded')
+                  : 'Responded'; // For Message Received and other types, always show "Responded"
+                
+                return (
+                  <li
+                    key={n.id}
+                    className={`notif-item ${isUnreadMessage ? 'notif-unread' : ''}`}
+                    style={{
+                      borderColor: notifStyle.border,
+                      borderLeft: `4px solid ${notifStyle.color}`
+                    }}
+                  >
+                    <div className="notif-content">
+                      <div className="notif-avatar" style={{ background: notifStyle.bg, color: notifStyle.color }}>
+                        {initials}
+                      </div>
+                      <div className="notif-body">
+                        <div className="notif-header-row">
+                          <div className="notif-header-left">
+                            <span className="notif-type-badge" style={{ background: notifStyle.bg, color: notifStyle.color, borderColor: notifStyle.border }}>
+                              {n.type?.replace(/_/g, ' ')}
+                            </span>
+                            {isUnreadMessage && (
+                              <span className="notif-unread-badge" title="Unread message"></span>
+                            )}
+                            {n.from_user?.name && (
+                              <span className="notif-sender">from <strong>{n.from_user.name}</strong></span>
+                            )}
+                          </div>
+                          <span className="notif-time">{formatDateTime(n.created_at)}</span>
+                        </div>
+                        <div className="notif-message">{n.message}</div>
+                        {showActions ? (
+                          <div className="notif-actions">
+                            <button
+                              className="notif-btn accept"
+                              onClick={() => isInterest ? handleInterestAction(n, 'accept') : handlePhotoRequestAction(n, 'accept')}
+                              disabled={isAcceptLoading || isRejectLoading}
+                            >
+                              {isAcceptLoading ? '...' : 'Accept'}
+                            </button>
+                            <button
+                              className="notif-btn reject"
+                              onClick={() => isInterest ? handleInterestAction(n, 'reject') : handlePhotoRequestAction(n, 'reject')}
+                              disabled={isAcceptLoading || isRejectLoading}
+                            >
+                              {isRejectLoading ? '...' : 'Reject'}
+                            </button>
+                          </div>
+                        ) : isUnreadMessage ? (
+                          <div className="notif-actions">
+                            <button
+                              className="notif-btn mark-read"
+                              onClick={() => handleMarkAsRead(n)}
+                              disabled={notifActionLoading === `mark-read-${n.id || n.from_user?.id}`}
+                            >
+                              {notifActionLoading === `mark-read-${n.id || n.from_user?.id}` ? '...' : 'Mark as Read'}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="notif-status">
+                            <span className={`notif-status-badge ${
+                              isActionableType 
+                                ? (isAccepted ? 'accepted' : isRejected ? 'rejected' : isPending ? 'pending' : 'responded')
+                                : 'responded'
+                            }`}>
+                              {statusText}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* Member Profile Section */}
       <div className="card-profile-section">
         <div className="profile-avatar-large">
           <img
-            src={getProfileImageUrl()}
+            src={profileImageUrl}
             alt={member?.name || "Member"}
             className="avatar-large-img"
             onError={handleImageError}
@@ -275,6 +640,7 @@ const MemberCard = memo(({
         </div>
       </div>
     </div>
+  </>
   );
 });
 
