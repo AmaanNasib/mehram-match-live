@@ -29,7 +29,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env REACT_APP_API_URL=https://api.mehrammatch.com react-scripts start",
+    "start": "cross-env REACT_APP_API_URL=https://apii.mehrammatch.com react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "start:home": "REACT_APP_API_URL=http://192.168.81.66:8000 react-scripts start",

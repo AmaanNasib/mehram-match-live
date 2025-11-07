@@ -311,7 +311,7 @@ const AgentProfile = () => {
       
       // Fix HTTP to HTTPS for production URLs
       if (photoUrl.startsWith('http://api.mehrammatch.com')) {
-        photoUrl = photoUrl.replace('http://api.mehrammatch.com', 'https://api.mehrammatch.com');
+        photoUrl = photoUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
       }
       
       return photoUrl.startsWith('http') 
@@ -325,7 +325,7 @@ const AgentProfile = () => {
       
       // Fix HTTP to HTTPS for production URLs
       if (photoUrl.startsWith('http://api.mehrammatch.com')) {
-        photoUrl = photoUrl.replace('http://api.mehrammatch.com', 'https://api.mehrammatch.com');
+        photoUrl = photoUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
       }
       
       return photoUrl.startsWith('http') 

@@ -489,7 +489,7 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                             : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
                           
                           if (fullUrl.startsWith('http://api.mehrammatch.com')) {
-                            fullUrl = fullUrl.replace('http://api.mehrammatch.com', 'https://api.mehrammatch.com');
+                            fullUrl = fullUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
                           }
                           
                           return fullUrl;

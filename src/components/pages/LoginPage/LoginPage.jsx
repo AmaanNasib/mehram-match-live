@@ -147,16 +147,26 @@ const LoginPage = () => {
 
       const userData = JSON.parse(jsonPayload);
       
+      if (!role) {
+        setRoleError("Select role.");
+        setErrorMessage("Please select a role before continuing with Google login.");
+        return;
+      }
+
       // Prepare login data for Google OAuth API
       const loginData = {
         email: userData.email,
         google_id: userData.sub, // Google user ID
-        auth_provider: 'google'
+        auth_provider: 'google',
+        role
       };
+
+      const loginUrl = role === 'agent' ? "/api/agent/login/" : "/api/user/login/";
+      localStorage.setItem("role", role);
       
       // Call Google login API
       const parameter = {
-        url: "/api/user/login/",
+        url: loginUrl,
         payload: loginData,
         setErrors: setErrorMessage,
         navigate: navigate,
