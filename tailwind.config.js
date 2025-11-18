@@ -6,12 +6,16 @@ export default {
   ],
   theme: {
     extend: {
-
-      colors:{
-        "neongreen" : "#D1F60A"
+      backgroundImage: {
+        'button-default': 'linear-gradient(to right, #FF59B6, #EB53A7)',
+        'button-hover': 'linear-gradient(to right, #F971BC, #DA73AD)',
+      },
+      colors: {
+        "neongreen": "#D1F60A",
+        "pink-mm": "#FF59B6"
       },
     },
   },
   plugins: [],
-  
+
 }

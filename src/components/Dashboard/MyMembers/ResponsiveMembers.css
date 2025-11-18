@@ -1,0 +1,8 @@
+@media (width <=767px) {
+
+    .filter-container input,
+    .filter-container select,
+    .filter-container button {
+        width: 100% !important;
+    }
+}

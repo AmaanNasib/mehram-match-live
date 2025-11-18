@@ -16,7 +16,7 @@ const UserDetailProfessional = () => {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
   const [activeTab, setActiveTab] = useState('basic');
-  
+
   // Action states
   const [interestStatus, setInterestStatus] = useState(false);
   const [shortlistStatus, setShortlistStatus] = useState(false);
@@ -95,7 +95,7 @@ const UserDetailProfessional = () => {
                 url: `/api/agent/shortlist/?agent_id=${currentUserId}`,
                 setterFunction: (data) => {
                   // Find if this user is in agent's shortlist
-                  const shortlistItem = (data || []).find(item => 
+                  const shortlistItem = (data || []).find(item =>
                     item.action_on && item.action_on.id === Number(userId) && item.shortlisted === true
                   );
                   setShortlistStatus(shortlistItem ? true : false);
@@ -117,11 +117,11 @@ const UserDetailProfessional = () => {
 
                 if (Array.isArray(data)) {
                   data.forEach(item => {
-                    const isCurrentUserAction = 
+                    const isCurrentUserAction =
                       (item.action_by && item.action_by.id === Number(currentUserId)) ||
                       (item.action_by_id === Number(currentUserId));
-                    
-                    const isTargetUser = 
+
+                    const isTargetUser =
                       (item.action_on && item.action_on.id === Number(userId)) ||
                       (item.action_on_id === Number(userId));
 
@@ -135,11 +135,11 @@ const UserDetailProfessional = () => {
                     }
                   });
                 } else if (data && typeof data === 'object') {
-                  const isCurrentUserAction = 
+                  const isCurrentUserAction =
                     (data.action_by && data.action_by.id === Number(currentUserId)) ||
                     (data.action_by_id === Number(currentUserId));
-                  
-                  const isTargetUser = 
+
+                  const isTargetUser =
                     (data.action_on && data.action_on.id === Number(userId)) ||
                     (data.action_on_id === Number(userId));
 
@@ -168,11 +168,11 @@ const UserDetailProfessional = () => {
 
                 if (Array.isArray(data)) {
                   data.forEach(item => {
-                    const isCurrentUserAction = 
+                    const isCurrentUserAction =
                       (item.action_by && item.action_by.id === Number(currentUserId)) ||
                       (item.action_by_id === Number(currentUserId));
-                    
-                    const isTargetUser = 
+
+                    const isTargetUser =
                       (item.action_on && item.action_on.id === Number(userId)) ||
                       (item.action_on_id === Number(userId));
 
@@ -189,11 +189,11 @@ const UserDetailProfessional = () => {
                     }
                   });
                 } else if (data && typeof data === 'object') {
-                  const isCurrentUserAction = 
+                  const isCurrentUserAction =
                     (data.action_by && data.action_by.id === Number(currentUserId)) ||
                     (data.action_by_id === Number(currentUserId));
-                  
-                  const isTargetUser = 
+
+                  const isTargetUser =
                     (data.action_on && data.action_on.id === Number(userId)) ||
                     (data.action_on_id === Number(userId));
 
@@ -230,7 +230,7 @@ const UserDetailProfessional = () => {
   // Check photo request status for "Only to users whom I approve"
   const checkPhotoRequestStatus = async (currentUserId, targetUserId) => {
     setPhotoPrivacyLoading(true);
-    
+
     try {
       const baseUrl = process.env.REACT_APP_API_URL;
       const endpoints = [
@@ -238,11 +238,11 @@ const UserDetailProfessional = () => {
         `${baseUrl}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`,
         `${baseUrl}/api/user/photo-request/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`
       ];
-      
+
       let response;
       let data;
       let success = false;
-      
+
       for (const endpoint of endpoints) {
         try {
           response = await fetch(endpoint, {
@@ -253,15 +253,15 @@ const UserDetailProfessional = () => {
               'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
             }
           });
-          
+
           if (response.ok) {
             const responseText = await response.text();
-            
+
             // Check if response is HTML (error page)
             if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
               continue;
             }
-            
+
             try {
               data = JSON.parse(responseText);
               success = true;
@@ -274,7 +274,7 @@ const UserDetailProfessional = () => {
           // Continue to next endpoint
         }
       }
-      
+
       if (!success) {
         setCanViewPhotos(false);
         setPhotoRequestStatus(null);
@@ -285,9 +285,9 @@ const UserDetailProfessional = () => {
         // Check if current user has sent a request to this profile
         const userRequest = data.find(request => {
           return (request.action_by && request.action_by.id === Number(currentUserId)) ||
-                 (request.action_by_id === Number(currentUserId));
+            (request.action_by_id === Number(currentUserId));
         });
-        
+
         if (userRequest) {
           if (userRequest.status === 'Accepted' || userRequest.status === 'accepted') {
             setCanViewPhotos(true);
@@ -322,11 +322,11 @@ const UserDetailProfessional = () => {
   // Check agent's member photo requests status
   const checkAgentMemberPhotoRequests = async (targetUserId) => {
     if (!isAgent || !targetUserId) return false;
-    
+
     try {
       setPhotoPrivacyLoading(true);
       const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
-      
+
       // Fetch agent's members
       const membersResponse = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/user_agent/?agent_id=${userId}`,
@@ -344,7 +344,7 @@ const UserDetailProfessional = () => {
 
       const membersData = await membersResponse.json();
       const members = membersData.member || [];
-      
+
       // Check photo requests for each member
       for (const member of members) {
         try {
@@ -361,38 +361,38 @@ const UserDetailProfessional = () => {
           if (photoRequestResponse.ok) {
             const photoRequestData = await photoRequestResponse.json();
             const sentRequests = photoRequestData.sent_requests || [];
-            
+
             // Check if any sent request to target user is accepted
             const acceptedRequest = sentRequests.find(request => {
               // Check multiple possible fields for target user ID
-              const targetId = request.target_user_id || 
-                              (request.target_user && request.target_user.id) ||
-                              (request.action_on_id) ||
-                              (request.action_on && request.action_on.id) ||
-                              (request.user && request.user.id) ||
-                              (request.recipient_id) ||
-                              (request.recipient && request.recipient.id);
-              
+              const targetId = request.target_user_id ||
+                (request.target_user && request.target_user.id) ||
+                (request.action_on_id) ||
+                (request.action_on && request.action_on.id) ||
+                (request.user && request.user.id) ||
+                (request.recipient_id) ||
+                (request.recipient && request.recipient.id);
+
               const isTargetMatch = targetId && parseInt(targetId) === parseInt(targetUserId);
-              
+
               // Check status in multiple possible fields
               const status = request.status || request.request_status || request.photo_request_status;
               const isAccepted = status === 'Accepted' || status === 'accepted' || status === 'Accepted' || status === 'approved';
-              
+
               return isTargetMatch && isAccepted;
             });
-            
+
             if (acceptedRequest) {
               // Check if receiver has blocked the sender (member)
               // Backend logic: if receiver blocked sender, photos should not be visible
               // Check multiple possible fields for block status
-              const isBlocked = acceptedRequest.is_blocked || 
-                               acceptedRequest.blocked || 
-                               acceptedRequest.receiver_blocked_sender ||
-                               acceptedRequest.user_blocked_member ||
-                               (acceptedRequest.user && acceptedRequest.user.blocked === true) ||
-                               (acceptedRequest.target_user && acceptedRequest.target_user.blocked === true);
-              
+              const isBlocked = acceptedRequest.is_blocked ||
+                acceptedRequest.blocked ||
+                acceptedRequest.receiver_blocked_sender ||
+                acceptedRequest.user_blocked_member ||
+                (acceptedRequest.user && acceptedRequest.user.blocked === true) ||
+                (acceptedRequest.target_user && acceptedRequest.target_user.blocked === true);
+
               // Also check if receiver blocked member by checking block status
               // If blocked, don't show photos even if request was accepted
               if (isBlocked) {
@@ -402,7 +402,7 @@ const UserDetailProfessional = () => {
                 setPhotoRequestStatus(null);
                 return false;
               }
-              
+
               // Additional check: Verify if receiver blocked the member
               // Check via API if target user blocked the member
               try {
@@ -415,18 +415,18 @@ const UserDetailProfessional = () => {
                     }
                   }
                 );
-                
+
                 if (blockCheckResponse.ok) {
                   const blockData = await blockCheckResponse.json();
-                  const blockRecord = Array.isArray(blockData) 
-                    ? blockData.find(item => 
-                        (item.action_by_id === parseInt(targetUserId) || 
-                         (item.action_by && item.action_by.id === parseInt(targetUserId))) &&
-                        (item.action_on_id === member.id || 
-                         (item.action_on && item.action_on.id === member.id))
-                      )
+                  const blockRecord = Array.isArray(blockData)
+                    ? blockData.find(item =>
+                      (item.action_by_id === parseInt(targetUserId) ||
+                        (item.action_by && item.action_by.id === parseInt(targetUserId))) &&
+                      (item.action_on_id === member.id ||
+                        (item.action_on && item.action_on.id === member.id))
+                    )
                     : blockData;
-                  
+
                   if (blockRecord && (blockRecord.blocked === true || blockRecord.blocked === "true")) {
                     console.log(`Receiver (${targetUserId}) blocked member (${member.id})`);
                     setAcceptedMemberInfo(null);
@@ -439,9 +439,9 @@ const UserDetailProfessional = () => {
                 console.error('Error checking block status:', blockCheckError);
                 // Continue even if block check fails
               }
-              
+
               const memberName = member.name || member.first_name || member.first_name || 'Member';
-              
+
               setAcceptedMemberInfo({
                 memberId: member.id,
                 memberName: memberName,
@@ -457,13 +457,13 @@ const UserDetailProfessional = () => {
           continue;
         }
       }
-      
+
       // If no accepted request found but photos are visible, it might be set elsewhere
       // Don't clear acceptedMemberInfo if it's already set
       if (!acceptedMemberInfo) {
         setAcceptedMemberInfo(null);
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error checking agent member photo requests:', error);
@@ -479,12 +479,12 @@ const UserDetailProfessional = () => {
     const currentUserId = localStorage.getItem('userId');
     const currentUserGender = localStorage.getItem('gender');
 
-    if (userData && userData.gender === 'female' && 
-        (currentUserGender === 'male' || isAgent) && 
-        currentUserId && userData.id && !isOwnProfile) {
-      
+    if (userData && userData.gender === 'female' &&
+      (currentUserGender === 'male' || isAgent) &&
+      currentUserId && userData.id && !isOwnProfile) {
+
       const privacyOption = userData.photo_upload_privacy_option;
-      
+
       let canView = true; // Default to visible
       if (privacyOption) {
         switch (privacyOption) {
@@ -509,7 +509,7 @@ const UserDetailProfessional = () => {
             canView = true;
         }
       }
-      
+
       setCanViewPhotos(canView);
       setPhotoPrivacyLoading(false);
     } else {
@@ -524,19 +524,19 @@ const UserDetailProfessional = () => {
     const currentUserGender = localStorage.getItem('gender');
 
     // Only set up periodic checking for male/agent users viewing female profiles with "Only to users whom I approve"
-    if (userData && userData.gender === 'female' && 
-        (currentUserGender === 'male' || isAgent) && 
-        (userData.photo_upload_privacy_option === 'Only to users whom I approve' || 
-         userData.photo_upload_privacy_option === 'Yes') && 
-        currentUserId && userData.id && !isOwnProfile) {
-      
+    if (userData && userData.gender === 'female' &&
+      (currentUserGender === 'male' || isAgent) &&
+      (userData.photo_upload_privacy_option === 'Only to users whom I approve' ||
+        userData.photo_upload_privacy_option === 'Yes') &&
+      currentUserId && userData.id && !isOwnProfile) {
+
       // Check immediately
       if (isAgent) {
         checkAgentMemberPhotoRequests(userData.id);
       } else {
         checkPhotoRequestStatus(currentUserId, userData.id);
       }
-      
+
       // Set up periodic checking every 10 seconds
       const interval = setInterval(() => {
         if (isAgent) {
@@ -558,19 +558,19 @@ const UserDetailProfessional = () => {
     if (userData?.profile_photo) {
       return `${process.env.REACT_APP_API_URL}${userData.profile_photo}`;
     }
-    return userData?.gender === "male" 
+    return userData?.gender === "male"
       ? `data:image/svg+xml;utf8,${encodeURIComponent(
-          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
             <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
             <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
           </svg>`
-        )}`
+      )}`
       : `data:image/svg+xml;utf8,${encodeURIComponent(
-          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
             <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
             <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
           </svg>`
-        )}`;
+      )}`;
   };
 
   // Action Handlers
@@ -593,7 +593,7 @@ const UserDetailProfessional = () => {
 
   const handleShortlist = () => {
     const newShortlistStatus = !shortlistStatus;
-    
+
     // For agent, use agent shortlist API endpoint
     // For regular user, use regular shortlist API
     if (isAgent) {
@@ -638,10 +638,10 @@ const UserDetailProfessional = () => {
 
       postDataWithFetchV2(parameter);
     }
-    
+
     // Update local state
     setShortlistStatus(newShortlistStatus);
-    
+
     if (newShortlistStatus) {
       alert(isAgent ? 'Added to your shortlist successfully!' : 'Added to shortlist successfully!');
     } else {
@@ -651,7 +651,7 @@ const UserDetailProfessional = () => {
 
   const handleBlock = () => {
     const isCurrentlyBlocked = blockStatus;
-    
+
     const parameter = {
       url: isCurrentlyBlocked ? `/api/recieved/unblock/` : `/api/recieved/block/`,
       payload: {
@@ -670,7 +670,7 @@ const UserDetailProfessional = () => {
     };
 
     postDataWithFetchV2(parameter);
-    
+
     // Update local state
     setBlockStatus(!isCurrentlyBlocked);
   };
@@ -730,7 +730,7 @@ const UserDetailProfessional = () => {
   // Photo upload handlers
   const handleFileSelect = async (event) => {
     const files = Array.from(event.target.files);
-    
+
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
       const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
@@ -750,7 +750,7 @@ const UserDetailProfessional = () => {
     }
 
     setUploading(true);
-    
+
     // Upload first file
     const firstFile = selectedFiles[0];
     const formData = new FormData();
@@ -827,7 +827,7 @@ const UserDetailProfessional = () => {
 
     setDeletingPhoto(photoToDelete.id);
     setShowDeleteModal(false);
-    
+
     try {
       await apiDeletePhoto(photoToDelete.id);
       refreshGallery();
@@ -837,7 +837,7 @@ const UserDetailProfessional = () => {
       alert('Delete mein koi problem aayi. Please try again.');
       setDeletingPhoto(null);
     }
-    
+
     setPhotoToDelete(null);
   };
 
@@ -849,10 +849,10 @@ const UserDetailProfessional = () => {
   // Fetch agent's male members
   const fetchAgentMembers = async () => {
     if (!isAgent) return;
-    
+
     try {
       setLoadingMembers(true);
-      
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/male-members/`,
         {
@@ -881,11 +881,11 @@ const UserDetailProfessional = () => {
   // Fetch agent's members for interest (with gender compatibility)
   const fetchAgentInterestMembers = async () => {
     if (!isAgent || !userData) return;
-    
+
     try {
       setLoadingInterestMembers(true);
       const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
-      
+
       // Fetch all agent members
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/user_agent/?agent_id=${userId}`,
@@ -903,28 +903,28 @@ const UserDetailProfessional = () => {
 
       const data = await response.json();
       const allMembers = data.member || [];
-      
+
       // Filter based on target user gender
       // If target user is female, show male members
       // If target user is male, show female members
       const targetGender = userData.gender?.toLowerCase();
-      
+
       let compatibleMembers = [];
       if (targetGender === 'female') {
         // Target is female, show male members
-        compatibleMembers = allMembers.filter(member => 
+        compatibleMembers = allMembers.filter(member =>
           member.gender && member.gender.toLowerCase() === 'male'
         );
       } else if (targetGender === 'male') {
         // Target is male, show female members
-        compatibleMembers = allMembers.filter(member => 
+        compatibleMembers = allMembers.filter(member =>
           member.gender && member.gender.toLowerCase() === 'female'
         );
       } else {
         // If gender not clear, show all members
         compatibleMembers = allMembers;
       }
-      
+
       setAgentInterestMembers(compatibleMembers);
     } catch (error) {
       console.error('Error fetching agent interest members:', error);
@@ -981,7 +981,7 @@ const UserDetailProfessional = () => {
         console.log('Photo request success:', message);
         alert('Photo request sent successfully!');
         setPhotoRequestStatus('pending');
-        
+
         // After successful request, check status again to update UI
         setTimeout(() => {
           if (currentUserId && userData?.id) {
@@ -990,7 +990,7 @@ const UserDetailProfessional = () => {
         }, 2000);
       },
     };
-    
+
     postDataWithFetchV2(parameter);
   };
 
@@ -1004,7 +1004,7 @@ const UserDetailProfessional = () => {
     // Gender compatibility check
     const memberGender = member.gender?.toLowerCase();
     const targetGender = userData.gender?.toLowerCase();
-    
+
     if (memberGender === targetGender) {
       alert(`Gender compatibility error: ${memberGender === 'male' ? 'Male' : 'Female'} members can only send interest to ${memberGender === 'male' ? 'Female' : 'Male'} profiles.`);
       return;
@@ -1012,7 +1012,7 @@ const UserDetailProfessional = () => {
 
     try {
       setSendingInterest(member.id);
-      
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/member/send-interest/`,
         {
@@ -1050,7 +1050,7 @@ const UserDetailProfessional = () => {
         }, 2000);
       } else {
         const errorData = await response.json();
-        
+
         if (errorData.error && errorData.error.includes('Gender')) {
           alert(`Gender compatibility error: ${errorData.error}`);
         } else if (errorData.error && errorData.error.includes('already')) {
@@ -1078,7 +1078,7 @@ const UserDetailProfessional = () => {
 
     try {
       setSendingRequest(member.id);
-      
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/photo-request/send/`,
         {
@@ -1108,7 +1108,7 @@ const UserDetailProfessional = () => {
         }, 2000);
       } else {
         const errorData = await response.json();
-        
+
         if (errorData.error && errorData.error.includes('Gender')) {
           alert(`Gender compatibility error: ${errorData.error}`);
         } else if (errorData.error && errorData.error.includes('already')) {
@@ -1150,7 +1150,7 @@ const UserDetailProfessional = () => {
   useEffect(() => {
     const handleKeyboard = (e) => {
       if (viewingImages.length === 0) return;
-      
+
       if (e.key === 'Escape') {
         handleCloseLightbox();
       } else if (e.key === 'ArrowLeft') {
@@ -1159,7 +1159,7 @@ const UserDetailProfessional = () => {
         handleNextPhoto();
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyboard);
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, [viewingImages, currentImageIndex]);
@@ -1191,34 +1191,34 @@ const UserDetailProfessional = () => {
   return (
     <div className="professional-profile">
       <Header />
-      
+
       <div className="profile-container">
         {/* Hero Section */}
         <div className="profile-hero">
           <div className="hero-content">
             <div className="profile-image-wrapper">
-              <img 
-                src={getProfileImage()} 
+              <img
+                src={getProfileImage()}
                 alt={userData.name}
                 className="profile-image"
               />
               <div className="profile-status online"></div>
             </div>
-            
+
             <div className="profile-header-info">
               <div className="profile-name-section">
                 <h1 className="profile-name">{userData.name}</h1>
                 <p className="profile-id">Member ID: {userData.member_id}</p>
               </div>
-              
+
               <div className="profile-location">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
                 <span>{userData.city}, {userData.state}</span>
               </div>
-              
-              <div className="profile-meta">
+
+              <div className="profile-meta desktop-profile-meta">
                 <span className="meta-item">
                   <strong>{userData.age}</strong> years
                 </span>
@@ -1231,39 +1231,52 @@ const UserDetailProfessional = () => {
                   <strong>{userData.Education}</strong>
                 </span>
               </div>
+
+              <ul className='mobile-profile-meta text-left pl-0'>
+                <li>
+                  <strong>{userData.age}</strong> years
+                </li>
+                <li>
+                  <strong>{userData.martial_status}</strong>
+                </li>
+                <li>
+                  <strong>{userData.Education}</strong>
+                </li>
+              </ul>
+
             </div>
 
             {/* Action Buttons for Other Profiles */}
             {!isOwnProfile && (
               <div className="profile-actions">
-                <button 
+                <button
                   className={`action-btn ${interestStatus ? 'active' : ''}`}
                   onClick={handleInterest}
                   title={interestStatus ? 'Withdraw Interest' : 'Send Interest'}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill={interestStatus ? "currentColor" : "none"} stroke="currentColor">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeWidth="2"/>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeWidth="2" />
                   </svg>
                 </button>
-                
-                <button 
+
+                <button
                   className={`action-btn ${shortlistStatus ? 'active' : ''}`}
                   onClick={handleShortlist}
                   title={shortlistStatus ? 'Remove from Shortlist' : 'Add to Shortlist'}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill={shortlistStatus ? "currentColor" : "none"} stroke="currentColor">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2" />
                   </svg>
                 </button>
-                
-                <button 
+
+                <button
                   className={`action-btn ${blockStatus ? 'blocked' : ''}`}
                   onClick={handleBlock}
                   title={blockStatus ? 'Unblock User' : 'Block User'}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                    <path d="M4.93 4.93l14.14 14.14" strokeWidth="2"/>
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <path d="M4.93 4.93l14.14 14.14" strokeWidth="2" />
                   </svg>
                 </button>
               </div>
@@ -1272,14 +1285,14 @@ const UserDetailProfessional = () => {
             {/* Edit Button for Own Profile */}
             {isOwnProfile && (
               <div className="profile-actions">
-                <button 
+                <button
                   className="action-btn edit-btn"
                   onClick={() => navigate(`/memstepone/${userId}`)}
                   title="Edit Profile"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                   <span className="edit-btn-text">Edit Profile</span>
                 </button>
@@ -1290,31 +1303,31 @@ const UserDetailProfessional = () => {
 
         {/* Tabs Navigation */}
         <div className="profile-tabs">
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
             onClick={() => setActiveTab('basic')}
           >
             Basic Info
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'religious' ? 'active' : ''}`}
             onClick={() => setActiveTab('religious')}
           >
             Religious Info
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'family' ? 'active' : ''}`}
             onClick={() => setActiveTab('family')}
           >
             Family Background
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'preferences' ? 'active' : ''}`}
             onClick={() => setActiveTab('preferences')}
           >
             Partner Preferences
           </button>
-          <button 
+          <button
             className={`tab-btn ${activeTab === 'gallery' ? 'active' : ''}`}
             onClick={() => setActiveTab('gallery')}
           >
@@ -1324,7 +1337,7 @@ const UserDetailProfessional = () => {
 
         {/* Tab Content */}
         <div className="profile-content">
-          
+
           {/* Basic Information */}
           {activeTab === 'basic' && (
             <div className="tab-content">
@@ -1463,74 +1476,74 @@ const UserDetailProfessional = () => {
             <div className="tab-content">
               <div className="gallery-section">
                 <h2 className="gallery-title">📸 Photo Gallery</h2>
-                
+
                 {/* Photo Privacy Check - Show request button for private photos */}
-                {!isOwnProfile && userData?.gender === 'female' && 
-                 (localStorage.getItem('gender') === 'male' || isAgent) && 
-                 (userData?.photo_upload_privacy_option === 'Only to users whom I approve' || 
-                  userData?.photo_upload_privacy_option === 'Yes' || 
-                  userData?.photo_upload_privacy_option === 'Only Matches') && 
-                 !canViewPhotos && (
-                  <div className="photo-request-section">
-                    <div className="photo-request-icon">
-                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                      </svg>
-        </div>
-                    <h3 className="photo-request-title">Private Photos</h3>
-                    <p className="photo-request-description">
-                      This user's photos are private. Request access to view their gallery.
-                    </p>
-                    {isAgent && (
-                      <p className="photo-request-agent-note">
-                        💡 You can send photo request on behalf of your members from the sidebar.
+                {!isOwnProfile && userData?.gender === 'female' &&
+                  (localStorage.getItem('gender') === 'male' || isAgent) &&
+                  (userData?.photo_upload_privacy_option === 'Only to users whom I approve' ||
+                    userData?.photo_upload_privacy_option === 'Yes' ||
+                    userData?.photo_upload_privacy_option === 'Only Matches') &&
+                  !canViewPhotos && (
+                    <div className="photo-request-section">
+                      <div className="photo-request-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                      </div>
+                      <h3 className="photo-request-title">Private Photos</h3>
+                      <p className="photo-request-description">
+                        This user's photos are private. Request access to view their gallery.
                       </p>
-                    )}
-                    <button
-                      className="photo-request-btn"
-                      onClick={handlePhotoRequest}
-                      disabled={photoPrivacyLoading || photoRequestStatus === 'pending'}
-                    >
-                      {photoPrivacyLoading ? (
-                        'Checking...'
-                      ) : photoRequestStatus === 'pending' ? (
-                        <>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                          </svg>
-                          Request Sent
-                        </>
-                      ) : photoRequestStatus === 'rejected' ? (
-                        <>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                          </svg>
-                          Request Again
-                        </>
-                      ) : (
-                        <>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="17 8 12 3 7 8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                          </svg>
-                          Request Photo Access
-                        </>
+                      {isAgent && (
+                        <p className="photo-request-agent-note">
+                          💡 You can send photo request on behalf of your members from the sidebar.
+                        </p>
                       )}
-                    </button>
-                    {photoRequestStatus === 'pending' && (
-                      <p className="photo-request-status">Waiting for approval...</p>
-                    )}
-                    {photoRequestStatus === 'rejected' && (
-                      <p className="photo-request-status rejected">Your request was rejected. You can request again.</p>
-                    )}
-      </div>
-                )}
+                      <button
+                        className="photo-request-btn"
+                        onClick={handlePhotoRequest}
+                        disabled={photoPrivacyLoading || photoRequestStatus === 'pending'}
+                      >
+                        {photoPrivacyLoading ? (
+                          'Checking...'
+                        ) : photoRequestStatus === 'pending' ? (
+                          <>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            Request Sent
+                          </>
+                        ) : photoRequestStatus === 'rejected' ? (
+                          <>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Request Again
+                          </>
+                        ) : (
+                          <>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Request Photo Access
+                          </>
+                        )}
+                      </button>
+                      {photoRequestStatus === 'pending' && (
+                        <p className="photo-request-status">Waiting for approval...</p>
+                      )}
+                      {photoRequestStatus === 'rejected' && (
+                        <p className="photo-request-status rejected">Your request was rejected. You can request again.</p>
+                      )}
+                    </div>
+                  )}
 
                 {/* Gallery Content - Show only if can view photos or own profile */}
                 {(canViewPhotos || isOwnProfile) && (
@@ -1539,8 +1552,8 @@ const UserDetailProfessional = () => {
                     {isAgent && acceptedMemberInfo && canViewPhotos && !isOwnProfile && userData?.gender === 'female' && (
                       <div className="photo-access-info">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M9 11l3 3L22 4"/>
-                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                          <path d="M9 11l3 3L22 4" />
+                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                         </svg>
                         <span>
                           Photos visible because <strong>{acceptedMemberInfo.memberName}</strong>'s photo request was accepted.
@@ -1558,18 +1571,18 @@ const UserDetailProfessional = () => {
                             fileUrl.toLowerCase().includes('.webm') ||
                             fileUrl.toLowerCase().includes('.mkv')
                           );
-                          
+
                           return (
-                            <div 
-                              key={photo.id || index} 
+                            <div
+                              key={photo.id || index}
                               className={`gallery-item ${isVideo ? 'video-container' : ''}`}
                               onClick={() => handlePhotoClick(photo?.upload_photo)}
                               style={{ cursor: 'pointer', position: 'relative' }}
                             >
                               {isVideo ? (
-                                <video 
-                                  src={fileUrl} 
-                                  alt="video" 
+                                <video
+                                  src={fileUrl}
+                                  alt="video"
                                   controls
                                   preload="metadata"
                                   className="gallery-media"
@@ -1578,7 +1591,7 @@ const UserDetailProfessional = () => {
                               ) : (
                                 <img src={fileUrl} alt={`Gallery photo ${index + 1}`} className="gallery-media" />
                               )}
-                              
+
                               {/* Delete Button - Only for own profile */}
                               {isOwnProfile && (
                                 <button
@@ -1596,7 +1609,7 @@ const UserDetailProfessional = () => {
                             </div>
                           );
                         })}
-                        
+
                         {/* Add Photo Button - Only for own profile */}
                         {isOwnProfile && (
                           <div className="gallery-item add-photo" onClick={() => setShowUploadModal(true)}>
@@ -1641,8 +1654,8 @@ const UserDetailProfessional = () => {
             ›
           </button>
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={viewingImages[currentImageIndex]} 
+            <img
+              src={viewingImages[currentImageIndex]}
               alt={`Gallery photo ${currentImageIndex + 1}`}
               className="lightbox-image"
             />
@@ -1662,7 +1675,7 @@ const UserDetailProfessional = () => {
           <div className="upload-modal" onClick={(e) => e.stopPropagation()}>
             <div className="upload-modal-header">
               <h2>📸 Photo/Video Upload</h2>
-              <button 
+              <button
                 className="close-upload-btn"
                 onClick={() => {
                   setShowUploadModal(false);
@@ -1672,7 +1685,7 @@ const UserDetailProfessional = () => {
                 ×
               </button>
             </div>
-            
+
             <div className="upload-modal-body">
               <div className="file-input-wrapper">
                 <input
@@ -1685,9 +1698,9 @@ const UserDetailProfessional = () => {
                 />
                 <label htmlFor="file-upload" className="file-upload-label">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                   <p>Select Photos/Videos</p>
                   <span className="file-hint">Images and videos up to 10MB</span>
@@ -1739,9 +1752,9 @@ const UserDetailProfessional = () => {
             <div className="delete-modal-body">
               <p>Kya aap is photo ko delete karna chahte hain?</p>
               {photoToDelete && (
-                <img 
-                  src={getPhotoUrl(photoToDelete.url)} 
-                  alt="Photo to delete" 
+                <img
+                  src={getPhotoUrl(photoToDelete.url)}
+                  alt="Photo to delete"
                   className="delete-preview-img"
                 />
               )}
@@ -1769,8 +1782,8 @@ const UserDetailProfessional = () => {
       {/* Agent Photo Request Sidebar */}
       {isAgent && showPhotoRequestSidebar && (
         <>
-          <div 
-            className="photo-request-sidebar-overlay" 
+          <div
+            className="photo-request-sidebar-overlay"
             onClick={() => setShowPhotoRequestSidebar(false)}
           />
           <div className="photo-request-sidebar">
@@ -1783,7 +1796,7 @@ const UserDetailProfessional = () => {
                 ×
               </button>
             </div>
-            
+
             <div className="photo-request-sidebar-body">
               {loadingMembers ? (
                 <div className="sidebar-loading">
@@ -1796,15 +1809,15 @@ const UserDetailProfessional = () => {
               ) : (
                 <div className="sidebar-members-list">
                   {agentMembers.map((member) => (
-                    <div 
-                      key={member.id} 
+                    <div
+                      key={member.id}
                       className="sidebar-member-item"
                     >
                       <div className="member-card-header">
                         <div className="member-avatar">
                           {member.profile_photo ? (
-                            <img 
-                              src={`${process.env.REACT_APP_API_URL}${member.profile_photo}`} 
+                            <img
+                              src={`${process.env.REACT_APP_API_URL}${member.profile_photo}`}
                               alt={member.name || member.first_name || 'Member'}
                             />
                           ) : (
@@ -1819,8 +1832,8 @@ const UserDetailProfessional = () => {
                             {member.age && (
                               <span className="member-detail-item">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <circle cx="12" cy="12" r="10"/>
-                                  <polyline points="12 6 12 12 16 14"/>
+                                  <circle cx="12" cy="12" r="10" />
+                                  <polyline points="12 6 12 12 16 14" />
                                 </svg>
                                 {member.age} years
                               </span>
@@ -1828,8 +1841,8 @@ const UserDetailProfessional = () => {
                             {(member.city || member.location) && (
                               <span className="member-detail-item">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                  <circle cx="12" cy="10" r="3"/>
+                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                  <circle cx="12" cy="10" r="3" />
                                 </svg>
                                 {member.city || member.location}
                                 {member.state && `, ${member.state}`}
@@ -1839,8 +1852,8 @@ const UserDetailProfessional = () => {
                           {member.profession && (
                             <p className="member-profession">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
                               </svg>
                               {member.profession}
                             </p>
@@ -1860,9 +1873,9 @@ const UserDetailProfessional = () => {
                         ) : (
                           <>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                              <polyline points="17 8 12 3 7 8"/>
-                              <line x1="12" y1="3" x2="12" y2="15"/>
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                             Send Photo Request
                           </>

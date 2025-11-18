@@ -3,7 +3,7 @@
   border-radius: 16px;
   overflow: hidden;
   width: 100%;
-  max-width: 20rem;
+  max-width: 100%;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -405,7 +405,7 @@
 /* Mobile Responsive */
 @media (max-width: 640px) {
   .simple-profile-card {
-    max-width: 18rem;
+    max-width: 100%;
     min-height: 480px;
   }
   

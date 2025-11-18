@@ -17,8 +17,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchDataObjectV2, fetchDataV2, fetchDataWithTokenV2 } from "../../../apiUtils";
 import { format } from "date-fns";
-import { HiOutlineDotsHorizontal  } from "react-icons/hi";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import api from "../../../api";
+import './ResponsiveMembers.css'
 
 // Age is handled by the backend age field
 
@@ -47,7 +48,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
         matchCount++;
       } else if (ageDiff <= 10) {
         matches.push({
-          field: "Age Compatibility", 
+          field: "Age Compatibility",
           status: "good",
           description: `Age difference of ${ageDiff} years is acceptable`,
           icon: "✅",
@@ -116,7 +117,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
         'divorced': ['single', 'divorced', 'widowed'],
         'widowed': ['single', 'divorced', 'widowed']
       };
-      
+
       if (compatibleStatuses[member.martial_status.toLowerCase()]?.includes(currentUser.martial_status.toLowerCase())) {
         matches.push({
           field: "Marital Status",
@@ -150,7 +151,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
       let isCompatible = false;
       for (const [category, professions] of Object.entries(professionCategories)) {
         if (professions.some(p => member.profession.toLowerCase().includes(p)) &&
-            professions.some(p => currentUser.profession.toLowerCase().includes(p))) {
+          professions.some(p => currentUser.profession.toLowerCase().includes(p))) {
           isCompatible = true;
           break;
         }
@@ -296,14 +297,14 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
             <div className="member-info-header">
               <img
                 src={(() => {
-                  const photoUrl = member?.profile_photo?.upload_photo || 
-                                  member?.user_profilephoto?.upload_photo ||
-                                  member?.profile_image ||
-                                  member?.avatar ||
-                                  member?.photo ||
-                                  member?.image;
+                  const photoUrl = member?.profile_photo?.upload_photo ||
+                    member?.user_profilephoto?.upload_photo ||
+                    member?.profile_image ||
+                    member?.avatar ||
+                    member?.photo ||
+                    member?.image;
                   const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
-                  
+
                   if (fullUrl) {
                     return fullUrl;
                   } else {
@@ -350,9 +351,9 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentUser }) => {
                   </div>
                   <div className="match-description">{match.description}</div>
                   <div className="match-score-bar">
-                    <div 
-                      className="score-fill" 
-                      style={{ 
+                    <div
+                      className="score-fill"
+                      style={{
                         width: `${match.score}%`,
                         backgroundColor: getStatusColor(match.status)
                       }}
@@ -778,11 +779,11 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   // Gender-based marital status options
   const getMaritalStatusOptions = (gender) => {
     const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
-    
+
     if (gender === "female") {
       return [...baseOptions, "Married"];
     }
-    
+
     return baseOptions;
   };
 
@@ -820,9 +821,8 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatuses.includes(status) ? "selected" : ""
+                  }`}
                 onClick={() => toggleStatus(status)}
               >
                 {status}
@@ -983,9 +983,8 @@ const StatusDropdown = ({ value, onChange }) => {
             {statusOptions.map((status) => (
               <div
                 key={status}
-                className={`status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
-                } ${status.toLowerCase()}`}
+                className={`status-option ${selectedStatuses.includes(status) ? "selected" : ""
+                  } ${status.toLowerCase()}`}
                 onClick={() => toggleStatus(status)}
               >
                 {status}
@@ -1220,9 +1219,8 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             {currentMonthDays.map((day) => (
               <div
                 key={`current-${day}`}
-                className={`calendar-day ${
-                  isDateSelected(day) ? "selected" : ""
-                }`}
+                className={`calendar-day ${isDateSelected(day) ? "selected" : ""
+                  }`}
                 onClick={() => handleDateClick(day)}
               >
                 {day}
@@ -1381,7 +1379,7 @@ const MyMembers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
   const role = localStorage.getItem("role");
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   // Ensure this is initialized before any function that might use it
   const [allMembers, setAllMembers] = useState([]);
@@ -1399,7 +1397,7 @@ const MyMembers = () => {
     gender: "",
     startDate: "",
     endDate: "",
-        maxAge: '',
+    maxAge: '',
     minAge: ''
   });
   // Handle change in the search input
@@ -1463,7 +1461,7 @@ const MyMembers = () => {
     setTimeout(async () => {
       try {
         console.log('Removing member:', memberToDelete.id);
-        
+
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/user/${memberToDelete.id}/remove/`, {
           method: 'DELETE',
           headers: {
@@ -1476,7 +1474,7 @@ const MyMembers = () => {
 
         if (response.ok && data.success) {
           console.log('Member removed successfully:', data);
-          
+
           // Remove from apiData (structure: { member: [] })
           setApiData(prevData => {
             if (prevData && prevData.member && Array.isArray(prevData.member)) {
@@ -1489,12 +1487,12 @@ const MyMembers = () => {
             }
             return prevData;
           });
-          
+
           // Remove from allMembers (direct array update)
           setAllMembers(prevMembers => {
             return prevMembers.filter(member => member.id !== memberToDelete.id);
           });
-          
+
           // Remove from filteredItems (will trigger re-render)
           setFilteredItems(prevFiltered => {
             const updated = prevFiltered.filter(member => member.id !== memberToDelete.id);
@@ -1505,18 +1503,18 @@ const MyMembers = () => {
             }
             return updated;
           });
-          
+
           // Show success message
           alert(`Member ${memberToDelete.name || memberToDelete.first_name || 'Unknown Member'} has been removed successfully!`);
-          
+
           // Close the modal
           setShowDeleteModal(false);
           setMemberToDelete(null);
-          
+
         } else {
           console.error('Failed to remove member:', data);
           alert(`Failed to remove member: ${data.error || 'Unknown error'}`);
-          
+
           // Revert the UI change if API call failed
           // Reload the members list
           const parameter = {
@@ -1527,11 +1525,11 @@ const MyMembers = () => {
           };
           fetchDataObjectV2(parameter);
         }
-        
+
       } catch (error) {
         console.error('Error removing member:', error);
         alert('Network error occurred while removing member. Please try again.');
-        
+
         // Revert the UI change if network error occurred
         // Reload the members list
         const parameter = {
@@ -1726,7 +1724,7 @@ const MyMembers = () => {
 
     const filteredResults = allMembers?.filter((match) => {
       return (
-        (updatedFilters.id ? 
+        (updatedFilters.id ?
           // Word-by-word search for id/member_id (case-insensitive now)
           updatedFilters.id.split(' ').every(word => {
             const w = String(word).toLowerCase();
@@ -1738,52 +1736,52 @@ const MyMembers = () => {
           }) : true) &&
         (updatedFilters.name
           ? match?.name
-              ?.toLowerCase()
-              .includes(updatedFilters.name.toLowerCase())
+            ?.toLowerCase()
+            .includes(updatedFilters.name.toLowerCase())
           : true) &&
         (updatedFilters.city
           ? (() => {
-              const haystack = [
-                match?.location,
-                match?.city,
-                match?.state,
-                match?.country
-              ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase();
-              const words = String(updatedFilters.city).trim().split(/\s+/);
-              return words.every((w) => haystack.includes(w.toLowerCase()));
-            })()
+            const haystack = [
+              match?.location,
+              match?.city,
+              match?.state,
+              match?.country
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase();
+            const words = String(updatedFilters.city).trim().split(/\s+/);
+            return words.every((w) => haystack.includes(w.toLowerCase()));
+          })()
           : true) &&
         (updatedFilters.startDate && updatedFilters.endDate
           ? new Date(match?.date) >= new Date(updatedFilters.startDate) &&
-            new Date(match?.date) <= new Date(updatedFilters.endDate)
+          new Date(match?.date) <= new Date(updatedFilters.endDate)
           : true) &&
         (updatedFilters.sectSchoolInfo
           ? match?.sect_school_info
-              ?.toLowerCase()
-              .includes(updatedFilters.sectSchoolInfo.toLowerCase())
+            ?.toLowerCase()
+            .includes(updatedFilters.sectSchoolInfo.toLowerCase())
           : true) &&
         (updatedFilters.profession
           ? match?.profession
-              ?.toLowerCase()
-              .includes(updatedFilters.profession.toLowerCase())
+            ?.toLowerCase()
+            .includes(updatedFilters.profession.toLowerCase())
           : true) &&
         (updatedFilters.status
           ? match?.status
-              ?.toLowerCase()
-              .includes(updatedFilters.status.toLowerCase())
+            ?.toLowerCase()
+            .includes(updatedFilters.status.toLowerCase())
           : true) &&
         (updatedFilters.martialStatus
           ? match?.martial_status
-              ?.toLowerCase()
-              .includes(updatedFilters.martialStatus.toLowerCase())
+            ?.toLowerCase()
+            .includes(updatedFilters.martialStatus.toLowerCase())
           : true) &&
         (updatedFilters.gender
           ? match?.gender
-              ?.toLowerCase()
-              === updatedFilters.gender.toLowerCase()
+            ?.toLowerCase()
+          === updatedFilters.gender.toLowerCase()
           : true) &&
         (updatedFilters.minAge
           ? parseInt(match?.age) >= parseInt(updatedFilters.minAge)
@@ -1793,10 +1791,10 @@ const MyMembers = () => {
           : true)
       );
     });
-    
+
     // console.log("Filtered results:", filteredResults?.length);
     // console.log("Filtered member IDs:", filteredResults?.map(m => ({ id: m.id, member_id: m.member_id, name: m.name })));
-    
+
     setFilteredItems(filteredResults);
   };
   const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
@@ -1841,7 +1839,7 @@ const MyMembers = () => {
         // Sorting by user field with proper case-insensitive comparison
         const aValue = a?.[sortConfig?.key]?.toString().toLowerCase() || '';
         const bValue = b?.[sortConfig?.key]?.toString().toLowerCase() || '';
-        
+
         if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
@@ -1871,6 +1869,11 @@ const MyMembers = () => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef();
 
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -1884,7 +1887,7 @@ const MyMembers = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
 
   const [file, setFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false); 
+  const [isUploading, setIsUploading] = useState(false);
 
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRefs = useRef({});
@@ -1906,44 +1909,44 @@ const MyMembers = () => {
   }, [activeDropdown]);
 
 
-const handleMenuClick = (e, memberId) => {
-  e.stopPropagation(); // Prevent row navigation
-  console.log("Menu clicked for member:", memberId, "Current openMenuId:", openMenuId);
-  setOpenMenuId(prev => {
-    const newValue = prev === memberId ? null : memberId;
-    console.log("Setting openMenuId to:", newValue);
-    return newValue;
-  });
-};
+  const handleMenuClick = (e, memberId) => {
+    e.stopPropagation(); // Prevent row navigation
+    console.log("Menu clicked for member:", memberId, "Current openMenuId:", openMenuId);
+    setOpenMenuId(prev => {
+      const newValue = prev === memberId ? null : memberId;
+      console.log("Setting openMenuId to:", newValue);
+      return newValue;
+    });
+  };
 
-// Handle click outside to close the menu
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    // Check if click is outside any open menu
-    if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
-      setOpenMenuId(null);
-    }
-  };
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [openMenuId]);
+  // Handle click outside to close the menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside any open menu
+      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId].contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openMenuId]);
 
 
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Match details modal state
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-  
+
   // Delete confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Current user data for match analysis
   const [currentUser, setCurrentUser] = useState({
     age: 25,
@@ -1959,12 +1962,12 @@ useEffect(() => {
   useEffect(() => {
     // Only fetch agent members if role is agent (not when impersonating user)
     if (role !== "agent") return;
-    
+
     const parameter = {
       url: `/api/agent/user_agent/?agent_id=${userId}`,
       setterFunction: (data) => {
         // API response received
-        
+
         // Handle different data structures
         let members = [];
         if (Array.isArray(data)) {
@@ -1976,7 +1979,7 @@ useEffect(() => {
         } else if (data.results && Array.isArray(data.results)) {
           members = data.results;
         }
-        
+
         console.log("Final members array:", members);
         console.log("First member in final array:", members[0]);
         if (members[0]) {
@@ -1986,7 +1989,7 @@ useEffect(() => {
           console.log("First member user_profilephoto:", members[0].user_profilephoto);
           console.log("First member user_profilephoto?.upload_photo:", members[0].user_profilephoto?.upload_photo);
         }
-        
+
         // Ensure each member has a member_id field
         const membersWithMemberId = members.map((member) => {
           if (!member.member_id && member.id) {
@@ -1994,7 +1997,7 @@ useEffect(() => {
             const currentYear = new Date().getFullYear();
             const memberIdNumber = String(member.id).padStart(3, '0');
             const generatedMemberId = `MM${currentYear}${memberIdNumber}`;
-            
+
             return {
               ...member,
               member_id: generatedMemberId
@@ -2002,9 +2005,9 @@ useEffect(() => {
           }
           return member;
         });
-        
+
         // console.log("Members with member_id:", membersWithMemberId);
-        
+
         // If no members found, add sample data for testing
         if (membersWithMemberId.length === 0) {
           // console.log("No members found, adding sample data for testing");
@@ -2027,7 +2030,7 @@ useEffect(() => {
         } else {
           setAllMembers(membersWithMemberId);
         }
-        
+
         setIsLoading(false);
         // console.log("=== END DEBUG ===");
       },
@@ -2044,11 +2047,11 @@ useEffect(() => {
       console.log('Login as user - Current token:', currentToken ? 'Token exists' : 'No token');
       console.log('Login as user - User ID:', userId);
       console.log('Login as user - API URL:', `${process.env.REACT_APP_API_URL}/api/agent/access-agent-as-user/${userId}/`);
-      
+
       if (!currentToken) {
         throw new Error('No authentication token found. Please login again.');
       }
-      
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/agent/access-agent-as-user/${userId}/`, {
         method: 'POST',
         headers: {
@@ -2075,11 +2078,11 @@ useEffect(() => {
       localStorage.setItem('is_agent_impersonating', 'true');
       localStorage.setItem('user_name', data.user_name);
       localStorage.setItem('agent_name', data.agent_name);
-      
+
       // Store original agent token and role for later restoration
       localStorage.setItem('original_agent_token', currentToken);
       localStorage.setItem('original_agent_role', localStorage.getItem('role'));
-      
+
       // Switch to user role and token - actually login as user
       localStorage.setItem('token', data.access);
       localStorage.setItem('role', 'user');
@@ -2101,7 +2104,7 @@ useEffect(() => {
 
   return (
     <>
-     
+
 
       <DashboardLayout
         onAddMember={() => setHighlightAddButton(true)}
@@ -2120,10 +2123,10 @@ useEffect(() => {
                   title="Card View"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                    <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2" />
                   </svg>
                   Cards
                 </button>
@@ -2133,11 +2136,11 @@ useEffect(() => {
                   title="Table View"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3H21V21H3V3Z" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M3 9H21" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M3 15H21" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M9 3V21" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M15 3V21" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M3 3H21V21H3V3Z" stroke="currentColor" strokeWidth="2" />
+                    <path d="M3 9H21" stroke="currentColor" strokeWidth="2" />
+                    <path d="M3 15H21" stroke="currentColor" strokeWidth="2" />
+                    <path d="M9 3V21" stroke="currentColor" strokeWidth="2" />
+                    <path d="M15 3V21" stroke="currentColor" strokeWidth="2" />
                   </svg>
                   Table
                 </button>
@@ -2145,27 +2148,31 @@ useEffect(() => {
             </div>
 
             {/* Stats Cards */}
-            <div className="stats-section">
-              <div className="stat-card">
-                <div className="stat-icon">👥</div>
-                <div className="stat-info">
-                  <span className="stat-number">{allMembers.length}</span>
-                  <span className="stat-label">Total Members</span>
-                </div>
+            <div className="flex items-center gap-4 bg-white shadow-sm rounded-xl border border-gray-100 px-4 py-2 w-fit">
+              {/* Icon Box */}
+              <div className="h-12 w-12 rounded-xl bg-pink-50 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-purple-700"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05C15.14 13.81 16 14.82 16 16.07V19h6v-2.5c0-2.33-4.67-3.5-6-3.5z" />
+                </svg>
               </div>
-              
-              {/* <div className="stat-card">
-                <div className="stat-icon">🔔</div>
-                <div className="stat-info">
-                  <span className="stat-number">{allMembers.reduce((sum, m) => sum + (m.notifications || 0), 0)}</span>
-                  <span className="stat-label">Notifications</span>
-                </div>
-              </div> */}
+
+              {/* Text */}
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-semibold text-gray-900">{allMembers?.length}</span>
+                <span className="text-gray-500 text-sm">Total Members</span>
+              </div>
             </div>
+
+
 
             {/* Add New Member Button */}
             <div className="add-member-section">
-              <button 
+              <button
                 className="add-member-btn"
                 onClick={handleClick}
                 disabled={creatingMember}
@@ -2178,38 +2185,43 @@ useEffect(() => {
 
           {/* Filters Section */}
           <div className="filter-container">
-            <button className="filter-button">
+            <button onClick={toggleFilters} className="filter-button">
               <AiOutlineFilter className="icon" /> Filter
             </button>
-            <input
-              className="filter-dropdown"
-              type="text"
-              value={filters.id}
-              onChange={(e) => handleFilterChange("id", e.target.value)}
-              placeholder="Enter ID"
-              list="distinct-ids"
-              style={{ width: "70px" }}
-            />
 
-            <input
-              className="filter-dropdown"
-              type="text"
-              value={filters.name}
-              onChange={(e) => handleFilterChange("name", e.target.value)}
-              placeholder="Name"
-              style={{ width: "100px" }}
-            />
+            {isFilters && (
+              <>
 
-            <input
-              className="filter-dropdown"
-              type="text"
-              value={filters.city}
-              onChange={(e) => handleFilterChange("city", e.target.value)}
-              placeholder="Location"
-              list="distinct-ids"
-              style={{ width: "100px" }}
-            />
-             {/* <input
+
+                <input
+                  className="filter-dropdown"
+                  type="text"
+                  value={filters.id}
+                  onChange={(e) => handleFilterChange("id", e.target.value)}
+                  placeholder="Enter ID"
+                  list="distinct-ids"
+                  style={{ width: "70px" }}
+                />
+
+                <input
+                  className="filter-dropdown"
+                  type="text"
+                  value={filters.name}
+                  onChange={(e) => handleFilterChange("name", e.target.value)}
+                  placeholder="Name"
+                  style={{ width: "100px" }}
+                />
+
+                <input
+                  className="filter-dropdown"
+                  type="text"
+                  value={filters.city}
+                  onChange={(e) => handleFilterChange("city", e.target.value)}
+                  placeholder="Location"
+                  list="distinct-ids"
+                  style={{ width: "100px" }}
+                />
+                {/* <input
             className="filter-dropdown"
             type="number"
             id="minAge"
@@ -2234,131 +2246,133 @@ useEffect(() => {
             style={{ width: '100px' }}
           /> */}
 
-<select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+                <select
+                  className="filter-dropdown"
+                  value={filters.sectSchoolInfo}
+                  onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+                >
+                  <option value="">Sect</option>
+                  <option value="Ahle Qur'an">Ahle Qur'an</option>
+                  <option value="Ahamadi">Ahamadi</option>
+                  <option value="Barelvi">Barelvi</option>
+                  <option value="Bohra">Bohra</option>
+                  <option value="Deobandi">Deobandi</option>
+                  <option value="Hanabali">Hanabali</option>
+                  <option value="Hanafi">Hanafi</option>
+                  <option value="Ibadi">Ibadi</option>
+                  <option value="Ismaili">Ismaili</option>
+                  <option value="Jamat e Islami">Jamat e Islami</option>
+                  <option value="Maliki">Maliki</option>
+                  <option value="Pathan">Pathan</option>
+                  <option value="Salafi">Salafi</option>
+                  <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                  <option value="Sayyid">Sayyid</option>
+                  <option value="Shafi">Shafi</option>
+                  <option value="Shia">Shia</option>
+                  <option value="Sunni">Sunni</option>
+                  <option value="Sufism">Sufism</option>
+                  <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                  <option value="Zahiri">Zahiri</option>
+                  <option value="Muslim">Muslim</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="actor">Actor</option>
-            <option value="administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="air_hostess">Air Hostess</option>
-            <option value="airline_professional">Airline Professional</option>
-            <option value="airforce">Airforce</option>
-            <option value="architect">Architect</option>
-            <option value="artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="audiologist">Audiologist</option>
-            <option value="auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="chef">Chef</option>
-            <option value="civil_servant">Civil Servant</option>
-            <option value="clerk">Clerk</option>
-            <option value="coach">Coach</option>
-            <option value="consultant">Consultant</option>
-            <option value="counselor">Counselor</option>
-            <option value="dentist">Dentist</option>
-            <option value="designer">Designer</option>
-            <option value="doctor">Doctor</option>
-            <option value="engineer">Engineer</option>
-            <option value="entrepreneur">Entrepreneur</option>
-            <option value="farmer">Farmer</option>
-            <option value="fashion_designer">Fashion Designer</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="graphic_designer">Graphic Designer</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="interior_designer">Interior Designer</option>
-            <option value="journalist">Journalist</option>
-            <option value="lawyer">Lawyer</option>
-            <option value="manager">Manager</option>
-            <option value="marketing_professional">Marketing Professional</option>
-            <option value="nurse">Nurse</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="photographer">Photographer</option>
-            <option value="pilot">Pilot</option>
-            <option value="police">Police</option>
-            <option value="professor">Professor</option>
-            <option value="psychologist">Psychologist</option>
-            <option value="researcher">Researcher</option>
-            <option value="sales_executive">Sales Executive</option>
-            <option value="scientist">Scientist</option>
-            <option value="social_worker">Social Worker</option>
-            <option value="software_consultant">Software Consultant</option>
-            <option value="sportsman">Sportsman</option>
-            <option value="teacher">Teacher</option>
-            <option value="technician">Technician</option>
-            <option value="therapist">Therapist</option>
-            <option value="veterinarian">Veterinarian</option>
-            <option value="writer">Writer</option>
-            <option value="other">Other</option>
-          </select>
+                <select
+                  className="filter-dropdown"
+                  value={filters.profession}
+                  onChange={(e) => handleFilterChange('profession', e.target.value)}
+                >
+                  <option value="">Profession</option>
+                  <option value="accountant">Accountant</option>
+                  <option value="Acting Professional">Acting Professional</option>
+                  <option value="actor">Actor</option>
+                  <option value="administrator">Administrator</option>
+                  <option value="Advertising Professional">Advertising Professional</option>
+                  <option value="air_hostess">Air Hostess</option>
+                  <option value="airline_professional">Airline Professional</option>
+                  <option value="airforce">Airforce</option>
+                  <option value="architect">Architect</option>
+                  <option value="artist">Artist</option>
+                  <option value="Assistant Professor">Assistant Professor</option>
+                  <option value="audiologist">Audiologist</option>
+                  <option value="auditor">Auditor</option>
+                  <option value="Bank Officer">Bank Officer</option>
+                  <option value="Bank Staff">Bank Staff</option>
+                  <option value="beautician">Beautician</option>
+                  <option value="Biologist / Botanist">Biologist / Botanist</option>
+                  <option value="Business Person">Business Person</option>
+                  <option value="captain">Captain</option>
+                  <option value="CEO / CTO / President">CEO / CTO / President</option>
+                  <option value="chef">Chef</option>
+                  <option value="civil_servant">Civil Servant</option>
+                  <option value="clerk">Clerk</option>
+                  <option value="coach">Coach</option>
+                  <option value="consultant">Consultant</option>
+                  <option value="counselor">Counselor</option>
+                  <option value="dentist">Dentist</option>
+                  <option value="designer">Designer</option>
+                  <option value="doctor">Doctor</option>
+                  <option value="engineer">Engineer</option>
+                  <option value="entrepreneur">Entrepreneur</option>
+                  <option value="farmer">Farmer</option>
+                  <option value="fashion_designer">Fashion Designer</option>
+                  <option value="freelancer">Freelancer</option>
+                  <option value="government_employee">Government Employee</option>
+                  <option value="graphic_designer">Graphic Designer</option>
+                  <option value="homemaker">Homemaker</option>
+                  <option value="interior_designer">Interior Designer</option>
+                  <option value="journalist">Journalist</option>
+                  <option value="lawyer">Lawyer</option>
+                  <option value="manager">Manager</option>
+                  <option value="marketing_professional">Marketing Professional</option>
+                  <option value="nurse">Nurse</option>
+                  <option value="pharmacist">Pharmacist</option>
+                  <option value="photographer">Photographer</option>
+                  <option value="pilot">Pilot</option>
+                  <option value="police">Police</option>
+                  <option value="professor">Professor</option>
+                  <option value="psychologist">Psychologist</option>
+                  <option value="researcher">Researcher</option>
+                  <option value="sales_executive">Sales Executive</option>
+                  <option value="scientist">Scientist</option>
+                  <option value="social_worker">Social Worker</option>
+                  <option value="software_consultant">Software Consultant</option>
+                  <option value="sportsman">Sportsman</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="technician">Technician</option>
+                  <option value="therapist">Therapist</option>
+                  <option value="veterinarian">Veterinarian</option>
+                  <option value="writer">Writer</option>
+                  <option value="other">Other</option>
+                </select>
 
-            <select
-            className="filter-dropdown"
-            value={filters.martialStatus}
-            onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-          >
-            <option value="">Marital Status</option>
-              <>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
+                <select
+                  className="filter-dropdown"
+                  value={filters.martialStatus}
+                  onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+                >
+                  <option value="">Marital Status</option>
+                  <>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </>
+                </select>
+
+                <select
+                  className="filter-dropdown"
+                  value={filters.gender}
+                  onChange={(e) => handleFilterChange('gender', e.target.value)}
+                >
+                  <option value="">Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
               </>
-          </select>
-
-          <select
-            className="filter-dropdown"
-            value={filters.gender}
-            onChange={(e) => handleFilterChange('gender', e.target.value)}
-          >
-            <option value="">Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
+            )}
 
             <button
               type="button"
@@ -2401,32 +2415,32 @@ useEffect(() => {
           ) : (
             /* Members Section - Cards or Table View */
             viewMode === 'cards' ? (
-            <div className="members-cards-container">
-              <div className="cards-grid">
-                {currentItems.map((member) => (
-                  <MemberCard
-                    key={member.id}
-                    member={member}
-                    onDelete={_confirmRemove}
-                    onEdit={(member) => navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } })}
-                    onViewMatches={(member) => navigate(`/member-matches/${member.member_id}`)}
-                    onViewProfile={(memberId) => navigate(`/details/${memberId}`)}
-                    isDeleting={isDeleting && memberToDelete?.id === member.id}
-                  />
-                ))}
+              <div className="members-cards-container">
+                <div className="cards-grid">
+                  {currentItems.map((member) => (
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      onDelete={_confirmRemove}
+                      onEdit={(member) => navigate(`/memstepone/${member.id}`, { state: { editMode: true, memberId: member.id } })}
+                      onViewMatches={(member) => navigate(`/member-matches/${member.member_id}`)}
+                      onViewProfile={(memberId) => navigate(`/details/${memberId}`)}
+                      isDeleting={isDeleting && memberToDelete?.id === member.id}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            /* Table View */
-            <MembersTable
-              members={filteredItems}
-              sortConfig={sortConfig}
-              handleSort={handleSort}
-              onConfirmRemove={_confirmRemove}
-              currentPage={currentPage}
-              itemsPerPage={itemsPerPage}
-            />
-          )
+            ) : (
+              /* Table View */
+              <MembersTable
+                members={filteredItems}
+                sortConfig={sortConfig}
+                handleSort={handleSort}
+                onConfirmRemove={_confirmRemove}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+              />
+            )
           )}
 
           {/* Pagination */}
@@ -2442,9 +2456,8 @@ useEffect(() => {
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i + 1}
-                className={`pagination-btn ${
-                  currentPage === i + 1 ? "active" : ""
-                }`}
+                className={`pagination-btn ${currentPage === i + 1 ? "active" : ""
+                  }`}
                 onClick={() => handlePageChange(i + 1)}
               >
                 {i + 1}
@@ -3092,7 +3105,6 @@ useEffect(() => {
 
           .stat-info {
             display: flex;
-            flex-direction: column;
           }
 
           .stat-number {
@@ -3219,10 +3231,6 @@ useEffect(() => {
             font-size: 20px;
           }
 
-          .stat-info {
-            display: flex;
-            flex-direction: column;
-          }
 
           .stat-number {
             font-size: 18px;
@@ -3313,7 +3321,7 @@ useEffect(() => {
             .view-stats-section {
               flex-direction: column;
               gap: 16px;
-              align-items: stretch;
+              align-items: center;
               padding: 16px;
             }
 
@@ -3378,7 +3386,7 @@ useEffect(() => {
             .view-stats-section {
               flex-direction: column;
               gap: 16px;
-              align-items: stretch;
+              align-items: center;
               padding: 16px;
               margin-bottom: 16px;
             }
@@ -3515,7 +3523,7 @@ useEffect(() => {
             .view-stats-section {
               flex-direction: column;
               gap: 12px;
-              align-items: stretch;
+              align-items: center;
               padding: 12px;
               margin-bottom: 12px;
             }
@@ -4332,8 +4340,8 @@ useEffect(() => {
           }
 
           .avatar-large-img {
-            width: 80px;
-            height: 80px;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #e9ecef;

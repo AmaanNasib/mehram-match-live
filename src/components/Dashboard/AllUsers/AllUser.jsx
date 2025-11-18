@@ -64,9 +64,9 @@ const AllUser = ({ profiles, setApiData, setIsModalOpen, isOpenWindow, url, filt
       <div className="narrow-gap">
         <div className="button-container">
           <h1>All Profiles</h1>
-          <button className="top-right-button" onClick={()=>navigate(`/viewalluser`)}>View All</button>
-        </div>
         <p>To achieve more personalized suggestion complete your profile.</p>
+          <button className='bg-button-default text-sm px-4 py-2 rounded-lg text-white' onClick={()=>navigate(`/viewalluser`)}>View All</button>
+        </div>
       </div>
       <div className="profile-scroll">
         {isLoading ? (

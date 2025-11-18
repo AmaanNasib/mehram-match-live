@@ -1,130 +1,263 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   fetchDataV2,
   fetchDataWithTokenV2,
   postDataWithFetchV2,
-  putDataWithFetchV2,
 } from "../../../apiUtils";
-import { FiHeart } from "react-icons/fi";
-import { BsPerson } from "react-icons/bs";
-import { FaListUl } from "react-icons/fa";
-import { PiProhibitBold } from "react-icons/pi";
 import Header from "../header/Header";
 import Sidebar from "../DSidebar/Sidebar";
 import Footer from "../../sections/Footer";
 import { useNavigate } from "react-router-dom";
 import SimpleProfileCard from "../dashboardCard/SimpleProfileCard";
 
+/**
+ * Responsive ViewAllTrendingProfiles
+ * - Responsive grid: 1 / 2 / 3 / 4 cols (xs / sm / lg / xl)
+ * - Uses useMemo for filteredProfiles and pagination
+ * - Small components for ProfileCard, Pagination, Modal
+ */
+
+const ProfilesEmpty = ({ onReload }) => (
+  <div className="py-20 flex justify-center">
+    <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
+      <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-pink-200 to-pink-300 flex items-center justify-center mb-4">
+        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-semibold text-gray-800 mb-2">No trending profiles</h3>
+      <p className="text-gray-600 mb-4">We couldn't find any trending profiles that match your criteria.</p>
+      <button onClick={onReload} className="inline-block px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600">Reload</button>
+    </div>
+  </div>
+);
+
+const SkeletonGrid = ({ cols = 3 }) => {
+  const items = Array.from({ length: cols * 2 });
+  return (
+    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6`}>
+      {items.map((_, i) => (
+        <div key={i} className="animate-pulse bg-white rounded-xl p-4 shadow">
+          <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div className="flex gap-2 mt-4">
+            <div className="h-9 w-9 bg-gray-200 rounded" />
+            <div className="h-9 w-9 bg-gray-200 rounded" />
+            <div className="h-9 w-9 bg-gray-200 rounded" />
+            <div className="flex-1 h-9 bg-gray-200 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Pagination = ({ totalPages, page, setPage }) => {
+  if (totalPages <= 1) return null;
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  return (
+    <div className="w-full flex flex-col items-center py-6 bg-gray-50">
+      <div className="flex gap-2 items-center">
+        <button
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+          className={`px-3 py-2 rounded-lg ${page === 1 ? "bg-gray-100 text-gray-400" : "bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white shadow"}`}
+          disabled={page === 1}
+        >
+          ‹ Prev
+        </button>
+
+        <div className="flex gap-1">
+          {pages.map(p => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`px-3 py-2 rounded-lg ${p === page ? "bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white shadow" : "bg-gray-100 text-gray-600"}`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+          className={`px-3 py-2 rounded-lg ${page === totalPages ? "bg-gray-100 text-gray-400" : "bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white shadow"}`}
+          disabled={page === totalPages}
+        >
+          Next ›
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Modal = ({ open, title, description, onCancel, onConfirm, confirmText = "Confirm", confirmClass = "bg-pink-600" }) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-12 w-12 rounded-full flex items-center justify-center bg-pink-100">
+            <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" /></svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
+          <p className="text-sm text-gray-500 mb-6">{description}</p>
+          <div className="flex gap-3">
+            <button onClick={onCancel} className="flex-1 py-2 rounded-md bg-gray-100 text-gray-700">Cancel</button>
+            <button onClick={onConfirm} className={`flex-1 py-2 rounded-md text-white ${confirmClass}`}>{confirmText}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ViewAllTrendingProfiles = () => {
   const userId = localStorage.getItem("userId");
   const role = localStorage.getItem("role");
 
   const [trendingProfiles, setTrendingProfiles] = useState([]);
+  const [activeUser, setActiveUser] = useState({});
+  const [apiMember, setApiDataMember] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(false);
-  const [interestStatus, setInterestStatus] = useState({}); // Track interest status for each user
-  const [shortlistStatus, setShortlistStatus] = useState({}); // Track shortlist status for each user
-  const [ignoredUsers, setIgnoredUsers] = useState(new Set()); // Track ignored users (lifetime block)
+  const [successMessage, setSuccessMessage] = useState("");
+  const [interestStatus, setInterestStatus] = useState({});
+  const [shortlistStatus, setShortlistStatus] = useState({});
+  const [ignoredUsers, setIgnoredUsers] = useState(new Set());
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showIgnoreModal, setShowIgnoreModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [ignoredVersion, setIgnoredVersion] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const profilesPerPage = 15;
-
-  // Auto-hide success message after 3 seconds
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
-  const [activeUser, setactiveUser] = useState({});
-  const [apiMember, setApiDataMember] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const profilesPerPage = 12;
+
   const navigate = useNavigate();
 
-  // Function to reload original data
-  const reloadOriginalData = () => {
-    console.log('Reloading original trending data - clearing filters');
+  // Load trending profiles
+  useEffect(() => {
     setLoading(true);
     setErrors(null);
     const parameter = {
-      url:
-        role === "agent"
-          ? `/api/trending_profiles_by_interest/`
-          : `/api/trending_profile/?user_id=${userId}`,
-      setterFunction: (data) => {
-        console.log('Original trending data reloaded:', data);
-        setTrendingProfiles(data);
+      url: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`,
+      setterFunction: data => {
+        setTrendingProfiles(Array.isArray(data) ? data : []);
         setLoading(false);
       },
-      setErrors: setErrors,
-      setLoading: setLoading,
+      setErrors,
+      setLoading,
     };
     fetchDataWithTokenV2(parameter);
-  };
-
-  useEffect(() => {
-    const parameter = {
-      url:
-        role === "agent"
-          ? `/api/trending_profiles_by_interest/`
-          : `/api/trending_profile/?user_id=${userId}`,
-      setterFunction: setTrendingProfiles,
-      setErrors: setErrors,
-      setLoading: setLoading,
-    };
-    fetchDataWithTokenV2(parameter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, role]);
 
+  // Load active user
   useEffect(() => {
     const parameter = {
       url: role === "agent" ? `/api/agent/${userId}/` : `/api/user/${userId}/`,
-      setterFunction: setactiveUser,
-      setErrors: setErrors,
+      setterFunction: setActiveUser,
+      setErrors,
     };
     fetchDataV2(parameter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Load agent members (if agent)
   useEffect(() => {
-    if (role === "individual") return; // check with backend developer for unauthorized error
-    
-    // Only fetch agent members if role is agent (not when impersonating user)
     if (role === "agent") {
       const parameter2 = {
         url: `/api/agent/user_agent/?agent_id=${userId}`,
         setterFunction: setApiDataMember,
-        setErrors: setErrors,
-        setLoading: setLoading,
+        setErrors,
+        setLoading,
       };
       fetchDataWithTokenV2(parameter2);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
-  // Re-render and also honor global ignored users set by cards
+  // auto-hide success message
   useEffect(() => {
-    const handler = (e) => {
-      const id = e?.detail?.userId;
-      if (id) setIgnoredUsers(prev => new Set([...prev, id]));
-      setIgnoredVersion(v => v + 1);
-    };
-    window.addEventListener('userIgnored', handler);
-    return () => window.removeEventListener('userIgnored', handler);
-  }, []);
+    if (!successMessage) return;
+    const t = setTimeout(() => setSuccessMessage(""), 3000);
+    return () => clearTimeout(t);
+  }, [successMessage]);
 
+  // helper: reload original data (used by sidebar)
+  const reloadOriginalData = () => {
+    setLoading(true);
+    const parameter = {
+      url: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`,
+      setterFunction: data => {
+        setTrendingProfiles(Array.isArray(data) ? data : []);
+        setLoading(false);
+      },
+      setErrors,
+      setLoading,
+    };
+    fetchDataWithTokenV2(parameter);
+  };
+
+  // Memoized ignored set (for stable reference)
+  const ignoredSet = useMemo(() => new Set(Array.from(ignoredUsers)), [ignoredUsers]);
+
+  // Filter profiles using useMemo for performance
+  const filteredProfiles = useMemo(() => {
+    if (!Array.isArray(trendingProfiles)) return [];
+
+    const currentRole = localStorage.getItem("role");
+    const isImpersonating = localStorage.getItem("is_agent_impersonating") === "true";
+    const currentUserGender = activeUser?.gender;
+
+    return trendingProfiles.filter(profile => {
+      const userObj = profile?.user ?? profile;
+      const profileId = userObj?.id ?? profile?.id;
+
+      // ignore lifetime-ignored users
+      if (ignoredSet.has(profileId)) return false;
+      try {
+        const locallyIgnored = new Set(JSON.parse(localStorage.getItem("ignoredUserIds") || "[]"));
+        if (locallyIgnored.has(profileId)) return false;
+      } catch (err) {}
+
+      // require profile completed true
+      if (userObj?.profile_completed !== true) return false;
+
+      // agents (not impersonating) see all completed
+      if (currentRole === "agent" && !isImpersonating) return true;
+
+      // For individuals show opposite gender if possible
+      const profileGender = userObj?.gender;
+      if (currentUserGender && profileGender) {
+        if (currentUserGender === "male" && profileGender === "female") return true;
+        if (currentUserGender === "female" && profileGender === "male") return true;
+        return false;
+      }
+
+      // if any gender missing, allow
+      return true;
+    });
+  }, [trendingProfiles, activeUser, ignoredSet]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProfiles.length / profilesPerPage));
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(1);
+  }, [totalPages, currentPage]);
+
+  const currentProfiles = useMemo(() => {
+    const start = (currentPage - 1) * profilesPerPage;
+    return filteredProfiles.slice(start, start + profilesPerPage);
+  }, [filteredProfiles, currentPage]);
+
+  // Interest handlers (immediate optimistic updates)
   const handleInterestClick = (actionOnId) => {
-    // Check if interest already sent
     if (interestStatus[actionOnId]) {
-      // Show withdraw modal
       setSelectedUserId(actionOnId);
       setShowWithdrawModal(true);
       return;
     }
 
+    setInterestStatus(prev => ({ ...prev, [actionOnId]: true }));
     const parameter = {
       url: role === "agent" ? "/api/agent/interest/" : `/api/recieved/`,
       payload: {
@@ -132,36 +265,17 @@ const ViewAllTrendingProfiles = () => {
         action_on_id: actionOnId,
         interest: true,
       },
-      setErrors: setErrors,
+      setErrors,
       tofetch: {
-        items: [
-          {
-            fetchurl:
-              role === "agent"
-                ? `/api/trending_profiles_by_interest/`
-                : `/api/trending_profile/?user_id=${userId}`,
-            dataset: setTrendingProfiles,
-            setSuccessMessage: setSuccessMessage,
-            setErrors: setErrors,
-          },
-        ],
-        setSuccessMessage: setSuccessMessage,
-        setErrors: setErrors,
+        items: [{ fetchurl: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`, dataset: setTrendingProfiles }],
       },
     };
-
-    // Update interest status immediately
-    setInterestStatus(prev => ({
-      ...prev,
-      [actionOnId]: true
-    }));
-
     postDataWithFetchV2(parameter);
   };
 
   const handleWithdrawInterest = () => {
     if (!selectedUserId) return;
-
+    setInterestStatus(prev => ({ ...prev, [selectedUserId]: false }));
     const parameter = {
       url: role === "agent" ? "/api/agent/interest/" : `/api/recieved/`,
       payload: {
@@ -169,53 +283,16 @@ const ViewAllTrendingProfiles = () => {
         action_on_id: selectedUserId,
         interest: false,
       },
-      setErrors: setErrors,
-      tofetch: {
-        items: [
-          {
-            fetchurl:
-              role === "agent"
-                ? `/api/trending_profiles_by_interest/`
-                : `/api/trending_profile/?user_id=${userId}`,
-            dataset: setTrendingProfiles,
-            setSuccessMessage: setSuccessMessage,
-            setErrors: setErrors,
-          },
-        ],
-        setSuccessMessage: setSuccessMessage,
-        setErrors: setErrors,
-      },
+      setErrors,
+      tofetch: { items: [{ fetchurl: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`, dataset: setTrendingProfiles }] },
     };
-
-    // Update interest status
-    setInterestStatus(prev => ({
-      ...prev,
-      [selectedUserId]: false
-    }));
-
-      postDataWithFetchV2(parameter);
-
-    // Close modal
+    postDataWithFetchV2(parameter);
     setShowWithdrawModal(false);
     setSelectedUserId(null);
   };
 
   const handleShortlistClick = (actionOnId) => {
-    // Check if already shortlisted
-    if (shortlistStatus[actionOnId]) {
-      // Remove from shortlist
-      setShortlistStatus(prev => ({
-        ...prev,
-        [actionOnId]: false
-      }));
-    } else {
-      // Add to shortlist
-      setShortlistStatus(prev => ({
-        ...prev,
-        [actionOnId]: true
-      }));
-    }
-
+    setShortlistStatus(prev => ({ ...prev, [actionOnId]: !prev[actionOnId] }));
     const parameter = {
       url: role === "agent" ? "/api/agent/shortlist/" : `/api/recieved/`,
       payload: {
@@ -223,504 +300,149 @@ const ViewAllTrendingProfiles = () => {
         action_on_id: actionOnId,
         shortlisted: !shortlistStatus[actionOnId],
       },
-      setErrors: setErrors,
-      tofetch: {
-        items: [
-          {
-            fetchurl:
-              role === "agent"
-                ? `/api/trending_profiles_by_interest/`
-                : `/api/trending_profile/?user_id=${userId}`,
-            dataset: setTrendingProfiles,
-            setSuccessMessage: setSuccessMessage,
-            setErrors: setErrors,
-          },
-        ],
-        setSuccessMessage: setSuccessMessage,
-        setErrors: setErrors,
-      },
+      setErrors,
+      tofetch: { items: [{ fetchurl: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`, dataset: setTrendingProfiles }] },
     };
-
     postDataWithFetchV2(parameter);
   };
 
   const handleIgnoreClick = (actionOnId) => {
-    // Show ignore confirmation modal
     setSelectedUserId(actionOnId);
     setShowIgnoreModal(true);
   };
 
   const handleConfirmIgnore = () => {
     if (!selectedUserId) return;
-
-    // Add to ignored users (lifetime block)
-    setIgnoredUsers(prev => new Set([...prev, selectedUserId]));
-
+    setIgnoredUsers(prev => new Set(prev).add(selectedUserId));
     const parameter = {
       url: `/api/recieved/ignore/`,
       payload: {
         action_by_id: userId,
         action_on_id: selectedUserId,
       },
-      setErrors: setErrors,
-      tofetch: {
-        items: [
-          {
-            fetchurl:
-              role === "agent"
-                ? `/api/trending_profiles_by_interest/`
-                : `/api/trending_profile/?user_id=${userId}`,
-            dataset: setTrendingProfiles,
-            setSuccessMessage: setSuccessMessage,
-            setErrors: setErrors,
-          },
-        ],
-        setSuccessMessage: setSuccessMessage,
-        setErrors: setErrors,
-      },
+      setErrors,
+      tofetch: { items: [{ fetchurl: role === "agent" ? `/api/trending_profiles_by_interest/` : `/api/trending_profile/?user_id=${userId}`, dataset: setTrendingProfiles }] },
     };
-
     postDataWithFetchV2(parameter);
-
-    // Close modal
     setShowIgnoreModal(false);
     setSelectedUserId(null);
   };
 
-  // Scroll to top function
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+  // helper: scroll to top when changing pages
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // Subcomponent: profile card wrapper that wires actions to SimpleProfileCard
+  const ProfileCard = ({ profile }) => {
+    const userObj = profile?.user ?? profile;
+    const id = userObj?.id ?? profile?.id;
+
+    return (
+      <div className="transform hover:scale-[1.02] transition duration-300">
+        <SimpleProfileCard
+          profile={userObj}
+          onInterested={() => handleInterestClick(id)}
+          onShortlist={() => handleShortlistClick(id)}
+          onIgnore={() => handleIgnoreClick(id)}
+          onMessage={() => navigate(`/chat/${id}`)}
+          onViewProfile={() => navigate(`/details/${id}`)}
+          isInterested={!!interestStatus[id] || !!profile?.is_interested}
+        />
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <Header
-        apiData={activeUser}
-        members={apiMember?.member || []}
-        subNavActive={"newdashboard"}
-      />
-      
-      {/* Main Content with Sidebar */}
-      <div className="flex flex-col lg:flex-row gap-4 w-full max-w-full overflow-hidden">
-        
-        {/* Mobile Filter Toggle Button */}
+    <div className="min-h-screen bg-gray-50">
+      <Header apiData={activeUser} members={apiMember?.member || []} subNavActive={"newdashboard"} />
+
+      <div className="flex gap-4">
+        {/* Mobile toggle */}
         <div className="xl:hidden fixed top-24 right-4 z-50">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            onClick={() => setIsSidebarOpen(s => !s)}
+            className="bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white p-3 rounded-full shadow-lg"
+            aria-label="Toggle filters"
           >
             {isSidebarOpen ? (
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
             ) : (
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
             )}
           </button>
-              </div>
-
-        {/* Mobile Overlay */}
-        {isSidebarOpen && (
-          <div 
-            className="xl:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setIsSidebarOpen(false)}
-          ></div>
-        )}
-
-        {/* Sidebar Section */}
-        <div className={`xl:w-80 w-full xl:relative fixed xl:translate-x-0 transition-transform duration-300 z-50 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } xl:block xl:top-auto top-0 left-0 h-full xl:h-auto xl:flex-shrink-0`}>
-          <div className="xl:block h-full xl:h-auto xl:ml-4 xl:mt-4 xl:mb-8">
-            <Sidebar 
-              setApiData={setTrendingProfiles} 
-              onClose={() => setIsSidebarOpen(false)}
-              reloadOriginalData={reloadOriginalData}
-            />
-          </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 p-4 xl:ml-4 overflow-hidden">
-          {/* Header Section */}
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-800 mb-1">
-              Browse Trending Profiles
-            </h1>
-            <p className="text-gray-600 text-sm">
-              Discover trending profiles and find your perfect match from our community
-            </p>
-          </div>
+        {/* off-canvas overlay */}
+        {isSidebarOpen && <div className="fixed inset-0 z-40 bg-black bg-opacity-40 xl:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-              <p className="text-gray-600 font-medium">Loading trending profiles...</p>
+        {/* Sidebar */}
+        <aside className={`z-50 transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} xl:translate-x-0 fixed xl:static top-0 left-0 h-full xl:h-auto w-72 bg-white border-r xl:border-0`}>
+          <div className="p-4 h-full overflow-auto">
+            <Sidebar setApiData={setTrendingProfiles} onClose={() => setIsSidebarOpen(false)} reloadOriginalData={reloadOriginalData} />
+          </div>
+        </aside>
+
+        {/* Main content (center) */}
+        <main className="flex-1 p-6 xl:pl-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Browse Trending Profiles</h1>
+              <p className="text-gray-600 mt-1">Discover trending profiles and find your perfect match from our community.</p>
             </div>
-          </div>
-        )}
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center mb-8">
-            <div className="text-green-600 font-semibold text-lg mb-2">Success!</div>
-            <p className="text-green-500">{successMessage}</p>
-          </div>
-        )}
+            {/* Loading */}
+            {loading && <SkeletonGrid />}
 
-        {/* Error State */}
-      {errors && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-8">
-            <div className="text-red-600 font-semibold text-lg mb-2">Oops! Something went wrong</div>
-            <p className="text-red-500">{errors.message || "An error occurred while loading trending profiles"}</p>
-          </div>
-      )}
-
-        {/* Empty State */}
-      {!loading && trendingProfiles && trendingProfiles.length === 0 && (
-          <div className="text-center py-20">
-            <div className="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-r from-[#FFC0E3] to-[#FFA4D6] rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
+            {/* Error */}
+            {errors && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mb-6">
+                <div className="text-red-700 font-semibold mb-1">Something went wrong</div>
+                <div className="text-red-500 text-sm">{errors.message || "Failed to load trending profiles."}</div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No trending profiles found</h3>
-              <p className="text-gray-600">We couldn't find any trending profiles matching your criteria. Try adjusting your filters.</p>
-            </div>
+            )}
+
+            {/* Empty */}
+            {!loading && filteredProfiles.length === 0 && <ProfilesEmpty onReload={reloadOriginalData} />}
+
+            {/* Grid */}
+            {!loading && filteredProfiles.length > 0 && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {currentProfiles.map((p) => <ProfileCard key={p.user?.id ?? p.id} profile={p} />)}
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-8">
+                  <Pagination totalPages={totalPages} page={currentPage} setPage={(p) => { setCurrentPage(p); scrollToTop(); }} />
+                </div>
+              </>
+            )}
           </div>
-        )}
-
-          {/* Professional Profile Cards Grid */}
-          {!loading && trendingProfiles && trendingProfiles.length > 0 && (
-            <div className="space-y-8">
-            
-
-              {/* Multi-Row Profile Grid */}
-              <div className="space-y-6">
-                {(() => {
-                  console.log('Filtering trending profiles - Role:', role);
-                  console.log('Total profiles before filtering:', trendingProfiles?.length);
-                  console.log('Ignored users:', Array.from(ignoredUsers));
-                  
-                  const filteredProfiles = trendingProfiles.filter(profile => {
-                    // Filter out ignored users
-                    try {
-                      if (ignoredUsers.has(profile.user?.id)) return false;
-                      const ignored = new Set(JSON.parse(localStorage.getItem('ignoredUserIds') || '[]'));
-                      const user = profile && profile.user ? profile.user : profile;
-                      const profileId = user?.id || profile?.id;
-                      if (ignored.has(profileId)) return false;
-                    } catch (_) {}
-                    
-                    // Check if profile is completed - only show completed profiles
-                    const user = profile && profile.user ? profile.user : profile;
-                    const isProfileCompleted = user?.profile_completed === true;
-                    
-                    // If profile is not completed, don't show it
-                    if (!isProfileCompleted) {
-                      return false;
-                    }
-                    
-                    // Check if user is agent and not impersonating
-                    const currentRole = localStorage.getItem('role');
-                    const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
-                    
-                    if (currentRole === 'agent' && !isImpersonating) {
-                      return true; // Show all completed profiles for agents
-                    }
-                    
-                    // Gender filtering: show opposite gender for regular users
-                    const currentUserGender = activeUser?.gender;
-                    const profileGender = profile.user?.gender || profile?.gender;
-                    
-                    // If current user is male, show female profiles and vice versa
-                    if (currentUserGender === 'male' && profileGender === 'female') return true;
-                    if (currentUserGender === 'female' && profileGender === 'male') return true;
-                    
-                    // If gender is not specified, show all completed profiles
-                    if (!currentUserGender || !profileGender) return true;
-                    
-                    return false;
-                  });
-                  
-                  console.log('Total profiles after filtering:', filteredProfiles?.length);
-
-                  // Pagination calculation
-                  const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
-                  const startIndex = (currentPage - 1) * profilesPerPage;
-                  const endIndex = startIndex + profilesPerPage;
-                  const currentProfiles = filteredProfiles.slice(startIndex, endIndex);
-
-                  return (
-                    <>
-                      {/* Profile Cards Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {currentProfiles.map((profile, index) => {
-                          const user = profile && profile.user ? profile.user : profile;
-                          const keyId = user?.id || profile?.id;
-                          return (
-                            <div key={keyId} className="transform transition-all duration-300 hover:scale-105 h-fit">
-                              <SimpleProfileCard
-                                profile={user}
-                                onInterested={null}
-                                onShortlist={null}
-                                onIgnore={null}
-                                onMessage={null}
-                                onViewProfile={(profile) => navigate(`/details/${profile.id}`)}
-                                isInterested={profile?.is_interested || false}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                    </>
-                  );
-                })()}
-              </div>
-
-              {/* Custom Styles */}
-              <style jsx>{`
-                .horizontal-scroll-row::-webkit-scrollbar {
-                  display: none;
-                }
-                .horizontal-scroll-row {
-                  -webkit-overflow-scrolling: touch;
-                }
-                
-                /* Smooth hover effects */
-                .horizontal-scroll-row > div {
-                  transition: transform 0.3s ease, box-shadow 0.3s ease;
-                }
-                
-                .horizontal-scroll-row > div:hover {
-                  transform: translateY(-5px);
-                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Custom scrollbar for main content */
-                .main-content-scroll {
-                  scrollbar-width: thin;
-                  scrollbar-color: #FF59B6 #f1f1f1;
-                }
-                
-                .main-content-scroll::-webkit-scrollbar {
-                  width: 12px;
-                }
-                
-                .main-content-scroll::-webkit-scrollbar-track {
-                  background: #f1f1f1;
-                  border-radius: 6px;
-                  margin: 4px;
-                }
-                
-                .main-content-scroll::-webkit-scrollbar-thumb {
-                  background: #FF59B6;
-                  border-radius: 6px;
-                  border: 2px solid #f1f1f1;
-                }
-                
-                .main-content-scroll::-webkit-scrollbar-thumb:hover {
-                  background: #EB53A7;
-                }
-                
-                .main-content-scroll::-webkit-scrollbar-corner {
-                  background: #f1f1f1;
-                }
-              `}</style>
-            </div>
-          )}
-        </div>
+        </main>
       </div>
 
-      {/* Pagination - Outside main content area for full page centering */}
-      {!loading && trendingProfiles && trendingProfiles.length > 0 && (() => {
-        const filteredProfiles = trendingProfiles.filter(profile => {
-          if (ignoredUsers.has(profile.user?.id)) return false;
-          
-          // Check if profile is completed - only show completed profiles
-          const user = profile && profile.user ? profile.user : profile;
-          const isProfileCompleted = user?.profile_completed === true;
-          
-          // If profile is not completed, don't show it
-          if (!isProfileCompleted) {
-            return false;
-          }
-          
-          // Check if user is agent and not impersonating
-          const currentRole = localStorage.getItem('role');
-          const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
-          
-          if (currentRole === 'agent' && !isImpersonating) {
-            return true; // Show all completed profiles for agents
-          }
-          
-          const currentUserGender = activeUser?.gender;
-          const profileGender = profile.user?.gender || profile?.gender;
-          
-          if (currentUserGender === 'male' && profileGender === 'female') return true;
-          if (currentUserGender === 'female' && profileGender === 'male') return true;
-          if (!currentUserGender || !profileGender) return true;
-          return false;
-        });
-        
-        const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
-        const startIndex = (currentPage - 1) * profilesPerPage;
-        const endIndex = startIndex + profilesPerPage;
-        
-        return totalPages > 1 ? (
-          <div className="w-full flex flex-col items-center py-8 bg-gray-50">
-            {/* Pagination */}
-            <div className="flex justify-center items-center space-x-2">
-              {/* Previous Button */}
-              <button
-                onClick={() => {
-                  setCurrentPage(prev => Math.max(prev - 1, 1));
-                  scrollToTop();
-                }}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  currentPage === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white hover:from-[#F971BC] hover:to-[#DA73AD] shadow-lg hover:shadow-xl'
-                }`}
-              >
-                <svg className="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Previous
-              </button>
-
-              {/* Page Numbers */}
-              <div className="flex space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => {
-                      setCurrentPage(page);
-                      scrollToTop();
-                    }}
-                    className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage === page
-                        ? 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              {/* Next Button */}
-              <button
-                onClick={() => {
-                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                  scrollToTop();
-                }}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#FF59B6] to-[#EB53A7] text-white hover:from-[#F971BC] hover:to-[#DA73AD] shadow-lg hover:shadow-xl'
-                }`}
-              >
-                Next
-                <svg className="w-4 h-4 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Pagination Info */}
-            <div className="text-center mt-4 text-gray-600">
-              Showing {startIndex + 1} to {Math.min(endIndex, filteredProfiles.length)} of {filteredProfiles.length} profiles
-            </div>
-          </div>
-        ) : null;
-      })()}
-
-      {/* Footer */}
       <Footer />
 
       {/* Withdraw Interest Modal */}
-      {showWithdrawModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-pink-100 mb-4">
-                <svg className="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Withdraw Interest</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Are you sure you want to withdraw your interest? This action cannot be undone.
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => {
-                    setShowWithdrawModal(false);
-                    setSelectedUserId(null);
-                  }}
-                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleWithdrawInterest}
-                  className="flex-1 bg-pink-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-pink-700 transition-colors"
-                >
-                  Withdraw Interest
-              </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={showWithdrawModal}
+        title="Withdraw Interest"
+        description="Are you sure you want to withdraw your interest? This action cannot be undone."
+        onCancel={() => { setShowWithdrawModal(false); setSelectedUserId(null); }}
+        onConfirm={handleWithdrawInterest}
+        confirmText="Withdraw Interest"
+        confirmClass="bg-pink-600"
+      />
 
-      {/* Ignore Confirmation Modal */}
-      {showIgnoreModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Ignore User</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Are you sure you want to ignore this user? This action will permanently hide their profile from you and cannot be undone.
-              </p>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => {
-                    setShowIgnoreModal(false);
-                    setSelectedUserId(null);
-                  }}
-                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmIgnore}
-                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-                >
-                  Ignore User
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Ignore user modal */}
+      <Modal
+        open={showIgnoreModal}
+        title="Ignore User"
+        description="Are you sure you want to ignore this user? They will be hidden from your view permanently."
+        onCancel={() => { setShowIgnoreModal(false); setSelectedUserId(null); }}
+        onConfirm={handleConfirmIgnore}
+        confirmText="Ignore User"
+        confirmClass="bg-red-600"
+      />
     </div>
   );
 };
