@@ -20,11 +20,11 @@ const ManageProfile = () => {
 <div className="profile-form-container">
       <h2>Manage Your Profile</h2>
       <div className="profile-photo">
-        <label htmlFor="upload-photo">
+        <label htmlFor="upload-photo" className="!w-[100%] !h-[100%]">
           {image ? (
             <img src={image} alt="Profile" className="uploaded-image" />
           ) : (
-            <span>Upload Photo</span>
+            <span className="text-center">Upload Photo</span>
           )}
         </label>
         <input

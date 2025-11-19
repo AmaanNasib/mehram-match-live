@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
-import { AiOutlineFilter, AiOutlineRedo, AiOutlineClose  } from "react-icons/ai"; // Import icons
+import { AiOutlineFilter, AiOutlineRedo, AiOutlineClose } from "react-icons/ai"; // Import icons
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchDataObjectV2, postDataWithFetchV2, putDataWithFetchV2 } from "../../../apiUtils";
@@ -14,14 +14,16 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   const [selectedStatus, setSelectedStatus] = useState(value || "");
   const maritalDropdownRef = useRef(null);
 
+
+
   // Gender-based marital status options
   const getMaritalStatusOptions = (gender) => {
     const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
-    
+
     if (gender === "female") {
       return [...baseOptions, "Married"];
     }
-    
+
     return baseOptions;
   };
 
@@ -57,13 +59,13 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
 
   return (
     <div className="marital-status-dropdown-container" ref={maritalDropdownRef}>
-      <div 
+      <div
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedStatus || "Marital Status"}
       </div>
-      
+
       {isOpen && (
         <div className="marital-status-dropdown-menu">
           <h6>Select Marital Status</h6>
@@ -71,9 +73,8 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatus === status ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatus === status ? "selected" : ""
+                  }`}
                 onClick={() => selectStatus(status)}
               >
                 {status}
@@ -376,27 +377,27 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const generateCalendarDays = () => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
+
     // Previous month's days
     const prevMonthDays = [];
     const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
       prevMonthDays.push(prevMonthLastDay - i);
     }
-    
+
     // Current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     // Next month's days
     const nextMonthDays = [];
     const daysToShow = 42 - (prevMonthDays.length + currentMonthDays.length);
     for (let i = 1; i <= daysToShow; i++) {
       nextMonthDays.push(i);
     }
-    
+
     return { prevMonthDays, currentMonthDays, nextMonthDays };
   };
 
@@ -412,8 +413,8 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const isDateSelected = (day) => {
     if (!internalDate) return false;
     return (
-      internalDate.getDate() === day && 
-      internalDate.getMonth() === currentMonth && 
+      internalDate.getDate() === day &&
+      internalDate.getMonth() === currentMonth &&
       internalDate.getFullYear() === currentYear
     );
   };
@@ -421,7 +422,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const changeMonth = (increment) => {
     let newMonth = currentMonth + increment;
     let newYear = currentYear;
-    
+
     if (newMonth < 0) {
       newMonth = 11;
       newYear--;
@@ -429,7 +430,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
       newMonth = 0;
       newYear++;
     }
-    
+
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
@@ -441,31 +442,31 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
   return (
     <div className="custom-date-picker-container" ref={datePickerRef}>
-      <div 
+      <div
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedDate || placeholder}
       </div>
-      
+
       {isOpen && (
         <div className="custom-date-picker-menu">
           <div className="month-navigation">
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(-1)}
             >
               &lt;
             </button>
             <h6>{monthNames[currentMonth]} {currentYear}</h6>
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(1)}
             >
               &gt;
             </button>
           </div>
-          
+
           <div className="calendar-grid">
             {/* Day headers */}
             <div className="day-header">S</div>
@@ -475,17 +476,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             <div className="day-header">T</div>
             <div className="day-header">F</div>
             <div className="day-header">S</div>
-            
+
             {/* Previous month days */}
             {prevMonthDays.map(day => (
               <div key={`prev-${day}`} className="calendar-day other-month">
                 {day}
               </div>
             ))}
-            
+
             {/* Current month days */}
             {currentMonthDays.map(day => (
-              <div 
+              <div
                 key={`current-${day}`}
                 className={`calendar-day ${isDateSelected(day) ? 'selected' : ''}`}
                 onClick={() => handleDateClick(day)}
@@ -493,7 +494,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
                 {day}
               </div>
             ))}
-            
+
             {/* Next month days */}
             {nextMonthDays.map(day => (
               <div key={`next-${day}`} className="calendar-day other-month">
@@ -501,12 +502,12 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
               </div>
             ))}
           </div>
-          
+
           <div className="date-picker-note">
             *You can choose a date
           </div>
-          
-          <button 
+
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -645,7 +646,7 @@ const TotalInterest = () => {
   const [showDatePicker1, setShowDatePicker1] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
   const [gender] = useState(localStorage.getItem("gender"));
-  const [apiData, setApiData] = useState({sent_interests:[], received_interests:[]});
+  const [apiData, setApiData] = useState({ sent_interests: [], received_interests: [] });
   const [loading, setLoading] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
   const [errors, setErrors] = useState({});
@@ -684,10 +685,10 @@ const TotalInterest = () => {
   // Fetch interest status for each user when apiData changes
   useEffect(() => {
     if (!userId || !apiData?.sent_interests) return;
-    
+
     const fetchStatuses = async () => {
       const statusMap = {};
-      
+
       // helper to fetch single pair status
       const fetchPair = async (otherUserId) => {
         try {
@@ -715,7 +716,7 @@ const TotalInterest = () => {
           console.error(`Error fetching status for user ${otherUserId}:`, error);
         }
       };
-      
+
       // Fetch for all users we have in both sent and received lists
       const sentList = apiData.sent_interests || [];
       const recvList = apiData.received_interests || [];
@@ -728,14 +729,14 @@ const TotalInterest = () => {
         const u = (m?.user || m?.action_on || m?.action_by || m)?.id || m?.action_on_id || m?.action_by_id;
         if (u) userIds.add(u);
       });
-      
+
       for (const otherUserId of userIds) {
         await fetchPair(otherUserId);
       }
-      
+
       setInterestStatus(statusMap);
     };
-    
+
     fetchStatuses();
   }, [apiData, userId]);
 
@@ -743,13 +744,13 @@ const TotalInterest = () => {
   const handleWithdraw = async (targetUserId, e) => {
     e.stopPropagation(); // Prevent row click navigation
     if (!userId || !targetUserId) return;
-    
+
     const statusInfo = interestStatus[targetUserId];
     if (!statusInfo || statusInfo.direction !== 'sent') {
       alert('Can only withdraw interests that you have sent');
       return;
     }
-    
+
     try {
       const parameter = {
         url: `/api/recieved/`,
@@ -769,16 +770,16 @@ const TotalInterest = () => {
           ],
         },
       };
-      
+
       await postDataWithFetchV2(parameter);
-      
+
       // Remove from status map
       setInterestStatus(prev => {
         const updated = { ...prev };
         delete updated[targetUserId];
         return updated;
       });
-      
+
     } catch (error) {
       console.error('Error withdrawing interest:', error);
     }
@@ -826,14 +827,14 @@ const TotalInterest = () => {
     { id: "00009", name: "Dollie Hines", location: "124 Lyla Forge Suite 975", date: "09 Jan 2019", sect: "Sunni-Hanafi", profession: "Software-Designer", status: "Sent", maritalStatus: "Never Married" },
   ];
 
-   // Pagination
-     // Extract distinct values for each filter (IDs, Names, etc.) - using flexible data structure
+  // Pagination
+  // Extract distinct values for each filter (IDs, Names, etc.) - using flexible data structure
   const getDistinctValues = (field) => {
     return [...new Set(apiData?.sent_interests?.map((match) => {
       const userData = match?.user || match?.action_on || match?.action_by || match;
       const userId = userData?.id || match?.action_on_id || match?.action_by_id;
-      
-      switch(field) {
+
+      switch (field) {
         case 'id': return userId;
         case 'name': return userData?.name;
         case 'city': return userData?.city;
@@ -846,7 +847,7 @@ const TotalInterest = () => {
       }
     }).filter(Boolean))];
   };
-  
+
   const distinctIds = getDistinctValues('id');
   const distinctNames = getDistinctValues('name');
   const distinctCities = getDistinctValues('city');
@@ -856,13 +857,13 @@ const TotalInterest = () => {
   const distinctStatuses = getDistinctValues('status');
   const distinctMaritalStatuses = getDistinctValues('martial_status');
 
-   const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 10;
- 
-   // Get current items
-   const indexOfLastItem = currentPage * itemsPerPage;
-   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-   
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Get current items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
 
   const handleFilterChange = (column, value) => {
 
@@ -873,9 +874,9 @@ const TotalInterest = () => {
     });
   };
   const [resetKey, setResetKey] = useState(0);
-  
-  const onClearFilterClick=() => {
-    let clear={
+
+  const onClearFilterClick = () => {
+    let clear = {
       member_id: '',
       name: '',
       city: '',
@@ -900,21 +901,21 @@ const TotalInterest = () => {
         // Handle both "Received" and "Recieved" (typo from API)
         const itemStatus = match?.status?.toLowerCase().trim();
         const filterStatus = updatedFilters.status.toLowerCase().trim();
-        
-        statusMatch = itemStatus === filterStatus || 
-                     (filterStatus === "received" && itemStatus === "recieved") ||
-                     (filterStatus === "recieved" && itemStatus === "received");
+
+        statusMatch = itemStatus === filterStatus ||
+          (filterStatus === "received" && itemStatus === "recieved") ||
+          (filterStatus === "recieved" && itemStatus === "received");
       }
-      
+
       // Flexible user data access - same as in table display
       const userData = match?.user || match?.action_on || match?.action_by || match;
       const userId = userData?.id || match?.action_on_id || match?.action_by_id;
-      
+
       return (
         (updatedFilters.member_id ? userData?.member_id?.toLowerCase().includes(updatedFilters.member_id.toLowerCase()) : true) &&
         (updatedFilters.name ? userData?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
         (updatedFilters.city ? userData?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-        (updatedFilters.startDate && updatedFilters.endDate 
+        (updatedFilters.startDate && updatedFilters.endDate
           ? new Date(match?.created_at || match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.created_at || match?.date) <= new Date(updatedFilters.endDate)
           : true) &&
         (updatedFilters.sectSchoolInfo ? userData?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
@@ -927,106 +928,110 @@ const TotalInterest = () => {
         (updatedFilters.martialStatus ? userData?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
       );
     });
-    
+
     setFilteredItems(filtered);
   };
-   const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
-   // Total pages
-   const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
- 
-   // Handle Page Change
-   const handlePageChange = (pageNumber) => {
-     setCurrentPage(pageNumber);
-   };
-   useEffect(() => {
+  const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
+  // Total pages
+  const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
+
+  // Handle Page Change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  useEffect(() => {
     // Apply filters when `currentItems` or filters change
-    setFilteredItems( apiData?.sent_interests)
+    setFilteredItems(apiData?.sent_interests)
   }, [apiData]);
-      // Function to handle sorting
-      const handleSort = (column) => {
-        let direction = 'asc';
-        if (sortConfig.key === column && sortConfig.direction === 'asc') {
-          direction = 'desc'; // Toggle sorting direction
-        }
-        setSortConfig({ key: column, direction });
-      };
-    
-      // Function to sort the data based on the current sortConfig
-      
-    
-      useEffect(() => {
-        const key = sortConfig.key;
-        const dir = sortConfig.direction === 'asc' ? 1 : -1;
-        const normalize = (v) => (v === null || v === undefined ? '' : v);
-        const sortedData = [...(filteredItems || [])].sort((a, b) => {
-          if (!key) return 0;
-          
-          // Flexible user data access
-          const userDataA = a?.user || a?.action_on || a?.action_by || a;
-          const userDataB = b?.user || b?.action_on || b?.action_by || b;
-          const userIdA = userDataA?.id || a?.action_on_id || a?.action_by_id;
-          const userIdB = userDataB?.id || b?.action_on_id || b?.action_by_id;
-          
-          if (key === 'date') {
-            const dateA = new Date(a?.created_at || a?.date || 0).getTime();
-            const dateB = new Date(b?.created_at || b?.date || 0).getTime();
-            if (isNaN(dateA) || isNaN(dateB)) {
-              const sa = String(a?.created_at || a?.date || '');
-              const sb = String(b?.created_at || b?.date || '');
-              if (sa < sb) return -1 * dir;
-              if (sa > sb) return 1 * dir;
-              return 0;
-            }
-            return dateA === dateB ? 0 : dateA < dateB ? -1 * dir : 1 * dir;
-          }
-          
-          if (key === 'member_id') {
-            const va = Number(userDataA?.member_id || 0);
-            const vb = Number(userDataB?.member_id || 0);
-            return va === vb ? 0 : va < vb ? -1 * dir : 1 * dir;
-          }
-          
-          if (key === 'status') {
-            // Sort by status from interestStatus map
-            const statusInfoA = interestStatus[userIdA];
-            const statusInfoB = interestStatus[userIdB];
-            const statusA = statusInfoA?.status || 'Pending';
-            const statusB = statusInfoB?.status || 'Pending';
-            const directionA = statusInfoA?.direction || '';
-            const directionB = statusInfoB?.direction || '';
-            const combinedA = `${directionA} - ${statusA}`;
-            const combinedB = `${directionB} - ${statusB}`;
-            if (combinedA < combinedB) return -1 * dir;
-            if (combinedA > combinedB) return 1 * dir;
-            return 0;
-          }
-          
-          // String fields: name, city, sect_school_info, profession, martial_status
-          const va = normalize(userDataA?.[key]);
-          const vb = normalize(userDataB?.[key]);
-          const sva = typeof va === 'string' ? va.toLowerCase() : va;
-          const svb = typeof vb === 'string' ? vb.toLowerCase() : vb;
-          if (sva < svb) return -1 * dir;
-          if (sva > svb) return 1 * dir;
+  // Function to handle sorting
+  const handleSort = (column) => {
+    let direction = 'asc';
+    if (sortConfig.key === column && sortConfig.direction === 'asc') {
+      direction = 'desc'; // Toggle sorting direction
+    }
+    setSortConfig({ key: column, direction });
+  };
+
+  // Function to sort the data based on the current sortConfig
+
+
+  useEffect(() => {
+    const key = sortConfig.key;
+    const dir = sortConfig.direction === 'asc' ? 1 : -1;
+    const normalize = (v) => (v === null || v === undefined ? '' : v);
+    const sortedData = [...(filteredItems || [])].sort((a, b) => {
+      if (!key) return 0;
+
+      // Flexible user data access
+      const userDataA = a?.user || a?.action_on || a?.action_by || a;
+      const userDataB = b?.user || b?.action_on || b?.action_by || b;
+      const userIdA = userDataA?.id || a?.action_on_id || a?.action_by_id;
+      const userIdB = userDataB?.id || b?.action_on_id || b?.action_by_id;
+
+      if (key === 'date') {
+        const dateA = new Date(a?.created_at || a?.date || 0).getTime();
+        const dateB = new Date(b?.created_at || b?.date || 0).getTime();
+        if (isNaN(dateA) || isNaN(dateB)) {
+          const sa = String(a?.created_at || a?.date || '');
+          const sb = String(b?.created_at || b?.date || '');
+          if (sa < sb) return -1 * dir;
+          if (sa > sb) return 1 * dir;
           return 0;
-        });
-        setFilteredItems(sortedData);
-      }, [sortConfig.key, sortConfig.direction, interestStatus])
+        }
+        return dateA === dateB ? 0 : dateA < dateB ? -1 * dir : 1 * dir;
+      }
+
+      if (key === 'member_id') {
+        const va = Number(userDataA?.member_id || 0);
+        const vb = Number(userDataB?.member_id || 0);
+        return va === vb ? 0 : va < vb ? -1 * dir : 1 * dir;
+      }
+
+      if (key === 'status') {
+        // Sort by status from interestStatus map
+        const statusInfoA = interestStatus[userIdA];
+        const statusInfoB = interestStatus[userIdB];
+        const statusA = statusInfoA?.status || 'Pending';
+        const statusB = statusInfoB?.status || 'Pending';
+        const directionA = statusInfoA?.direction || '';
+        const directionB = statusInfoB?.direction || '';
+        const combinedA = `${directionA} - ${statusA}`;
+        const combinedB = `${directionB} - ${statusB}`;
+        if (combinedA < combinedB) return -1 * dir;
+        if (combinedA > combinedB) return 1 * dir;
+        return 0;
+      }
+
+      // String fields: name, city, sect_school_info, profession, martial_status
+      const va = normalize(userDataA?.[key]);
+      const vb = normalize(userDataB?.[key]);
+      const sva = typeof va === 'string' ? va.toLowerCase() : va;
+      const svb = typeof vb === 'string' ? vb.toLowerCase() : vb;
+      if (sva < svb) return -1 * dir;
+      if (sva > svb) return 1 * dir;
+      return 0;
+    });
+    setFilteredItems(sortedData);
+  }, [sortConfig.key, sortConfig.direction, interestStatus])
 
 
 
 
-      const handleMaritalStatusChange = (selectedStatus) => {
-        setFilters(prevFilters => {
-          const updatedFilters = { 
-            ...prevFilters, 
-            martialStatus: selectedStatus 
-          };
-          applyFilters(updatedFilters);
-          return updatedFilters;
-        });
+  const handleMaritalStatusChange = (selectedStatus) => {
+    setFilters(prevFilters => {
+      const updatedFilters = {
+        ...prevFilters,
+        martialStatus: selectedStatus
       };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
 
+
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
 
 
   return (
@@ -1036,256 +1041,262 @@ const TotalInterest = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button className="filter-button" onClick={toggleFilters}>
             <AiOutlineFilter className="icon" /> Filter By
           </button>
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.member_id}
-            onChange={(e) => handleFilterChange('member_id', e.target.value)}
-            placeholder="Enter Member ID"
-            style={{ 
-              width: '120px',
-              padding: '8px 12px',
-              border: '1px solid #ddd',
-              borderRadius: '6px',
-              fontSize: '13px',
-              transition: 'all 0.2s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ff6b9d';
-              e.target.style.boxShadow = '0 0 0 2px rgba(255, 107, 157, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#ddd';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
+
+          {isFilters && (
+            <>
+
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.member_id}
+                onChange={(e) => handleFilterChange('member_id', e.target.value)}
+                placeholder="Enter Member ID"
+                style={{
+                  width: '120px',
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#ff6b9d';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(255, 107, 157, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#ddd';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
 
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
 
-         {/* Replace your current date picker implementation with this */}
-<div className="date-filters-container">
-  <CustomDatePicker
-    key={`start-date-${resetKey}`}
-    selectedDate={filters.startDate}
-    onChange={(date) => handleFilterChange("startDate", date)}
-    placeholder="Start Date"
-  />
-  
-  <CustomDatePicker
-    key={`end-date-${resetKey}`}
-    selectedDate={filters.endDate}
-    onChange={(date) => handleFilterChange("endDate", date)}
-    placeholder="End Date"
-  />
-</div>
+              {/* Replace your current date picker implementation with this */}
+              <div className="date-filters-container">
+                <CustomDatePicker
+                  key={`start-date-${resetKey}`}
+                  selectedDate={filters.startDate}
+                  onChange={(date) => handleFilterChange("startDate", date)}
+                  placeholder="Start Date"
+                />
 
-<style>
-{`
+                <CustomDatePicker
+                  key={`end-date-${resetKey}`}
+                  selectedDate={filters.endDate}
+                  onChange={(date) => handleFilterChange("endDate", date)}
+                  placeholder="End Date"
+                />
+              </div>
+
+              <style>
+                {`
   .date-filters-container {
     display: flex;
     gap: 10px;
   }
 `}
-</style>
+              </style>
 
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="Actor">Actor</option>
-            <option value="Administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="Air Hostess">Air Hostess</option>
-            <option value="Airline Professional">Airline Professional</option>
-            <option value="Airforce">Airforce</option>
-            <option value="Architect">Architect</option>
-            <option value="Artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="Audiologist">Audiologist</option>
-            <option value="Auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="Beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="Captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="Chemist">Chemist</option>
-            <option value="Civil Engineer">Civil Engineer</option>
-            <option value="Clerical Official">Clerical Official</option>
-            <option value="Clinical Pharmacist">Clinical Pharmacist</option>
-            <option value="Company Secretary">Company Secretary</option>
-            <option value="Computer Engineer">Computer Engineer</option>
-            <option value="Computer Programmer">Computer Programmer</option>
-            <option value="Consultant">Consultant</option>
-            <option value="Contractor">Contractor</option>
-            <option value="Content Creator">Content Creator</option>
-            <option value="Counsellor">Counsellor</option>
-            <option value="Creative Person">Creative Person</option>
-            <option value="Customer Support Professional">Customer Support Professional</option>
-            <option value="Data Analyst">Data Analyst</option>
-            <option value="Defence Employee">Defence Employee</option>
-            <option value="Dentist">Dentist</option>
-            <option value="Designer">Designer</option>
-            <option value="Director / Chairman">Director / Chairman</option>
-            <option value="Doctor">Doctor</option>
-            <option value="Economist">Economist</option>
-            <option value="Electrical Engineer">Electrical Engineer</option>
-            <option value="Engineer">Engineer</option>
-            <option value="Entertainment Professional">Entertainment Professional</option>
-            <option value="Event Manager">Event Manager</option>
-            <option value="Executive">Executive</option>
-            <option value="Factory Worker">Factory Worker</option>
-            <option value="Farmer">Farmer</option>
-            <option value="Fashion Designer">Fashion Designer</option>
-            <option value="Finance Professional">Finance Professional</option>
-            <option value="Food Technologist">Food Technologist</option>
-            <option value="Government Employee">Government Employee</option>
-            <option value="Graphic Designer">Graphic Designer</option>
-            <option value="Hair Dresser">Hair Dresser</option>
-            <option value="Health Care Professional">Health Care Professional</option>
-            <option value="Hospitality Professional">Hospitality Professional</option>
-            <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
-            <option value="Human Resource Professional">Human Resource Professional</option>
-            <option value="HSE Officer">HSE Officer</option>
-            <option value="Influencer">Influencer</option>
-            <option value="Insurance Advisor">Insurance Advisor</option>
-            <option value="Insurance Agent">Insurance Agent</option>
-            <option value="Interior Designer">Interior Designer</option>
-            <option value="Investment Professional">Investment Professional</option>
-            <option value="IT / Telecom Professional">IT / Telecom Professional</option>
-            <option value="Islamic Scholar">Islamic Scholar</option>
-            <option value="Islamic Teacher">Islamic Teacher</option>
-            <option value="Journalist">Journalist</option>
-            <option value="Lawyer">Lawyer</option>
-            <option value="Lecturer">Lecturer</option>
-            <option value="Legal Professional">Legal Professional</option>
-            <option value="Librarian">Librarian</option>
-            <option value="Logistics Professional">Logistics Professional</option>
-            <option value="Manager">Manager</option>
-            <option value="Marketing Professional">Marketing Professional</option>
-            <option value="Mechanical Engineer">Mechanical Engineer</option>
-            <option value="Medical Representative">Medical Representative</option>
-            <option value="Medical Transcriptionist">Medical Transcriptionist</option>
-            <option value="Merchant Naval Officer">Merchant Naval Officer</option>
-            <option value="Microbiologist">Microbiologist</option>
-            <option value="Military">Military</option>
-            <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
-            <option value="Navy Officer">Navy Officer</option>
-            <option value="Nurse">Nurse</option>
-            <option value="Occupational Therapist">Occupational Therapist</option>
-            <option value="Office Staff">Office Staff</option>
-            <option value="Optician">Optician</option>
-            <option value="Optometrist">Optometrist</option>
-            <option value="Pharmacist">Pharmacist</option>
-            <option value="Physician">Physician</option>
-            <option value="Physician Assistant">Physician Assistant</option>
-            <option value="Pilot">Pilot</option>
-            <option value="Police Officer">Police Officer</option>
-            <option value="Priest">Priest</option>
-            <option value="Product Manager / Professional">Product Manager / Professional</option>
-            <option value="Professor">Professor</option>
-            <option value="Project Manager">Project Manager</option>
-            <option value="Public Relations Professional">Public Relations Professional</option>
-            <option value="Real Estate Professional">Real Estate Professional</option>
-            <option value="Research Scholar">Research Scholar</option>
-            <option value="Retail Professional">Retail Professional</option>
-            <option value="Sales Professional">Sales Professional</option>
-            <option value="Scientist">Scientist</option>
-            <option value="Self-Employed">Self-Employed</option>
-            <option value="Social Worker">Social Worker</option>
-            <option value="Software Consultant">Software Consultant</option>
-            <option value="Software Developer">Software Developer</option>
-            <option value="Speech Therapist">Speech Therapist</option>
-            <option value="Sportsman">Sportsman</option>
-            <option value="Supervisor">Supervisor</option>
-            <option value="Teacher">Teacher</option>
-            <option value="Technician">Technician</option>
-            <option value="Tour Guide">Tour Guide</option>
-            <option value="Trainer">Trainer</option>
-            <option value="Transportation Professional">Transportation Professional</option>
-            <option value="Tutor">Tutor</option>
-            <option value="Veterinary Doctor">Veterinary Doctor</option>
-            <option value="Videographer">Videographer</option>
-            <option value="Web Designer">Web Designer</option>
-            <option value="Web Developer">Web Developer</option>
-            <option value="Wholesale Businessman">Wholesale Businessman</option>
-            <option value="Writer">Writer</option>
-            <option value="Zoologist">Zoologist</option>
-            <option value="Other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="Accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="Actor">Actor</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="Air Hostess">Air Hostess</option>
+                <option value="Airline Professional">Airline Professional</option>
+                <option value="Airforce">Airforce</option>
+                <option value="Architect">Architect</option>
+                <option value="Artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Audiologist">Audiologist</option>
+                <option value="Auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="Beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="Captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="Chemist">Chemist</option>
+                <option value="Civil Engineer">Civil Engineer</option>
+                <option value="Clerical Official">Clerical Official</option>
+                <option value="Clinical Pharmacist">Clinical Pharmacist</option>
+                <option value="Company Secretary">Company Secretary</option>
+                <option value="Computer Engineer">Computer Engineer</option>
+                <option value="Computer Programmer">Computer Programmer</option>
+                <option value="Consultant">Consultant</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Content Creator">Content Creator</option>
+                <option value="Counsellor">Counsellor</option>
+                <option value="Creative Person">Creative Person</option>
+                <option value="Customer Support Professional">Customer Support Professional</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Defence Employee">Defence Employee</option>
+                <option value="Dentist">Dentist</option>
+                <option value="Designer">Designer</option>
+                <option value="Director / Chairman">Director / Chairman</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Economist">Economist</option>
+                <option value="Electrical Engineer">Electrical Engineer</option>
+                <option value="Engineer">Engineer</option>
+                <option value="Entertainment Professional">Entertainment Professional</option>
+                <option value="Event Manager">Event Manager</option>
+                <option value="Executive">Executive</option>
+                <option value="Factory Worker">Factory Worker</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Fashion Designer">Fashion Designer</option>
+                <option value="Finance Professional">Finance Professional</option>
+                <option value="Food Technologist">Food Technologist</option>
+                <option value="Government Employee">Government Employee</option>
+                <option value="Graphic Designer">Graphic Designer</option>
+                <option value="Hair Dresser">Hair Dresser</option>
+                <option value="Health Care Professional">Health Care Professional</option>
+                <option value="Hospitality Professional">Hospitality Professional</option>
+                <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
+                <option value="Human Resource Professional">Human Resource Professional</option>
+                <option value="HSE Officer">HSE Officer</option>
+                <option value="Influencer">Influencer</option>
+                <option value="Insurance Advisor">Insurance Advisor</option>
+                <option value="Insurance Agent">Insurance Agent</option>
+                <option value="Interior Designer">Interior Designer</option>
+                <option value="Investment Professional">Investment Professional</option>
+                <option value="IT / Telecom Professional">IT / Telecom Professional</option>
+                <option value="Islamic Scholar">Islamic Scholar</option>
+                <option value="Islamic Teacher">Islamic Teacher</option>
+                <option value="Journalist">Journalist</option>
+                <option value="Lawyer">Lawyer</option>
+                <option value="Lecturer">Lecturer</option>
+                <option value="Legal Professional">Legal Professional</option>
+                <option value="Librarian">Librarian</option>
+                <option value="Logistics Professional">Logistics Professional</option>
+                <option value="Manager">Manager</option>
+                <option value="Marketing Professional">Marketing Professional</option>
+                <option value="Mechanical Engineer">Mechanical Engineer</option>
+                <option value="Medical Representative">Medical Representative</option>
+                <option value="Medical Transcriptionist">Medical Transcriptionist</option>
+                <option value="Merchant Naval Officer">Merchant Naval Officer</option>
+                <option value="Microbiologist">Microbiologist</option>
+                <option value="Military">Military</option>
+                <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
+                <option value="Navy Officer">Navy Officer</option>
+                <option value="Nurse">Nurse</option>
+                <option value="Occupational Therapist">Occupational Therapist</option>
+                <option value="Office Staff">Office Staff</option>
+                <option value="Optician">Optician</option>
+                <option value="Optometrist">Optometrist</option>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Physician">Physician</option>
+                <option value="Physician Assistant">Physician Assistant</option>
+                <option value="Pilot">Pilot</option>
+                <option value="Police Officer">Police Officer</option>
+                <option value="Priest">Priest</option>
+                <option value="Product Manager / Professional">Product Manager / Professional</option>
+                <option value="Professor">Professor</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Public Relations Professional">Public Relations Professional</option>
+                <option value="Real Estate Professional">Real Estate Professional</option>
+                <option value="Research Scholar">Research Scholar</option>
+                <option value="Retail Professional">Retail Professional</option>
+                <option value="Sales Professional">Sales Professional</option>
+                <option value="Scientist">Scientist</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Social Worker">Social Worker</option>
+                <option value="Software Consultant">Software Consultant</option>
+                <option value="Software Developer">Software Developer</option>
+                <option value="Speech Therapist">Speech Therapist</option>
+                <option value="Sportsman">Sportsman</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Technician">Technician</option>
+                <option value="Tour Guide">Tour Guide</option>
+                <option value="Trainer">Trainer</option>
+                <option value="Transportation Professional">Transportation Professional</option>
+                <option value="Tutor">Tutor</option>
+                <option value="Veterinary Doctor">Veterinary Doctor</option>
+                <option value="Videographer">Videographer</option>
+                <option value="Web Designer">Web Designer</option>
+                <option value="Web Developer">Web Developer</option>
+                <option value="Wholesale Businessman">Wholesale Businessman</option>
+                <option value="Writer">Writer</option>
+                <option value="Zoologist">Zoologist</option>
+                <option value="Other">Other</option>
+              </select>
 
-  <MaritalStatusDropdown 
-    key={`marital-status-${resetKey}`}
-    value={filters.martialStatus}
-    userGender={gender}
-    onChange={handleMaritalStatusChange}
-  />
+              <MaritalStatusDropdown
+                key={`marital-status-${resetKey}`}
+                value={filters.martialStatus}
+                userGender={gender}
+                onChange={handleMaritalStatusChange}
+              />
 
-<StatusDropdown 
-  key={`status-${resetKey}`}
-  value={filters.status}
-  onChange={(selectedStatus) => {
-    setFilters(prevFilters => {
-      const updatedFilters = { 
-        ...prevFilters, 
-        status: selectedStatus 
-      };
-      applyFilters(updatedFilters);
-      return updatedFilters;
-    });
-  }}
-/>
+              <StatusDropdown
+                key={`status-${resetKey}`}
+                value={filters.status}
+                onChange={(selectedStatus) => {
+                  setFilters(prevFilters => {
+                    const updatedFilters = {
+                      ...prevFilters,
+                      status: selectedStatus
+                    };
+                    applyFilters(updatedFilters);
+                    return updatedFilters;
+                  });
+                }}
+              />
 
+            </>
+          )}
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
@@ -1293,18 +1304,413 @@ const TotalInterest = () => {
         </div>
 
         {/* Table Section */}
-        <table className="interest-table">
+        <div className="space-y-4">
+          {/* Desktop / Tablet: table (scrollable on very small screens) */}
+          <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    onClick={() => handleSort('member_id')}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+                  >
+                    MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('name')}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  >
+                    Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  {/* Hide on very small screens to avoid overflow */}
+                  <th
+                    onClick={() => handleSort('city')}
+                    className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  >
+                    Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('date')}
+                    className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  >
+                    Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('sect_school_info')}
+                    className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  >
+                    Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('profession')}
+                    className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  >
+                    Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('martial_status')}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+                  >
+                    Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th
+                    onClick={() => handleSort('status')}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+                  >
+                    Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+
+              <tbody className="bg-white divide-y divide-gray-200">
+                {loading ? (
+                  <tr>
+                    <td colSpan="9" className="text-center py-6 text-sm text-gray-600">
+                      Loading data...
+                    </td>
+                  </tr>
+                ) : currentItems?.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="text-center py-6 text-sm text-gray-600">
+                      {filteredItems?.length === 0 && filters.status
+                        ? `No ${filters.status.toLowerCase()} interests found`
+                        : 'No data available'}
+                    </td>
+                  </tr>
+                ) : (
+                  currentItems?.map((match, index) => {
+                    const userData = match?.user || match?.action_on || match?.action_by || match;
+                    const userId = userData?.id || match?.action_on_id || match?.action_by_id;
+
+                    return (
+                      <tr
+                        key={index}
+                        onClick={() => navigate(`/details/${userId}`)}
+                        className="hover:bg-gray-50 cursor-pointer"
+                      >
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 max-w-[110px] truncate">{userData?.member_id || 'N/A'}</td>
+
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={
+                                userData?.profile_photo
+                                  ? `${process.env.REACT_APP_API_URL}${userData.profile_photo}`
+                                  : `data:image/svg+xml;utf8,${encodeURIComponent(
+                                    userData?.gender === 'male'
+                                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6"><circle cx="12" cy="8" r="5" fill="#bfdbfe"/><path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/></svg>`
+                                      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899"><circle cx="12" cy="8" r="5" fill="#fbcfe8"/><path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/><circle cx="12" cy="8" r="2" fill="#ec4899"/></svg>`
+                                  )}`
+                              }
+                              alt={userData?.name || 'User'}
+                              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 flex-shrink-0"
+                              onError={(e) => {
+                                e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                                  userData?.gender === 'male'
+                                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6"><circle cx="12" cy="8" r="5" fill="#bfdbfe"/><path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/></svg>`
+                                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899"><circle cx="12" cy="8" r="5" fill="#fbcfe8"/><path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/><circle cx="12" cy="8" r="2" fill="#ec4899"/></svg>`
+                                )}`;
+                              }}
+                            />
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium text-gray-800 truncate max-w-[160px]">{userData?.name || 'N/A'}</div>
+                              <div className="text-xs text-gray-500 truncate max-w-[160px]">{userData?.city || ''}</div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="hidden sm:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-700 max-w-[110px] truncate">{userData?.city || 'N/A'}</td>
+
+                        <td className="hidden md:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-700">{match?.created_at?.split('T')[0] || match?.date || 'N/A'}</td>
+
+                        <td className="hidden lg:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.sect_school_info || 'N/A'}</td>
+
+                        <td className="hidden lg:table-cell px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.profession || 'N/A'}</td>
+
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <span className={`inline-block px-2 py-1 rounded text-sm font-medium capitalize ${userData?.martial_status ? '' : 'text-gray-500'}`}>
+                            {userData?.martial_status || 'Not mentioned'}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {(() => {
+                            const statusInfo = interestStatus[userId];
+                            const displayStatus = statusInfo?.status || 'Pending';
+                            const direction = statusInfo?.direction ? statusInfo.direction.charAt(0).toUpperCase() + statusInfo.direction.slice(1) : '';
+                            const statusLower = displayStatus.toLowerCase();
+                            return (
+                              <span className={`inline-block px-2 py-1 text-sm font-semibold rounded ${statusLower === 'pending' ? 'bg-yellow-50 text-yellow-800' :
+                                statusLower === 'accepted' ? 'bg-green-50 text-green-800' :
+                                  statusLower === 'rejected' ? 'bg-red-50 text-red-800' : 'bg-gray-50 text-gray-800'
+                                }`}>
+                                {direction ? `${direction} - ${displayStatus}` : displayStatus}
+                              </span>
+                            );
+                          })()}
+                        </td>
+
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {(() => {
+                            const statusInfo = interestStatus[userId];
+                            if (statusInfo && statusInfo.direction === 'sent' && statusInfo.status === 'Pending') {
+                              return (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleWithdraw(userId, e); }}
+                                  className="px-3 py-1 rounded-md border border-red-300 bg-red-50 text-red-600 font-semibold text-sm"
+                                >
+                                  Withdraw
+                                </button>
+                              );
+                            }
+                            if (
+                              statusInfo &&
+                              (statusInfo.direction === 'received' || statusInfo.direction === 'mutual') &&
+                              (statusInfo.status || 'Pending') === 'Pending'
+                            ) {
+                              return (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleAccept(userId, e); }}
+                                  className="px-3 py-1 rounded-md border border-green-600 bg-green-50 text-green-600 font-semibold text-sm"
+                                >
+                                  Accept
+                                </button>
+                              );
+                            }
+                            return <span className="text-sm text-gray-400">-</span>;
+                          })()}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* <table className="min-w-full divide-y divide-gray-200 interest-table">
+          <thead className="bg-gray-50">
+            <tr>
+              <th
+                onClick={() => handleSort('member_id')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('name')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('city')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('date')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('sect_school_info')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('profession')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('martial_status')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th
+                onClick={() => handleSort('status')}
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              >
+                Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {loading ? (
+              <tr>
+                <td colSpan="9" className="text-center py-5">
+                  Loading data...
+                </td>
+              </tr>
+            ) : currentItems?.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="text-center py-5">
+                  {filteredItems?.length === 0 && filters.status
+                    ? `No ${filters.status.toLowerCase()} interests found`
+                    : 'No data available'}
+                </td>
+              </tr>
+            ) : (
+              currentItems?.map((match, index) => {
+                const userData = match?.user || match?.action_on || match?.action_by || match;
+                const userId = userData?.id || match?.action_on_id || match?.action_by_id;
+
+                return (
+                  <tr
+                    key={index}
+                    onClick={() => navigate(`/details/${userId}`)}
+                    className="hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.member_id || 'N/A'}</td>
+
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={
+                            userData?.profile_photo
+                              ? `${process.env.REACT_APP_API_URL}${userData.profile_photo}`
+                              : `data:image/svg+xml;utf8,${encodeURIComponent(
+                                userData?.gender === 'male'
+                                  ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                                <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                                <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                              </svg>`
+                                  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                                <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                                <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                                <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                              </svg>`
+                              )}`
+                          }
+                          alt={userData?.name || 'User'}
+                          className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                          onError={(e) => {
+                            e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                              userData?.gender === 'male'
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                            <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
+                            <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
+                          </svg>`
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                            <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
+                            <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
+                            <circle cx="12" cy="8" r="2" fill="#ec4899"/>
+                          </svg>`
+                            )}`;
+                          }}
+                        />
+                        <span className="text-sm text-gray-800">{userData?.name || 'N/A'}</span>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.city || 'N/A'}</td>
+
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {match?.created_at?.split('T')[0] || match?.date || 'N/A'}
+                    </td>
+
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.sect_school_info || 'N/A'}</td>
+
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{userData?.profession || 'N/A'}</td>
+
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span
+                        className={`marital-badge inline-block px-2 py-1 rounded text-sm font-medium ${userData?.martial_status ? 'capitalize' : ''
+                          } ${userData?.martial_status ? userData?.martial_status?.toLowerCase()?.replace(' ', '-') : 'not-mentioned'}`}
+                      >
+                        {userData?.martial_status || 'Not mentioned'}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {(() => {
+                        const statusInfo = interestStatus[userId];
+                        const displayStatus = statusInfo?.status || 'Pending';
+                        const direction = statusInfo?.direction ? statusInfo.direction.charAt(0).toUpperCase() + statusInfo.direction.slice(1) : '';
+                        const statusLower = displayStatus.toLowerCase();
+                        return (
+                          <span
+                            className={`status-badge inline-block px-2 py-1 text-sm font-semibold rounded ${statusLower === 'pending'
+                                ? 'bg-yellow-50 text-yellow-800'
+                                : statusLower === 'accepted'
+                                  ? 'bg-green-50 text-green-800'
+                                  : statusLower === 'rejected'
+                                    ? 'bg-red-50 text-red-800'
+                                    : 'bg-gray-50 text-gray-800'
+                              }`}
+                          >
+                            {direction ? `${direction} - ${displayStatus}` : displayStatus}
+                          </span>
+                        );
+                      })()}
+                    </td>
+
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {(() => {
+                        const statusInfo = interestStatus[userId];
+                        if (statusInfo && statusInfo.direction === 'sent' && statusInfo.status === 'Pending') {
+                          return (
+                            <button
+                              onClick={(e) => handleWithdraw(userId, e)}
+                              className="px-3 py-1 rounded-md border border-red-300 bg-red-50 text-red-600 font-semibold text-sm cursor-pointer"
+                            >
+                              Withdraw
+                            </button>
+                          );
+                        }
+                        if (
+                          statusInfo &&
+                          (statusInfo.direction === 'received' || statusInfo.direction === 'mutual') &&
+                          (statusInfo.status || 'Pending') === 'Pending'
+                        ) {
+                          return (
+                            <button
+                              onClick={(e) => handleAccept(userId, e)}
+                              className="px-3 py-1 rounded-md border border-green-600 bg-green-50 text-green-600 font-semibold text-sm cursor-pointer"
+                            >
+                              Accept
+                            </button>
+                          );
+                        }
+                        return <span className="text-sm text-gray-400">-</span>;
+                      })()}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table> */}
+
+        {/* <table className="interest-table">
           <thead>
             <tr>
-            <th onClick={() => handleSort('member_id')}>
-            MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-          </th>
+              <th onClick={() => handleSort('member_id')}>
+                MEMBER ID {sortConfig.key === 'member_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </th>
               <th onClick={() => handleSort('name')}>Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => handleSort('city')}>Location {sortConfig.key === 'city' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th  onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+              <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => handleSort('sect_school_info')}>Sect {sortConfig.key === 'sect_school_info' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => handleSort('profession')}>Profession {sortConfig.key === 'profession' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              
+
               <th onClick={() => handleSort('martial_status')}>Marital Status {sortConfig.key === 'martial_status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th onClick={() => handleSort('status')}>Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
               <th>Action</th>
@@ -1320,43 +1726,43 @@ const TotalInterest = () => {
             ) : currentItems?.length === 0 ? (
               <tr>
                 <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
-                  {filteredItems?.length === 0 && filters.status ? 
-                    `No ${filters.status.toLowerCase()} interests found` : 
+                  {filteredItems?.length === 0 && filters.status ?
+                    `No ${filters.status.toLowerCase()} interests found` :
                     "No data available"
                   }
                 </td>
               </tr>
             ) : (
-              currentItems?.map((match,index) => {
+              currentItems?.map((match, index) => {
                 // Flexible user data access - try different possible structures
                 const userData = match?.user || match?.action_on || match?.action_by || match;
                 const userId = userData?.id || match?.action_on_id || match?.action_by_id;
-                
+
                 return (
                   <tr key={index} onClick={() => navigate(`/details/${userId}`)} style={{ cursor: "pointer" }}>
                     <td>{userData?.member_id || "N/A"}</td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <img 
+                        <img
                           src={userData?.profile_photo
                             ? `${process.env.REACT_APP_API_URL}${userData.profile_photo}`
                             : `data:image/svg+xml;utf8,${encodeURIComponent(
-                                userData?.gender === "male"
-                                  ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                              userData?.gender === "male"
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                       <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                       <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
                     </svg>`
-                                  : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
                       <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
                       <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
                       <circle cx="12" cy="8" r="2" fill="#ec4899"/>
                     </svg>`
-                              )}`}
-                          alt={userData?.name || "User"} 
-                          style={{ 
-                            width: "32px", 
-                            height: "32px", 
-                            borderRadius: "50%", 
+                            )}`}
+                          alt={userData?.name || "User"}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
                             objectFit: "cover",
                             border: "2px solid #e0e0e0"
                           }}
@@ -1378,13 +1784,13 @@ const TotalInterest = () => {
                         <span>{userData?.name || "N/A"}</span>
                       </div>
                     </td>
-                    <td>{userData?.city ||"N/A"}</td>
-                    <td>{match?.created_at?.split('T')[0] || match?.date ||"N/A"}</td>
-                    <td>{userData?.sect_school_info ||"N/A"}</td>
-                    <td>{userData?.profession ||"N/A"}</td>
+                    <td>{userData?.city || "N/A"}</td>
+                    <td>{match?.created_at?.split('T')[0] || match?.date || "N/A"}</td>
+                    <td>{userData?.sect_school_info || "N/A"}</td>
+                    <td>{userData?.profession || "N/A"}</td>
                     <td>
-                      <span className={`marital-badge ${userData?.martial_status?userData?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
-                        {userData?.martial_status||"Not mentioned"}
+                      <span className={`marital-badge ${userData?.martial_status ? userData?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                        {userData?.martial_status || "Not mentioned"}
                       </span>
                     </td>
                     <td>
@@ -1441,9 +1847,9 @@ const TotalInterest = () => {
               })
             )}
           </tbody>
-        </table>
+        </table> */}
 
-          {/* Pagination */}
+        {/* Pagination */}
         <div className="pagination">
           <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             &laquo; Previous

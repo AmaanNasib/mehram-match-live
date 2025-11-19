@@ -37,27 +37,27 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const generateCalendarDays = () => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
+
     // Previous month's days
     const prevMonthDays = [];
     const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
       prevMonthDays.push(prevMonthLastDay - i);
     }
-    
+
     // Current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     // Next month's days
     const nextMonthDays = [];
     const daysToShow = 42 - (prevMonthDays.length + currentMonthDays.length);
     for (let i = 1; i <= daysToShow; i++) {
       nextMonthDays.push(i);
     }
-    
+
     return { prevMonthDays, currentMonthDays, nextMonthDays };
   };
 
@@ -73,8 +73,8 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const isDateSelected = (day) => {
     if (!internalDate) return false;
     return (
-      internalDate.getDate() === day && 
-      internalDate.getMonth() === currentMonth && 
+      internalDate.getDate() === day &&
+      internalDate.getMonth() === currentMonth &&
       internalDate.getFullYear() === currentYear
     );
   };
@@ -82,7 +82,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const changeMonth = (increment) => {
     let newMonth = currentMonth + increment;
     let newYear = currentYear;
-    
+
     if (newMonth < 0) {
       newMonth = 11;
       newYear--;
@@ -90,7 +90,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
       newMonth = 0;
       newYear++;
     }
-    
+
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
@@ -102,31 +102,31 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
   return (
     <div className="custom-date-picker-container" ref={datePickerRef}>
-      <div 
+      <div
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedDate || placeholder}
       </div>
-      
+
       {isOpen && (
         <div className="custom-date-picker-menu">
           <div className="month-navigation">
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(-1)}
             >
               &lt;
             </button>
             <h6>{monthNames[currentMonth]} {currentYear}</h6>
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(1)}
             >
               &gt;
             </button>
           </div>
-          
+
           <div className="calendar-grid">
             {/* Day headers */}
             <div className="day-header">S</div>
@@ -136,17 +136,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             <div className="day-header">T</div>
             <div className="day-header">F</div>
             <div className="day-header">S</div>
-            
+
             {/* Previous month days */}
             {prevMonthDays.map(day => (
               <div key={`prev-${day}`} className="calendar-day other-month">
                 {day}
               </div>
             ))}
-            
+
             {/* Current month days */}
             {currentMonthDays.map(day => (
-              <div 
+              <div
                 key={`current-${day}`}
                 className={`calendar-day ${isDateSelected(day) ? 'selected' : ''}`}
                 onClick={() => handleDateClick(day)}
@@ -154,7 +154,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
                 {day}
               </div>
             ))}
-            
+
             {/* Next month days */}
             {nextMonthDays.map(day => (
               <div key={`next-${day}`} className="calendar-day other-month">
@@ -162,12 +162,12 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
               </div>
             ))}
           </div>
-          
+
           <div className="date-picker-note">
             *You can choose a date
           </div>
-          
-          <button 
+
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -307,11 +307,11 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   // Gender-based marital status options
   const getMaritalStatusOptions = (gender) => {
     const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
-    
+
     if (gender === "female") {
       return [...baseOptions, "Married"];
     }
-    
+
     return baseOptions;
   };
 
@@ -347,13 +347,13 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
 
   return (
     <div className="marital-status-dropdown-container" ref={maritalDropdownRef}>
-      <div 
+      <div
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedStatus || "Marital Status"}
       </div>
-      
+
       {isOpen && (
         <div className="marital-status-dropdown-menu">
           <h6>Select Marital Status</h6>
@@ -361,9 +361,8 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatus === status ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatus === status ? "selected" : ""
+                  }`}
                 onClick={() => selectStatus(status)}
               >
                 {status}
@@ -532,7 +531,7 @@ const TotalShortlist = () => {
     });
   };
   const [resetKey, setResetKey] = useState(0);
-  
+
   const onClearFilterClick = () => {
     let clear = {
       id: '',
@@ -608,7 +607,7 @@ const TotalShortlist = () => {
 
   const confirmRemoval = async () => {
     if (!selectedUserForRemoval) return;
-    
+
     setIsRemoving(true);
     try {
       const parameter = {
@@ -685,7 +684,7 @@ const TotalShortlist = () => {
 
   useEffect(() => {
     if (!filteredItems || filteredItems.length === 0) return;
-    
+
     const sortedData = [...filteredItems].sort((a, b) => {
       let valueA, valueB;
 
@@ -700,7 +699,7 @@ const TotalShortlist = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } 
+      }
       // Sorting by member_id
       else if (sortConfig.key === 'member_id') {
         valueA = a.user?.member_id || a.user?.id || '';
@@ -751,17 +750,22 @@ const TotalShortlist = () => {
 
 
 
-   // Handle marital status filter change
-   const handleMaritalStatusChange = (selectedStatus) => {
+  // Handle marital status filter change
+  const handleMaritalStatusChange = (selectedStatus) => {
     setFilters(prevFilters => {
-      const updatedFilters = { 
-        ...prevFilters, 
-        martialStatus: selectedStatus 
+      const updatedFilters = {
+        ...prevFilters,
+        martialStatus: selectedStatus
       };
       applyFilters(updatedFilters);
       return updatedFilters;
     });
   };
+
+
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
 
 
 
@@ -772,230 +776,234 @@ const TotalShortlist = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button onClick={toggleFilters} className="filter-button">
             <AiOutlineFilter className="icon" /> Filter By
           </button>
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter Member ID"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
+
+          {isFilters && (
+            <>
+
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Enter Member ID"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
 
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
-          {/* Replace your current date picker implementation with this */}
-<div className="date-filters-container">
-  <CustomDatePicker
-    key={`start-date-${resetKey}`}
-    selectedDate={filters.startDate}
-    onChange={(date) => handleFilterChange("startDate", date)}
-    placeholder="Start Date"
-  />
-  
-  <CustomDatePicker
-    key={`end-date-${resetKey}`}
-    selectedDate={filters.endDate}
-    onChange={(date) => handleFilterChange("endDate", date)}
-    placeholder="End Date"
-  />
-</div>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
+              {/* Replace your current date picker implementation with this */}
+              <div className="date-filters-container">
+                <CustomDatePicker
+                  key={`start-date-${resetKey}`}
+                  selectedDate={filters.startDate}
+                  onChange={(date) => handleFilterChange("startDate", date)}
+                  placeholder="Start Date"
+                />
 
-<style>
-{`
+                <CustomDatePicker
+                  key={`end-date-${resetKey}`}
+                  selectedDate={filters.endDate}
+                  onChange={(date) => handleFilterChange("endDate", date)}
+                  placeholder="End Date"
+                />
+              </div>
+
+              <style>
+                {`
   .date-filters-container {
     display: flex;
     gap: 10px;
   }
 `}
-</style>
+              </style>
 
 
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="Actor">Actor</option>
-            <option value="Administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="Air Hostess">Air Hostess</option>
-            <option value="Airline Professional">Airline Professional</option>
-            <option value="Airforce">Airforce</option>
-            <option value="Architect">Architect</option>
-            <option value="Artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="Audiologist">Audiologist</option>
-            <option value="Auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="Beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="Captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="Chemist">Chemist</option>
-            <option value="Civil Engineer">Civil Engineer</option>
-            <option value="Clerical Official">Clerical Official</option>
-            <option value="Clinical Pharmacist">Clinical Pharmacist</option>
-            <option value="Company Secretary">Company Secretary</option>
-            <option value="Computer Engineer">Computer Engineer</option>
-            <option value="Computer Programmer">Computer Programmer</option>
-            <option value="Consultant">Consultant</option>
-            <option value="Contractor">Contractor</option>
-            <option value="Content Creator">Content Creator</option>
-            <option value="Counsellor">Counsellor</option>
-            <option value="Creative Person">Creative Person</option>
-            <option value="Customer Support Professional">Customer Support Professional</option>
-            <option value="Data Analyst">Data Analyst</option>
-            <option value="Defence Employee">Defence Employee</option>
-            <option value="Dentist">Dentist</option>
-            <option value="Designer">Designer</option>
-            <option value="Director / Chairman">Director / Chairman</option>
-            <option value="Doctor">Doctor</option>
-            <option value="Economist">Economist</option>
-            <option value="Electrical Engineer">Electrical Engineer</option>
-            <option value="Engineer">Engineer</option>
-            <option value="Entertainment Professional">Entertainment Professional</option>
-            <option value="Event Manager">Event Manager</option>
-            <option value="Executive">Executive</option>
-            <option value="Factory Worker">Factory Worker</option>
-            <option value="Farmer">Farmer</option>
-            <option value="Fashion Designer">Fashion Designer</option>
-            <option value="Finance Professional">Finance Professional</option>
-            <option value="Food Technologist">Food Technologist</option>
-            <option value="Government Employee">Government Employee</option>
-            <option value="Graphic Designer">Graphic Designer</option>
-            <option value="Hair Dresser">Hair Dresser</option>
-            <option value="Health Care Professional">Health Care Professional</option>
-            <option value="Hospitality Professional">Hospitality Professional</option>
-            <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
-            <option value="Human Resource Professional">Human Resource Professional</option>
-            <option value="HSE Officer">HSE Officer</option>
-            <option value="Influencer">Influencer</option>
-            <option value="Insurance Advisor">Insurance Advisor</option>
-            <option value="Insurance Agent">Insurance Agent</option>
-            <option value="Interior Designer">Interior Designer</option>
-            <option value="Investment Professional">Investment Professional</option>
-            <option value="IT / Telecom Professional">IT / Telecom Professional</option>
-            <option value="Islamic Scholar">Islamic Scholar</option>
-            <option value="Islamic Teacher">Islamic Teacher</option>
-            <option value="Journalist">Journalist</option>
-            <option value="Lawyer">Lawyer</option>
-            <option value="Lecturer">Lecturer</option>
-            <option value="Legal Professional">Legal Professional</option>
-            <option value="Librarian">Librarian</option>
-            <option value="Logistics Professional">Logistics Professional</option>
-            <option value="Manager">Manager</option>
-            <option value="Marketing Professional">Marketing Professional</option>
-            <option value="Mechanical Engineer">Mechanical Engineer</option>
-            <option value="Medical Representative">Medical Representative</option>
-            <option value="Medical Transcriptionist">Medical Transcriptionist</option>
-            <option value="Merchant Naval Officer">Merchant Naval Officer</option>
-            <option value="Microbiologist">Microbiologist</option>
-            <option value="Military">Military</option>
-            <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
-            <option value="Navy Officer">Navy Officer</option>
-            <option value="Nurse">Nurse</option>
-            <option value="Occupational Therapist">Occupational Therapist</option>
-            <option value="Office Staff">Office Staff</option>
-            <option value="Optician">Optician</option>
-            <option value="Optometrist">Optometrist</option>
-            <option value="Pharmacist">Pharmacist</option>
-            <option value="Physician">Physician</option>
-            <option value="Physician Assistant">Physician Assistant</option>
-            <option value="Pilot">Pilot</option>
-            <option value="Police Officer">Police Officer</option>
-            <option value="Priest">Priest</option>
-            <option value="Product Manager / Professional">Product Manager / Professional</option>
-            <option value="Professor">Professor</option>
-            <option value="Project Manager">Project Manager</option>
-            <option value="Public Relations Professional">Public Relations Professional</option>
-            <option value="Real Estate Professional">Real Estate Professional</option>
-            <option value="Research Scholar">Research Scholar</option>
-            <option value="Retail Professional">Retail Professional</option>
-            <option value="Sales Professional">Sales Professional</option>
-            <option value="Scientist">Scientist</option>
-            <option value="Self-Employed">Self-Employed</option>
-            <option value="Social Worker">Social Worker</option>
-            <option value="Software Consultant">Software Consultant</option>
-            <option value="Software Developer">Software Developer</option>
-            <option value="Speech Therapist">Speech Therapist</option>
-            <option value="Sportsman">Sportsman</option>
-            <option value="Supervisor">Supervisor</option>
-            <option value="Teacher">Teacher</option>
-            <option value="Technician">Technician</option>
-            <option value="Tour Guide">Tour Guide</option>
-            <option value="Trainer">Trainer</option>
-            <option value="Transportation Professional">Transportation Professional</option>
-            <option value="Tutor">Tutor</option>
-            <option value="Veterinary Doctor">Veterinary Doctor</option>
-            <option value="Videographer">Videographer</option>
-            <option value="Web Designer">Web Designer</option>
-            <option value="Web Developer">Web Developer</option>
-            <option value="Wholesale Businessman">Wholesale Businessman</option>
-            <option value="Writer">Writer</option>
-            <option value="Zoologist">Zoologist</option>
-            <option value="Other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="Accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="Actor">Actor</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="Air Hostess">Air Hostess</option>
+                <option value="Airline Professional">Airline Professional</option>
+                <option value="Airforce">Airforce</option>
+                <option value="Architect">Architect</option>
+                <option value="Artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Audiologist">Audiologist</option>
+                <option value="Auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="Beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="Captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="Chemist">Chemist</option>
+                <option value="Civil Engineer">Civil Engineer</option>
+                <option value="Clerical Official">Clerical Official</option>
+                <option value="Clinical Pharmacist">Clinical Pharmacist</option>
+                <option value="Company Secretary">Company Secretary</option>
+                <option value="Computer Engineer">Computer Engineer</option>
+                <option value="Computer Programmer">Computer Programmer</option>
+                <option value="Consultant">Consultant</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Content Creator">Content Creator</option>
+                <option value="Counsellor">Counsellor</option>
+                <option value="Creative Person">Creative Person</option>
+                <option value="Customer Support Professional">Customer Support Professional</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Defence Employee">Defence Employee</option>
+                <option value="Dentist">Dentist</option>
+                <option value="Designer">Designer</option>
+                <option value="Director / Chairman">Director / Chairman</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Economist">Economist</option>
+                <option value="Electrical Engineer">Electrical Engineer</option>
+                <option value="Engineer">Engineer</option>
+                <option value="Entertainment Professional">Entertainment Professional</option>
+                <option value="Event Manager">Event Manager</option>
+                <option value="Executive">Executive</option>
+                <option value="Factory Worker">Factory Worker</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Fashion Designer">Fashion Designer</option>
+                <option value="Finance Professional">Finance Professional</option>
+                <option value="Food Technologist">Food Technologist</option>
+                <option value="Government Employee">Government Employee</option>
+                <option value="Graphic Designer">Graphic Designer</option>
+                <option value="Hair Dresser">Hair Dresser</option>
+                <option value="Health Care Professional">Health Care Professional</option>
+                <option value="Hospitality Professional">Hospitality Professional</option>
+                <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
+                <option value="Human Resource Professional">Human Resource Professional</option>
+                <option value="HSE Officer">HSE Officer</option>
+                <option value="Influencer">Influencer</option>
+                <option value="Insurance Advisor">Insurance Advisor</option>
+                <option value="Insurance Agent">Insurance Agent</option>
+                <option value="Interior Designer">Interior Designer</option>
+                <option value="Investment Professional">Investment Professional</option>
+                <option value="IT / Telecom Professional">IT / Telecom Professional</option>
+                <option value="Islamic Scholar">Islamic Scholar</option>
+                <option value="Islamic Teacher">Islamic Teacher</option>
+                <option value="Journalist">Journalist</option>
+                <option value="Lawyer">Lawyer</option>
+                <option value="Lecturer">Lecturer</option>
+                <option value="Legal Professional">Legal Professional</option>
+                <option value="Librarian">Librarian</option>
+                <option value="Logistics Professional">Logistics Professional</option>
+                <option value="Manager">Manager</option>
+                <option value="Marketing Professional">Marketing Professional</option>
+                <option value="Mechanical Engineer">Mechanical Engineer</option>
+                <option value="Medical Representative">Medical Representative</option>
+                <option value="Medical Transcriptionist">Medical Transcriptionist</option>
+                <option value="Merchant Naval Officer">Merchant Naval Officer</option>
+                <option value="Microbiologist">Microbiologist</option>
+                <option value="Military">Military</option>
+                <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
+                <option value="Navy Officer">Navy Officer</option>
+                <option value="Nurse">Nurse</option>
+                <option value="Occupational Therapist">Occupational Therapist</option>
+                <option value="Office Staff">Office Staff</option>
+                <option value="Optician">Optician</option>
+                <option value="Optometrist">Optometrist</option>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Physician">Physician</option>
+                <option value="Physician Assistant">Physician Assistant</option>
+                <option value="Pilot">Pilot</option>
+                <option value="Police Officer">Police Officer</option>
+                <option value="Priest">Priest</option>
+                <option value="Product Manager / Professional">Product Manager / Professional</option>
+                <option value="Professor">Professor</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Public Relations Professional">Public Relations Professional</option>
+                <option value="Real Estate Professional">Real Estate Professional</option>
+                <option value="Research Scholar">Research Scholar</option>
+                <option value="Retail Professional">Retail Professional</option>
+                <option value="Sales Professional">Sales Professional</option>
+                <option value="Scientist">Scientist</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Social Worker">Social Worker</option>
+                <option value="Software Consultant">Software Consultant</option>
+                <option value="Software Developer">Software Developer</option>
+                <option value="Speech Therapist">Speech Therapist</option>
+                <option value="Sportsman">Sportsman</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Technician">Technician</option>
+                <option value="Tour Guide">Tour Guide</option>
+                <option value="Trainer">Trainer</option>
+                <option value="Transportation Professional">Transportation Professional</option>
+                <option value="Tutor">Tutor</option>
+                <option value="Veterinary Doctor">Veterinary Doctor</option>
+                <option value="Videographer">Videographer</option>
+                <option value="Web Designer">Web Designer</option>
+                <option value="Web Developer">Web Developer</option>
+                <option value="Wholesale Businessman">Wholesale Businessman</option>
+                <option value="Writer">Writer</option>
+                <option value="Zoologist">Zoologist</option>
+                <option value="Other">Other</option>
+              </select>
 
-          {/* Use the MaritalStatusDropdown component */}
-          <MaritalStatusDropdown 
-            key={`marital-status-${resetKey}`}
-            value={filters.martialStatus}
-            userGender={gender}
-            onChange={handleMaritalStatusChange}
-          />
+              {/* Use the MaritalStatusDropdown component */}
+              <MaritalStatusDropdown
+                key={`marital-status-${resetKey}`}
+                value={filters.martialStatus}
+                userGender={gender}
+                onChange={handleMaritalStatusChange}
+              />
 
 
-          {/* <select
+              {/* <select
           className="filter-dropdown"
           value={filters.status}
           onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -1003,11 +1011,12 @@ const TotalShortlist = () => {
           <option value="">Status</option>
           {distinctStatuses?.map((status, index) => (
             <option key={index} value={status}>
-              {status}
+            {status}
             </option>
-          ))}
+            ))}
         </select> */}
 
+            </>)}
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
@@ -1048,26 +1057,26 @@ const TotalShortlist = () => {
                 <td>{match?.user?.member_id || "N/A"}</td>
                 <td>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img 
+                    <img
                       src={match?.user?.profile_photo
                         ? `${process.env.REACT_APP_API_URL}${match.user.profile_photo}`
                         : `data:image/svg+xml;utf8,${encodeURIComponent(
-                            match?.user?.gender === "male"
-                              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                          match?.user?.gender === "male"
+                            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                   <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                   <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
                 </svg>`
-                              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
                   <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
                   <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
                   <circle cx="12" cy="8" r="2" fill="#ec4899"/>
                 </svg>`
-                          )}`}
-                      alt={match?.user?.name || "User"} 
-                      style={{ 
-                        width: "32px", 
-                        height: "32px", 
-                        borderRadius: "50%", 
+                        )}`}
+                      alt={match?.user?.name || "User"}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
                         objectFit: "cover",
                         border: "2px solid #e0e0e0"
                       }}
@@ -1102,8 +1111,8 @@ const TotalShortlist = () => {
                   <div className="action-container">
                     <button
                       className="unshortlist-btn"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click event
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click event
                         handleDelete(match?.user);
                       }}
                       disabled={isRemoving}
@@ -1144,7 +1153,7 @@ const TotalShortlist = () => {
         {showRemovalModal && (
           <div className="modern-modal-overlay" onClick={cancelRemoval}>
             <div className="modern-modal-container" onClick={(e) => e.stopPropagation()}>
-              
+
               {/* Header Section */}
               <div className="modern-modal-header">
                 <div className="header-icon-wrapper">
@@ -1161,7 +1170,7 @@ const TotalShortlist = () => {
                 <div className="confirmation-text">
                   You're about to remove this candidate from your shortlist
                 </div>
-                
+
                 {selectedUserForRemoval && (
                   <div className="candidate-preview-card">
                     <div className="candidate-avatar">
@@ -1173,15 +1182,15 @@ const TotalShortlist = () => {
                       <div className="candidate-name">{selectedUserForRemoval.name}</div>
                       <div className="candidate-meta">
                         <span className="meta-item">
-                          <span className="meta-label">ID:</span> 
+                          <span className="meta-label">ID:</span>
                           <span className="meta-value">{selectedUserForRemoval.id}</span>
                         </span>
                         <span className="meta-item">
-                          <span className="meta-label">Profession:</span> 
+                          <span className="meta-label">Profession:</span>
                           <span className="meta-value">{selectedUserForRemoval.profession || 'Not specified'}</span>
                         </span>
                         <span className="meta-item">
-                          <span className="meta-label">Location:</span> 
+                          <span className="meta-label">Location:</span>
                           <span className="meta-value">{selectedUserForRemoval.city || 'Not specified'}</span>
                         </span>
                       </div>
@@ -1200,15 +1209,15 @@ const TotalShortlist = () => {
 
               {/* Footer Section */}
               <div className="modern-modal-footer">
-                <button 
-                  className="modern-cancel-btn" 
+                <button
+                  className="modern-cancel-btn"
                   onClick={cancelRemoval}
                   disabled={isRemoving}
                 >
                   <span>Keep in Shortlist</span>
                 </button>
-                <button 
-                  className="modern-confirm-btn" 
+                <button
+                  className="modern-confirm-btn"
                   onClick={confirmRemoval}
                   disabled={isRemoving}
                 >

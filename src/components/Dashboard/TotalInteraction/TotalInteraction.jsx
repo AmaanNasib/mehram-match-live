@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
-import { AiOutlineFilter, AiOutlineRedo, AiOutlineClose  } from "react-icons/ai"; // Import icons
-import DatePicker from "react-datepicker";
+import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai"; // Import icons
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchDataObjectV2 } from "../../../apiUtils";
 import { format } from 'date-fns';
+import './TotalInteraction.css'
 
 
 // Add this new component for the marital status dropdown
@@ -16,11 +16,11 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   // Gender-based marital status options
   const getMaritalStatusOptions = (gender) => {
     const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
-    
+
     if (gender === "female") {
       return [...baseOptions, "Married"];
     }
-    
+
     return baseOptions;
   };
 
@@ -36,32 +36,31 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
     const newSelected = selectedStatuses.includes(status)
       ? selectedStatuses.filter(s => s !== status)
       : [...selectedStatuses, status];
-    
+
     setSelectedStatuses(newSelected);
     onChange(newSelected);
   };
 
   return (
     <div className="marital-status-dropdown-container">
-      <div 
+      <div
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         Marital Status
 
       </div>
-      
+
       {isOpen && (
         <div className="marital-status-dropdown-menu">
-            <h6>Select Marital Status</h6>
+          <h6>Select Marital Status</h6>
 
           <div className="marital-status-grid">
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatuses.includes(status) ? "selected" : ""
+                  }`}
                 onClick={() => toggleStatus(status)}
               >
                 {status}
@@ -71,7 +70,7 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
           <div className="marital-status-note">
             *You can choose multiple Marital Status
           </div>
-          <button 
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -345,27 +344,27 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const generateCalendarDays = () => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
+
     // Previous month's days
     const prevMonthDays = [];
     const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
       prevMonthDays.push(prevMonthLastDay - i);
     }
-    
+
     // Current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     // Next month's days
     const nextMonthDays = [];
     const daysToShow = 42 - (prevMonthDays.length + currentMonthDays.length);
     for (let i = 1; i <= daysToShow; i++) {
       nextMonthDays.push(i);
     }
-    
+
     return { prevMonthDays, currentMonthDays, nextMonthDays };
   };
 
@@ -381,8 +380,8 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const isDateSelected = (day) => {
     if (!internalDate) return false;
     return (
-      internalDate.getDate() === day && 
-      internalDate.getMonth() === currentMonth && 
+      internalDate.getDate() === day &&
+      internalDate.getMonth() === currentMonth &&
       internalDate.getFullYear() === currentYear
     );
   };
@@ -390,7 +389,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const changeMonth = (increment) => {
     let newMonth = currentMonth + increment;
     let newYear = currentYear;
-    
+
     if (newMonth < 0) {
       newMonth = 11;
       newYear--;
@@ -398,7 +397,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
       newMonth = 0;
       newYear++;
     }
-    
+
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
@@ -410,31 +409,31 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
   return (
     <div className="custom-date-picker-container">
-      <div 
+      <div
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedDate || placeholder}
       </div>
-      
+
       {isOpen && (
         <div className="custom-date-picker-menu">
           <div className="month-navigation">
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(-1)}
             >
               &lt;
             </button>
             <h6>{monthNames[currentMonth]} {currentYear}</h6>
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(1)}
             >
               &gt;
             </button>
           </div>
-          
+
           <div className="calendar-grid">
             {/* Day headers */}
             <div className="day-header">S</div>
@@ -444,17 +443,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             <div className="day-header">T</div>
             <div className="day-header">F</div>
             <div className="day-header">S</div>
-            
+
             {/* Previous month days */}
             {prevMonthDays.map(day => (
               <div key={`prev-${day}`} className="calendar-day other-month">
                 {day}
               </div>
             ))}
-            
+
             {/* Current month days */}
             {currentMonthDays.map(day => (
-              <div 
+              <div
                 key={`current-${day}`}
                 className={`calendar-day ${isDateSelected(day) ? 'selected' : ''}`}
                 onClick={() => handleDateClick(day)}
@@ -462,7 +461,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
                 {day}
               </div>
             ))}
-            
+
             {/* Next month days */}
             {nextMonthDays.map(day => (
               <div key={`next-${day}`} className="calendar-day other-month">
@@ -470,12 +469,12 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
               </div>
             ))}
           </div>
-          
+
           <div className="date-picker-note">
             *You can choose a date
           </div>
-          
-          <button 
+
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -614,9 +613,9 @@ const TotalInteraction = () => {
   const [showDatePicker1, setShowDatePicker1] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
   const [gender] = useState(localStorage.getItem("gender"));
-  const [apiData, setApiData] = useState({sent_interests:[]});
+  const [apiData, setApiData] = useState({ sent_interests: [] });
   const [loading, setLoading] = useState(false);
-  console.log(selectedDate,"selectedDate");
+  console.log(selectedDate, "selectedDate");
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -643,10 +642,10 @@ const TotalInteraction = () => {
         url: `/api/user/interested/?user_id=${userId}`,
         setterFunction: setApiData,
         setLoading: setLoading,
-        setErrors:setErrors
+        setErrors: setErrors
       };
       fetchDataObjectV2(parameter);
-      
+
     }
   }, [userId]);
   const matchDetails = [
@@ -661,9 +660,9 @@ const TotalInteraction = () => {
     { id: "00009", name: "Dollie Hines", location: "124 Lyla Forge Suite 975", date: "09 Jan 2019", sect: "Sunni-Hanafi", profession: "Software-Designer", status: "Sent", maritalStatus: "Never Married" },
   ];
 
-   // Pagination
-     // Extract distinct values for each filter (IDs, Names, etc.)
-  const distinctIds = [...new Set(apiData?.sent_interests?.map((match) =>  match?.user?.id))];
+  // Pagination
+  // Extract distinct values for each filter (IDs, Names, etc.)
+  const distinctIds = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.id))];
   const distinctNames = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.name))];
   const distinctCities = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.city))];
   const distinctDobs = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.dob))];
@@ -672,13 +671,16 @@ const TotalInteraction = () => {
   const distinctStatuses = [...new Set(apiData?.sent_interests?.map((match) => match?.status))];
   const distinctMaritalStatuses = [...new Set(apiData?.sent_interests?.map((match) => match?.user?.martial_status))];
 
-   const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 5;
- 
-   // Get current items
-   const indexOfLastItem = currentPage * itemsPerPage;
-   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-   
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Get current items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
 
   const handleFilterChange = (column, value) => {
 
@@ -688,8 +690,8 @@ const TotalInteraction = () => {
       return updatedFilters;
     });
   };
-  const onClearFilterClick=() => {
-    let clear={
+  const onClearFilterClick = () => {
+    let clear = {
       id: '',
       name: '',
       city: '',
@@ -703,18 +705,18 @@ const TotalInteraction = () => {
     }
     setFilters(clear)
     applyFilters(clear)
-      };
+  };
   // Apply filters to the data based on selected filter values
   const applyFilters = (updatedFilters) => {
-    console.log(updatedFilters.id,">>>");
-    
+    console.log(updatedFilters.id, ">>>");
+
     setFilteredItems(
       apiData?.sent_interests?.filter((match) => {
         return (
           (updatedFilters.id ? match?.user?.id == updatedFilters.id : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
           (updatedFilters.city ? match?.user?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-          (updatedFilters.startDate && updatedFilters.endDate 
+          (updatedFilters.startDate && updatedFilters.endDate
             ? new Date(match?.date) >= new Date(updatedFilters.startDate) && new Date(match?.date) <= new Date(updatedFilters.endDate)
             : true) &&
           (updatedFilters.sectSchoolInfo ? match?.user?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
@@ -725,72 +727,72 @@ const TotalInteraction = () => {
       })
     );
   };
-   const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
-   // Total pages
-   const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
- 
-   // Handle Page Change
-   const handlePageChange = (pageNumber) => {
-     setCurrentPage(pageNumber);
-   };
-   useEffect(() => {
+  const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
+  // Total pages
+  const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
+
+  // Handle Page Change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  useEffect(() => {
     // Apply filters when `currentItems` or filters change
-    setFilteredItems( apiData?.sent_interests)
+    setFilteredItems(apiData?.sent_interests)
   }, [apiData]);
-      // Function to handle sorting
-      const handleSort = (column) => {
-        let direction = 'asc';
-        if (sortConfig.key === column && sortConfig.direction === 'asc') {
-          direction = 'desc'; // Toggle sorting direction
+  // Function to handle sorting
+  const handleSort = (column) => {
+    let direction = 'asc';
+    if (sortConfig.key === column && sortConfig.direction === 'asc') {
+      direction = 'desc'; // Toggle sorting direction
+    }
+    setSortConfig({ key: column, direction });
+  };
+
+  // Function to sort the data based on the current sortConfig
+
+
+  useEffect(() => {
+    const sortedData = [...filteredItems].sort((a, b) => {
+      // Sorting by user field or date
+      if (sortConfig.key === 'date') {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA < dateB) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        setSortConfig({ key: column, direction });
+        if (dateA > dateB) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      } else {
+        // Sorting by user field
+        if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+
+
+    });
+    setFilteredItems(sortedData)
+  }, [sortConfig.direction])
+
+
+
+
+  const handleMaritalStatusChange = (selectedStatuses) => {
+    setFilters(prevFilters => {
+      const updatedFilters = {
+        ...prevFilters,
+        martialStatus: selectedStatuses.join(',')
       };
-    
-      // Function to sort the data based on the current sortConfig
-      
-    
-      useEffect(() => {
-        const sortedData = [...filteredItems].sort((a, b) => {
-          // Sorting by user field or date
-          if (sortConfig.key === 'date') {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            if (dateA < dateB) {
-              return sortConfig.direction === 'asc' ? -1 : 1;
-            }
-            if (dateA > dateB) {
-              return sortConfig.direction === 'asc' ? 1 : -1;
-            }
-            return 0;
-          }else{
-               // Sorting by user field
-          if (a.user[sortConfig.key] < b.user[sortConfig.key]) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
-          }
-          if (a.user[sortConfig.key] > b.user[sortConfig.key]) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
-          }
-          return 0;
-          }
-    
-       
-        });
-        setFilteredItems(sortedData)
-      }, [sortConfig.direction])
-
-
-
-
-      const handleMaritalStatusChange = (selectedStatuses) => {
-        setFilters(prevFilters => {
-          const updatedFilters = { 
-            ...prevFilters, 
-            martialStatus: selectedStatuses.join(',') 
-          };
-          applyFilters(updatedFilters);
-          return updatedFilters;
-        });
-      };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
 
 
 
@@ -801,102 +803,107 @@ const TotalInteraction = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button className="filter-button" onClick={toggleFilters}>
             <AiOutlineFilter className="icon" /> Filter By
           </button>
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Enter ID"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
+
+          {isFilters && (
+            <>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Enter ID"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
 
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
 
-         {/* Replace your current date picker implementation with this */}
-<div className="date-filters-container">
-  <CustomDatePicker
-    selectedDate={filters.startDate}
-    onChange={(date) => handleFilterChange("startDate", date)}
-    placeholder="Start Date"
-  />
-  
-  <CustomDatePicker
-    selectedDate={filters.endDate}
-    onChange={(date) => handleFilterChange("endDate", date)}
-    placeholder="End Date"
-  />
-</div>
+              {/* Replace your current date picker implementation with this */}
+              <div className="date-filters-container">
+                <CustomDatePicker
+                  selectedDate={filters.startDate}
+                  onChange={(date) => handleFilterChange("startDate", date)}
+                  placeholder="Start Date"
+                />
 
-<style>
-{`
+                <CustomDatePicker
+                  selectedDate={filters.endDate}
+                  onChange={(date) => handleFilterChange("endDate", date)}
+                  placeholder="End Date"
+                />
+              </div>
+
+              <style>
+                {`
   .date-filters-container {
     display: flex;
     gap: 10px;
-  }
-`}
-</style>
+    }
+    `}
+              </style>
 
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            {distinctSchoolInfo?.map((info, index) => (
-              <option key={index} value={info}>
-                {info}
-              </option>
-            ))}
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                {distinctSchoolInfo?.map((info, index) => (
+                  <option key={index} value={info}>
+                    {info}
+                  </option>
+                ))}
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            {distinctProfessions?.map((profession, index) => (
-              <option key={index} value={profession}>
-                {profession}
-              </option>
-            ))}
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                {distinctProfessions?.map((profession, index) => (
+                  <option key={index} value={profession}>
+                    {profession}
+                  </option>
+                ))}
+              </select>
 
-  <MaritalStatusDropdown 
-    value={filters.martialStatus ? filters.martialStatus.split(',') : []}
-    userGender={gender}
-    onChange={handleMaritalStatusChange}
-  />
+              <MaritalStatusDropdown
+                value={filters.martialStatus ? filters.martialStatus.split(',') : []}
+                userGender={gender}
+                onChange={handleMaritalStatusChange}
+              />
 
 
-<StatusDropdown 
-  value={filters.status ? filters.status.split(',') : []}
-  onChange={(selectedStatuses) => {
-    setFilters(prevFilters => {
-      const updatedFilters = { 
-        ...prevFilters, 
-        status: selectedStatuses.join(',') 
-      };
-      applyFilters(updatedFilters);
-      return updatedFilters;
-    });
-  }}
-/>
+              <StatusDropdown
+                value={filters.status ? filters.status.split(',') : []}
+                onChange={(selectedStatuses) => {
+                  setFilters(prevFilters => {
+                    const updatedFilters = {
+                      ...prevFilters,
+                      status: selectedStatuses.join(',')
+                    };
+                    applyFilters(updatedFilters);
+                    return updatedFilters;
+                  });
+                }}
+              />
 
+            </>
+          )}
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
@@ -904,48 +911,50 @@ const TotalInteraction = () => {
         </div>
 
         {/* Table Section */}
-        <table className="interest-table">
-          <thead>
-            <tr>
-            <th onClick={() => handleSort('id')}>
-            ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-          </th>
-              <th>Name</th>
-              <th>Location</th>
-              <th  onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Status</th>
-              <th>Marital Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems?.map((match,index) => (
-              <tr key={index} onClick={() => navigate(`/details/${match?.user?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.user?.id ||"N/A"}</td>
-                <td>{match?.user?.name ||"N/A"}</td>
-                <td>{match?.user?.city ||"N/A"}</td>
-                <td>{match?.date ||"N/A"}</td>
-                <td>{match?.user?.sect_school_info ||"N/A"}</td>
-                <td>{match?.user?.profession ||"N/A"}</td>
-                <td>
-                  <span className={`status-badge ${match?.status?match?.status?.toLowerCase():"unspecified"}`}>{match?.status ||"Unspecified"}</span>
-                </td>
-                <td>
-                  <span className={`marital-badge ${match?.user?.martial_status?match?.user?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
-                    {match?.user?.martial_status||"Not mentioned"}
-                  </span>
-                </td>
-                {/* <td>
+        <div className="overflow-x-scroll">
+          <table className="interest-table">
+            <thead>
+              <tr>
+                <th onClick={() => handleSort('id')}>
+                  ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                </th>
+                <th>Name</th>
+                <th>Location</th>
+                <th onClick={() => handleSort('date')} >Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                <th>Sect</th>
+                <th>Profession</th>
+                <th>Status</th>
+                <th>Marital Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems?.map((match, index) => (
+                <tr key={index} onClick={() => navigate(`/details/${match?.user?.id}`)} style={{ cursor: "pointer" }}>
+                  <td>{match?.user?.id || "N/A"}</td>
+                  <td>{match?.user?.name || "N/A"}</td>
+                  <td>{match?.user?.city || "N/A"}</td>
+                  <td>{match?.date || "N/A"}</td>
+                  <td>{match?.user?.sect_school_info || "N/A"}</td>
+                  <td>{match?.user?.profession || "N/A"}</td>
+                  <td>
+                    <span className={`status-badge ${match?.status ? match?.status?.toLowerCase() : "unspecified"}`}>{match?.status || "Unspecified"}</span>
+                  </td>
+                  <td>
+                    <span className={`marital-badge ${match?.user?.martial_status ? match?.user?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                      {match?.user?.martial_status || "Not mentioned"}
+                    </span>
+                  </td>
+                  {/* <td>
                   <button className="accept-btn" onClick={(e) => { e.stopPropagation(); handleAccept(match.id); }}>Accept</button>
                   <button className="reject-btn" onClick={(e) => { e.stopPropagation(); handleReject(match.id); }}>Reject</button>
                 </td> */}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-          {/* Pagination */}
+        </div>
+        {/* Pagination */}
         <div className="pagination">
           <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             &laquo; Previous

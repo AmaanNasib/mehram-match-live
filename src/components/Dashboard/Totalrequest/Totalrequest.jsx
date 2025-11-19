@@ -35,27 +35,27 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const generateCalendarDays = () => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
+
     // Previous month's days
     const prevMonthDays = [];
     const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
       prevMonthDays.push(prevMonthLastDay - i);
     }
-    
+
     // Current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     // Next month's days
     const nextMonthDays = [];
     const daysToShow = 42 - (prevMonthDays.length + currentMonthDays.length);
     for (let i = 1; i <= daysToShow; i++) {
       nextMonthDays.push(i);
     }
-    
+
     return { prevMonthDays, currentMonthDays, nextMonthDays };
   };
 
@@ -71,8 +71,8 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const isDateSelected = (day) => {
     if (!internalDate) return false;
     return (
-      internalDate.getDate() === day && 
-      internalDate.getMonth() === currentMonth && 
+      internalDate.getDate() === day &&
+      internalDate.getMonth() === currentMonth &&
       internalDate.getFullYear() === currentYear
     );
   };
@@ -80,7 +80,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
   const changeMonth = (increment) => {
     let newMonth = currentMonth + increment;
     let newYear = currentYear;
-    
+
     if (newMonth < 0) {
       newMonth = 11;
       newYear--;
@@ -88,7 +88,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
       newMonth = 0;
       newYear++;
     }
-    
+
     setCurrentMonth(newMonth);
     setCurrentYear(newYear);
   };
@@ -100,31 +100,31 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
 
   return (
     <div className="custom-date-picker-container" ref={datePickerRef}>
-      <div 
+      <div
         className="custom-date-picker-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedDate || placeholder}
       </div>
-      
+
       {isOpen && (
         <div className="custom-date-picker-menu" style={{ zIndex: 1000 }}>
           <div className="month-navigation">
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(-1)}
             >
               &lt;
             </button>
             <h6>{monthNames[currentMonth]} {currentYear}</h6>
-            <button 
+            <button
               className="nav-button"
               onClick={() => changeMonth(1)}
             >
               &gt;
             </button>
           </div>
-          
+
           <div className="calendar-grid">
             {/* Day headers */}
             <div className="day-header">S</div>
@@ -134,17 +134,17 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
             <div className="day-header">T</div>
             <div className="day-header">F</div>
             <div className="day-header">S</div>
-            
+
             {/* Previous month days */}
             {prevMonthDays.map(day => (
               <div key={`prev-${day}`} className="calendar-day other-month">
                 {day}
               </div>
             ))}
-            
+
             {/* Current month days */}
             {currentMonthDays.map(day => (
-              <div 
+              <div
                 key={`current-${day}`}
                 className={`calendar-day ${isDateSelected(day) ? 'selected' : ''}`}
                 onClick={() => handleDateClick(day)}
@@ -152,7 +152,7 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
                 {day}
               </div>
             ))}
-            
+
             {/* Next month days */}
             {nextMonthDays.map(day => (
               <div key={`next-${day}`} className="calendar-day other-month">
@@ -160,12 +160,12 @@ const CustomDatePicker = ({ selectedDate, onChange, placeholder }) => {
               </div>
             ))}
           </div>
-          
+
           <div className="date-picker-note">
             *You can choose a date
           </div>
-          
-          <button 
+
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -305,11 +305,11 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
   // Gender-based marital status options
   const getMaritalStatusOptions = (gender) => {
     const baseOptions = ["Single", "Divorced", "Khula", "Widowed"];
-    
+
     if (gender === "female") {
       return [...baseOptions, "Married"];
     }
-    
+
     return baseOptions;
   };
 
@@ -345,13 +345,13 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
 
   return (
     <div className="marital-status-dropdown-container" ref={maritalDropdownRef}>
-      <div 
+      <div
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedStatus || "Marital Status"}
       </div>
-      
+
       {isOpen && (
         <div className="marital-status-dropdown-menu" style={{ zIndex: 1001 }}>
           <h6>Select Marital Status</h6>
@@ -359,9 +359,8 @@ const MaritalStatusDropdown = ({ value, onChange, userGender }) => {
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatus === status ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatus === status ? "selected" : ""
+                  }`}
                 onClick={() => selectStatus(status)}
               >
                 {status}
@@ -499,13 +498,13 @@ const StatusDropdown = ({ value, onChange }) => {
 
   return (
     <div className="status-dropdown-container" ref={statusDropdownRef}>
-      <div 
+      <div
         className="status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedStatus || "Status"}
         {selectedStatus && (
-          <span 
+          <span
             className="clear-status-btn"
             onClick={(e) => {
               e.stopPropagation();
@@ -516,7 +515,7 @@ const StatusDropdown = ({ value, onChange }) => {
           </span>
         )}
       </div>
-      
+
       {isOpen && (
         <div className="status-dropdown-menu" style={{ zIndex: 1002 }}>
           <h6>Select Status</h6>
@@ -524,9 +523,8 @@ const StatusDropdown = ({ value, onChange }) => {
             {statusOptions.map((status) => (
               <div
                 key={status}
-                className={`status-option status-option-${status.toLowerCase()} ${
-                  selectedStatus === status ? "selected" : ""
-                }`}
+                className={`status-option status-option-${status.toLowerCase()} ${selectedStatus === status ? "selected" : ""
+                  }`}
                 onClick={() => selectStatus(status)}
               >
                 {status}
@@ -907,24 +905,24 @@ const TotalRequests = () => {
           console.log('📤 Sent requests count:', data?.sent_request?.length || 0);
           console.log('✅ Sent accepted count:', data?.sent_request_accepted?.length || 0);
           console.log('❌ Sent rejected count:', data?.sent_request_rejected?.length || 0);
-          
+
           // Data loaded successfully
-          
+
           if (data?.received_request && data.received_request.length > 0) {
             console.log('🔍 First received request:', data.received_request[0]);
             console.log('🔍 First received request status:', data.received_request[0]?.status);
             console.log('🔍 Database status mapping:', {
               'Open': 'Rejected',
-              'Requested': 'Pending', 
+              'Requested': 'Pending',
               'Accepted': 'Approved'
             });
           }
-          
+
           if (data?.received_request_rejected && data.received_request_rejected.length > 0) {
             console.log('🔍 First rejected request:', data.received_request_rejected[0]);
             console.log('🔍 First rejected request status:', data.received_request_rejected[0]?.status);
           }
-          
+
           setMatchDetails(data || {
             sent_request: [],
             received_request: [],
@@ -983,51 +981,51 @@ const TotalRequests = () => {
   console.log('🔄 Processing combinedRequests with matchDetails:', matchDetails);
   console.log('📊 Received requests for processing:', matchDetails.received_request);
   console.log('📊 Rejected requests for processing:', matchDetails.received_request_rejected);
-  
+
   const combinedRequests = [
     // Sent requests - show "Pending" for males (who sent but waiting for response)
-    ...matchDetails.sent_request.map((item) => ({ 
-      ...item, 
+    ...matchDetails.sent_request.map((item) => ({
+      ...item,
       status: item.status === "Open" ? "Rejected" : (item.status === "Requested" ? "Pending" : item.status),
       user: item.user,
       date: item.date,
       requestType: "sent"
     })),
     // Received requests - show "Pending" for females (who received but haven't responded)
-    ...matchDetails.received_request.map((item) => ({ 
-      ...item, 
+    ...matchDetails.received_request.map((item) => ({
+      ...item,
       status: item.status === "Open" ? "Rejected" : (item.status === "Requested" ? "Pending" : item.status),
       user: item.user,
       date: item.date,
       requestType: "received"
     })),
     // Accepted sent requests
-    ...matchDetails.sent_request_accepted.map((item) => ({ 
-      ...item, 
+    ...matchDetails.sent_request_accepted.map((item) => ({
+      ...item,
       status: "Approved",
       user: item.user,
       date: item.date,
       requestType: "sent"
     })),
     // Rejected sent requests
-    ...matchDetails.sent_request_rejected.map((item) => ({ 
-      ...item, 
+    ...matchDetails.sent_request_rejected.map((item) => ({
+      ...item,
       status: item.status === "Open" ? "Rejected" : "Rejected",
       user: item.user,
       date: item.date,
       requestType: "sent"
     })),
     // Accepted received requests
-    ...matchDetails.received_request_accepted.map((item) => ({ 
-      ...item, 
+    ...matchDetails.received_request_accepted.map((item) => ({
+      ...item,
       status: "Approved",
       user: item.user,
       date: item.date,
       requestType: "received"
     })),
     // Rejected received requests
-    ...matchDetails.received_request_rejected.map((item) => ({ 
-      ...item, 
+    ...matchDetails.received_request_rejected.map((item) => ({
+      ...item,
       status: item.status === "Open" ? "Rejected" : "Rejected",
       user: item.user,
       date: item.date,
@@ -1060,25 +1058,25 @@ const TotalRequests = () => {
 
   console.log('📋 Final combinedRequests (unique) count:', combinedRequestsUnique.length);
   console.log('📋 Final combinedRequests (unique):', combinedRequestsUnique);
-  
+
   const statusDistribution = {
     pending: combinedRequestsUnique.filter(r => r.status === 'Pending').length,
     approved: combinedRequestsUnique.filter(r => r.status === 'Approved' || r.status === 'Accepted').length,
     rejected: combinedRequestsUnique.filter(r => r.status === 'Rejected').length
   };
-  
+
   console.log('📋 Status distribution:', statusDistribution);
-  
+
   // Status distribution calculated successfully
   const applyFilters = (updatedFilters) => {
     console.log('Applying filters:', updatedFilters);
     setFilteredItems(
       combinedRequestsUnique?.filter((match) => {
-        const statusMatch = updatedFilters.status && updatedFilters.status !== "" 
-          ? (match?.status?.toLowerCase() === updatedFilters.status.toLowerCase() || 
-             (updatedFilters.status.toLowerCase() === 'approved' && match?.status?.toLowerCase() === 'accepted'))
+        const statusMatch = updatedFilters.status && updatedFilters.status !== ""
+          ? (match?.status?.toLowerCase() === updatedFilters.status.toLowerCase() ||
+            (updatedFilters.status.toLowerCase() === 'approved' && match?.status?.toLowerCase() === 'accepted'))
           : true;
-        
+
         return (
           (updatedFilters.member_id ? match?.user?.member_id?.toLowerCase().includes(updatedFilters.member_id.toLowerCase()) : true) &&
           (updatedFilters.name ? match?.user?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
@@ -1093,7 +1091,7 @@ const TotalRequests = () => {
             match?.user?.profession?.toLowerCase().replace(/_/g, ' ').includes(updatedFilters.profession.toLowerCase().replace(/_/g, ' '))
           ) : true) &&
           statusMatch &&
-          (updatedFilters.martialStatus && updatedFilters.martialStatus !== "" ? 
+          (updatedFilters.martialStatus && updatedFilters.martialStatus !== "" ?
             match?.user?.martial_status?.toLowerCase() === updatedFilters.martialStatus.toLowerCase() : true)
         );
       })
@@ -1120,10 +1118,10 @@ const TotalRequests = () => {
   const handleApproveRequest = (requestId, targetUserId) => {
     console.log('Approving request:', requestId, 'for user:', targetUserId);
     console.log('Request ID type:', typeof requestId, 'Value:', requestId);
-    
+
     // No immediate UI update - let backend data fetch handle the update
     console.log('🔄 Approving request - will fetch fresh data from backend...');
-    
+
     const parameter = {
       url: `/api/user/requestphoto/${requestId}/approve/`,
       payload: { approved: 'Accepted' },
@@ -1184,12 +1182,12 @@ const TotalRequests = () => {
     console.log('❌ REJECTING REQUEST:', requestId, 'for user:', targetUserId);
     console.log('📊 Current matchDetails before reject:', matchDetails);
     console.log('🔍 Received requests before reject:', matchDetails.received_request);
-    
+
     // Rejecting request
-    
+
     // No immediate UI update - let backend data fetch handle the update
     console.log('🔄 Rejecting request - will fetch fresh data from backend...');
-    
+
     const parameter = {
       url: `/api/user/requestphoto/${requestId}/approve/`,
       payload: { approved: 'Rejected' },
@@ -1253,7 +1251,7 @@ const TotalRequests = () => {
 
   const confirmBlockUser = () => {
     if (!userToBlock) return;
-    
+
     const parameter = {
       url: `/api/recieved/block/`,
       payload: {
@@ -1264,7 +1262,7 @@ const TotalRequests = () => {
       setSuccessMessage: (message) => {
         // Add to blocked users set
         setBlockedUsers(prev => new Set([...prev, userToBlock]));
-        
+
         // Reload data
         const reloadParameter = {
           url: `/api/user/requested/?user_id=${userId}`,
@@ -1273,7 +1271,7 @@ const TotalRequests = () => {
           setErrors: setError,
         };
         fetchDataObjectV2(reloadParameter);
-        
+
         // Close modal
         setShowBlockModal(false);
         setUserToBlock(null);
@@ -1344,7 +1342,7 @@ const TotalRequests = () => {
 
   useEffect(() => {
     if (!filteredItems || filteredItems.length === 0) return;
-    
+
     const sortedData = [...filteredItems].sort((a, b) => {
       let valueA, valueB;
 
@@ -1359,8 +1357,8 @@ const TotalRequests = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } 
-        // Sorting by member_id
+      }
+      // Sorting by member_id
       else if (sortConfig.key === 'member_id') {
         valueA = a.user?.member_id || a.user?.id || '';
         valueB = b.user?.member_id || b.user?.id || '';
@@ -1403,15 +1401,21 @@ const TotalRequests = () => {
 
       // Compare values
       if (valueA < valueB) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
       if (valueA > valueB) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
     });
     setFilteredItems(sortedData)
   }, [sortConfig.direction, sortConfig.key])
+
+
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   return (
     <DashboardLayout>
       <div className="total-interest-container">
@@ -1419,66 +1423,69 @@ const TotalRequests = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button onClick={toggleFilters} className="filter-button">
             <AiOutlineFilter className="icon" /> Filter By
           </button>
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.member_id}
-            onChange={(e) => handleFilterChange('member_id', e.target.value)}
-            placeholder="Enter Member ID"
-            style={{ 
-              width: '120px',
-              padding: '8px 12px',
-              border: '1px solid #ddd',
-              borderRadius: '6px',
-              fontSize: '13px',
-              transition: 'all 0.2s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ff6b9d';
-              e.target.style.boxShadow = '0 0 0 2px rgba(255, 107, 157, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#ddd';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
+
+          {isFilters && (
+            <>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.member_id}
+                onChange={(e) => handleFilterChange('member_id', e.target.value)}
+                placeholder="Enter Member ID"
+                style={{
+                  width: '120px',
+                  padding: '8px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#ff6b9d';
+                  e.target.style.boxShadow = '0 0 0 2px rgba(255, 107, 157, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#ddd';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
 
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '70px' }}
-          />
-          {/* Replace your current date picker implementation with this */}
-<div className="date-filters-container">
-  <CustomDatePicker
-    selectedDate={filters.startDate}
-    onChange={(date) => handleFilterChange("startDate", date)}
-    placeholder="Start Date"
-  />
-  
-  <CustomDatePicker
-    selectedDate={filters.endDate}
-    onChange={(date) => handleFilterChange("endDate", date)}
-    placeholder="End Date"
-  />
-</div>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '70px' }}
+              />
+              {/* Replace your current date picker implementation with this */}
+              <div className="date-filters-container">
+                <CustomDatePicker
+                  selectedDate={filters.startDate}
+                  onChange={(date) => handleFilterChange("startDate", date)}
+                  placeholder="Start Date"
+                />
 
-<style>
-{`
+                <CustomDatePicker
+                  selectedDate={filters.endDate}
+                  onChange={(date) => handleFilterChange("endDate", date)}
+                  placeholder="End Date"
+                />
+              </div>
+
+              <style>
+                {`
   .date-filters-container {
     display: flex;
     gap: 10px;
     position: relative;
     z-index: 1;
-  }
+    }
   
   .filter-container {
     position: relative;
@@ -1504,222 +1511,223 @@ const TotalRequests = () => {
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  
+    }
+    
   .status-dropdown {
     position: relative;
     z-index: 3;
-  }
-  
-  .status-dropdown .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1001;
-  }
+    }
+    
+    .status-dropdown .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1001;
+    }
 `}
-</style>
+              </style>
 
 
 
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="Actor">Actor</option>
-            <option value="Administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="Air Hostess">Air Hostess</option>
-            <option value="Airline Professional">Airline Professional</option>
-            <option value="Airforce">Airforce</option>
-            <option value="Architect">Architect</option>
-            <option value="Artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="Audiologist">Audiologist</option>
-            <option value="Auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="Beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="Captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="Chemist">Chemist</option>
-            <option value="Civil Engineer">Civil Engineer</option>
-            <option value="Clerical Official">Clerical Official</option>
-            <option value="Clinical Pharmacist">Clinical Pharmacist</option>
-            <option value="Company Secretary">Company Secretary</option>
-            <option value="Computer Engineer">Computer Engineer</option>
-            <option value="Computer Programmer">Computer Programmer</option>
-            <option value="Consultant">Consultant</option>
-            <option value="Contractor">Contractor</option>
-            <option value="Content Creator">Content Creator</option>
-            <option value="Counsellor">Counsellor</option>
-            <option value="Creative Person">Creative Person</option>
-            <option value="Customer Support Professional">Customer Support Professional</option>
-            <option value="Data Analyst">Data Analyst</option>
-            <option value="Defence Employee">Defence Employee</option>
-            <option value="Dentist">Dentist</option>
-            <option value="Designer">Designer</option>
-            <option value="Director / Chairman">Director / Chairman</option>
-            <option value="Doctor">Doctor</option>
-            <option value="Economist">Economist</option>
-            <option value="Electrical Engineer">Electrical Engineer</option>
-            <option value="Engineer">Engineer</option>
-            <option value="Entertainment Professional">Entertainment Professional</option>
-            <option value="Event Manager">Event Manager</option>
-            <option value="Executive">Executive</option>
-            <option value="Factory Worker">Factory Worker</option>
-            <option value="Farmer">Farmer</option>
-            <option value="Fashion Designer">Fashion Designer</option>
-            <option value="Finance Professional">Finance Professional</option>
-            <option value="Food Technologist">Food Technologist</option>
-            <option value="Government Employee">Government Employee</option>
-            <option value="Graphic Designer">Graphic Designer</option>
-            <option value="Hair Dresser">Hair Dresser</option>
-            <option value="Health Care Professional">Health Care Professional</option>
-            <option value="Hospitality Professional">Hospitality Professional</option>
-            <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
-            <option value="Human Resource Professional">Human Resource Professional</option>
-            <option value="HSE Officer">HSE Officer</option>
-            <option value="Influencer">Influencer</option>
-            <option value="Insurance Advisor">Insurance Advisor</option>
-            <option value="Insurance Agent">Insurance Agent</option>
-            <option value="Interior Designer">Interior Designer</option>
-            <option value="Investment Professional">Investment Professional</option>
-            <option value="IT / Telecom Professional">IT / Telecom Professional</option>
-            <option value="Islamic Scholar">Islamic Scholar</option>
-            <option value="Islamic Teacher">Islamic Teacher</option>
-            <option value="Journalist">Journalist</option>
-            <option value="Lawyer">Lawyer</option>
-            <option value="Lecturer">Lecturer</option>
-            <option value="Legal Professional">Legal Professional</option>
-            <option value="Librarian">Librarian</option>
-            <option value="Logistics Professional">Logistics Professional</option>
-            <option value="Manager">Manager</option>
-            <option value="Marketing Professional">Marketing Professional</option>
-            <option value="Mechanical Engineer">Mechanical Engineer</option>
-            <option value="Medical Representative">Medical Representative</option>
-            <option value="Medical Transcriptionist">Medical Transcriptionist</option>
-            <option value="Merchant Naval Officer">Merchant Naval Officer</option>
-            <option value="Microbiologist">Microbiologist</option>
-            <option value="Military">Military</option>
-            <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
-            <option value="Navy Officer">Navy Officer</option>
-            <option value="Nurse">Nurse</option>
-            <option value="Occupational Therapist">Occupational Therapist</option>
-            <option value="Office Staff">Office Staff</option>
-            <option value="Optician">Optician</option>
-            <option value="Optometrist">Optometrist</option>
-            <option value="Pharmacist">Pharmacist</option>
-            <option value="Physician">Physician</option>
-            <option value="Physician Assistant">Physician Assistant</option>
-            <option value="Pilot">Pilot</option>
-            <option value="Police Officer">Police Officer</option>
-            <option value="Priest">Priest</option>
-            <option value="Product Manager / Professional">Product Manager / Professional</option>
-            <option value="Professor">Professor</option>
-            <option value="Project Manager">Project Manager</option>
-            <option value="Public Relations Professional">Public Relations Professional</option>
-            <option value="Real Estate Professional">Real Estate Professional</option>
-            <option value="Research Scholar">Research Scholar</option>
-            <option value="Retail Professional">Retail Professional</option>
-            <option value="Sales Professional">Sales Professional</option>
-            <option value="Scientist">Scientist</option>
-            <option value="Self-Employed">Self-Employed</option>
-            <option value="Social Worker">Social Worker</option>
-            <option value="Software Consultant">Software Consultant</option>
-            <option value="Software Developer">Software Developer</option>
-            <option value="Speech Therapist">Speech Therapist</option>
-            <option value="Sportsman">Sportsman</option>
-            <option value="Supervisor">Supervisor</option>
-            <option value="Teacher">Teacher</option>
-            <option value="Technician">Technician</option>
-            <option value="Tour Guide">Tour Guide</option>
-            <option value="Trainer">Trainer</option>
-            <option value="Transportation Professional">Transportation Professional</option>
-            <option value="Tutor">Tutor</option>
-            <option value="Veterinary Doctor">Veterinary Doctor</option>
-            <option value="Videographer">Videographer</option>
-            <option value="Web Designer">Web Designer</option>
-            <option value="Web Developer">Web Developer</option>
-            <option value="Wholesale Businessman">Wholesale Businessman</option>
-            <option value="Writer">Writer</option>
-            <option value="Zoologist">Zoologist</option>
-            <option value="Other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="Accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="Actor">Actor</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="Air Hostess">Air Hostess</option>
+                <option value="Airline Professional">Airline Professional</option>
+                <option value="Airforce">Airforce</option>
+                <option value="Architect">Architect</option>
+                <option value="Artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Audiologist">Audiologist</option>
+                <option value="Auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="Beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="Captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="Chemist">Chemist</option>
+                <option value="Civil Engineer">Civil Engineer</option>
+                <option value="Clerical Official">Clerical Official</option>
+                <option value="Clinical Pharmacist">Clinical Pharmacist</option>
+                <option value="Company Secretary">Company Secretary</option>
+                <option value="Computer Engineer">Computer Engineer</option>
+                <option value="Computer Programmer">Computer Programmer</option>
+                <option value="Consultant">Consultant</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Content Creator">Content Creator</option>
+                <option value="Counsellor">Counsellor</option>
+                <option value="Creative Person">Creative Person</option>
+                <option value="Customer Support Professional">Customer Support Professional</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Defence Employee">Defence Employee</option>
+                <option value="Dentist">Dentist</option>
+                <option value="Designer">Designer</option>
+                <option value="Director / Chairman">Director / Chairman</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Economist">Economist</option>
+                <option value="Electrical Engineer">Electrical Engineer</option>
+                <option value="Engineer">Engineer</option>
+                <option value="Entertainment Professional">Entertainment Professional</option>
+                <option value="Event Manager">Event Manager</option>
+                <option value="Executive">Executive</option>
+                <option value="Factory Worker">Factory Worker</option>
+                <option value="Farmer">Farmer</option>
+                <option value="Fashion Designer">Fashion Designer</option>
+                <option value="Finance Professional">Finance Professional</option>
+                <option value="Food Technologist">Food Technologist</option>
+                <option value="Government Employee">Government Employee</option>
+                <option value="Graphic Designer">Graphic Designer</option>
+                <option value="Hair Dresser">Hair Dresser</option>
+                <option value="Health Care Professional">Health Care Professional</option>
+                <option value="Hospitality Professional">Hospitality Professional</option>
+                <option value="Hotel & Restaurant Professional">Hotel & Restaurant Professional</option>
+                <option value="Human Resource Professional">Human Resource Professional</option>
+                <option value="HSE Officer">HSE Officer</option>
+                <option value="Influencer">Influencer</option>
+                <option value="Insurance Advisor">Insurance Advisor</option>
+                <option value="Insurance Agent">Insurance Agent</option>
+                <option value="Interior Designer">Interior Designer</option>
+                <option value="Investment Professional">Investment Professional</option>
+                <option value="IT / Telecom Professional">IT / Telecom Professional</option>
+                <option value="Islamic Scholar">Islamic Scholar</option>
+                <option value="Islamic Teacher">Islamic Teacher</option>
+                <option value="Journalist">Journalist</option>
+                <option value="Lawyer">Lawyer</option>
+                <option value="Lecturer">Lecturer</option>
+                <option value="Legal Professional">Legal Professional</option>
+                <option value="Librarian">Librarian</option>
+                <option value="Logistics Professional">Logistics Professional</option>
+                <option value="Manager">Manager</option>
+                <option value="Marketing Professional">Marketing Professional</option>
+                <option value="Mechanical Engineer">Mechanical Engineer</option>
+                <option value="Medical Representative">Medical Representative</option>
+                <option value="Medical Transcriptionist">Medical Transcriptionist</option>
+                <option value="Merchant Naval Officer">Merchant Naval Officer</option>
+                <option value="Microbiologist">Microbiologist</option>
+                <option value="Military">Military</option>
+                <option value="Nanny / Child Care Worker">Nanny / Child Care Worker</option>
+                <option value="Navy Officer">Navy Officer</option>
+                <option value="Nurse">Nurse</option>
+                <option value="Occupational Therapist">Occupational Therapist</option>
+                <option value="Office Staff">Office Staff</option>
+                <option value="Optician">Optician</option>
+                <option value="Optometrist">Optometrist</option>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Physician">Physician</option>
+                <option value="Physician Assistant">Physician Assistant</option>
+                <option value="Pilot">Pilot</option>
+                <option value="Police Officer">Police Officer</option>
+                <option value="Priest">Priest</option>
+                <option value="Product Manager / Professional">Product Manager / Professional</option>
+                <option value="Professor">Professor</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Public Relations Professional">Public Relations Professional</option>
+                <option value="Real Estate Professional">Real Estate Professional</option>
+                <option value="Research Scholar">Research Scholar</option>
+                <option value="Retail Professional">Retail Professional</option>
+                <option value="Sales Professional">Sales Professional</option>
+                <option value="Scientist">Scientist</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Social Worker">Social Worker</option>
+                <option value="Software Consultant">Software Consultant</option>
+                <option value="Software Developer">Software Developer</option>
+                <option value="Speech Therapist">Speech Therapist</option>
+                <option value="Sportsman">Sportsman</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Technician">Technician</option>
+                <option value="Tour Guide">Tour Guide</option>
+                <option value="Trainer">Trainer</option>
+                <option value="Transportation Professional">Transportation Professional</option>
+                <option value="Tutor">Tutor</option>
+                <option value="Veterinary Doctor">Veterinary Doctor</option>
+                <option value="Videographer">Videographer</option>
+                <option value="Web Designer">Web Designer</option>
+                <option value="Web Developer">Web Developer</option>
+                <option value="Wholesale Businessman">Wholesale Businessman</option>
+                <option value="Writer">Writer</option>
+                <option value="Zoologist">Zoologist</option>
+                <option value="Other">Other</option>
+              </select>
 
-          {/* Marital Status Filter - Single Selection */}
-          <MaritalStatusDropdown 
-            key={`marital-status-${resetKey}`}
-            value={filters.martialStatus}
-            userGender={gender}
-            onChange={(selectedStatus) => {
-              setFilters(prevFilters => {
-                const updatedFilters = { 
-                  ...prevFilters, 
-                  martialStatus: selectedStatus 
-                };
-                applyFilters(updatedFilters);
-                return updatedFilters;
-              });
-            }}
-          />
+              {/* Marital Status Filter - Single Selection */}
+              <MaritalStatusDropdown
+                key={`marital-status-${resetKey}`}
+                value={filters.martialStatus}
+                userGender={gender}
+                onChange={(selectedStatus) => {
+                  setFilters(prevFilters => {
+                    const updatedFilters = {
+                      ...prevFilters,
+                      martialStatus: selectedStatus
+                    };
+                    applyFilters(updatedFilters);
+                    return updatedFilters;
+                  });
+                }}
+              />
 
-<div className="status-dropdown">
-<StatusDropdown 
-  key={`status-${resetKey}`}
-  value={filters.status}
-  onChange={(selectedStatus) => {
-    setFilters(prevFilters => {
-      const updatedFilters = { 
-        ...prevFilters, 
-        status: selectedStatus 
-      };
-      applyFilters(updatedFilters);
-      return updatedFilters;
-    });
-  }}
-/>
-</div>
+              <div className="status-dropdown">
+                <StatusDropdown
+                  key={`status-${resetKey}`}
+                  value={filters.status}
+                  onChange={(selectedStatus) => {
+                    setFilters(prevFilters => {
+                      const updatedFilters = {
+                        ...prevFilters,
+                        status: selectedStatus
+                      };
+                      applyFilters(updatedFilters);
+                      return updatedFilters;
+                    });
+                  }}
+                />
+              </div>
 
+            </>)}
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
@@ -1763,14 +1771,14 @@ const TotalRequests = () => {
                 <tr>
                   <td colSpan={gender === "female" ? 8 : 7} style={{ textAlign: "center", padding: "40px", color: "#666" }}>
                     <div style={{ fontSize: "16px", marginBottom: "10px" }}>
-                      {gender === "male" ? "📤" : "📥"} 
+                      {gender === "male" ? "📤" : "📥"}
                     </div>
                     <div style={{ fontSize: "18px", fontWeight: "500", marginBottom: "5px" }}>
                       {gender === "male" ? "No Sent Requests" : "No Received Requests"}
                     </div>
                     <div style={{ fontSize: "14px", color: "#888" }}>
-                      {gender === "male" 
-                        ? "You haven't sent any photo requests yet." 
+                      {gender === "male"
+                        ? "You haven't sent any photo requests yet."
                         : "You haven't received any photo requests yet."
                       }
                     </div>
@@ -1778,14 +1786,14 @@ const TotalRequests = () => {
                 </tr>
               ) : (
                 currentItems.map((user, index) => (
-                <tr key={index}>
-                  <td>{user?.user?.member_id || "N/A"}</td>
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <img 
-                        src={user?.user?.profile_photo
-                          ? `${process.env.REACT_APP_API_URL}${user.user.profile_photo}`
-                          : `data:image/svg+xml;utf8,${encodeURIComponent(
+                  <tr key={index}>
+                    <td>{user?.user?.member_id || "N/A"}</td>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <img
+                          src={user?.user?.profile_photo
+                            ? `${process.env.REACT_APP_API_URL}${user.user.profile_photo}`
+                            : `data:image/svg+xml;utf8,${encodeURIComponent(
                               user?.user?.gender === "male"
                                 ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                     <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
@@ -1797,183 +1805,183 @@ const TotalRequests = () => {
                     <circle cx="12" cy="8" r="2" fill="#ec4899"/>
                   </svg>`
                             )}`}
-                        alt={user?.user?.name || "User"} 
-                        style={{ 
-                          width: "32px", 
-                          height: "32px", 
-                          borderRadius: "50%", 
-                          objectFit: "cover",
-                          border: "2px solid #e0e0e0"
-                        }}
-                        onError={(e) => {
-                          e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
-                            user?.user?.gender === "male"
-                              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+                          alt={user?.user?.name || "User"}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "2px solid #e0e0e0"
+                          }}
+                          onError={(e) => {
+                            e.target.src = `data:image/svg+xml;utf8,${encodeURIComponent(
+                              user?.user?.gender === "male"
+                                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
                     <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
                     <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
                   </svg>`
-                              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+                                : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
                     <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
                     <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
                     <circle cx="12" cy="8" r="2" fill="#ec4899"/>
                   </svg>`
-                          )}`;
-                        }}
-                      />
-                      <span>
-                        {gender === "male" ? (
-                          // Male user - show target user (female) details
-                          user?.user?.name || "-"
-                        ) : (
-                          // Female user - show requester (male) details
-                          user?.user?.name || "-"
-                        )}
+                            )}`;
+                          }}
+                        />
+                        <span>
+                          {gender === "male" ? (
+                            // Male user - show target user (female) details
+                            user?.user?.name || "-"
+                          ) : (
+                            // Female user - show requester (male) details
+                            user?.user?.name || "-"
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    <td>{user?.user?.city || user?.user?.location || "-"}</td>
+                    <td>{user?.date || "-"}</td>
+                    <td>{user?.user?.sect_school_info || user?.user?.sect || "-"}</td>
+                    <td>{user?.user?.profession || "-"}</td>
+                    <td>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        {/* Primary Status with gender-aware mapping */}
+                        {(() => {
+                          const raw = user.status;
+                          const isMale = gender === 'male';
+                          const isBlocked = blockedUsers.has(user?.user?.id);
+
+                          if (isBlocked) {
+                            return (
+                              <span className="status-badge blocked-badge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
+                                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                  <path d="M4.93 4.93l14.14 14.14" stroke="currentColor" strokeWidth="2" />
+                                </svg>
+                                Blocked
+                              </span>
+                            );
+                          }
+
+                          if (raw === 'Accepted' || raw === 'Approved') {
+                            return (
+                              <>
+                                <span className="status-badge approved">Approved</span>
+                                {isMale ? (
+                                  <span className="status-badge sent">Sent</span>
+                                ) : (
+                                  <span className="status-badge received">Received</span>
+                                )}
+                              </>
+                            );
+                          }
+                          if (raw === 'Requested' || raw === 'Pending') {
+                            return (
+                              <>
+                                <span className="status-badge pending">Pending</span>
+                                {isMale ? (
+                                  <span className="status-badge sent">Sent</span>
+                                ) : (
+                                  <span className="status-badge received">Received</span>
+                                )}
+                              </>
+                            );
+                          }
+                          // Open treated as Rejected
+                          if (raw === 'Open' || raw === 'Rejected') {
+                            return (
+                              <>
+                                <span className="status-badge rejected">Rejected</span>
+                                {isMale ? (
+                                  <span className="status-badge sent">Sent</span>
+                                ) : (
+                                  <span className="status-badge received">Received</span>
+                                )}
+                              </>
+                            );
+                          }
+                          return <span className={`status-badge ${(raw || '').toLowerCase()}`}>{raw || 'N/A'}</span>;
+                        })()}
+
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`marital-badge ${user?.user?.martial_status ? user?.user?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
+                        {user?.user?.martial_status || "Not mentioned"}
                       </span>
-                    </div>
-                  </td>
-                  <td>{user?.user?.city || user?.user?.location || "-"}</td>
-                  <td>{user?.date || "-"}</td>
-                  <td>{user?.user?.sect_school_info || user?.user?.sect || "-"}</td>
-                  <td>{user?.user?.profession || "-"}</td>
-                  <td>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {/* Primary Status with gender-aware mapping */}
-                      {(() => {
-                        const raw = user.status;
-                        const isMale = gender === 'male';
-                        const isBlocked = blockedUsers.has(user?.user?.id);
-                        
-                        if (isBlocked) {
-                          return (
-                            <span className="status-badge blocked-badge">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
-                                <path d="M4.93 4.93l14.14 14.14" stroke="currentColor" strokeWidth="2"/>
+                    </td>
+                    {gender == "female" && <td>
+                      <div style={{ display: "flex", gap: "5px", alignItems: "center", flexWrap: "wrap" }}>
+                        {/* Only show action buttons for pending/received requests */}
+                        {(user.status === "Pending" || user.status === "Received") && (
+                          <>
+                            <button
+                              className="action-btn approve-btn modern-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Button clicked - Full user object:', user);
+                                console.log('User ID:', user?.id, 'Target User ID:', user?.user?.id);
+                                console.log('Available fields:', Object.keys(user));
+                                // Try different possible request ID fields
+                                const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
+                                console.log('Using request ID:', requestId);
+                                handleApproveRequest(requestId, user?.user?.id);
+                              }}
+                              title="Approve Request"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M20 6L9 17l-5-5" />
                               </svg>
-                              Blocked
-                            </span>
-                          );
-                        }
-                        
-                        if (raw === 'Accepted' || raw === 'Approved') {
-                          return (
-                            <>
-                              <span className="status-badge approved">Approved</span>
-                              {isMale ? (
-                                <span className="status-badge sent">Sent</span>
-                              ) : (
-                                <span className="status-badge received">Received</span>
-                              )}
-                            </>
-                          );
-                        }
-                        if (raw === 'Requested' || raw === 'Pending') {
-                          return (
-                            <>
-                              <span className="status-badge pending">Pending</span>
-                              {isMale ? (
-                                <span className="status-badge sent">Sent</span>
-                              ) : (
-                                <span className="status-badge received">Received</span>
-                              )}
-                            </>
-                          );
-                        }
-                        // Open treated as Rejected
-                        if (raw === 'Open' || raw === 'Rejected') {
-                          return (
-                            <>
-                              <span className="status-badge rejected">Rejected</span>
-                              {isMale ? (
-                                <span className="status-badge sent">Sent</span>
-                              ) : (
-                                <span className="status-badge received">Received</span>
-                              )}
-                            </>
-                          );
-                        }
-                        return <span className={`status-badge ${(raw || '').toLowerCase()}`}>{raw || 'N/A'}</span>;
-                      })()}
-              
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`marital-badge ${user?.user?.martial_status?user?.user?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
-                      {user?.user?.martial_status || "Not mentioned"}
-                    </span>
-                  </td>
-                  {gender == "female" && <td>
-                    <div style={{ display: "flex", gap: "5px", alignItems: "center", flexWrap: "wrap" }}>
-                      {/* Only show action buttons for pending/received requests */}
-                      {(user.status === "Pending" || user.status === "Received") && (
-                        <>
-                          <button
-                            className="action-btn approve-btn modern-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Button clicked - Full user object:', user);
-                              console.log('User ID:', user?.id, 'Target User ID:', user?.user?.id);
-                              console.log('Available fields:', Object.keys(user));
-                              // Try different possible request ID fields
-                              const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
-                              console.log('Using request ID:', requestId);
-                              handleApproveRequest(requestId, user?.user?.id);
-                            }}
-                            title="Approve Request"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M20 6L9 17l-5-5"/>
-                            </svg>
-                          </button>
-                          <button
-                            className="action-btn reject-btn modern-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log('Reject button clicked - Full user object:', user);
-                              console.log('Available fields:', Object.keys(user));
-                              // Try different possible request ID fields
-                              const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
-                              console.log('Using request ID for reject:', requestId);
-                              handleRejectRequest(requestId, user?.user?.id);
-                            }}
-                            title="Reject Request"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M18 6L6 18M6 6l12 12"/>
-                            </svg>
-                          </button>
-                        </>
-                      )}
-                      
-                      {/* Block and Report buttons for all requests */}
-                      <button
-                        className="action-btn block-btn modern-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBlockUser(user?.user?.id);
-                        }}
-                        title="Block User"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M18 6L6 18M6 6l12 12"/>
-                        </svg>
-                      </button>
-                      <button
-                        className="action-btn report-btn modern-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReportUser(user?.user?.id);
-                        }}
-                        title="Report User"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>}
-                </tr>
+                            </button>
+                            <button
+                              className="action-btn reject-btn modern-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Reject button clicked - Full user object:', user);
+                                console.log('Available fields:', Object.keys(user));
+                                // Try different possible request ID fields
+                                const requestId = user?.id || user?.request_id || user?.requestId || user?.user?.id;
+                                console.log('Using request ID for reject:', requestId);
+                                handleRejectRequest(requestId, user?.user?.id);
+                              }}
+                              title="Reject Request"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+
+                        {/* Block and Report buttons for all requests */}
+                        <button
+                          className="action-btn block-btn modern-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBlockUser(user?.user?.id);
+                          }}
+                          title="Block User"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <button
+                          className="action-btn report-btn modern-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReportUser(user?.user?.id);
+                          }}
+                          title="Report User"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>}
+                  </tr>
                 ))
               )}
             </tbody>
@@ -2338,8 +2346,8 @@ const TotalRequests = () => {
           <div className="block-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="block-modal-icon">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#ff4d4d" strokeWidth="2" fill="#fee"/>
-                <path d="M4.93 4.93l14.14 14.14" stroke="#ff4d4d" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#ff4d4d" strokeWidth="2" fill="#fee" />
+                <path d="M4.93 4.93l14.14 14.14" stroke="#ff4d4d" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
             <h2>Block User?</h2>
