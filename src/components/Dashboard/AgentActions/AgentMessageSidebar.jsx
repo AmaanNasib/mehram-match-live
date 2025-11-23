@@ -151,7 +151,7 @@ const AgentMessageSidebar = ({ isOpen, onClose, targetUserId, targetUserName, ta
   };
 
   const getProfileImageUrl = (photo) => {
-    if (!photo) return 'https://via.placeholder.com/200';
+    if (!photo) return 'https://placehold.co/600x400';
     
     // Handle different photo formats
     let photoUrl = '';
@@ -162,7 +162,7 @@ const AgentMessageSidebar = ({ isOpen, onClose, targetUserId, targetUserName, ta
       photoUrl = photo.url || photo.profile_photo || photo.upload_photo || photo.image || '';
     }
     
-    if (!photoUrl) return 'https://via.placeholder.com/200';
+    if (!photoUrl) return 'https://placehold.co/600x400';
     if (photoUrl.startsWith('http')) return photoUrl;
     return `${process.env.REACT_APP_API_URL}${photoUrl}`;
   };

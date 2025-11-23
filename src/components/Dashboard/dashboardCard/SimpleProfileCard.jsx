@@ -26,7 +26,7 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onBlo
                     profile?.user_profilephoto?.image;
     
     if (!photoUrl) {
-      return "https://via.placeholder.com/200";
+      return "https://placehold.co/600x400";
     }
     
     // If it's already a full URL, return as is
@@ -573,7 +573,7 @@ const SimpleProfileCard = ({ profile, onInterested, onShortlist, onIgnore, onBlo
           src={getProfilePhotoUrl()} 
           alt={profile?.name || "Profile"}
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/200";
+            e.target.src = "https://placehold.co/600x400";
           }}
         />
         {/* <div className="online-badge"></div>0*/}

@@ -22,6 +22,7 @@ import {
   justpostDataWithoutToken,
   fetchDataV2,
 } from "../../../apiUtils";
+import axios from "axios";
 
 const LandingPage = () => {
   const pathname = window.location.pathname;
@@ -40,19 +41,19 @@ const LandingPage = () => {
   const [isLogIn, setIsLogIn] = useState(false);
 
   const [formData, setFormData] = useState({
-    on_behalf: 'Self',
-    first_name: '',
-    last_name: '',
-    gender: '',
-    date_of_birth: '',
-    email: '',
-    mobile_no: '',
-    password: '',
-    conform_password: '',
-    referral_code: '',
+    on_behalf: "Self",
+    first_name: "",
+    last_name: "",
+    gender: "",
+    date_of_birth: "",
+    email: "",
+    mobile_no: "",
+    password: "",
+    conform_password: "",
+    referral_code: "",
     terms_condition: false,
-    otp: '',
-    captcha: '',
+    otp: "",
+    captcha: "",
   });
 
   const [apiErrors, setApiErrors] = useState({});
@@ -61,8 +62,8 @@ const LandingPage = () => {
   const [apiData1, setApiData1] = useState({});
 
   const [otpErrors, setOtpErrors] = useState({
-    otp: '',
-    captcha: '',
+    otp: "",
+    captcha: "",
   });
 
   const countryCodes = [
@@ -78,10 +79,10 @@ const LandingPage = () => {
 
   const handleInputChange = (e) => {
     const { id, type, value, checked } = e.target;
-    let newValue = type === 'checkbox' ? checked : value;
+    let newValue = type === "checkbox" ? checked : value;
 
-    if (id === 'first_name' || id === 'last_name') {
-      newValue = newValue.replace(/[^A-Za-z\s]/g, '');
+    if (id === "first_name" || id === "last_name") {
+      newValue = newValue.replace(/[^A-Za-z\s]/g, "");
     }
 
     setFormData((prevState) => ({
@@ -89,19 +90,23 @@ const LandingPage = () => {
       [id]: newValue,
     }));
 
-    if (id === 'on_behalf') {
-      let autoGender = '';
-      if (newValue === 'Brother' || newValue === 'Son') {
-        autoGender = 'male';
-      } else if (newValue === 'Daughter' || newValue === 'Sister') {
-        autoGender = 'female';
+    if (id === "on_behalf") {
+      let autoGender = "";
+      if (newValue === "Brother" || newValue === "Son") {
+        autoGender = "male";
+      } else if (newValue === "Daughter" || newValue === "Sister") {
+        autoGender = "female";
       }
-      
+
       setFormData((prevState) => ({
         ...prevState,
         [id]: newValue,
         gender: autoGender,
       }));
+    }
+
+    if (apiErrors.email || apiErrors.message) {
+      setApiErrors({});
     }
 
     if (errors[id]) {
@@ -122,41 +127,46 @@ const LandingPage = () => {
     const nameRegex = /^[A-Za-z]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
     // First name, last name, gender, and date of birth validations removed as these fields are not in the form
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
+      newErrors.email = "Invalid email address";
     }
 
     if (!formData.mobile_no.trim()) {
-      newErrors.mobile_no = 'Phone number is required';
+      newErrors.mobile_no = "Phone number is required";
     } else if (!phoneRegex.test(formData.mobile_no)) {
-      newErrors.mobile_no = 'Invalid phone number (10 digits required)';
+      newErrors.mobile_no = "Invalid phone number (10 digits required)";
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters long and contain at least one uppercase letter, one number, and one special character';
+      newErrors.password =
+        "Password must be at least 6 characters long and contain at least one uppercase letter, one number, and one special character";
     }
 
     if (!formData.conform_password.trim()) {
-      newErrors.conform_password = 'Confirm Password is required';
+      newErrors.conform_password = "Confirm Password is required";
     } else if (formData.conform_password !== formData.password) {
-      newErrors.conform_password = 'Passwords do not match';
+      newErrors.conform_password = "Passwords do not match";
     }
 
-    if (formData.referral_code.trim() && !/^\d+$/.test(formData.referral_code)) {
-      newErrors.referral_code = 'Referral Code should contain only numbers';
+    if (
+      formData.referral_code.trim() &&
+      !/^\d+$/.test(formData.referral_code)
+    ) {
+      newErrors.referral_code = "Referral Code should contain only numbers";
     }
 
     if (!formData.terms_condition) {
-      newErrors.terms_condition = 'You must accept the terms and conditions';
+      newErrors.terms_condition = "You must accept the terms and conditions";
     }
 
     setErrors(newErrors);
@@ -167,63 +177,120 @@ const LandingPage = () => {
     const newErrors = {};
 
     if (!formData.otp.trim()) {
-      newErrors.otp = 'OTP is required';
-    } else if (formData.otp !== '1234') {
-      newErrors.otp = 'Invalid OTP';
+      newErrors.otp = "OTP is required";
+    } else if (formData.otp !== "1234") {
+      newErrors.otp = "Invalid OTP";
     }
 
     if (!formData.captcha.trim()) {
-      newErrors.captcha = 'CAPTCHA is required';
+      newErrors.captcha = "CAPTCHA is required";
     }
 
     setOtpErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const posstData = () => {
-    console.log("Create Account button clicked!");
-    console.log("Form data:", formData);
+  const posstData = async () => {
     const isValid = handleValidForm();
-    console.log("Form validation result:", isValid);
-    if (isValid) {
-      console.log("Form is valid, showing OTP form");
-      setOtpFormVisible(true);
-      const parameter = {
-        url: "/api/otp/",
-        payload: {
+    if (!isValid) return;
+
+    setApiErrors({}); // clear previous errors
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/otp/`,
+        {
           contact_number: formData.mobile_no,
           email: formData.email,
-        },
-        setApiErrors,
-      };
-      justpostDataWithoutToken(parameter);
-    } else {
-      console.log("Form validation failed");
+        }
+      );
+
+      setOtpFormVisible(true);
+    } catch (error) {
+      console.log("OTP ERROR:", error.response?.data.error);
+
+      const data = error.response?.data || {};
+
+      if (data.error) {
+        setApiErrors({ email: data.error });
+      } else if (data.message) {
+        setApiErrors({ message: data.message });
+      }
+
+      setOtpFormVisible(false);
     }
   };
 
+  // const posstData = () => {
+  //     const isValid = handleValidForm();
+  //     if (!isValid) return;
+
+  //     // Call OTP API manually so we can check error before proceeding
+  //     justpostDataWithoutToken({
+  //       url: "/api/otp/",
+  //       payload: {
+  //         contact_number: formData.mobile_no,
+  //         email: formData.email,
+  //       },
+  //       setApiErrors,
+  //       onSuccess: () => {
+  //         setOtpFormVisible(true);
+  //       },
+  //     });
+  //   }
+
+  // const posstData = () => {
+  //   console.log("Create Account button clicked!");
+  //   console.log("Form data:", formData);
+  //   const isValid = handleValidForm();
+  //   console.log("Form validation result:", isValid);
+  //   if (isValid) {
+  //     console.log("Form is valid, showing OTP form");
+  //     setOtpFormVisible(true);
+  //     const parameter = {
+  //       url: "/api/otp/",
+  //       payload: {
+  //         contact_number: formData.mobile_no,
+  //         email: formData.email,
+  //       },
+  //       setApiErrors,
+  //     };
+  //     justpostDataWithoutToken(parameter);
+  //   } else {
+  //     console.log("Form validation failed");
+  //   }
+  // };
+
   // Google Sign Up Handler
+
+  const getRegisterUrl = () => {
+    if (lastSegment === "agent") {
+      return "/api/agent/register/";
+    }
+    return "/api/user/register/";
+  };
+
   const handleGoogleSignUp = (googleData) => {
     console.log("Google sign up data:", googleData);
     console.log("Navigating to memstepone after successful registration");
-    
+
     const parameter = {
-      url: "/api/user/register/", // Updated to use new registration endpoint
+      url: getRegisterUrl(), // Updated to use new registration endpoint
       payload: {
         email: googleData.email,
-        first_name: googleData.first_name,
-        last_name: googleData.last_name,
-        contact_number: googleData.contact_number || "",
-        onbehalf: googleData.onbehalf,
-        gender: googleData.gender,
-        auth_provider: googleData.auth_provider,
+        // first_name: googleData.first_name,
+        // last_name: googleData.last_name,
+        // contact_number: googleData.contact_number || "",
+        // onbehalf: googleData.onbehalf,
+        // gender: googleData.gender,
+        auth_provider: 'google',
         google_id: googleData.google_id,
-        terms_condition: googleData.terms_condition,
-        is_google_signup: true, // Add flag to identify Google signup
+        // terms_condition: googleData.terms_condition,
+        // is_google_signup: true, 
       },
       setErrors: setApiErrors,
       navigate: navigate,
-      navUrl: "/memstepone/", // Will be updated with user ID in registration function
+      navUrl: lastSegment === "agent" ? "/agentstepone/" : "/memstepone/", // Will be updated with user ID in registration function
       showSuccessMessage: (message) => {
         console.log("Registration successful:", message);
         alert(message);
@@ -241,7 +308,10 @@ const LandingPage = () => {
     const isValid = handleValidOtp();
     if (isValid) {
       const parameter = {
-        url: lastSegment === "agent" ? "/api/agent/verify-otp-captcha/" : "/api/verify-otp-captcha/",
+        url:
+          lastSegment === "agent"
+            ? "/api/agent/verify-otp-captcha/"
+            : "/api/verify-otp-captcha/",
         payload: {
           captcha_key: captchaImage.captcha_key,
           captcha_text: formData.captcha,
@@ -252,7 +322,7 @@ const LandingPage = () => {
           last_name: formData.last_name,
           onbehalf: formData.on_behalf,
           password: formData.password,
-          dob: '', // DOB will be filled in MemStepOne
+          dob: "", // DOB will be filled in MemStepOne
           gender: formData.gender,
           confirm_password: formData.conform_password,
           terms_condition: formData.terms_condition,
@@ -284,42 +354,42 @@ const LandingPage = () => {
         const element = document.getElementById(hash.substring(1));
         if (element) {
           setTimeout(() => {
-            element.scrollIntoView({ behavior: 'smooth' });
+            element.scrollIntoView({ behavior: "smooth" });
           }, 100);
         }
       }
     };
 
     handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   }, []);
 
   // Tooltip outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showTooltip && !event.target.closest('.tooltip-container')) {
+      if (showTooltip && !event.target.closest(".tooltip-container")) {
         setShowTooltip(null);
       }
     };
 
     const handleEscapeKey = (event) => {
-      if (event.key === 'Escape' && showTooltip) {
+      if (event.key === "Escape" && showTooltip) {
         setShowTooltip(null);
       }
     };
 
     if (showTooltip) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscapeKey);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
     };
   }, [showTooltip]);
 
@@ -376,13 +446,13 @@ const LandingPage = () => {
   // Handle hash navigation to registration form
   useEffect(() => {
     const handleHashNavigation = () => {
-      if (window.location.hash === '#registration-form') {
+      if (window.location.hash === "#registration-form") {
         setTimeout(() => {
-          const element = document.getElementById('registration-form');
+          const element = document.getElementById("registration-form");
           if (element) {
-            element.scrollIntoView({ 
-              behavior: 'smooth',
-              block: 'center'
+            element.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
             });
           }
         }, 100);
@@ -393,10 +463,10 @@ const LandingPage = () => {
     handleHashNavigation();
 
     // Handle hash changes
-    window.addEventListener('hashchange', handleHashNavigation);
+    window.addEventListener("hashchange", handleHashNavigation);
 
     return () => {
-      window.removeEventListener('hashchange', handleHashNavigation);
+      window.removeEventListener("hashchange", handleHashNavigation);
     };
   }, []);
 
@@ -487,6 +557,7 @@ const LandingPage = () => {
           showTooltip={showTooltip}
           handleTooltipClick={handleTooltipClick}
           onGoogleSignUp={handleGoogleSignUp}
+          apiErrors={apiErrors} // <-- ADD THIS
         />
 
         {/* Analytics Section */}
@@ -521,4 +592,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-

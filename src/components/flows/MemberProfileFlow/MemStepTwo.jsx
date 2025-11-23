@@ -9,7 +9,7 @@ import StepTracker from "../../StepTracker/StepTracker";
 const isDevelopment = process.env.NODE_ENV === 'development';
 const devLog = (...args) => {
   if (isDevelopment) {
-    devLog(...args);
+    console.log('register sucess');
   }
 };
 

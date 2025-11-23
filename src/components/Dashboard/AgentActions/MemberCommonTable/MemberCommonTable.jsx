@@ -22,7 +22,7 @@ const MemberCommonTable = ({
             alt={row.member_name || "Member"}
             className="table-avatar"
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/40";
+              e.target.src = "https://placehold.co/40";
             }}
           />
         );
@@ -44,7 +44,7 @@ const MemberCommonTable = ({
               className="table-avatar"
               style={{ cursor: onMemberClick ? 'pointer' : 'default' }}
               onError={(e) => {
-                e.target.src = "https://via.placeholder.com/40";
+                e.target.src = "https://placehold.co/40";
               }}
             />
             <div>

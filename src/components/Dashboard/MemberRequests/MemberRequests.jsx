@@ -880,7 +880,7 @@ const MemberRequests = () => {
                           alt={`Photo ${index + 1}`}
                           onError={(e) => {
                             console.error('Image failed to load:', photo);
-                            e.target.src = 'https://via.placeholder.com/200x200?text=Image+Not+Found';
+                            e.target.src = 'https://placehold.co/600x400?text=Image+Not+Found';
                           }}
                           onLoad={() => {
                             console.log('Image loaded successfully:', photo);

@@ -40,19 +40,19 @@ const LandingPage = () => {
   const [isLogIn, setIsLogIn] = useState(false);
 
   const [formData, setFormData] = useState({
-    on_behalf: 'Self',
-    first_name: '',
-    last_name: '',
-    gender: '',
-    date_of_birth: '',
-    email: '',
-    mobile_no: '',
-    password: '',
-    conform_password: '',
-    referral_code: '',
+    on_behalf: "Self",
+    first_name: "",
+    last_name: "",
+    gender: "",
+    date_of_birth: "",
+    email: "",
+    mobile_no: "",
+    password: "",
+    conform_password: "",
+    referral_code: "",
     terms_condition: false,
-    otp: '',
-    captcha: '',
+    otp: "",
+    captcha: "",
   });
 
   const [apiErrors, setApiErrors] = useState({});
@@ -61,8 +61,8 @@ const LandingPage = () => {
   const [apiData1, setApiData1] = useState({});
 
   const [otpErrors, setOtpErrors] = useState({
-    otp: '',
-    captcha: '',
+    otp: "",
+    captcha: "",
   });
 
   const countryCodes = [
@@ -78,10 +78,10 @@ const LandingPage = () => {
 
   const handleInputChange = (e) => {
     const { id, type, value, checked } = e.target;
-    let newValue = type === 'checkbox' ? checked : value;
+    let newValue = type === "checkbox" ? checked : value;
 
-    if (id === 'first_name' || id === 'last_name') {
-      newValue = newValue.replace(/[^A-Za-z\s]/g, '');
+    if (id === "first_name" || id === "last_name") {
+      newValue = newValue.replace(/[^A-Za-z\s]/g, "");
     }
 
     setFormData((prevState) => ({
@@ -89,14 +89,14 @@ const LandingPage = () => {
       [id]: newValue,
     }));
 
-    if (id === 'on_behalf') {
-      let autoGender = '';
-      if (newValue === 'Brother' || newValue === 'Son') {
-        autoGender = 'male';
-      } else if (newValue === 'Daughter' || newValue === 'Sister') {
-        autoGender = 'female';
+    if (id === "on_behalf") {
+      let autoGender = "";
+      if (newValue === "Brother" || newValue === "Son") {
+        autoGender = "male";
+      } else if (newValue === "Daughter" || newValue === "Sister") {
+        autoGender = "female";
       }
-      
+
       setFormData((prevState) => ({
         ...prevState,
         [id]: newValue,
@@ -122,61 +122,69 @@ const LandingPage = () => {
     const nameRegex = /^[A-Za-z]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
     if (!formData.first_name.trim()) {
-      newErrors.first_name = 'First Name is required';
+      newErrors.first_name = "First Name is required";
     } else if (!nameRegex.test(formData.first_name)) {
-      newErrors.first_name = 'First Name should contain only letters';
+      newErrors.first_name = "First Name should contain only letters";
     }
 
     if (!formData.last_name.trim()) {
-      newErrors.last_name = 'Last Name is required';
+      newErrors.last_name = "Last Name is required";
     } else if (!nameRegex.test(formData.last_name)) {
-      newErrors.last_name = 'Last Name should contain only letters';
+      newErrors.last_name = "Last Name should contain only letters";
     }
 
-    if ((formData.on_behalf === 'Self' || formData.on_behalf === 'Friend') && !formData.gender) {
-      newErrors.gender = 'Gender is required';
+    if (
+      (formData.on_behalf === "Self" || formData.on_behalf === "Friend") &&
+      !formData.gender
+    ) {
+      newErrors.gender = "Gender is required";
     }
 
     if (!formData.date_of_birth) {
-      newErrors.date_of_birth = 'Date of Birth is required';
+      newErrors.date_of_birth = "Date of Birth is required";
     } else if (!dateRegex.test(formData.date_of_birth)) {
-      newErrors.date_of_birth = 'Invalid date format (YYYY-MM-DD)';
+      newErrors.date_of_birth = "Invalid date format (YYYY-MM-DD)";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
+      newErrors.email = "Invalid email address";
     }
 
     if (!formData.mobile_no.trim()) {
-      newErrors.mobile_no = 'Phone number is required';
+      newErrors.mobile_no = "Phone number is required";
     } else if (!phoneRegex.test(formData.mobile_no)) {
-      newErrors.mobile_no = 'Invalid phone number (10 digits required)';
+      newErrors.mobile_no = "Invalid phone number (10 digits required)";
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password = 'Password must be at least 6 characters long and contain at least one uppercase letter, one number, and one special character';
+      newErrors.password =
+        "Password must be at least 6 characters long and contain at least one uppercase letter, one number, and one special character";
     }
 
     if (!formData.conform_password.trim()) {
-      newErrors.conform_password = 'Confirm Password is required';
+      newErrors.conform_password = "Confirm Password is required";
     } else if (formData.conform_password !== formData.password) {
-      newErrors.conform_password = 'Passwords do not match';
+      newErrors.conform_password = "Passwords do not match";
     }
 
-    if (formData.referral_code.trim() && !/^\d+$/.test(formData.referral_code)) {
-      newErrors.referral_code = 'Referral Code should contain only numbers';
+    if (
+      formData.referral_code.trim() &&
+      !/^\d+$/.test(formData.referral_code)
+    ) {
+      newErrors.referral_code = "Referral Code should contain only numbers";
     }
 
     if (!formData.terms_condition) {
-      newErrors.terms_condition = 'You must accept the terms and conditions';
+      newErrors.terms_condition = "You must accept the terms and conditions";
     }
 
     setErrors(newErrors);
@@ -187,13 +195,13 @@ const LandingPage = () => {
     const newErrors = {};
 
     if (!formData.otp.trim()) {
-      newErrors.otp = 'OTP is required';
-    } else if (formData.otp !== '1234') {
-      newErrors.otp = 'Invalid OTP';
+      newErrors.otp = "OTP is required";
+    } else if (formData.otp !== "1234") {
+      newErrors.otp = "Invalid OTP";
     }
 
     if (!formData.captcha.trim()) {
-      newErrors.captcha = 'CAPTCHA is required';
+      newErrors.captcha = "CAPTCHA is required";
     }
 
     setOtpErrors(newErrors);
@@ -202,18 +210,21 @@ const LandingPage = () => {
 
   const posstData = () => {
     const isValid = handleValidForm();
-    if (isValid) {
-      setOtpFormVisible(true);
-      const parameter = {
-        url: "/api/otp/",
-        payload: {
-          contact_number: formData.mobile_no,
-          email: formData.email,
-        },
-        setApiErrors,
-      };
-      justpostDataWithoutToken(parameter);
-    }
+    if (!isValid) return;
+
+    // Call OTP API manually so we can check error before proceeding
+    justpostDataWithoutToken({
+      url: "/api/otp/",
+      payload: {
+        contact_number: formData.mobile_no,
+        email: formData.email,
+      },
+      setApiErrors,
+      onSuccess: () => {
+        // Only go to OTP page if API has NO errors
+        setOtpFormVisible(true);
+      },
+    });
   };
 
   const verifyOtpAndCaptcha = (e) => {
@@ -221,7 +232,10 @@ const LandingPage = () => {
     const isValid = handleValidOtp();
     if (isValid) {
       const parameter = {
-        url: lastSegment === "agent" ? "/api/agent/verify-otp-captcha/" : "/api/verify-otp-captcha/",
+        url:
+          lastSegment === "agent"
+            ? "/api/agent/verify-otp-captcha/"
+            : "/api/verify-otp-captcha/",
         payload: {
           captcha_key: captchaImage.captcha_key,
           captcha_text: formData.captcha,
@@ -264,42 +278,42 @@ const LandingPage = () => {
         const element = document.getElementById(hash.substring(1));
         if (element) {
           setTimeout(() => {
-            element.scrollIntoView({ behavior: 'smooth' });
+            element.scrollIntoView({ behavior: "smooth" });
           }, 100);
         }
       }
     };
 
     handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener("hashchange", handleHashChange);
     };
   }, []);
 
   // Tooltip outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showTooltip && !event.target.closest('.tooltip-container')) {
+      if (showTooltip && !event.target.closest(".tooltip-container")) {
         setShowTooltip(null);
       }
     };
 
     const handleEscapeKey = (event) => {
-      if (event.key === 'Escape' && showTooltip) {
+      if (event.key === "Escape" && showTooltip) {
         setShowTooltip(null);
       }
     };
 
     if (showTooltip) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscapeKey);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
     };
   }, [showTooltip]);
 
@@ -439,6 +453,7 @@ const LandingPage = () => {
           currentSlide={currentSlide}
           showTooltip={showTooltip}
           handleTooltipClick={handleTooltipClick}
+          apiErrors={apiErrors}
         />
 
         {/* Analytics Section */}
@@ -473,4 +488,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
