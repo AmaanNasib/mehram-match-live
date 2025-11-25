@@ -326,6 +326,7 @@ const LandingPage = () => {
           gender: formData.gender,
           confirm_password: formData.conform_password,
           terms_condition: formData.terms_condition,
+          auth_provider: 'email',
         },
         setErrors: setApiErrors,
         navigate: navigate,

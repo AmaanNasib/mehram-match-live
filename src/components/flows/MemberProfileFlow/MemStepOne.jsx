@@ -33,6 +33,8 @@ const MemStepOne = () => {
   const [member_id, setmemErrors] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false); // Track if form was successfully submitted
   const location = useLocation();
+  const isUserAgent = localStorage.getItem('role')
+  console.log(isUserAgent)
   const { username, age, isNewMember, clearForm, editMode, memberId } =
     location.state || {};
   devLog(username, ">>>>>>>");
@@ -1928,6 +1930,7 @@ const MemStepOne = () => {
                         Basic Information
                       </h3>
                     </div>
+                    {isUserAgent !== "agent" ? 
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700 flex items-center gap-2">
                         <span>
@@ -1990,6 +1993,7 @@ const MemStepOne = () => {
                         </p>
                       )}
                     </div>
+                    : ''}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* First Name */}
                       <div className="space-y-2">
