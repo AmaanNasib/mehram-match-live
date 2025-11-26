@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { fetchDataObjectV2, fetchDataV2, justputDataWithoutToken, postDataReturnResponse, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken, updateDataV2 } from "../../../apiUtils";
-import TopBar from "../../sections/TopBar";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchDataV2, justputDataWithoutToken, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
+import './AgentStepOne.css'
+
 
 const AgentStepSix = () => {
   const navigate = useNavigate();
@@ -125,7 +123,7 @@ const AgentStepSix = () => {
 
     setError("");
     console.log("Image saved:", image);
-    
+
     // Update agent profile with photo URL after successful upload
     setTimeout(() => {
       const updateParameter = {
@@ -138,7 +136,7 @@ const AgentStepSix = () => {
       };
       justputDataWithoutToken(updateParameter);
     }, 1000);
-    
+
     // alert("Image saved successfully!");
   };
   useEffect(() => {
@@ -189,7 +187,7 @@ const AgentStepSix = () => {
     // if (validateForm()) {
     if (true) {
       const parameters = {
-        url:`/api/agent/${userId}/`,
+        url: `/api/agent/${userId}/`,
         payload: {
           billingdetails: profileData.billingdetails,
           paymentmethod: profileData.paymentmethod,
@@ -243,7 +241,7 @@ const AgentStepSix = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white steps-title">
 
         <h3
           style={{
@@ -275,6 +273,7 @@ const AgentStepSix = () => {
         ></div>
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw]">
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -312,7 +311,7 @@ const AgentStepSix = () => {
                 step 6/6
               </p>
               <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-              Payment Gateway
+                Payment Gateway
               </h4>
               <p
                 style={{
@@ -334,112 +333,112 @@ const AgentStepSix = () => {
                 }}
               ></div>
 
-<div style={{ display: "flex", gap: "2rem" }}>
-  {/* Payment Method */}
-  <div className="w-[50%] relative flex flex-col gap-[10px]">
-    <label
-      htmlFor="paymentmethod"
-      className="block text-sm font-medium text-[#000000] mb-0"
-    >
-      Payment Method {" "}
-      <span style={{ color: "red" }}>*</span>
-    </label>
-    <div className="relative">
-      <select
-        id="paymentmethod"
-        name="paymentmethod"
-        value={profileData.paymentmethod || null}
-        required
-        className={
-          ` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+              <div style={{ display: "flex", gap: "2rem" }}>
+                {/* Payment Method */}
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label
+                    htmlFor="paymentmethod"
+                    className="block text-sm font-medium text-[#000000] mb-0"
+                  >
+                    Payment Method {" "}
+                    <span style={{ color: "red" }}>*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="paymentmethod"
+                      name="paymentmethod"
+                      value={profileData.paymentmethod || null}
+                      required
+                      className={
+                        ` h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
                           text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] ${errors.paymentmethod ?
-            "border-red-500 focus:border-red-500 focus:ring-red-500"
-            : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-          } focus:outline-none focus:ring-2`
-        }
-        onChange={(e) =>
-          updateField("paymentmethod", e.target.value)
-        }
-      >
-        <option value="">Select payment method</option>
-        <option value="Sunni">Credit Card </option>
-        <option value="Shia">Debit Card </option>
-        <option value="Others">PayPal </option>
-        <option value="Others">UPI </option>
-      </select>
-      {/* Information icon positioned at right corner of input */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20" style={{ zIndex: "1000" }}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 text-red-500 cursor-pointer"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        {/* Tooltip text */}
-        <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-          This is additional information about the Sect field.
-        </div>
-      </div>
-    </div>
-    {errors.paymentmethod && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.paymentmethod}
-      </p>
-    )}
-  </div>
+                          "border-red-500 focus:border-red-500 focus:ring-red-500"
+                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                        } focus:outline-none focus:ring-2`
+                      }
+                      onChange={(e) =>
+                        updateField("paymentmethod", e.target.value)
+                      }
+                    >
+                      <option value="">Select payment method</option>
+                      <option value="Sunni">Credit Card </option>
+                      <option value="Shia">Debit Card </option>
+                      <option value="Others">PayPal </option>
+                      <option value="Others">UPI </option>
+                    </select>
+                    {/* Information icon positioned at right corner of input */}
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 group z-20" style={{ zIndex: "1000" }}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-red-500 cursor-pointer"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      {/* Tooltip text */}
+                      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                        This is additional information about the Sect field.
+                      </div>
+                    </div>
+                  </div>
+                  {errors.paymentmethod && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.paymentmethod}
+                    </p>
+                  )}
+                </div>
 
-  {/* Billing Details */}
-  <div className="w-[50%] relative flex flex-col gap-[10px]">
-    <label
-      htmlFor="billingdetails"
-      className="block text-sm font-medium text-[#000000] mb-0"
-    >
-      Billing Details 
-    </label>
-    <div className="relative">
-      <input
-        type="text"
-        id="billingdetails"
-        name="billingdetails"
-        value={profileData.billingdetails || ''}
-        className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-        onChange={(e) =>
-          updateField("billingdetails", e.target.value)
-        }
-      />
-    </div>
-    {/* Information icon positioned at right corner of input */}
-    <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Islam Practicing Level field.
-      </div>
-    </div>
-  </div>
-</div>
-                
+                {/* Billing Details */}
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label
+                    htmlFor="billingdetails"
+                    className="block text-sm font-medium text-[#000000] mb-0"
+                  >
+                    Billing Details
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="billingdetails"
+                      name="billingdetails"
+                      value={profileData.billingdetails || ''}
+                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                      onChange={(e) =>
+                        updateField("billingdetails", e.target.value)
+                      }
+                    />
+                  </div>
+                  {/* Information icon positioned at right corner of input */}
+                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-red-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {/* Tooltip text */}
+                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                      This is additional information about the Islam Practicing Level field.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
 
 
               <div style={{ display: "flex", justifyContent: "space-between" }}>

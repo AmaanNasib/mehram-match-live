@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
-import { 
-  AiOutlineFilter, 
-  AiOutlineRedo, 
+import {
+  AiOutlineFilter,
+  AiOutlineRedo,
   AiOutlineArrowLeft,
   AiOutlineCheck,
   AiOutlineClose,
   AiOutlineCloseCircle,
-  AiOutlineInfoCircle
+  AiOutlineInfoCircle,
+  AiOutlineDelete
 } from "react-icons/ai";
 import { fetchDataWithTokenV2 } from "../../../apiUtils";
 
@@ -16,7 +17,7 @@ import { fetchDataWithTokenV2 } from "../../../apiUtils";
 const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
   const navigate = useNavigate();
   if (!isOpen || !member || !currentMember) return null;
-  
+
   console.log('Current member data:', currentMember);
 
   // Get numeric user ID from member object
@@ -69,15 +70,15 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
     if (!member.match_breakdown || !member.match_breakdown.field_matches) {
       return false;
     }
-    
+
     // Check if user has actually filled any preferences (not empty arrays)
     const fieldMatches = member.match_breakdown.field_matches;
-    const hasUserPreferences = Object.values(fieldMatches).some(field => 
-      field.user1_preferences && 
-      Array.isArray(field.user1_preferences) && 
+    const hasUserPreferences = Object.values(fieldMatches).some(field =>
+      field.user1_preferences &&
+      Array.isArray(field.user1_preferences) &&
       field.user1_preferences.length > 0
     );
-    
+
     return hasUserPreferences;
   };
 
@@ -184,7 +185,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
         const isMatched = value.matched || value.match;
         const user1Value = value.user1_value || currentMember?.[fieldName.toLowerCase()] || 'N/A';
         const user2Value = value.user2_value || member?.[fieldName.toLowerCase()] || 'N/A';
-        
+
         return (
           <div className="professional-comparison-row">
             {/* Field Name Header - Center */}
@@ -193,7 +194,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 {fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </span>
             </div>
-            
+
             {/* Three Column Layout */}
             <div className="three-column-layout">
               {/* Left Column - User 1 Values */}
@@ -206,7 +207,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Center Column - Match Status & Matching Values */}
               <div className="column-center">
                 <div className="match-status-container">
@@ -215,7 +216,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                     {isMatched ? '✓ TRUE' : '✗ FALSE'}
                   </div>
                 </div>
-                
+
                 <div className="matching-values-container">
                   <div className="matching-values-header">Matching Values</div>
                   <div className="matching-values-content">
@@ -223,7 +224,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Right Column - User 2 Values */}
               <div className="column-right">
                 <div className="column-header">Their Preferences</div>
@@ -238,7 +239,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           </div>
         );
       }
-      
+
       // For other object types, show a clean summary
       if (Array.isArray(value)) {
         return (
@@ -247,12 +248,12 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
             <div className="array-items">
               {value.map((item, index) => (
                 <span key={index} className="array-item">{String(item)}</span>
-                  ))}
-                </div>
-              </div>
+              ))}
+            </div>
+          </div>
         );
       }
-      
+
       // For other objects, show as professional field cards
       const keys = Object.keys(value);
       if (keys.length > 0) {
@@ -263,7 +264,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                 const fieldValue = value[key];
                 const isBoolean = typeof fieldValue === 'boolean';
                 const isObject = typeof fieldValue === 'object' && fieldValue !== null;
-                
+
                 return (
                   <div key={index} className="object-field-card">
                     <div className="field-card-header">
@@ -275,8 +276,8 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                           {fieldValue ? '✓' : '✗'}
                         </span>
                       )}
-                </div>
-                    
+                    </div>
+
                     <div className="field-card-content">
                       {isBoolean ? (
                         <span className={`boolean-value ${fieldValue ? 'true' : 'false'}`}>
@@ -288,9 +289,9 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                             <div key={nestedIndex} className="nested-field">
                               <span className="nested-key">{nestedKey}:</span>
                               <span className="nested-value">{String(fieldValue[nestedKey])}</span>
-                  </div>
+                            </div>
                           ))}
-              </div>
+                        </div>
                       ) : Array.isArray(fieldValue) ? (
                         <div className="array-field">
                           {fieldValue.map((item, itemIndex) => (
@@ -303,15 +304,15 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                         <span className="field-value-text">{String(fieldValue)}</span>
                       )}
                     </div>
-          </div>
-        );
+                  </div>
+                );
               })}
             </div>
-        </div>
-      );
+          </div>
+        );
+      }
     }
-    }
-    
+
     // For simple values
     return (
       <div className="simple-value-content">
@@ -335,10 +336,10 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   <h5 className="user-title">Current User</h5>
                   <div className="user-info">
                     <img
-                      src={currentMember?.profile_photo ? 
-                        (currentMember.profile_photo.startsWith('http') ? 
-                          currentMember.profile_photo : 
-                          `${process.env.REACT_APP_API_URL || ''}${currentMember.profile_photo}`) : 
+                      src={currentMember?.profile_photo ?
+                        (currentMember.profile_photo.startsWith('http') ?
+                          currentMember.profile_photo :
+                          `${process.env.REACT_APP_API_URL || ''}${currentMember.profile_photo}`) :
                         '/images/muslim-man.png'}
                       alt={currentMember?.name}
                       className="user-avatar"
@@ -354,13 +355,13 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="comparison-column">
                 <div className="comparison-header">
                   <h5 className="comparison-title">Match Analysis</h5>
                 </div>
               </div>
-              
+
               <div className="user-column">
                 <div className="user-header">
                   <h5 className="user-title">Matched User</h5>
@@ -384,161 +385,161 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
           {shouldShowFieldByField && (
             <div className="field-comparison-section">
               <h4 className="section-title">Field-by-Field Comparison</h4>
-            <div className="comparison-table">
-              <div className="comparison-header-row">
-                <div className="header-cell user-header-cell">Current User</div>
-                <div className="header-cell match-header-cell">Compatibility Status</div>
-                <div className="header-cell user-header-cell">Matched User</div>
-              </div>
-
-              {/* Surname/Last Name Comparison (field-to-field with robust fallbacks) */}
-              <div className="comparison-row">
-                {(() => {
-                  const currentSurname = ((typeof currentMember?.name === 'string' ? currentMember.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
-                  const matchedSurname = ((typeof member?.name === 'string' ? member.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
-
-                  const showCurrent = currentSurname || 'N/A';
-                  const showMatched = matchedSurname || 'N/A';
-                  const comparableCurrent = currentSurname.toLowerCase();
-                  const comparableMatched = matchedSurname.toLowerCase();
-                  const haveValues = Boolean(currentSurname) && Boolean(matchedSurname);
-                  const isEqual = haveValues && comparableCurrent === comparableMatched;
-
-                  return (
-                    <>
-                      <div className="comparison-cell user-cell">
-                        <span className="field-label">Surname</span>
-                        <span className="field-value">{showCurrent}</span>
-                      </div>
-                      <div className="comparison-cell match-cell">
-                        {haveValues ? (
-                          <span className={`match-badge ${isEqual ? 'match' : 'no-match'}`}>
-                            {isEqual ? '✓' : '✗'}
-                          </span>
-                        ) : (
-                          <span className="match-badge unknown">? UNKNOWN</span>
-                        )}
-                      </div>
-                      <div className="comparison-cell user-cell">
-                        <span className="field-label">Surname</span>
-                        <span className="field-value">{showMatched}</span>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-              
-
-
-              {/* Age Comparison (use backend decision) */}
-              <div className="comparison-row">
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Age</span>
-                  <span className="field-value">{currentMember?.age || "N/A"}</span>
+              <div className="comparison-table">
+                <div className="comparison-header-row">
+                  <div className="header-cell user-header-cell">Current User</div>
+                  <div className="header-cell match-header-cell">Compatibility Status</div>
+                  <div className="header-cell user-header-cell">Matched User</div>
                 </div>
-                <div className="comparison-cell match-cell">
+
+                {/* Surname/Last Name Comparison (field-to-field with robust fallbacks) */}
+                <div className="comparison-row">
                   {(() => {
-                    const ageMatch = member?.match_details?.age_match;
-                    if (ageMatch === true) {
-                      return <span className="match-badge match">✓</span>;
-                    }
-                    if (ageMatch === false) {
-                      return <span className="match-badge no-match">✗</span>;
-                    }
-                    return <span className="match-badge unknown">? UNKNOWN</span>;
+                    const currentSurname = ((typeof currentMember?.name === 'string' ? currentMember.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
+                    const matchedSurname = ((typeof member?.name === 'string' ? member.name.trim().split(/\s+/).slice(-1)[0] : '') || '').trim();
+
+                    const showCurrent = currentSurname || 'N/A';
+                    const showMatched = matchedSurname || 'N/A';
+                    const comparableCurrent = currentSurname.toLowerCase();
+                    const comparableMatched = matchedSurname.toLowerCase();
+                    const haveValues = Boolean(currentSurname) && Boolean(matchedSurname);
+                    const isEqual = haveValues && comparableCurrent === comparableMatched;
+
+                    return (
+                      <>
+                        <div className="comparison-cell user-cell">
+                          <span className="field-label">Surname</span>
+                          <span className="field-value">{showCurrent}</span>
+                        </div>
+                        <div className="comparison-cell match-cell">
+                          {haveValues ? (
+                            <span className={`match-badge ${isEqual ? 'match' : 'no-match'}`}>
+                              {isEqual ? '✓' : '✗'}
+                            </span>
+                          ) : (
+                            <span className="match-badge unknown">? UNKNOWN</span>
+                          )}
+                        </div>
+                        <div className="comparison-cell user-cell">
+                          <span className="field-label">Surname</span>
+                          <span className="field-value">{showMatched}</span>
+                        </div>
+                      </>
+                    );
                   })()}
                 </div>
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Age</span>
-                  <span className="field-value">{member?.age || "N/A"}</span>
-                </div>
-              </div>
 
-              {/* Location Comparison */}
-              <div className="comparison-row">
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Location</span>
-                  <span className="field-value">{currentMember?.city || "N/A"}</span>
-                </div>
-                <div className="comparison-cell match-cell">
-                  {currentMember?.city && member?.city ? (
-                    <span className={`match-badge ${currentMember.city.toLowerCase() === member.city.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.city.toLowerCase() === member.city.toLowerCase() ? '✓' : '✗'}
-                    </span>
-                  ) : (
-                    <span className="match-badge unknown">? UNKNOWN</span>
-                  )}
-                </div>
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Location</span>
-                  <span className="field-value">{member?.city || "N/A"}</span>
-                </div>
-              </div>
 
-              {/* Sect Comparison */}
-              <div className="comparison-row">
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Sect</span>
-                  <span className="field-value">{currentMember?.sect_school_info || "N/A"}</span>
-                </div>
-                <div className="comparison-cell match-cell">
-                  {currentMember?.sect_school_info && member?.sect_school_info ? (
-                    <span className={`match-badge ${currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? '✓' : '✗'}
-                    </span>
-                  ) : (
-                    <span className="match-badge unknown">? UNKNOWN</span>
-                  )}
-                </div>
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Sect</span>
-                  <span className="field-value">{member?.sect_school_info || "N/A"}</span>
-                </div>
-              </div>
 
-              {/* Profession Comparison */}
-              <div className="comparison-row">
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Profession</span>
-                  <span className="field-value">{currentMember?.profession || "N/A"}</span>
+                {/* Age Comparison (use backend decision) */}
+                <div className="comparison-row">
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Age</span>
+                    <span className="field-value">{currentMember?.age || "N/A"}</span>
+                  </div>
+                  <div className="comparison-cell match-cell">
+                    {(() => {
+                      const ageMatch = member?.match_details?.age_match;
+                      if (ageMatch === true) {
+                        return <span className="match-badge match">✓</span>;
+                      }
+                      if (ageMatch === false) {
+                        return <span className="match-badge no-match">✗</span>;
+                      }
+                      return <span className="match-badge unknown">? UNKNOWN</span>;
+                    })()}
+                  </div>
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Age</span>
+                    <span className="field-value">{member?.age || "N/A"}</span>
+                  </div>
                 </div>
-                <div className="comparison-cell match-cell">
-                  {currentMember?.profession && member?.profession ? (
-                    <span className={`match-badge ${currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? '✓' : '✗'}
-                    </span>
-                  ) : (
-                    <span className="match-badge unknown">? UNKNOWN</span>
-                  )}
-                </div>
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Profession</span>
-                  <span className="field-value">{member?.profession || "N/A"}</span>
-                </div>
-              </div>
 
-              {/* Marital Status Comparison */}
-              <div className="comparison-row">
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Marital Status</span>
-                  <span className="field-value">{currentMember?.martial_status || "N/A"}</span>
+                {/* Location Comparison */}
+                <div className="comparison-row">
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Location</span>
+                    <span className="field-value">{currentMember?.city || "N/A"}</span>
+                  </div>
+                  <div className="comparison-cell match-cell">
+                    {currentMember?.city && member?.city ? (
+                      <span className={`match-badge ${currentMember.city.toLowerCase() === member.city.toLowerCase() ? 'match' : 'no-match'}`}>
+                        {currentMember.city.toLowerCase() === member.city.toLowerCase() ? '✓' : '✗'}
+                      </span>
+                    ) : (
+                      <span className="match-badge unknown">? UNKNOWN</span>
+                    )}
+                  </div>
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Location</span>
+                    <span className="field-value">{member?.city || "N/A"}</span>
+                  </div>
                 </div>
-                <div className="comparison-cell match-cell">
-                  {currentMember?.martial_status && member?.martial_status ? (
-                    <span className={`match-badge ${currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? 'match' : 'no-match'}`}>
-                      {currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? '✓' : '✗'}
-                    </span>
-                  ) : (
-                    <span className="match-badge unknown">? UNKNOWN</span>
-                  )}
+
+                {/* Sect Comparison */}
+                <div className="comparison-row">
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Sect</span>
+                    <span className="field-value">{currentMember?.sect_school_info || "N/A"}</span>
+                  </div>
+                  <div className="comparison-cell match-cell">
+                    {currentMember?.sect_school_info && member?.sect_school_info ? (
+                      <span className={`match-badge ${currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? 'match' : 'no-match'}`}>
+                        {currentMember.sect_school_info.toLowerCase() === member.sect_school_info.toLowerCase() ? '✓' : '✗'}
+                      </span>
+                    ) : (
+                      <span className="match-badge unknown">? UNKNOWN</span>
+                    )}
+                  </div>
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Sect</span>
+                    <span className="field-value">{member?.sect_school_info || "N/A"}</span>
+                  </div>
                 </div>
-                <div className="comparison-cell user-cell">
-                  <span className="field-label">Marital Status</span>
-                  <span className="field-value">{member?.martial_status || "N/A"}</span>
+
+                {/* Profession Comparison */}
+                <div className="comparison-row">
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Profession</span>
+                    <span className="field-value">{currentMember?.profession || "N/A"}</span>
+                  </div>
+                  <div className="comparison-cell match-cell">
+                    {currentMember?.profession && member?.profession ? (
+                      <span className={`match-badge ${currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? 'match' : 'no-match'}`}>
+                        {currentMember.profession.toLowerCase() === member.profession.toLowerCase() ? '✓' : '✗'}
+                      </span>
+                    ) : (
+                      <span className="match-badge unknown">? UNKNOWN</span>
+                    )}
+                  </div>
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Profession</span>
+                    <span className="field-value">{member?.profession || "N/A"}</span>
+                  </div>
+                </div>
+
+                {/* Marital Status Comparison */}
+                <div className="comparison-row">
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Marital Status</span>
+                    <span className="field-value">{currentMember?.martial_status || "N/A"}</span>
+                  </div>
+                  <div className="comparison-cell match-cell">
+                    {currentMember?.martial_status && member?.martial_status ? (
+                      <span className={`match-badge ${currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? 'match' : 'no-match'}`}>
+                        {currentMember.martial_status.toLowerCase() === member.martial_status.toLowerCase() ? '✓' : '✗'}
+                      </span>
+                    ) : (
+                      <span className="match-badge unknown">? UNKNOWN</span>
+                    )}
+                  </div>
+                  <div className="comparison-cell user-cell">
+                    <span className="field-label">Marital Status</span>
+                    <span className="field-value">{member?.martial_status || "N/A"}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           )}
 
           {/* Professional Match Analysis Section - Only show if professional breakdown exists */}
@@ -557,56 +558,56 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   {(() => {
                     // Get the actual field_matches object which contains the real field comparisons
                     const fieldMatches = member.match_breakdown.field_matches;
-                    
+
                     if (!fieldMatches || typeof fieldMatches !== 'object') {
                       return <div className="no-data-message">No detailed field matches available</div>;
                     }
-                    
-                      return Object.entries(fieldMatches).map(([key, value]) => {
-                        // Better field name formatting
-                        const fieldNameMap = {
-                          'preferred_surname': 'Preferred Surname',
-                          'preferred_dargah_fatiha_niyah': 'Preferred Dargah Fatiha Niyah',
-                          'preferred_city': 'Preferred City',
-                          'preferred_education': 'Preferred Education',
-                          'preferred_sect': 'Preferred Sect',
-                          'desired_practicing_level': 'Desired Practicing Level',
-                          'preferred_family_type': 'Preferred Family Type',
-                          'preferred_occupation_profession': 'Preferred Profession',
-                          'preferred_country': 'Preferred Country',
-                          'preferred_state': 'Preferred State',
-                          'preferred_family_background': 'Preferred Family Background'
-                        };
-                        
-                        // Field names for matched user (without "Preferred")
-                        const matchedUserFieldNameMap = {
-                          'preferred_surname': 'Surname',
-                          'preferred_dargah_fatiha_niyah': 'Dargah Fatiha Niyah',
-                          'preferred_city': 'City',
-                          'preferred_education': 'Education',
-                          'preferred_sect': 'Sect',
-                          'desired_practicing_level': 'Practicing Level',
-                          'preferred_family_type': 'Family Type',
-                          'preferred_occupation_profession': 'Profession',
-                          'preferred_country': 'Country',
-                          'preferred_state': 'State',
-                          'preferred_family_background': 'Family Background'
-                        };
-                        
-                        const fieldName = fieldNameMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        const matchedUserFieldName = matchedUserFieldNameMap[key] || fieldName;
-                        const status = getApiFieldStatus(value);
-                        const isMatched = status === 'matched';
-                      
+
+                    return Object.entries(fieldMatches).map(([key, value]) => {
+                      // Better field name formatting
+                      const fieldNameMap = {
+                        'preferred_surname': 'Preferred Surname',
+                        'preferred_dargah_fatiha_niyah': 'Preferred Dargah Fatiha Niyah',
+                        'preferred_city': 'Preferred City',
+                        'preferred_education': 'Preferred Education',
+                        'preferred_sect': 'Preferred Sect',
+                        'desired_practicing_level': 'Desired Practicing Level',
+                        'preferred_family_type': 'Preferred Family Type',
+                        'preferred_occupation_profession': 'Preferred Profession',
+                        'preferred_country': 'Preferred Country',
+                        'preferred_state': 'Preferred State',
+                        'preferred_family_background': 'Preferred Family Background'
+                      };
+
+                      // Field names for matched user (without "Preferred")
+                      const matchedUserFieldNameMap = {
+                        'preferred_surname': 'Surname',
+                        'preferred_dargah_fatiha_niyah': 'Dargah Fatiha Niyah',
+                        'preferred_city': 'City',
+                        'preferred_education': 'Education',
+                        'preferred_sect': 'Sect',
+                        'desired_practicing_level': 'Practicing Level',
+                        'preferred_family_type': 'Family Type',
+                        'preferred_occupation_profession': 'Profession',
+                        'preferred_country': 'Country',
+                        'preferred_state': 'State',
+                        'preferred_family_background': 'Family Background'
+                      };
+
+                      const fieldName = fieldNameMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                      const matchedUserFieldName = matchedUserFieldNameMap[key] || fieldName;
+                      const status = getApiFieldStatus(value);
+                      const isMatched = status === 'matched';
+
                       // Extract user values from the actual field data structure
-                      const user1Value = value.user1_preferences ? 
-                        (Array.isArray(value.user1_preferences) ? value.user1_preferences.join(', ') : value.user1_preferences) : 
+                      const user1Value = value.user1_preferences ?
+                        (Array.isArray(value.user1_preferences) ? value.user1_preferences.join(', ') : value.user1_preferences) :
                         'N/A';
-                        
-                      const user2Value = value.user2_value ? 
-                        (Array.isArray(value.user2_value) ? value.user2_value.join(', ') : value.user2_value) : 
+
+                      const user2Value = value.user2_value ?
+                        (Array.isArray(value.user2_value) ? value.user2_value.join(', ') : value.user2_value) :
                         'N/A';
-                    
+
                       return (
                         <div key={key} className="comparison-row">
                           <div className="comparison-cell user-cell">
@@ -623,12 +624,12 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                             <span className="field-value">{user2Value}</span>
                           </div>
                         </div>
-                    );
-                  });
+                      );
+                    });
                   })()}
                 </div>
               )}
-              
+
               {/* Compatibility Details */}
               {member.compatibility_details && (
                 <div className="api-response-card">
@@ -639,7 +640,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                     </h5>
                     <span className="api-badge">API Response</span>
                   </div>
-                  
+
                   <div className="api-content-grid">
                     {Object.entries(member.compatibility_details).map(([key, value]) => (
                       <div key={key} className="api-field-card">
@@ -657,7 +658,7 @@ const MatchDetailsModal = ({ isOpen, onClose, member, currentMember }) => {
                   </div>
                 </div>
               )}
-              
+
             </div>
           )}
         </div>
@@ -2870,11 +2871,15 @@ const MemberMatches = () => {
   const [matchDetails, setMatchDetails] = useState([]);
   const [useError, setError] = useState(false);
   const [useLoading, setLoading] = useState(false);
-  
+
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   // Match details modal state
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
-  
+
   // Filter and sort states
   const [filteredItems, setFilteredItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
@@ -2927,11 +2932,11 @@ const MemberMatches = () => {
       setFilteredItems([]);
       return;
     }
-    
+
     setFilteredItems(
       matchDetails?.filter((match) => {
         return (
-          (updatedFilters.id ? 
+          (updatedFilters.id ?
             // Word-by-word search for id/member_id (case-insensitive)
             updatedFilters.id.split(' ').every(word => {
               const w = String(word).toLowerCase();
@@ -2942,11 +2947,11 @@ const MemberMatches = () => {
               return idMatch || memberIdMatch;
             }) : true) &&
           (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
-          (updatedFilters.agentName ? 
+          (updatedFilters.agentName ?
             (() => {
               const searchTerm = updatedFilters.agentName.toLowerCase();
               const hasAgentName = match?.agent_info?.agent_name?.toLowerCase().includes(searchTerm) ||
-                                  match?.agent_info?.name?.toLowerCase().includes(searchTerm);
+                match?.agent_info?.name?.toLowerCase().includes(searchTerm);
               const isSelf = searchTerm === 'self' && (!match?.agent_info?.agent_name && !match?.agent_info?.name);
               return hasAgentName || isSelf;
             })() : true) &&
@@ -2997,30 +3002,30 @@ const MemberMatches = () => {
   const calculateMatchPercentage = (match) => {
     // Use API data directly - no frontend calculation needed
     // Backend already handles all matching logic including age tolerance
-    
+
     // Use API data directly - no frontend calculation needed
-    
+
     // First priority: Use compatibility_score from API (most accurate)
     if (match && match.compatibility_score) {
       const percentage = Math.round(match.compatibility_score);
       console.log('Using compatibility_score:', percentage);
       return percentage;
     }
-    
+
     // Second priority: Use match_percentage from match_details
     if (match && match.match_details && match.match_details.match_percentage) {
       const percentage = Math.round(match.match_details.match_percentage);
       console.log('Using match_details.match_percentage:', percentage);
       return percentage;
     }
-    
+
     // Third priority: Use match_percentage from main object
     if (match && match.match_percentage) {
       const percentage = Math.round(match.match_percentage);
       console.log('Using match_percentage:', percentage);
       return percentage;
     }
-    
+
     // If no data available, return 0
     console.log('No match percentage data found, returning 0');
     return 0;
@@ -3045,8 +3050,27 @@ const MemberMatches = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = Array.isArray(filteredItems) ? filteredItems.slice(indexOfFirstItem, indexOfLastItem) : [];
 
+
   // Total pages
   const totalPages = Math.ceil((Array.isArray(filteredItems) ? filteredItems.length : 0) / itemsPerPage);
+
+  const Arrow = ({ field }) => {
+    if (sortConfig.key !== field) return null;
+    return <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>;
+  };
+
+  // Helper to get agent phone (safe)
+  const getAgentPhone = (agentInfo = {}) => {
+    return (
+      agentInfo?.contact_number ||
+      agentInfo?.phone ||
+      agentInfo?.mobile ||
+      agentInfo?.phone_number ||
+      agentInfo?.agent_phone ||
+      null
+    );
+  };
+
 
   // Handle Page Change
   const handlePageChange = (pageNumber) => {
@@ -3061,7 +3085,7 @@ const MemberMatches = () => {
         url: `/api/agent/user/matches/`,
         setterFunction: (data) => {
           console.log('Member Info API Response:', data);
-          
+
           // Find the specific member info
           let members = [];
           if (data && data.members && Array.isArray(data.members)) {
@@ -3069,15 +3093,15 @@ const MemberMatches = () => {
           } else if (Array.isArray(data)) {
             members = data;
           }
-          
-          const targetMember = members.find(member => 
+
+          const targetMember = members.find(member =>
             (member.user?.member_id || member.user?.id) == memberId
           );
-          
+
           if (targetMember) {
             setMemberInfo({
               member_id: targetMember.user?.member_id || targetMember.user?.id,
-              name: targetMember.user?.first_name && targetMember.user?.last_name 
+              name: targetMember.user?.first_name && targetMember.user?.last_name
                 ? `${targetMember.user.first_name} ${targetMember.user.last_name}`.trim()
                 : targetMember.user?.name || targetMember.name || 'No Name',
               city: targetMember.user?.city || '-',
@@ -3087,7 +3111,7 @@ const MemberMatches = () => {
               martial_status: targetMember.user?.martial_status || '-',
               profile_photo: targetMember.user?.profile_photo || targetMember.user?.profile_image || '/images/muslim-man.png'
             });
-            
+
             // Now get detailed matches using the proper agent API
             const actualUserId = targetMember.user?.id;
             if (actualUserId) {
@@ -3097,7 +3121,7 @@ const MemberMatches = () => {
                   // console.log('Agent Detailed Matches API Response:', matchesData);
                   // console.log('User ID:', actualUserId);
                   // console.log('Response structure:', typeof matchesData);
-                  
+
                   // Check for API errors
                   if (matchesData && matchesData.error) {
                     console.error('API Error:', matchesData.error);
@@ -3105,19 +3129,19 @@ const MemberMatches = () => {
                     setMatchDetails([]);
                     return;
                   }
-                  
+
                   // Handle agent detailed matches API response
                   let allMatches = [];
                   let matchAnalysis = null;
-                  
+
                   if (matchesData && typeof matchesData === 'object') {
                     // Check for the new detailed matches structure
                     if (matchesData.detailed_matches && Array.isArray(matchesData.detailed_matches)) {
                       // Find the detailed matches for the specific user
-                      const userDetailedMatches = matchesData.detailed_matches.find(dm => 
+                      const userDetailedMatches = matchesData.detailed_matches.find(dm =>
                         (dm.user?.id || dm.user_id) == actualUserId
                       );
-                      
+
                       if (userDetailedMatches && userDetailedMatches.matches && Array.isArray(userDetailedMatches.matches)) {
                         allMatches = userDetailedMatches.matches;
                         // console.log('Found user-specific matches:', allMatches);
@@ -3127,7 +3151,7 @@ const MemberMatches = () => {
                     } else if (Array.isArray(matchesData)) {
                       allMatches = matchesData;
                     }
-                    
+
                     // Get match analysis if available
                     if (matchesData.analysis) {
                       matchAnalysis = matchesData.analysis;
@@ -3135,19 +3159,19 @@ const MemberMatches = () => {
                       matchAnalysis = matchesData.match_analysis;
                     }
                   }
-                  
+
                   // Since we already filtered by user in the API response, use allMatches directly
                   const matches = allMatches;
-                  
+
                   // console.log('All matches before filtering:', allMatches);
                   // console.log('Extracted matches after filtering:', matches);
                   // console.log('Match analysis:', matchAnalysis);
                   // console.log('Matches count:', matches.length);
-                  
+
                   // If no matches found, try alternative filtering approach
                   if (matches.length === 0 && allMatches.length > 0) {
                     // console.log('No matches found with current filter, trying alternative approach...');
-                    
+
                     // Try to find matches by checking all possible user ID fields
                     const alternativeMatches = allMatches.filter(match => {
                       const allUserIds = [
@@ -3161,38 +3185,38 @@ const MemberMatches = () => {
                         match.target_user_id,
                         match.target_id
                       ].filter(id => id != null);
-                      
+
                       // console.log('Alternative filtering - Match user IDs:', allUserIds);
                       // console.log('Looking for user ID:', actualUserId);
-                      
+
                       return allUserIds.includes(parseInt(actualUserId)) || allUserIds.includes(actualUserId);
                     });
-                    
+
                     // console.log('Alternative matches found:', alternativeMatches);
-                    
+
                     if (alternativeMatches.length > 0) {
                       // Use alternative matches
                       const processedMatches = alternativeMatches.map(match => {
-                        const matchPercentage = match.match_percentage || 
-                                              match.match_percent || 
-                                              match.compatibility_score || 
-                                              0;
-                        
+                        const matchPercentage = match.match_percentage ||
+                          match.match_percent ||
+                          match.compatibility_score ||
+                          0;
+
                         return {
                           id: match.user?.member_id || match.user?.id || match.id,
                           member_id: match.user?.member_id || match.user?.id || match.id,
                           actual_user_id: match.user?.id || match.user_id || match.target_user_id || match.source_user_id || null,
-                          name: match.user?.first_name && match.user?.last_name 
+                          name: match.user?.first_name && match.user?.last_name
                             ? `${match.user.first_name} ${match.user.last_name}`.trim()
                             : match.user?.name || match.name || 'No Name',
                           profile_photo: (() => {
-                            const photoUrl = match.user?.profile_photo || 
-                                            match.user?.profile_image ||
-                                            match.user?.avatar ||
-                                            match.user?.photo ||
-                                            match.user?.image ||
-                                            match.profile_photo;
-                            
+                            const photoUrl = match.user?.profile_photo ||
+                              match.user?.profile_image ||
+                              match.user?.avatar ||
+                              match.user?.photo ||
+                              match.user?.image ||
+                              match.profile_photo;
+
                             const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
                             return fullUrl || '/images/muslim-man.png';
                           })(),
@@ -3210,13 +3234,13 @@ const MemberMatches = () => {
                           compatibility_details: match.compatibility_details || null
                         };
                       });
-                      
+
                       // console.log('Processed alternative matches:', processedMatches);
                       setMatchDetails(processedMatches);
                       return;
                     }
                   }
-                  
+
                   // Debug each match for percentage analysis
                   // matches.forEach((match, index) => {
                   //   console.log(`Match ${index + 1}:`, {
@@ -3228,17 +3252,17 @@ const MemberMatches = () => {
                   //     all_fields: Object.keys(match)
                   //   });
                   // });
-                  
+
                   // Process matches with proper data structure
                   const processedMatches = matches.map(match => {
                     // Process match data
-                    
+
                     // Use the compatibility score from the new API structure
-                    const matchPercentage = match.compatibility_score || 
-                                          match.match_percentage || 
-                                          match.match_percent || 
-                                          0;
-                    
+                    const matchPercentage = match.compatibility_score ||
+                      match.match_percentage ||
+                      match.match_percent ||
+                      0;
+
                     // Extract matched user data
                     const matchedUser = match.matched_user || match.user;
                     // Extract agent info (who added the matched user)
@@ -3250,7 +3274,7 @@ const MemberMatches = () => {
                           agent_name: agentInfoRaw.agent_name || agentInfoRaw.name,
                           agent_email: agentInfoRaw.agent_email || agentInfoRaw.email,
                         });
-                      } catch (e) {}
+                      } catch (e) { }
                     }
                     const agentInfo = agentInfoRaw || null;
 
@@ -3259,17 +3283,17 @@ const MemberMatches = () => {
                       id: matchedUser?.member_id || matchedUser?.id || match.id,
                       member_id: matchedUser?.member_id || matchedUser?.id || match.id,
                       actual_user_id: matchedUser?.id || match.user_id || match.target_user_id || match.source_user_id || null,
-                      name: matchedUser?.first_name && matchedUser?.last_name 
+                      name: matchedUser?.first_name && matchedUser?.last_name
                         ? `${matchedUser.first_name} ${matchedUser.last_name}`.trim()
                         : matchedUser?.name || match.name || 'No Name',
                       profile_photo: (() => {
-                        const photoUrl = matchedUser?.profile_photo || 
-                                        matchedUser?.profile_image ||
-                                        matchedUser?.avatar ||
-                                        matchedUser?.photo ||
-                                        matchedUser?.image ||
-                                        match.profile_photo;
-                        
+                        const photoUrl = matchedUser?.profile_photo ||
+                          matchedUser?.profile_image ||
+                          matchedUser?.avatar ||
+                          matchedUser?.photo ||
+                          matchedUser?.image ||
+                          match.profile_photo;
+
                         const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
                         return fullUrl || '/images/muslim-man.png';
                       })(),
@@ -3290,14 +3314,14 @@ const MemberMatches = () => {
                       agent_info: agentInfo
                     };
                   });
-                  
+
                   // console.log('Processed matches with proper percentages:', processedMatches);
                   setMatchDetails(processedMatches);
                 },
                 setLoading: setLoading,
                 setErrors: setError,
               };
-              
+
               fetchDataWithTokenV2(matchesParameter);
             }
           }
@@ -3305,7 +3329,7 @@ const MemberMatches = () => {
         setLoading: setLoading,
         setErrors: setError,
       };
-      
+
       // Fetch member info first
       fetchDataWithTokenV2(memberInfoParameter);
     }
@@ -3316,7 +3340,7 @@ const MemberMatches = () => {
       <div className="member-matches-container">
         {/* Header with back button */}
         <div className="header-section">
-          <button 
+          <button
             className="back-button"
             onClick={() => navigate('/member-analytics')}
           >
@@ -3349,7 +3373,7 @@ const MemberMatches = () => {
                 <span className="mm-info-value">{memberInfo.sect_school_info || '-'}</span>
               </div>
             </div>
-            
+
             <div className="mm-match-summary-cards">
               <div className="mm-summary-card">
                 <span className="mm-summary-number">{filteredItems.length}</span>
@@ -3357,7 +3381,7 @@ const MemberMatches = () => {
               </div>
               <div className="mm-summary-card">
                 <span className="mm-summary-number">
-                  {filteredItems.length > 0 
+                  {filteredItems.length > 0
                     ? Math.round(filteredItems.reduce((sum, match) => sum + calculateMatchPercentage(match), 0) / filteredItems.length)
                     : 0}%
                 </span>
@@ -3369,47 +3393,49 @@ const MemberMatches = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button className="filter-button" onClick={toggleFilters}>
             <AiOutlineFilter className="icon" /> Filter By
           </button>
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Member ID"
-            style={{ width: '120px' }}
-          />
+          {isFilters && (
+            <>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Member ID"
+                style={{ width: '120px' }}
+              />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.name}
-            onChange={(e) => handleFilterChange('name', e.target.value)}
-            placeholder="Name"
-            style={{ width: '120px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.name}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+                placeholder="Name"
+                style={{ width: '120px' }}
+              />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.agentName}
-            onChange={(e) => handleFilterChange('agentName', e.target.value)}
-            placeholder="Agent Name"
-            style={{ width: '120px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.agentName}
+                onChange={(e) => handleFilterChange('agentName', e.target.value)}
+                placeholder="Agent Name"
+                style={{ width: '120px' }}
+              />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            style={{ width: '120px' }}
-          />
-          
-          {/* <input
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                style={{ width: '120px' }}
+              />
+
+              {/* <input
             className="filter-dropdown"
             type="number"
             value={filters.minAge || ''}
@@ -3421,152 +3447,154 @@ const MemberMatches = () => {
           />
           
           <input
-            className="filter-dropdown"
-            type="number"
-            value={filters.maxAge || ''}
-            onChange={(e) => handleFilterChange('maxAge', e.target.value)}
-            placeholder="Max age"
+          className="filter-dropdown"
+          type="number"
+          value={filters.maxAge || ''}
+          onChange={(e) => handleFilterChange('maxAge', e.target.value)}
+          placeholder="Max age"
             min="18"
             max="50"
             style={{ width: '100px' }}
           /> */}
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="actor">Actor</option>
-            <option value="administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="air_hostess">Air Hostess</option>
-            <option value="airline_professional">Airline Professional</option>
-            <option value="airforce">Airforce</option>
-            <option value="architect">Architect</option>
-            <option value="artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="audiologist">Audiologist</option>
-            <option value="auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="chef">Chef</option>
-            <option value="civil_servant">Civil Servant</option>
-            <option value="clerk">Clerk</option>
-            <option value="coach">Coach</option>
-            <option value="consultant">Consultant</option>
-            <option value="counselor">Counselor</option>
-            <option value="dentist">Dentist</option>
-            <option value="designer">Designer</option>
-            <option value="doctor">Doctor</option>
-            <option value="engineer">Engineer</option>
-            <option value="entrepreneur">Entrepreneur</option>
-            <option value="farmer">Farmer</option>
-            <option value="fashion_designer">Fashion Designer</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="graphic_designer">Graphic Designer</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="interior_designer">Interior Designer</option>
-            <option value="journalist">Journalist</option>
-            <option value="lawyer">Lawyer</option>
-            <option value="manager">Manager</option>
-            <option value="marketing_professional">Marketing Professional</option>
-            <option value="nurse">Nurse</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="photographer">Photographer</option>
-            <option value="pilot">Pilot</option>
-            <option value="police">Police</option>
-            <option value="professor">Professor</option>
-            <option value="psychologist">Psychologist</option>
-            <option value="researcher">Researcher</option>
-            <option value="sales_executive">Sales Executive</option>
-            <option value="scientist">Scientist</option>
-            <option value="social_worker">Social Worker</option>
-            <option value="software_consultant">Software Consultant</option>
-            <option value="sportsman">Sportsman</option>
-            <option value="teacher">Teacher</option>
-            <option value="technician">Technician</option>
-            <option value="therapist">Therapist</option>
-            <option value="veterinarian">Veterinarian</option>
-            <option value="writer">Writer</option>
-            <option value="other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.martialStatus}
-            onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-          >
-            <option value="">Marital Status</option>
-            {gender === 'male' ? (
-              <>
-                <option value="Single">Single</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
-              </>
-            ) : (
-              <>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
-              </>
-            )}
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.martialStatus}
+                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+              >
+                <option value="">Marital Status</option>
+                {gender === 'male' ? (
+                  <>
+                    <option value="Single">Single</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </>
+                )}
+              </select>
 
-          <input
-            className="filter-dropdown"
-            type="number"
-            value={filters.minMatchPercentage || ''}
-            onChange={(e) => handleFilterChange('minMatchPercentage', e.target.value)}
-            placeholder="Min %"
-            min="0"
-            max="100"
-            style={{ width: '80px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="number"
+                value={filters.minMatchPercentage || ''}
+                onChange={(e) => handleFilterChange('minMatchPercentage', e.target.value)}
+                placeholder="Min %"
+                min="0"
+                max="100"
+                style={{ width: '80px' }}
+              />
 
+            </>
+          )}
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
           </button>
@@ -3579,7 +3607,7 @@ const MemberMatches = () => {
               <h3>⚠️ Backend Error</h3>
               <p>There's an issue with the backend API. Please contact the development team.</p>
               <p><strong>Error:</strong> 'MehramAgent' object has no attribute 'phone'</p>
-              <button 
+              <button
                 className="retry-button"
                 onClick={() => {
                   setError(false);
@@ -3609,231 +3637,321 @@ const MemberMatches = () => {
 
         {/* Table Section */}
         {!useError && (
-          <table className="matches-table">
-          <thead>
-            <tr>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('id')}
-                style={{ cursor: 'pointer' }}
-              >
-                Member ID
-                {sortConfig.key === 'id' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('name')}
-                style={{ cursor: 'pointer' }}
-              >
-                Member Name
-                {sortConfig.key === 'name' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('agent_name')}
-                style={{ cursor: 'pointer' }}
-              >
-                Agent Name
-                {sortConfig.key === 'agent_name' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('city')}
-                style={{ cursor: 'pointer' }}
-              >
-                Location
-                {sortConfig.key === 'city' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('age')}
-                style={{ cursor: 'pointer' }}
-              >
-                Age
-                {sortConfig.key === 'age' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('sect_school_info')}
-                style={{ cursor: 'pointer' }}
-              >
-                Sect
-                {sortConfig.key === 'sect_school_info' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('profession')}
-                style={{ cursor: 'pointer' }}
-              >
-                Profession
-                {sortConfig.key === 'profession' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('martial_status')}
-                style={{ cursor: 'pointer' }}
-              >
-                Marital Status
-                {sortConfig.key === 'martial_status' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('match_percentage')}
-                style={{ cursor: 'pointer' }}
-              >
-                Match Per(%)
-                {sortConfig.key === 'match_percentage' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th>Call Agent</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((match) => (
-              <tr key={match?.id} onClick={() => { const uid = match?.actual_user_id && /^\d+$/.test(String(match.actual_user_id)) ? match.actual_user_id : null; if (uid) navigate(`/details/${uid}`); }} style={{ cursor: "pointer" }}>
-                <td>{match?.member_id || match?.id}</td>
-                <td>{match?.name || match?.user_name || "No Name"}</td>
-                <td onClick={(e) => e.stopPropagation()}>
-                  {match?.agent_info?.agent_name ?? match?.agent_info?.name ? (
-                    <span className="agent-name">
-                      {match?.agent_info?.agent_name ?? match?.agent_info?.name}
-                    </span>
-                  ) : (
-                    <span className="self-badge">Self</span>
-                  )}
-                </td>
-                <td>{match?.city || "-"}</td>
-                <td>{match?.age || "-"}</td>
-                <td>{match?.sect_school_info || "-"}</td>
-                <td>{match?.profession || "-"}</td>
-                <td>
-                  <span className={`marital-badge ${match?.martial_status ? match?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                    {match?.martial_status || "Not mentioned"}
-                  </span>
-                </td>
-                <td>
-                  <div className="progress-bar-container">
-                    <div
-                      className="progress-bar"
-                      style={{
-                        width: `${calculateMatchPercentage(match)}%`,
-                        backgroundColor: getProgressBarColor(calculateMatchPercentage(match)),
-                      }}
-                    ></div>
-                    <span className="progress-text">{calculateMatchPercentage(match)}%</span>
-                  </div>
-                </td>
-                <td onClick={(e) => e.stopPropagation()}>
-                  {(() => {
-                    // Debug: Log agent info to console
-                    if (match?.agent_info) {
-                      console.log('Agent Info for', match.name, ':', match.agent_info);
-                    }
-                    
-                    return (match?.agent_info?.contact_number || 
-                            match?.agent_info?.phone || 
-                            match?.agent_info?.mobile || 
-                            match?.agent_info?.phone_number ||
-                            match?.agent_info?.agent_phone) ? (
-                      <button 
-                        className="call-agent-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const phoneNumber = match.agent_info.contact_number || 
-                                            match.agent_info.phone || 
-                                            match.agent_info.mobile || 
-                                            match.agent_info.phone_number ||
-                                            match.agent_info.agent_phone;
-                          console.log('Calling agent with number:', phoneNumber);
-                          window.open(`tel:${phoneNumber}`, '_self');
-                        }}
-                        title={`Call ${match?.agent_info?.agent_name ?? match?.agent_info?.name}`}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                        Call
-                      </button>
-                    ) : (
-                      <span className="no-call-available">-</span>
-                    );
-                  })()}
-                </td>
-                <td>
-                  <button 
-                    className="action-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedMatch(match);
-                      setShowMatchModal(true);
-                    }}
+          <div className="w-full">
+            {/* MOBILE: stacked cards */}
+            <div className="space-y-3 md:hidden">
+              {currentItems?.map((match) => {
+                // data shape: some rows use top-level fields (match.name), sometimes nested user object etc.
+                const displayName = match?.name || match?.user_name || "No Name";
+                const profilePhoto = match?.profile_photo || match?.user?.profile_photo || match?.photo || null;
+                const uid = match?.actual_user_id && /^\d+$/.test(String(match.actual_user_id)) ? match.actual_user_id : match?.id;
+
+                return (
+                  <div
+                    key={match?.id ?? Math.random()}
+                    className="bg-white shadow-xs rounded-lg p-3 flex gap-3 items-start cursor-pointer hover:shadow-sm"
+                    onClick={() => uid && navigate(`/details/${uid}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter" && uid) navigate(`/details/${uid}`); }}
                   >
-                    Show Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <img
+                      src={profilePhoto || "https://placehold.co/40"}
+                      alt={displayName}
+                      className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (uid) navigate(`/details/${uid}`);
+                      }}
+                      onError={(e) => { e.currentTarget.src = "https://placehold.co/40"; }}
+                      title="View Profile"
+                    />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-gray-900 truncate">{displayName}</div>
+                          <div className="text-xs text-gray-500 truncate">
+                            ID: <span className="text-gray-700">{match?.member_id || match?.id || "-"}</span>
+                          </div>
+                        </div>
+
+
+                      </div>
+
+                      <div className="mt-2 grid grid-cols-2 gap-y-1 text-sm text-gray-600">
+                        <div className="truncate">
+                          <div className="text-xs text-gray-400">Agent</div>
+                          <div className="truncate">{match?.agent_info?.agent_name ?? match?.agent_info?.name ?? "Self"}</div>
+                        </div>
+
+                        <div className="truncate">
+                          <div className="text-xs text-gray-400">Location</div>
+                          <div className="truncate">{match?.city || "-"}</div>
+                        </div>
+
+                        <div className="truncate">
+                          <div className="text-xs text-gray-400">Age</div>
+                          <div>{match?.age ?? "-"}</div>
+                        </div>
+
+                        <div className="truncate">
+                          <div className="text-xs text-gray-400">Match %</div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 h-2 bg-gray-200 rounded overflow-hidden">
+                              <div
+                                className="h-full"
+                                style={{
+                                  width: `${calculateMatchPercentage(match)}%`,
+                                  backgroundColor: getProgressBarColor(calculateMatchPercentage(match)),
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs text-gray-500">{calculateMatchPercentage(match)}%</span>
+                          </div>
+                        </div>
+
+                        <div className="truncate">
+                          <div className="text-xs text-gray-400">Profession</div>
+                          <div className="truncate">{match?.profession || "-"}</div>
+                        </div>
+
+                        <div className="truncate col-span-2">
+                          <div className="text-xs text-gray-400">Marital</div>
+                          <div>
+                            <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full font-medium ${match?.martial_status?.toLowerCase()?.includes("single") ? "bg-green-100 text-green-800" : match?.martial_status?.toLowerCase()?.includes("married") ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}`}>
+                              {match?.martial_status || "Not mentioned"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {getAgentPhone(match?.agent_info) ? (
+                            <button
+                              className="bg-white border px-3 py-1 rounded-md text-sm flex items-center gap-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const phone = getAgentPhone(match?.agent_info);
+                                window.open(`tel:${phone}`, "_self");
+                              }}
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72" />
+                              </svg>
+                              Call Agent
+                            </button>
+                          ) : (
+                            <span className="text-xs text-gray-400">No agent</span>
+                          )}
+                        </div>
+
+                        <div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedMatch(match); setShowMatchModal(true); }}
+                            className="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm"
+                          >
+                            Show Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* DESKTOP: table */}
+            <div className="hidden md:block w-full">
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-[900px] table-fixed w-full bg-white divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                        <button onClick={() => handleSort("id")} className="flex items-center gap-1">
+                          Member ID<Arrow field="id" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[220px]">
+                        <button onClick={() => handleSort("name")} className="flex items-center gap-1">
+                          Member Name<Arrow field="name" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[180px]">
+                        <button onClick={() => handleSort("agent_name")} className="flex items-center gap-1">
+                          Agent Name<Arrow field="agent_name" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[140px]">
+                        <button onClick={() => handleSort("city")} className="flex items-center gap-1">
+                          Location<Arrow field="city" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[80px]">
+                        <button onClick={() => handleSort("age")} className="flex items-center gap-1">
+                          Age<Arrow field="age" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider hidden lg:table-cell w-[160px]">
+                        <button onClick={() => handleSort("sect_school_info")} className="flex items-center gap-1">
+                          Sect<Arrow field="sect_school_info" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider hidden lg:table-cell w-[160px]">
+                        <button onClick={() => handleSort("profession")} className="flex items-center gap-1">
+                          Profession<Arrow field="profession" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                        <button onClick={() => handleSort("martial_status")} className="flex items-center gap-1">
+                          Marital Status<Arrow field="martial_status" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[140px]">
+                        <button onClick={() => handleSort("match_percentage")} className="flex items-center gap-1">
+                          Match Per(%)<Arrow field="match_percentage" />
+                        </button>
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                        Call Agent
+                      </th>
+
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="bg-white divide-y divide-gray-100">
+                    {currentItems?.map((match) => {
+                      const displayName = match?.name || match?.user_name || "No Name";
+                      const profilePhoto = match?.profile_photo || match?.user?.profile_photo || match?.photo || null;
+                      const uid = match?.actual_user_id && /^\d+$/.test(String(match.actual_user_id)) ? match.actual_user_id : match?.id;
+
+                      return (
+                        <tr
+                          key={match?.id ?? Math.random()}
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => uid && navigate(`/details/${uid}`)}
+                        >
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{match?.member_id || match?.id || "-"}</td>
+
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <img
+                                src={profilePhoto || "https://placehold.co/40"}
+                                alt={displayName}
+                                className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                                onClick={(e) => {
+                                  e.stopPropagation(); if (uid) navigate(`/details/${uid}`);
+                                }}
+                                onError={(e) => { e.currentTarget.src = "https://placehold.co/40"; }}
+                                title="View Profile"
+                              />
+                              <div className="text-sm font-medium text-gray-900 truncate">{displayName}</div>
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {match?.agent_info?.agent_name ?? match?.agent_info?.name ?? <span className="text-gray-400">Self</span>}
+                          </td>
+
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate">{match?.city || "-"}</td>
+
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{match?.age ?? "-"}</td>
+
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{match?.sect_school_info || "-"}</td>
+
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{match?.profession || "-"}</td>
+
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <span className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${match?.martial_status?.toLowerCase()?.includes("single") ? "bg-green-100 text-green-800" : match?.martial_status?.toLowerCase()?.includes("married") ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}`}>
+                              {match?.martial_status || "Not mentioned"}
+                            </span>
+                          </td>
+
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <div className="w-32 h-2 bg-gray-200 rounded overflow-hidden">
+                                <div className="h-full" style={{ width: `${calculateMatchPercentage(match)}%`, backgroundColor: getProgressBarColor(calculateMatchPercentage(match)) }} />
+                              </div>
+                              <span className="text-sm text-gray-600">{calculateMatchPercentage(match)}%</span>
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                            {getAgentPhone(match?.agent_info) ? (
+                              <button
+                                className="bg-white border px-3 py-1 rounded-md text-sm flex items-center gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const phone = getAgentPhone(match?.agent_info);
+                                  window.open(`tel:${phone}`, "_self");
+                                }}
+                              >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72" />
+                                </svg>
+                                Call
+                              </button>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+
+                          <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              className="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMatch(match);
+                                setShowMatchModal(true);
+                              }}
+                            >
+                              Show Details
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Pagination */}
         {!useError && (
-        <div className="pagination">
-          <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            &laquo; Previous
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i + 1}
-              className={`pagination-btn ${currentPage === i + 1 ? "active" : ""}`}
-              onClick={() => handlePageChange(i + 1)}
-            >
-              {i + 1}
+          <div className="pagination">
+            <button className="pagination-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              &laquo; Previous
             </button>
-          ))}
 
-          <button className="pagination-btn" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-            Next &raquo;
-          </button>
-        </div>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={`pagination-btn ${currentPage === i + 1 ? "active" : ""}`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button className="pagination-btn" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+              Next &raquo;
+            </button>
+          </div>
         )}
       </div>
 

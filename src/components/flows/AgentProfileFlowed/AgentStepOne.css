@@ -1,0 +1,15 @@
+@media (width <=1024px) {
+    .step-tracker {
+        display: none !important;
+    }
+
+    .form_container_user_creation form {
+        width: 100% !important;
+        left: 0 !important;
+    }
+
+    .steps-title h3,
+    .steps-title h5 {
+        padding: 1% 4% !important;
+    }
+}

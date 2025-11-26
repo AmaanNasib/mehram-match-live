@@ -1,10 +1,10 @@
 // export default MemStepTwo;
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { fetchDataV2, justputDataWithoutToken, updateDataV2 } from "../../../apiUtils";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+import { fetchDataV2, justputDataWithoutToken } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
+
+import './AgentStepOne.css';
 
 const MemStepTwo = () => {
   const [userId] = useState(localStorage.getItem("userId"));
@@ -14,11 +14,11 @@ const MemStepTwo = () => {
 
   const [profileData, setProfileData] = useState({
     town: '',
-        city: '',
-        state: '',
-        country: '',
-        pin_code: '',
-        address: '',
+    city: '',
+    state: '',
+    country: '',
+    pin_code: '',
+    address: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -93,11 +93,11 @@ const MemStepTwo = () => {
         url: `/api/agent/${userId}/`,
         payload: {
           town: profileData.town || null,
-        city: profileData.city || null,
-        state: profileData.state || null,
-        country: profileData.country || null,
-        pin_code: profileData.pin_code || null,
-        address: profileData.address || null,
+          city: profileData.city || null,
+          state: profileData.state || null,
+          country: profileData.country || null,
+          pin_code: profileData.pin_code || null,
+          address: profileData.address || null,
         },
         navigate: navigate,
         navUrl: `/agentstepthr/${userId}`,
@@ -209,7 +209,7 @@ const MemStepTwo = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white steps-title">
         <h3
           style={{
             fontSize: "1.8rem",
@@ -242,6 +242,7 @@ const MemStepTwo = () => {
 
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw]">
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -280,7 +281,7 @@ const MemStepTwo = () => {
                 step 2/6
               </p>
               <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-              Residence Details
+                Residence Details
               </h4>
               <p
                 style={{
@@ -322,13 +323,13 @@ const MemStepTwo = () => {
                         updateField("town", e.target.value)
                       }
                     />
-                         {errors.town && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.town}
-                    </p>
-                  )}
+                    {errors.town && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.town}
+                      </p>
+                    )}
                   </div>
-                  
+
                   {/* Information icon positioned at right corner of input */}
                   <div className="absolute right-2 bottom-1  transform -translate-y-1/2 group z-20">
                     <svg
@@ -354,55 +355,55 @@ const MemStepTwo = () => {
 
 
 
-                 {/* Islam Practicing Level */}
-                 <div className="w-[50%] relative flex flex-col gap-[10px]">
-  <label htmlFor="city" className="block text-sm font-medium text-[#000000] mb-0">
-    City
-  </label>
-  <select
-    id="city"
-    name="city"
-    value={profileData.city || ''}
-    onChange={(e) => updateField("city", e.target.value)}
-    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                {/* Islam Practicing Level */}
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
+                  <label htmlFor="city" className="block text-sm font-medium text-[#000000] mb-0">
+                    City
+                  </label>
+                  <select
+                    id="city"
+                    name="city"
+                    value={profileData.city || ''}
+                    onChange={(e) => updateField("city", e.target.value)}
+                    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
                           text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-  >
-    <option value="">Select City</option>
-    {citys.map((city) => (
-      <option key={city.value} value={city.value}>
-        {city.label}
-      </option>
-    ))}
-  </select>
-  {errors.city && (
-    <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-  )}
-</div>
+                  >
+                    <option value="">Select City</option>
+                    {citys.map((city) => (
+                      <option key={city.value} value={city.value}>
+                        {city.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.city && (
+                    <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                  )}
+                </div>
 
 
                 <div className="w-[50%] relative flex flex-col gap-[10px]">
-  <label htmlFor="state" className="block text-sm font-medium text-[#000000] mb-0">
-    State
-  </label>
-  <select
-    id="state"
-    name="state"
-    value={profileData.state || ''}
-    onChange={(e) => updateField("state", e.target.value)}
-    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                  <label htmlFor="state" className="block text-sm font-medium text-[#000000] mb-0">
+                    State
+                  </label>
+                  <select
+                    id="state"
+                    name="state"
+                    value={profileData.state || ''}
+                    onChange={(e) => updateField("state", e.target.value)}
+                    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
                           text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-  >
-    <option value="">Select State</option>
-    {statues.map((state) => (
-      <option key={state.value} value={state.value}>
-        {state.label}
-      </option>
-    ))}
-  </select>
-  {errors.state && (
-    <p className="text-red-500 text-sm mt-1">{errors.state}</p>
-  )}
-</div>
+                  >
+                    <option value="">Select State</option>
+                    {statues.map((state) => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.state && (
+                    <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                  )}
+                </div>
 
               </div>
 
@@ -410,34 +411,34 @@ const MemStepTwo = () => {
               <div style={{ display: "flex", gap: "2rem" }}>
                 {/* Islam Practicing Level */}
                 <div className="w-[50%] relative flex flex-col gap-[10px]">
-  <label htmlFor="country" className="block text-sm font-medium text-[#000000] mb-0">
-    Country
-  </label>
-  <select
-    id="country"
-    name="country"
-    value={profileData.country || ''}
-    onChange={(e) => updateField("country", e.target.value)}
-    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
+                  <label htmlFor="country" className="block text-sm font-medium text-[#000000] mb-0">
+                    Country
+                  </label>
+                  <select
+                    id="country"
+                    name="country"
+                    value={profileData.country || ''}
+                    onChange={(e) => updateField("country", e.target.value)}
+                    className=" h-10 w-[100%] text-[#6D6E6F]  placeholder-[#898B92] font-semibold rounded-lg border-1 border-[#898B92] 
                           text-[#6D6E6F] text-sm font-semibold pl-[12px] pr-[24px] text-[12px] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-  >
-    <option value="">Select Country</option>
-    {countries.map((country) => (
-      <option key={country.value} value={country.value}>
-        {country.label}
-      </option>
-    ))}
-  </select>
-  {errors.country && (
-    <p className="text-red-500 text-sm mt-1">{errors.country}</p>
-  )}
-</div>
+                  >
+                    <option value="">Select Country</option>
+                    {countries.map((country) => (
+                      <option key={country.value} value={country.value}>
+                        {country.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.country && (
+                    <p className="text-red-500 text-sm mt-1">{errors.country}</p>
+                  )}
+                </div>
 
 
 
 
-                 {/* Islam Practicing Level */}
-                 <div className="w-[50%] relative flex flex-col gap-[10px]">
+                {/* Islam Practicing Level */}
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="pincode"
                     className="block text-sm font-medium text-[#000000] mb-0"
@@ -455,11 +456,11 @@ const MemStepTwo = () => {
                         updateField("pin_code", e.target.value)
                       }
                     />
-                         {errors.pin_code && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.pin_code}
-                    </p>
-                  )}
+                    {errors.pin_code && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.pin_code}
+                      </p>
+                    )}
                   </div>
                   {/* Information icon positioned at right corner of input */}
                   <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
@@ -485,52 +486,52 @@ const MemStepTwo = () => {
                 </div>
 
               </div>
-                <div className="w-[100%] relative flex flex-col gap-[10px]">
-                  <label
-                    htmlFor="fulladdress"
-                    className="block text-sm font-medium text-[#000000] mb-0"
-                  >
-                    Full Address 
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="fulladdress"
-                      name="fulladdress"
-                      value={profileData.address || ''}
-                      className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
-                      onChange={(e) =>
-                        updateField("address", e.target.value)
-                      }
-                    />
-                         {errors.address && (
+              <div className="w-[100%] relative flex flex-col gap-[10px]">
+                <label
+                  htmlFor="fulladdress"
+                  className="block text-sm font-medium text-[#000000] mb-0"
+                >
+                  Full Address
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="fulladdress"
+                    name="fulladdress"
+                    value={profileData.address || ''}
+                    className="h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] focus:ring-[#ffa4a4] focus:border-[#ffa4a4]"
+                    onChange={(e) =>
+                      updateField("address", e.target.value)
+                    }
+                  />
+                  {errors.address && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.address}
                     </p>
                   )}
-                  </div>
-                  {/* Information icon positioned at right corner of input */}
-                  <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-red-500 cursor-pointer"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {/* Tooltip text */}
-                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-                      This is additional information about the Islam Practicing Level field.
-                    </div>
+                </div>
+                {/* Information icon positioned at right corner of input */}
+                <div className="absolute right-2 bottom-1 transform -translate-y-1/2 group z-20">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-red-500 cursor-pointer"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  {/* Tooltip text */}
+                  <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                    This is additional information about the Islam Practicing Level field.
                   </div>
                 </div>
+              </div>
 
               {/* Buttons */}
               <div style={{ display: "flex", justifyContent: "space-between" }}>

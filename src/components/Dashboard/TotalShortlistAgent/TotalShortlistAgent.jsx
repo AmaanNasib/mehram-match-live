@@ -26,6 +26,10 @@ const TotalShortlistAgent = () => {
     gender: '',
   });
 
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   // Fetch agent shortlist data
   useEffect(() => {
     if (userId) {
@@ -337,153 +341,157 @@ const TotalShortlistAgent = () => {
 
             {/* Filters Section */}
             <div className="shortlist-agent-filter-container">
-              <button className="shortlist-agent-filter-button">
+              <button className="shortlist-agent-filter-button" onClick={toggleFilters}>
                 <AiOutlineFilter className="icon" /> Filter
               </button>
-              <input
-                className="shortlist-agent-filter-dropdown"
-                type="text"
-                value={filters.id}
-                onChange={(e) => handleFilterChange("id", e.target.value)}
-                placeholder="Enter ID"
-                style={{ width: "70px" }}
-              />
-              <input
-                className="shortlist-agent-filter-dropdown"
-                type="text"
-                value={filters.name}
-                onChange={(e) => handleFilterChange("name", e.target.value)}
-                placeholder="Name"
-                style={{ width: "100px" }}
-              />
-              <input
-                className="shortlist-agent-filter-dropdown"
-                type="text"
-                value={filters.city}
-                onChange={(e) => handleFilterChange("city", e.target.value)}
-                placeholder="Location"
-                style={{ width: "100px" }}
-              />
-              <select
-                className="shortlist-agent-filter-dropdown"
-                value={filters.sectSchoolInfo}
-                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-              >
-                <option value="">Sect</option>
-                <option value="Ahle Qur'an">Ahle Qur'an</option>
-                <option value="Ahamadi">Ahamadi</option>
-                <option value="Barelvi">Barelvi</option>
-                <option value="Bohra">Bohra</option>
-                <option value="Deobandi">Deobandi</option>
-                <option value="Hanabali">Hanabali</option>
-                <option value="Hanafi">Hanafi</option>
-                <option value="Ibadi">Ibadi</option>
-                <option value="Ismaili">Ismaili</option>
-                <option value="Jamat e Islami">Jamat e Islami</option>
-                <option value="Maliki">Maliki</option>
-                <option value="Pathan">Pathan</option>
-                <option value="Salafi">Salafi</option>
-                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-                <option value="Sayyid">Sayyid</option>
-                <option value="Shafi">Shafi</option>
-                <option value="Shia">Shia</option>
-                <option value="Sunni">Sunni</option>
-                <option value="Sufism">Sufism</option>
-                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-                <option value="Zahiri">Zahiri</option>
-                <option value="Muslim">Muslim</option>
-                <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
-              <select
-                className="shortlist-agent-filter-dropdown"
-                value={filters.profession}
-                onChange={(e) => handleFilterChange('profession', e.target.value)}
-              >
-                <option value="">Profession</option>
-                <option value="accountant">Accountant</option>
-                <option value="Acting Professional">Acting Professional</option>
-                <option value="actor">Actor</option>
-                <option value="administrator">Administrator</option>
-                <option value="Advertising Professional">Advertising Professional</option>
-                <option value="air_hostess">Air Hostess</option>
-                <option value="airline_professional">Airline Professional</option>
-                <option value="airforce">Airforce</option>
-                <option value="architect">Architect</option>
-                <option value="artist">Artist</option>
-                <option value="Assistant Professor">Assistant Professor</option>
-                <option value="audiologist">Audiologist</option>
-                <option value="auditor">Auditor</option>
-                <option value="Bank Officer">Bank Officer</option>
-                <option value="Bank Staff">Bank Staff</option>
-                <option value="beautician">Beautician</option>
-                <option value="Biologist / Botanist">Biologist / Botanist</option>
-                <option value="Business Person">Business Person</option>
-                <option value="captain">Captain</option>
-                <option value="CEO / CTO / President">CEO / CTO / President</option>
-                <option value="chef">Chef</option>
-                <option value="civil_servant">Civil Servant</option>
-                <option value="clerk">Clerk</option>
-                <option value="coach">Coach</option>
-                <option value="consultant">Consultant</option>
-                <option value="counselor">Counselor</option>
-                <option value="dentist">Dentist</option>
-                <option value="designer">Designer</option>
-                <option value="doctor">Doctor</option>
-                <option value="engineer">Engineer</option>
-                <option value="entrepreneur">Entrepreneur</option>
-                <option value="farmer">Farmer</option>
-                <option value="fashion_designer">Fashion Designer</option>
-                <option value="freelancer">Freelancer</option>
-                <option value="government_employee">Government Employee</option>
-                <option value="graphic_designer">Graphic Designer</option>
-                <option value="homemaker">Homemaker</option>
-                <option value="interior_designer">Interior Designer</option>
-                <option value="journalist">Journalist</option>
-                <option value="lawyer">Lawyer</option>
-                <option value="manager">Manager</option>
-                <option value="marketing_professional">Marketing Professional</option>
-                <option value="nurse">Nurse</option>
-                <option value="pharmacist">Pharmacist</option>
-                <option value="photographer">Photographer</option>
-                <option value="pilot">Pilot</option>
-                <option value="police">Police</option>
-                <option value="professor">Professor</option>
-                <option value="psychologist">Psychologist</option>
-                <option value="researcher">Researcher</option>
-                <option value="sales_executive">Sales Executive</option>
-                <option value="scientist">Scientist</option>
-                <option value="social_worker">Social Worker</option>
-                <option value="software_consultant">Software Consultant</option>
-                <option value="sportsman">Sportsman</option>
-                <option value="teacher">Teacher</option>
-                <option value="technician">Technician</option>
-                <option value="therapist">Therapist</option>
-                <option value="veterinarian">Veterinarian</option>
-                <option value="writer">Writer</option>
-                <option value="other">Other</option>
-              </select>
-              <select
-                className="shortlist-agent-filter-dropdown"
-                value={filters.martialStatus}
-                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-              >
-                <option value="">Marital Status</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
-              </select>
-              <select
-                className="shortlist-agent-filter-dropdown"
-                value={filters.gender}
-                onChange={(e) => handleFilterChange('gender', e.target.value)}
-              >
-                <option value="">Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
+
+              {isFilters && (
+                <>
+                  <input
+                    className="shortlist-agent-filter-dropdown"
+                    type="text"
+                    value={filters.id}
+                    onChange={(e) => handleFilterChange("id", e.target.value)}
+                    placeholder="Enter ID"
+                    style={{ width: "70px" }}
+                  />
+                  <input
+                    className="shortlist-agent-filter-dropdown"
+                    type="text"
+                    value={filters.name}
+                    onChange={(e) => handleFilterChange("name", e.target.value)}
+                    placeholder="Name"
+                    style={{ width: "100px" }}
+                  />
+                  <input
+                    className="shortlist-agent-filter-dropdown"
+                    type="text"
+                    value={filters.city}
+                    onChange={(e) => handleFilterChange("city", e.target.value)}
+                    placeholder="Location"
+                    style={{ width: "100px" }}
+                  />
+                  <select
+                    className="shortlist-agent-filter-dropdown"
+                    value={filters.sectSchoolInfo}
+                    onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+                  >
+                    <option value="">Sect</option>
+                    <option value="Ahle Qur'an">Ahle Qur'an</option>
+                    <option value="Ahamadi">Ahamadi</option>
+                    <option value="Barelvi">Barelvi</option>
+                    <option value="Bohra">Bohra</option>
+                    <option value="Deobandi">Deobandi</option>
+                    <option value="Hanabali">Hanabali</option>
+                    <option value="Hanafi">Hanafi</option>
+                    <option value="Ibadi">Ibadi</option>
+                    <option value="Ismaili">Ismaili</option>
+                    <option value="Jamat e Islami">Jamat e Islami</option>
+                    <option value="Maliki">Maliki</option>
+                    <option value="Pathan">Pathan</option>
+                    <option value="Salafi">Salafi</option>
+                    <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                    <option value="Sayyid">Sayyid</option>
+                    <option value="Shafi">Shafi</option>
+                    <option value="Shia">Shia</option>
+                    <option value="Sunni">Sunni</option>
+                    <option value="Sufism">Sufism</option>
+                    <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                    <option value="Zahiri">Zahiri</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <select
+                    className="shortlist-agent-filter-dropdown"
+                    value={filters.profession}
+                    onChange={(e) => handleFilterChange('profession', e.target.value)}
+                  >
+                    <option value="">Profession</option>
+                    <option value="accountant">Accountant</option>
+                    <option value="Acting Professional">Acting Professional</option>
+                    <option value="actor">Actor</option>
+                    <option value="administrator">Administrator</option>
+                    <option value="Advertising Professional">Advertising Professional</option>
+                    <option value="air_hostess">Air Hostess</option>
+                    <option value="airline_professional">Airline Professional</option>
+                    <option value="airforce">Airforce</option>
+                    <option value="architect">Architect</option>
+                    <option value="artist">Artist</option>
+                    <option value="Assistant Professor">Assistant Professor</option>
+                    <option value="audiologist">Audiologist</option>
+                    <option value="auditor">Auditor</option>
+                    <option value="Bank Officer">Bank Officer</option>
+                    <option value="Bank Staff">Bank Staff</option>
+                    <option value="beautician">Beautician</option>
+                    <option value="Biologist / Botanist">Biologist / Botanist</option>
+                    <option value="Business Person">Business Person</option>
+                    <option value="captain">Captain</option>
+                    <option value="CEO / CTO / President">CEO / CTO / President</option>
+                    <option value="chef">Chef</option>
+                    <option value="civil_servant">Civil Servant</option>
+                    <option value="clerk">Clerk</option>
+                    <option value="coach">Coach</option>
+                    <option value="consultant">Consultant</option>
+                    <option value="counselor">Counselor</option>
+                    <option value="dentist">Dentist</option>
+                    <option value="designer">Designer</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="engineer">Engineer</option>
+                    <option value="entrepreneur">Entrepreneur</option>
+                    <option value="farmer">Farmer</option>
+                    <option value="fashion_designer">Fashion Designer</option>
+                    <option value="freelancer">Freelancer</option>
+                    <option value="government_employee">Government Employee</option>
+                    <option value="graphic_designer">Graphic Designer</option>
+                    <option value="homemaker">Homemaker</option>
+                    <option value="interior_designer">Interior Designer</option>
+                    <option value="journalist">Journalist</option>
+                    <option value="lawyer">Lawyer</option>
+                    <option value="manager">Manager</option>
+                    <option value="marketing_professional">Marketing Professional</option>
+                    <option value="nurse">Nurse</option>
+                    <option value="pharmacist">Pharmacist</option>
+                    <option value="photographer">Photographer</option>
+                    <option value="pilot">Pilot</option>
+                    <option value="police">Police</option>
+                    <option value="professor">Professor</option>
+                    <option value="psychologist">Psychologist</option>
+                    <option value="researcher">Researcher</option>
+                    <option value="sales_executive">Sales Executive</option>
+                    <option value="scientist">Scientist</option>
+                    <option value="social_worker">Social Worker</option>
+                    <option value="software_consultant">Software Consultant</option>
+                    <option value="sportsman">Sportsman</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="technician">Technician</option>
+                    <option value="therapist">Therapist</option>
+                    <option value="veterinarian">Veterinarian</option>
+                    <option value="writer">Writer</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <select
+                    className="shortlist-agent-filter-dropdown"
+                    value={filters.martialStatus}
+                    onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+                  >
+                    <option value="">Marital Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                  <select
+                    className="shortlist-agent-filter-dropdown"
+                    value={filters.gender}
+                    onChange={(e) => handleFilterChange('gender', e.target.value)}
+                  >
+                    <option value="">Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </>)}
               <button
                 type="button"
                 className="shortlist-agent-reset-filter"
@@ -498,149 +506,201 @@ const TotalShortlistAgent = () => {
         {!loading && !error && filteredData.length > 0 && (
           <div class="w-full overflow-x-auto">
 
-            <table className="interest-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort('member_id')} className="sortable-header">
-                    MEMBER ID
-                    {sortConfig.key === 'member_id' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('name')} className="sortable-header">
-                    Photo
-                    {sortConfig.key === 'name' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('name')} className="sortable-header">
-                    Name
-                    {sortConfig.key === 'name' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('location')} className="sortable-header">
-                    Location
-                    {sortConfig.key === 'location' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('shortlisted_date')} className="sortable-header">
-                    Date
-                    {sortConfig.key === 'shortlisted_date' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('sect')} className="sortable-header">
-                    Sect
-                    {sortConfig.key === 'sect' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('profession')} className="sortable-header">
-                    Profession
-                    {sortConfig.key === 'profession' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th onClick={() => handleSort('marital_status')} className="sortable-header">
-                    Marital Status
-                    {sortConfig.key === 'marital_status' && (
-                      <span className="sort-indicator">
-                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={item.id || index} style={{ cursor: "pointer" }} onClick={() => handleViewUserDetails(item.action_on)}>
-                    <td>{item.action_on?.member_id || "N/A"}</td>
-                    <td>
+            <div className="w-full">
+              {/* Mobile: stacked cards */}
+              <div className="space-y-3 md:hidden">
+                {filteredData.map((item, index) => {
+                  const m = item.action_on || {};
+                  return (
+                    <div
+                      key={item.id ?? index}
+                      className="bg-white shadow-sm rounded-lg p-3 flex gap-3 items-center cursor-pointer hover:shadow-md"
+                      onClick={() => handleViewUserDetails(item.action_on)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleViewUserDetails(item.action_on); }}
+                    >
                       <img
-                        src={getProfileImageUrl(item.action_on?.profile_photo)}
-                        alt={item.action_on?.name || "Member"}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: "2px solid #e0e0e0",
-                          cursor: "pointer"
-                        }}
+                        src={getProfileImageUrl(m?.profile_photo)}
+                        alt={m?.name || "Member"}
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0 border"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleMemberProfileClick(item.action_on?.id);
+                          handleMemberProfileClick(m?.id);
                         }}
                         onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/50";
+                          // keep your existing fallback behavior
+                          e.currentTarget.src = "https://placehold.co/40";
                         }}
                       />
-                    </td>
-                    <td>
-                      <span
-                        style={{ cursor: "pointer" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMemberProfileClick(item.action_on?.id);
-                        }}
-                      >
-                        {item.action_on?.name || "N/A"}
-                      </span>
-                    </td>
-                    <td>{item.action_on?.city || "N/A"}</td>
-                    <td>{formatDate(item.created_at)}</td>
-                    <td>{item.action_on?.sect_school_info || "N/A"}</td>
-                    <td>{item.action_on?.profession || "N/A"}</td>
-                    <td>
-                      <span className={`mm-marital-badge ${item.action_on?.martial_status ? item.action_on?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                        {item.action_on?.martial_status || "Not mentioned"}
-                      </span>
-                    </td>
-                    <td onClick={(e) => e.stopPropagation()}>
-                      <button
-                        className="action-btn remove-btn modern-btn"
-                        onClick={() => handleRemoveFromShortlist(item)}
-                        title="Remove from shortlist"
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          minWidth: "32px",
-                          maxWidth: "32px",
-                          minHeight: "32px",
-                          maxHeight: "32px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: "0"
-                        }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-gray-900 truncate">
+                              {m?.name || "N/A"}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {m?.city || "N/A"} • {m?.profession || "N/A"}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              ID: <span className="text-gray-700">{m?.member_id || "N/A"}</span>
+                            </div>
+                          </div>
+
+                          <div className="text-right text-xs text-gray-500">
+                            <div>{formatDate ? formatDate(item.created_at) : (item.created_at || "")}</div>
+                            <div className="mt-1">
+                              <span className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${m?.martial_status ? m.martial_status.toLowerCase().replace(" ", "-") : "not-mentioned"}`}>
+                                {m?.martial_status || "Not mentioned"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+                          <div>
+                            <div className="text-xs text-gray-400">Sect</div>
+                            <div className="text-gray-700 truncate">{m?.sect_school_info || "N/A"}</div>
+                          </div>
+
+                          <div>
+                            <div className="text-xs text-gray-400">Total Matches</div>
+                            <button
+                              className="text-sm text-indigo-600 underline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // preserve original navigation behavior you had
+                                // caller will navigate since you keep the same onclick usage
+                                // here we call the same route logic as before by delegating to handleViewUserDetails if needed
+                                // But to preserve exactly, we call navigation via window.location if you previously used navigate inlined.
+                                // Instead keep as your original clickable element did:
+                                if (typeof window !== 'undefined' && m?.member_id) {
+                                  window.location.href = `/member-matches/${m?.member_id}`;
+                                } else {
+                                  // fallback: do nothing (original code used navigate)
+                                }
+                              }}
+                            >
+                              {item?.total_matches ?? 0}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop / md+: table */}
+              <div className="hidden md:block w-full">
+                <div className="w-full overflow-x-auto">
+                  <table className="min-w-[1000px] table-fixed w-full bg-white divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Member ID
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Photo
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Location
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Sect
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Profession
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Marital Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {filteredData.map((item, index) => {
+                        const m = item.action_on || {};
+                        return (
+                          <tr
+                            key={item.id ?? index}
+                            className="hover:bg-gray-50 cursor-pointer"
+                            onClick={() => handleViewUserDetails(item.action_on)}
+                          >
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {m?.member_id || "N/A"}
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <img
+                                src={getProfileImageUrl(m?.profile_photo)}
+                                alt={m?.name || "Member"}
+                                className="w-8 h-8 rounded-full object-cover border"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMemberProfileClick(m?.id);
+                                }}
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://placehold.co/40";
+                                }}
+                              />
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <span
+                                className="cursor-pointer inline-block truncate max-w-[220px]"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMemberProfileClick(m?.id);
+                                }}
+                              >
+                                {m?.name || "N/A"}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {m?.city || "N/A"}
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {formatDate ? formatDate(item.created_at) : (item.created_at || "")}
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate max-w-[200px]">
+                              {m?.sect_school_info || "N/A"}
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {m?.profession || "N/A"}
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <span className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${m?.martial_status ? m.martial_status.toLowerCase().replace(" ", "-") : "not-mentioned"}`}>
+                                {m?.martial_status || "Not mentioned"}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                              <button className="action-btn remove-btn modern-btn" onClick={() => handleRemoveFromShortlist(item)} title="Remove from shortlist" style={{ width: "32px", height: "32px", minWidth: "32px", maxWidth: "32px", minHeight: "32px", maxHeight: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0" }} > <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"> <line x1="18" y1="6" x2="6" y2="18" /> <line x1="6" y1="6" x2="18" y2="18" /> </svg> </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
