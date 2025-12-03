@@ -1,47 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../UserDashboard/DashboardLayout";
 import { AiOutlineFilter, AiOutlineRedo } from "react-icons/ai"; // Import icons
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { fetchDataObjectV2, fetchDataWithTokenV2 } from "../../../apiUtils";
+import { fetchDataWithTokenV2 } from "../../../apiUtils";
 
 const Matches = () => {
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  // const [selectedDate, setSelectedDate] = useState(null);
+  // const [showDatePicker, setShowDatePicker] = useState(false);
   const [userId] = useState(localStorage.getItem("userId"));
   const [matchDetails, setMatchDetails] = useState([]);
   const [useError, setError] = useState(false);
   const [useLoading, setLoading] = useState(false);
   // Function to handle delete action
-    const [filteredItems, setFilteredItems] = useState([]);
-    const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
-    let [filters, setFilters] = useState({
-      id: '',
-      name: '',
-      city: '',
-      age: '',
-      sectSchoolInfo: '',
-      profession: '',
-      status: '',
-      martialStatus: '',
-        maxAge: '',
-    minAge: ''
-    });
-    let [gender] = useState(localStorage.getItem("gender"));
-  
-    const handleFilterChange = (column, value) => {
-  
-      setFilters((prevFilters) => {
-        const updatedFilters = { ...prevFilters, [column]: value };
-        applyFilters(updatedFilters);
-        return updatedFilters;
-      });
-    };
-  
-    const onClearFilterClick=() => {
-  let clear={
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
+  let [filters, setFilters] = useState({
     id: '',
     name: '',
     city: '',
@@ -52,70 +27,94 @@ const Matches = () => {
     martialStatus: '',
     maxAge: '',
     minAge: ''
-    
-  }
-  setFilters(clear)
-  applyFilters(clear)
-    };
-    const applyFilters = (updatedFilters) => {
-      console.log(updatedFilters.id,">>>");
-      
-      setFilteredItems(
-        matchDetails?.filter((match) => {
-          return (
-            (updatedFilters.id ? match?.id == updatedFilters.id : true) &&
-            (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
-            (updatedFilters.city ? match?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
-            (updatedFilters.minAge&&updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
-            (updatedFilters.sectSchoolInfo ? match?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
-            (updatedFilters.profession ? match?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
-            (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
-            (updatedFilters.martialStatus ? match?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
-          );
-        })
-      );
-    };
-    const distinctIds = [...new Set(matchDetails?.map((match) =>  match?.id))];
-    const distinctNames = [...new Set(matchDetails?.map((match) => match?.name))];
-    const distinctCities = [...new Set(matchDetails?.map((match) => match?.city))];
-    const distinctDobs = [...new Set(matchDetails?.map((match) => match?.age))];
-    const distinctSchoolInfo = [...new Set(matchDetails?.map((match) => match?.sect_school_info))];
-    const distinctProfessions = [...new Set(matchDetails?.map((match) => match?.profession))];
-    const distinctStatuses = [...new Set(matchDetails?.map((match) => match?.status))];
-    const distinctMaritalStatuses = [...new Set(matchDetails?.map((match) => match?.martial_status))];
-    useEffect(() => {
-      // Apply filters when `currentItems` or filters change
-      setFilteredItems( matchDetails)
-    }, [matchDetails]);
-    // Function to handle delete action
-  
+  });
+  let [gender] = useState(localStorage.getItem("gender"));
 
-    // Function to handle sorting
-    const handleSort = (column) => {
-      let direction = 'asc';
-      if (sortConfig.key === column && sortConfig.direction === 'asc') {
-        direction = 'desc'; // Toggle sorting direction
+  const handleFilterChange = (column, value) => {
+
+    setFilters((prevFilters) => {
+      const updatedFilters = { ...prevFilters, [column]: value };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
+
+  const onClearFilterClick = () => {
+    let clear = {
+      id: '',
+      name: '',
+      city: '',
+      age: '',
+      sectSchoolInfo: '',
+      profession: '',
+      status: '',
+      martialStatus: '',
+      maxAge: '',
+      minAge: ''
+
+    }
+    setFilters(clear)
+    applyFilters(clear)
+  };
+  const applyFilters = (updatedFilters) => {
+    console.log(updatedFilters.id, ">>>");
+
+    setFilteredItems(
+      matchDetails?.filter((match) => {
+        return (
+          (updatedFilters.id ? match?.id == updatedFilters.id : true) &&
+          (updatedFilters.name ? match?.name?.toLowerCase().includes(updatedFilters.name.toLowerCase()) : true) &&
+          (updatedFilters.city ? match?.city?.toLowerCase().includes(updatedFilters.city.toLowerCase()) : true) &&
+          (updatedFilters.minAge && updatedFilters.maxAge ? (match?.age >= updatedFilters.minAge && match?.age <= updatedFilters.maxAge) : true) &&
+          (updatedFilters.sectSchoolInfo ? match?.sect_school_info?.toLowerCase().includes(updatedFilters.sectSchoolInfo.toLowerCase()) : true) &&
+          (updatedFilters.profession ? match?.profession?.toLowerCase().includes(updatedFilters.profession.toLowerCase()) : true) &&
+          (updatedFilters.status ? match?.status?.toLowerCase().includes(updatedFilters.status.toLowerCase()) : true) &&
+          (updatedFilters.martialStatus ? match?.martial_status?.toLowerCase().includes(updatedFilters.martialStatus.toLowerCase()) : true)
+        );
+      })
+    );
+  };
+  // const distinctIds = [...new Set(matchDetails?.map((match) =>  match?.id))];
+  // const distinctNames = [...new Set(matchDetails?.map((match) => match?.name))];
+  // const distinctCities = [...new Set(matchDetails?.map((match) => match?.city))];
+  // const distinctDobs = [...new Set(matchDetails?.map((match) => match?.age))];
+  // const distinctSchoolInfo = [...new Set(matchDetails?.map((match) => match?.sect_school_info))];
+  // const distinctProfessions = [...new Set(matchDetails?.map((match) => match?.profession))];
+  // const distinctStatuses = [...new Set(matchDetails?.map((match) => match?.status))];
+  // const distinctMaritalStatuses = [...new Set(matchDetails?.map((match) => match?.martial_status))];
+  useEffect(() => {
+    // Apply filters when `currentItems` or filters change
+    setFilteredItems(matchDetails)
+  }, [matchDetails]);
+  // Function to handle delete action
+
+
+  // Function to handle sorting
+  const handleSort = (column) => {
+    let direction = 'asc';
+    if (sortConfig.key === column && sortConfig.direction === 'asc') {
+      direction = 'desc'; // Toggle sorting direction
+    }
+    setSortConfig({ key: column, direction });
+  };
+
+  // Function to sort the data based on the current sortConfig
+
+
+  useEffect(() => {
+    const sortedData = [...filteredItems].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
       }
-      setSortConfig({ key: column, direction });
-    };
-  
-    // Function to sort the data based on the current sortConfig
-    
-  
-    useEffect(() => {
-      const sortedData = [...filteredItems].sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
-      setFilteredItems(sortedData)
-    }, [sortConfig.direction])
-  console.log(matchDetails.length,">>>>");
-  
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+    setFilteredItems(sortedData)
+  }, [sortConfig.direction])
+  console.log(matchDetails.length, ">>>>");
+
   useEffect(() => {
     if (userId) {
       const parameter = {
@@ -150,6 +149,10 @@ const Matches = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   // Total pages
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
@@ -158,17 +161,41 @@ const Matches = () => {
     setCurrentPage(pageNumber);
   };
 
+
+  const sortedItems = useMemo(() => {
+    const items = [...currentItems];
+    const { key, direction } = sortConfig;
+    items.sort((a, b) => {
+      const av = a?.[key] ?? "";
+      const bv = b?.[key] ?? "";
+      if (typeof av === "number" && typeof bv === "number") {
+        return direction === "asc" ? av - bv : bv - av;
+      }
+      // string compare
+      return direction === "asc"
+        ? String(av).localeCompare(String(bv))
+        : String(bv).localeCompare(String(av));
+    });
+    return items;
+  }, [currentItems, sortConfig]);
+
+  const Arrow = ({ field }) =>
+    sortConfig.key === field ? (
+      <span className="ml-1 text-sm">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+    ) : null;
+
+
   return (
     <DashboardLayout>
       <div className="total-interest-container">
         <h1 className="page-title">Matches</h1>
 
         {/* Filters Section */}
-           <div className="filter-container">
-               <button className="filter-button">
-                 <AiOutlineFilter className="icon" /> Filter By
-               </button>
-               {/* <select
+        <div className="filter-container">
+          <button className="filter-button" onClick={toggleFilters}>
+            <AiOutlineFilter className="icon" /> Filter By
+          </button>
+          {/* <select
                className="filter-dropdown"
                value={filters.id}
                onChange={(e) => handleFilterChange('id', e.target.value)}
@@ -180,23 +207,25 @@ const Matches = () => {
                  </option>
                ))}
              </select> */}
-     
-     <input
-  className="filter-dropdown"
-  type="text"
-  value={filters.id}
-  onChange={(e) => handleFilterChange('id', e.target.value)}
-  placeholder="Member ID"
-  list="distinct-ids"
-  style={{ width: '120px' }} 
-/>
 
-{/* <datalist id="distinct-ids">
+          {isFilters && (
+            <>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Member ID"
+                list="distinct-ids"
+                style={{ width: '120px' }}
+              />
+
+              {/* <datalist id="distinct-ids">
   {distinctIds?.map((id, index) => (
     <option key={index} value={id} />
-  ))}
-</datalist> */}
-               {/* <select
+    ))}
+    </datalist> */}
+              {/* <select
              className="filter-dropdown"
                value={filters.city}
                onChange={(e) => handleFilterChange('city', e.target.value)}
@@ -208,43 +237,43 @@ const Matches = () => {
                  </option>
                ))}
              </select> */}
-           
-           <input
-  className="filter-dropdown"
-  type="text"
-  value={filters.city}
-  onChange={(e) => handleFilterChange('city', e.target.value)}
-  placeholder="Location"
-  list="distinct-ids"
-  style={{ width: '120px' }} 
-/>
-    <input
-    className="filter-dropdown"
-      type="number"
-      id="minAge"
-      name="minAge"
-      value={filters.minAge || ''}
-      onChange={(e) => handleFilterChange('minAge', e.target.value)}
-      placeholder="Min age"
-      min="18"
-      max="50"
-      style={{ width: '100px' }}
-    />
-    <input
-    className="filter-dropdown"
-      type="number"
-      id="maxAge"
-      name="maxAge"
-      value={filters.maxAge || ''}
-      onChange={(e) => handleFilterChange('maxAge', e.target.value)}
-      placeholder="Max age"
-      min="18"
-      max="50"
-      style={{ width: '100px' }}
-    />
 
-               {/* Date Picker Dropdown */}
-           {/* <div className="date-filter">
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '120px' }}
+              />
+              <input
+                className="filter-dropdown"
+                type="number"
+                id="minAge"
+                name="minAge"
+                value={filters.minAge || ''}
+                onChange={(e) => handleFilterChange('minAge', e.target.value)}
+                placeholder="Min age"
+                min="18"
+                max="50"
+                style={{ width: '100px' }}
+              />
+              <input
+                className="filter-dropdown"
+                type="number"
+                id="maxAge"
+                name="maxAge"
+                value={filters.maxAge || ''}
+                onChange={(e) => handleFilterChange('maxAge', e.target.value)}
+                placeholder="Max age"
+                min="18"
+                max="50"
+                style={{ width: '100px' }}
+              />
+
+              {/* Date Picker Dropdown */}
+              {/* <div className="date-filter">
                  <button
                    className="date-picker-btn"
                    onClick={() => setShowDatePicker(!showDatePicker)}
@@ -262,135 +291,135 @@ const Matches = () => {
                    />
                  )}
                </div> */}
-     
-            
-               <select
-               className="filter-dropdown"
-               value={filters.sectSchoolInfo}
-               onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-             >
-               <option value="">Sect</option>
-               <option value="Ahle Qur'an">Ahle Qur'an</option>
-               <option value="Ahamadi">Ahamadi</option>
-               <option value="Barelvi">Barelvi</option>
-               <option value="Bohra">Bohra</option>
-               <option value="Deobandi">Deobandi</option>
-               <option value="Hanabali">Hanabali</option>
-               <option value="Hanafi">Hanafi</option>
-               <option value="Ibadi">Ibadi</option>
-               <option value="Ismaili">Ismaili</option>
-               <option value="Jamat e Islami">Jamat e Islami</option>
-               <option value="Maliki">Maliki</option>
-               <option value="Pathan">Pathan</option>
-               <option value="Salafi">Salafi</option>
-               <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-               <option value="Sayyid">Sayyid</option>
-               <option value="Shafi">Shafi</option>
-               <option value="Shia">Shia</option>
-               <option value="Sunni">Sunni</option>
-               <option value="Sufism">Sufism</option>
-               <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-               <option value="Zahiri">Zahiri</option>
-               <option value="Muslim">Muslim</option>
-               <option value="Other">Other</option>
-               <option value="Prefer not to say">Prefer not to say</option>
-             </select>
-     
-             <select
-               className="filter-dropdown"
-               value={filters.profession}
-               onChange={(e) => handleFilterChange('profession', e.target.value)}
-             >
-               <option value="">Profession</option>
-               <option value="accountant">Accountant</option>
-               <option value="Acting Professional">Acting Professional</option>
-               <option value="actor">Actor</option>
-               <option value="administrator">Administrator</option>
-               <option value="Advertising Professional">Advertising Professional</option>
-               <option value="air_hostess">Air Hostess</option>
-               <option value="airline_professional">Airline Professional</option>
-               <option value="airforce">Airforce</option>
-               <option value="architect">Architect</option>
-               <option value="artist">Artist</option>
-               <option value="Assistant Professor">Assistant Professor</option>
-               <option value="audiologist">Audiologist</option>
-               <option value="auditor">Auditor</option>
-               <option value="Bank Officer">Bank Officer</option>
-               <option value="Bank Staff">Bank Staff</option>
-               <option value="beautician">Beautician</option>
-               <option value="Biologist / Botanist">Biologist / Botanist</option>
-               <option value="Business Person">Business Person</option>
-               <option value="captain">Captain</option>
-               <option value="CEO / CTO / President">CEO / CTO / President</option>
-               <option value="chef">Chef</option>
-               <option value="civil_servant">Civil Servant</option>
-               <option value="clerk">Clerk</option>
-               <option value="coach">Coach</option>
-               <option value="consultant">Consultant</option>
-               <option value="counselor">Counselor</option>
-               <option value="dentist">Dentist</option>
-               <option value="designer">Designer</option>
-               <option value="doctor">Doctor</option>
-               <option value="engineer">Engineer</option>
-               <option value="entrepreneur">Entrepreneur</option>
-               <option value="farmer">Farmer</option>
-               <option value="fashion_designer">Fashion Designer</option>
-               <option value="freelancer">Freelancer</option>
-               <option value="government_employee">Government Employee</option>
-               <option value="graphic_designer">Graphic Designer</option>
-               <option value="homemaker">Homemaker</option>
-               <option value="interior_designer">Interior Designer</option>
-               <option value="journalist">Journalist</option>
-               <option value="lawyer">Lawyer</option>
-               <option value="manager">Manager</option>
-               <option value="marketing_professional">Marketing Professional</option>
-               <option value="nurse">Nurse</option>
-               <option value="pharmacist">Pharmacist</option>
-               <option value="photographer">Photographer</option>
-               <option value="pilot">Pilot</option>
-               <option value="police">Police</option>
-               <option value="professor">Professor</option>
-               <option value="psychologist">Psychologist</option>
-               <option value="researcher">Researcher</option>
-               <option value="sales_executive">Sales Executive</option>
-               <option value="scientist">Scientist</option>
-               <option value="social_worker">Social Worker</option>
-               <option value="software_consultant">Software Consultant</option>
-               <option value="sportsman">Sportsman</option>
-               <option value="teacher">Teacher</option>
-               <option value="technician">Technician</option>
-               <option value="therapist">Therapist</option>
-               <option value="veterinarian">Veterinarian</option>
-               <option value="writer">Writer</option>
-               <option value="other">Other</option>
-             </select>
-     
-               <select
-               className="filter-dropdown"
-               value={filters.martialStatus}
-               onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-             >
-               <option value="">Marital Status</option>
-               {gender === 'male' ? (
-                 <>
-                   <option value="Single">Single</option>
-                   <option value="Divorced">Divorced</option>
-                   <option value="Khula">Khula</option>
-                   <option value="Widowed">Widowed</option>
-                 </>
-               ) : (
-                 <>
-                   <option value="Single">Single</option>
-                   <option value="Married">Married</option>
-                   <option value="Divorced">Divorced</option>
-                   <option value="Khula">Khula</option>
-                   <option value="Widowed">Widowed</option>
-                 </>
-               )}
-             </select>
-               
-           
-               {/* <select
+
+
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
+
+              <select
+                className="filter-dropdown"
+                value={filters.martialStatus}
+                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+              >
+                <option value="">Marital Status</option>
+                {gender === 'male' ? (
+                  <>
+                    <option value="Single">Single</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Khula">Khula</option>
+                    <option value="Widowed">Widowed</option>
+                  </>
+                )}
+              </select>
+
+
+              {/* <select
                className="filter-dropdown"
                value={filters.status}
                onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -402,59 +431,216 @@ const Matches = () => {
                  </option>
                ))}
              </select> */}
-     
-             
-               <button type="button" className="reset-filter" onClick={onClearFilterClick}>
-                 <AiOutlineRedo className="icon" /> Reset Filter
-               </button>
-             </div>
+
+            </>
+          )}
+
+          <button type="button" className="reset-filter" onClick={onClearFilterClick}>
+            <AiOutlineRedo className="icon" /> Reset Filter
+          </button>
+        </div>
 
         {/* Table Section */}
-        <table className="interest-table">
-          <thead>
-            <tr>
-            <th onClick={() => handleSort('id')}>
-            Member ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-          </th>
-              <th>Name</th>
-              <th>Location</th>
-              <th  onClick={() => handleSort('age')} >Age {sortConfig.key === 'age' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
-              <th>Sect</th>
-              <th>Profession</th>
-              <th>Marital Status</th>
-              <th>Match Per(%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((match) => (
-              <tr key={match?.id} onClick={() => navigate(`/details/${match?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.member_id || match?.id}</td>
-                <td>{match?.name||"-"}</td>
-                <td>{match?.city||"-"}</td>
-                <td>{match?.age||"-"}</td>
-                <td>{match?.sect_school_info||"-"}</td>
-                <td>{match?.profession||"-"}</td>
-                <td>
-                  <span className={`marital-badge ${match?.martial_status?match?.martial_status?.toLowerCase()?.replace(" ", "-"):"not-mentioned"}`}>
-                    {match?.martial_status||"Not mentioned"}
-                  </span>
-                </td>
-                <td>
-                  <div className="progress-bar-container">
-                    <div
-                      className="progress-bar"
-                      style={{
-                        width: `${match?.match_percentage || 0}%`,
-                        backgroundColor: getProgressBarColor(match?.match_percentage),
-                      }}
-                    ></div>
-                    <span className="progress-text">{match?.match_percentage || 0}%</span>
+        <div className="w-full">
+          {/* Mobile cards */}
+          <div className="space-y-3 md:hidden">
+            {sortedItems.map((match) => (
+              <div
+                key={match.id}
+                className="bg-white shadow-sm rounded-lg p-3 flex gap-3 items-start cursor-pointer hover:shadow-md"
+                onClick={() => navigate(`/details/${match.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && navigate(`/details/${match.id}`)}
+              >
+                <img
+                  src={match.profile_photo || "https://placehold.co/40"}
+                  alt={match.name || "User photo"}
+                  className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/details/${match.id}`);
+                  }}
+                  onError={(e) => {
+                    // fallback to placeholder if broken
+                    if (e.currentTarget.src !== "https://placehold.co/40") {
+                      e.currentTarget.src = "https://placehold.co/40";
+                    }
+                  }}
+                  title="View Profile"
+                />
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 truncate">{match.name || "-"}</div>
+                      <div className="text-xs text-gray-500 truncate">
+                        ID: <span className="text-gray-700">{match.member_id || match.id || "-"}</span>
+                      </div>
+                    </div>
                   </div>
-                </td>
-              </tr>
+
+                  <div className="mt-2 grid grid-cols-2 gap-y-1 text-sm text-gray-600">
+                    <div className="truncate">
+                      <div className="text-xs text-gray-400">Location</div>
+                      <div className="truncate">{match.city || "-"}</div>
+                    </div>
+
+                    <div className="truncate">
+                      <div className="text-xs text-gray-400">Age</div>
+                      <div className="truncate">{match.age ?? "-"}</div>
+                    </div>
+
+                    <div className="truncate">
+                      <div className="text-xs text-gray-400">Marital</div>
+                      <div>
+                        <span
+                          className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full font-medium ${(match.martial_status || "").toLowerCase().includes("single")
+                            ? "bg-green-100 text-green-800"
+                            : (match.martial_status || "").toLowerCase().includes("married")
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                            }`}
+                        >
+                          {match.martial_status || "-"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="truncate">
+                      <div className="text-xs text-gray-400">Sect</div>
+                      <div className="truncate">{match.sect_school_info || "-"}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+
+          {/* Desktop / md+: table */}
+          <div className="hidden md:block w-full">
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[900px] table-fixed w-full bg-white divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[130px]"
+                      onClick={() => handleSort("id")}
+                    >
+                      Member ID<Arrow field="id" />
+                    </th>
+
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[80px]">
+                      Photo
+                    </th>
+
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[200px]"
+                      onClick={() => handleSort("name")}
+                    >
+                      Name<Arrow field="name" />
+                    </th>
+
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[150px]"
+                      onClick={() => handleSort("city")}
+                    >
+                      Location<Arrow field="city" />
+                    </th>
+
+                    <th
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[80px]"
+                      onClick={() => handleSort("age")}
+                    >
+                      Age<Arrow field="age" />
+                    </th>
+
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider hidden lg:table-cell w-[180px]">
+                      Sect
+                    </th>
+
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider hidden lg:table-cell w-[200px]">
+                      Profession
+                    </th>
+
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[140px]">
+                      Marital Status
+                    </th>
+
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                      Match Per(%)
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {sortedItems.map((match) => (
+                    <tr
+                      key={match.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/details/${match.id}`)}
+                    >
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{match.member_id || match.id}</td>
+
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <img
+                          src={match.profile_photo || "https://placehold.co/40"}
+                          alt={match.name || "User photo"}
+                          className="w-10 h-10 rounded-md object-cover"
+                          onError={(e) => {
+                            if (e.currentTarget.src !== "https://placehold.co/40") {
+                              e.currentTarget.src = "https://placehold.co/40";
+                            }
+                          }}
+                        />
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-medium text-gray-900 truncate">{match.name || "-"}</div>
+                      </td>
+
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate">{match.city || "-"}</td>
+
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{match.age ?? "-"}</td>
+
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{match.sect_school_info || "-"}</td>
+
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{match.profession || "-"}</td>
+
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${(match.martial_status || "").toLowerCase().includes("single")
+                            ? "bg-green-100 text-green-800"
+                            : (match.martial_status || "").toLowerCase().includes("married")
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                            }`}
+                        >
+                          {match.martial_status || "Not mentioned"}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="w-full max-w-[160px]">
+                          <div className="relative h-2 bg-gray-100 rounded overflow-hidden">
+                            <div
+                              style={{
+                                width: `${match.match_percentage || 0}%`,
+                                backgroundColor: getProgressBarColor(match.match_percentage || 0),
+                              }}
+                              className="absolute left-0 top-0 h-2"
+                            />
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">{match.match_percentage || 0}%</div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* Pagination */}
         <div className="pagination">

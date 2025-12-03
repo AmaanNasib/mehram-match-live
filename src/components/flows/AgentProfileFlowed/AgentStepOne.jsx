@@ -1,13 +1,10 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { fetchDataV2, justputDataWithoutToken, updateDataReturnId } from "../../../apiUtils";
-import TopBar from "../../sections/TopBar";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
+import { fetchDataV2, justputDataWithoutToken } from "../../../apiUtils";
 import { fetchDataObjectV2 } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
+import './AgentStepOne.css';
+
 
 const AgentStepOne = () => {
   const navigate = useNavigate();
@@ -22,22 +19,22 @@ const AgentStepOne = () => {
   useEffect(() => {
     if (userId) {
 
-      if (role=='agent') {
+      if (role == 'agent') {
         const parameter = {
-          url:role =='agent'? `/api/agent/${userId}/`:`/api/user/${userId}/`,
+          url: role == 'agent' ? `/api/agent/${userId}/` : `/api/user/${userId}/`,
           setterFunction: setApiData,
           setErrors: setErrors,
         };
         fetchDataV2(parameter);
       } else {
         const parameter = {
-          url:   `/api/user/${userId}/`,
+          url: `/api/user/${userId}/`,
           setterFunction: setApiData,
           setLoading: setLoading,
         };
         fetchDataObjectV2(parameter);
       }
-   
+
     }
   }, [userId]);
 
@@ -58,7 +55,7 @@ const AgentStepOne = () => {
       console.log(profileData.hieght, "valid");
 
       const parameters = {
-        url:  `/api/agent/${userId}/`,
+        url: `/api/agent/${userId}/`,
         payload: {
           first_name: profileData.first_name,
           last_name: profileData.last_name,
@@ -67,7 +64,7 @@ const AgentStepOne = () => {
         },
         navigate: navigate,
         navUrl: `/agentsteptwo/${userId}`,
-        setErrors : setErrors ,
+        setErrors: setErrors,
       };
       // navigate(`/agentsteptwo/${userId}`)
       justputDataWithoutToken(parameters);
@@ -169,7 +166,7 @@ const AgentStepOne = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white steps-title">
         <h3
           style={{
             fontSize: "1.8rem",
@@ -200,7 +197,10 @@ const AgentStepOne = () => {
           }}></div>
 
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
+
+          {/* Tracker */}
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -434,7 +434,7 @@ const AgentStepOne = () => {
 
 
               <div style={{ display: "flex", gap: "2rem" }}>
-              <div className="w-[50%] relative flex flex-col gap-[10px]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label
                     htmlFor="email"
                     className="block text-sm font-medium text-[#000000] mb-0"

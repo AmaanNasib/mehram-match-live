@@ -1,14 +1,10 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDataV2, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken, updateDataV2 } from "../../../apiUtils";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import TopBar from "../../sections/TopBar";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
 import { fetchDataObjectV2 } from "../../../apiUtils";
+import './AgentStepOne.css';
 
 const MemStepSix = () => {
   const navigate = useNavigate();
@@ -259,7 +255,7 @@ const MemStepSix = () => {
       navUrl: `/newdashboard`,
       setErrors: setErrors,
     };
-console.log(parameters.payload.profile_completed,"profile_completed");
+    console.log(parameters.payload.profile_completed,"profile_completed");
 
     // Save photo first, then update profile
     if (image) {
@@ -388,7 +384,7 @@ console.log(parameters.payload.profile_completed,"profile_completed");
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white steps-title">
         {/* {errors && (
           <div
             style={{
@@ -508,6 +504,7 @@ console.log(parameters.payload.profile_completed,"profile_completed");
 
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
           <div
+          className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",

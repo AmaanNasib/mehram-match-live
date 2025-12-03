@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 
 
 const CustomDatePicker = ({ selectedDate, onChange, placeholder, isOpen, onToggle }) => {
+
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [internalDate, setInternalDate] = useState(selectedDate ? new Date(selectedDate) : null);
@@ -307,7 +308,7 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
     const newSelected = selectedStatuses.includes(status)
       ? selectedStatuses.filter(s => s !== status)
       : [...selectedStatuses, status];
-    
+
     setSelectedStatuses(newSelected);
     onChange(newSelected);
   };
@@ -320,13 +321,13 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
 
   return (
     <div className="marital-status-dropdown-container">
-      <div 
+      <div
         className="marital-status-dropdown-toggle"
         onClick={() => setIsOpen(!isOpen)}
       >
         Marital Status
       </div>
-      
+
       {isOpen && (
         <div className="marital-status-dropdown-menu">
           <h6>Select Marital Status</h6>
@@ -334,9 +335,8 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
             {maritalStatusOptions.map((status) => (
               <div
                 key={status}
-                className={`marital-status-option ${
-                  selectedStatuses.includes(status) ? "selected" : ""
-                }`}
+                className={`marital-status-option ${selectedStatuses.includes(status) ? "selected" : ""
+                  }`}
                 onClick={() => toggleStatus(status)}
               >
                 {status}
@@ -346,7 +346,7 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
           <div className="marital-status-note">
             *You can choose multiple Marital Status
           </div>
-          <button 
+          <button
             className="apply-now-btn"
             onClick={() => setIsOpen(false)}
           >
@@ -355,7 +355,7 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
         </div>
       )}
 
-     
+
       <style>
         {`
           .marital-status-dropdown-container {
@@ -468,6 +468,10 @@ const MaritalStatusDropdown = ({ value, onChange }) => {
 
 
 const TotalShortlist = () => {
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedDate1, setSelectedDate1] = useState(null);
@@ -577,10 +581,10 @@ const TotalShortlist = () => {
       };
 
       postDataWithFetchV2(parameter);
-      
+
       // Update local state immediately
-      setMatchDetails({ 
-        blocked_users: matchDetails?.blocked_users?.filter(match => match?.user?.id !== id) 
+      setMatchDetails({
+        blocked_users: matchDetails?.blocked_users?.filter(match => match?.user?.id !== id)
       });
       setFilteredItems(filteredItems?.filter(match => match?.user?.id !== id));
     }
@@ -594,6 +598,11 @@ const TotalShortlist = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems?.slice(indexOfFirstItem, indexOfLastItem);
+
+  const Arrow = ({ field }) => {
+    if (sortConfig.key !== field) return null;
+    return sortConfig.direction === "asc" ? " ↑" : " ↓";
+  };
 
   // Total pages
   const totalPages = Math.ceil(filteredItems?.length / itemsPerPage);
@@ -615,7 +624,7 @@ const TotalShortlist = () => {
 
   useEffect(() => {
     if (!filteredItems || filteredItems.length === 0) return;
-    
+
     const sortedData = [...filteredItems].sort((a, b) => {
       let valueA, valueB;
 
@@ -630,7 +639,7 @@ const TotalShortlist = () => {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
-      } 
+      }
       // Sorting by member_id
       else if (sortConfig.key === 'member_id') {
         valueA = a.user?.member_id || a.user?.id || '';
@@ -669,29 +678,29 @@ const TotalShortlist = () => {
 
       // Compare values
       if (valueA < valueB) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
       if (valueA > valueB) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
     });
     setFilteredItems(sortedData)
   }, [sortConfig.direction, sortConfig.key])
 
 
 
-    // Handle marital status filter change
-    const handleMaritalStatusChange = (selectedStatuses) => {
-      setFilters(prevFilters => {
-        const updatedFilters = { 
-          ...prevFilters, 
-          martialStatus: selectedStatuses.join(',') 
-        };
-        applyFilters(updatedFilters);
-        return updatedFilters;
-      });
-    };
+  // Handle marital status filter change
+  const handleMaritalStatusChange = (selectedStatuses) => {
+    setFilters(prevFilters => {
+      const updatedFilters = {
+        ...prevFilters,
+        martialStatus: selectedStatuses.join(',')
+      };
+      applyFilters(updatedFilters);
+      return updatedFilters;
+    });
+  };
 
 
 
@@ -702,193 +711,187 @@ const TotalShortlist = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button onClick={toggleFilters} className="filter-button">
             <AiOutlineFilter className="icon" /> Filter By
           </button>
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Member ID"
-            list="distinct-ids"
-            style={{ width: '100px' }}
-          />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.name}
-            onChange={(e) => handleFilterChange('name', e.target.value)}
-            placeholder="Name"
-            style={{ width: '120px' }}
-          />
+          {isFilters && (
+            <>
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            style={{ width: '100px' }}
-          />
-          {/* Replace your current date picker implementation with this */}
-          <div className="date-filters-container">
-            <CustomDatePicker
-              selectedDate={filters.startDate}
-              onChange={(date) => handleFilterChange("startDate", date)}
-              placeholder="Start Date"
-              isOpen={showStartDatePicker}
-              onToggle={(open) => {
-                setShowStartDatePicker(open);
-                if (open) setShowEndDatePicker(false);
-              }}
-            />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Member ID"
+                list="distinct-ids"
+                style={{ width: '100px' }}
+              />
 
-            <CustomDatePicker
-              selectedDate={filters.endDate}
-              onChange={(date) => handleFilterChange("endDate", date)}
-              placeholder="End Date"
-              isOpen={showEndDatePicker}
-              onToggle={(open) => {
-                setShowEndDatePicker(open);
-                if (open) setShowStartDatePicker(false);
-              }}
-            />
-          </div>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.name}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+                placeholder="Name"
+                style={{ width: '120px' }}
+              />
 
-          <style>
-            {`
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                style={{ width: '100px' }}
+              />
+              {/* Replace your current date picker implementation with this */}
+              <div className="date-filters-container">
+                <CustomDatePicker
+                  selectedDate={filters.startDate}
+                  onChange={(date) => handleFilterChange("startDate", date)}
+                  placeholder="Start Date"
+                  isOpen={showStartDatePicker}
+                  onToggle={(open) => {
+                    setShowStartDatePicker(open);
+                    if (open) setShowEndDatePicker(false);
+                  }}
+                />
+
+                <CustomDatePicker
+                  selectedDate={filters.endDate}
+                  onChange={(date) => handleFilterChange("endDate", date)}
+                  placeholder="End Date"
+                  isOpen={showEndDatePicker}
+                  onToggle={(open) => {
+                    setShowEndDatePicker(open);
+                    if (open) setShowStartDatePicker(false);
+                  }}
+                />
+              </div>
+
+              <style>
+                {`
   .date-filters-container {
     display: flex;
     gap: 15px;
     position: relative;
     z-index: 1;
-  }
-`}
-          </style>
+    }
+    `}
+              </style>
 
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="actor">Actor</option>
-            <option value="administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="air_hostess">Air Hostess</option>
-            <option value="airline_professional">Airline Professional</option>
-            <option value="airforce">Airforce</option>
-            <option value="architect">Architect</option>
-            <option value="artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="audiologist">Audiologist</option>
-            <option value="auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="chef">Chef</option>
-            <option value="civil_servant">Civil Servant</option>
-            <option value="clerk">Clerk</option>
-            <option value="coach">Coach</option>
-            <option value="consultant">Consultant</option>
-            <option value="counselor">Counselor</option>
-            <option value="dentist">Dentist</option>
-            <option value="designer">Designer</option>
-            <option value="doctor">Doctor</option>
-            <option value="engineer">Engineer</option>
-            <option value="entrepreneur">Entrepreneur</option>
-            <option value="farmer">Farmer</option>
-            <option value="fashion_designer">Fashion Designer</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="graphic_designer">Graphic Designer</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="interior_designer">Interior Designer</option>
-            <option value="journalist">Journalist</option>
-            <option value="lawyer">Lawyer</option>
-            <option value="manager">Manager</option>
-            <option value="marketing_professional">Marketing Professional</option>
-            <option value="nurse">Nurse</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="photographer">Photographer</option>
-            <option value="pilot">Pilot</option>
-            <option value="police">Police</option>
-            <option value="professor">Professor</option>
-            <option value="psychologist">Psychologist</option>
-            <option value="researcher">Researcher</option>
-            <option value="sales_executive">Sales Executive</option>
-            <option value="scientist">Scientist</option>
-            <option value="social_worker">Social Worker</option>
-            <option value="software_consultant">Software Consultant</option>
-            <option value="sportsman">Sportsman</option>
-            <option value="teacher">Teacher</option>
-            <option value="technician">Technician</option>
-            <option value="therapist">Therapist</option>
-            <option value="veterinarian">Veterinarian</option>
-            <option value="writer">Writer</option>
-            <option value="other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
 
-          {/* Use the MaritalStatusDropdown component */}
-          <MaritalStatusDropdown 
-            value={filters.martialStatus ? filters.martialStatus.split(',') : []}
-            onChange={handleMaritalStatusChange}
-          />
+              {/* Use the MaritalStatusDropdown component */}
+              <MaritalStatusDropdown
+                value={filters.martialStatus ? filters.martialStatus.split(',') : []}
+                onChange={handleMaritalStatusChange}
+              />
 
 
-          {/* <select
-          className="filter-dropdown"
-          value={filters.status}
-          onChange={(e) => handleFilterChange('status', e.target.value)}
-        >
-          <option value="">Status</option>
-          {distinctStatuses?.map((status, index) => (
-            <option key={index} value={status}>
-              {status}
-            </option>
-          ))}
-        </select> */}
+            </>
+          )}
 
 
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
@@ -897,7 +900,7 @@ const TotalShortlist = () => {
         </div>
 
         {/* Table Section */}
-        <table className="interest-table">
+        {/* <table className="interest-table">
           <thead>
             <tr>
               <th onClick={() => handleSort('member_id')} style={{ cursor: 'pointer' }}>
@@ -930,8 +933,8 @@ const TotalShortlist = () => {
                 <td>{match?.user?.member_id || match?.user?.id}</td>
                 <td>
                   <div className="user-photo-name">
-                    <img 
-                      src={match?.user?.profile_photo || 'https://via.placeholder.com/50'} 
+                    <img
+                      src={match?.user?.profile_photo || 'https://via.placeholder.com/50'}
                       alt={match?.user?.name}
                       className="table-user-photo"
                       onClick={(e) => {
@@ -965,7 +968,233 @@ const TotalShortlist = () => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
+
+        <div className="w-full">
+          {/* Mobile: compact stacked cards (visible on <md) */}
+          <div className="space-y-3 md:hidden">
+            {currentItems?.map((match) => {
+              const user = match?.user || {};
+              return (
+                <div
+                  key={user.id || Math.random()}
+                  className="bg-white shadow-xs rounded-lg p-3 flex gap-3 items-start cursor-pointer hover:shadow-sm"
+                  onClick={() => navigate(`/details/${user.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter") navigate(`/details/${user.id}`); }}
+                >
+                  <img
+                    src={user.profile_photo || "https://placehold.co/40"}
+                    alt={user.name || "User photo"}
+                    className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/details/${user.id}`);
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://placehold.co/40";
+                    }}
+                    title="View Profile"
+                  />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 truncate">{user.name || "-"}</div>
+                        <div className="text-xs text-gray-500 truncate">
+                          ID: <span className="text-gray-700">{user.member_id || user.id || "-"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(user.id); }}
+                          title="Unblock User"
+                          className="p-1 rounded-md hover:bg-red-50"
+                          aria-label={`Unblock ${user.name}`}
+                        >
+                          <AiOutlineDelete className="w-5 h-5 text-red-600" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-2 gap-y-1 text-sm text-gray-600">
+                      <div className="truncate">
+                        <div className="text-xs text-gray-400">Location</div>
+                        <div className="truncate">{user.city || "-"}</div>
+                      </div>
+
+                      <div className="truncate">
+                        <div className="text-xs text-gray-400">Date</div>
+                        <div className="truncate">{match?.date || "-"}</div>
+                      </div>
+
+                      <div className="truncate">
+                        <div className="text-xs text-gray-400">Marital</div>
+                        <div>
+                          <span
+                            className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full font-medium ${(user.martial_status || "").toLowerCase().includes("single")
+                              ? "bg-green-100 text-green-800"
+                              : (user.martial_status || "").toLowerCase().includes("married")
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                              }`}
+                          >
+                            {user.martial_status || "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="truncate">
+                        <div className="text-xs text-gray-400">Sect</div>
+                        <div className="truncate">{user.sect_school_info || "-"}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop / md+: responsive table */}
+          <div className="hidden md:block w-full">
+            {/* Wrapper gives horizontal scroll if viewport is too narrow */}
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[900px] table-fixed w-full bg-white divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {/* Member ID */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[130px]">
+                      <button
+                        onClick={() => handleSort("member_id")}
+                        className="flex items-center gap-1 focus:outline-none"
+                        aria-label="Sort by member id"
+                      >
+                        Member ID<Arrow field="member_id" />
+                      </button>
+                    </th>
+
+                    {/* Name */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[200px]">
+                      <button onClick={() => handleSort("name")} className="flex items-center gap-1 focus:outline-none">
+                        Name<Arrow field="name" />
+                      </button>
+                    </th>
+
+                    {/* Location (hide on small desktops if needed) */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[150px]">
+                      <button onClick={() => handleSort("city")} className="flex items-center gap-1 focus:outline-none">
+                        Location<Arrow field="city" />
+                      </button>
+                    </th>
+
+                    {/* Date */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                      <button onClick={() => handleSort("date")} className="flex items-center gap-1 focus:outline-none">
+                        Date<Arrow field="date" />
+                      </button>
+                    </th>
+
+                    {/* Sect (hide on md -> show on lg) */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[220px] hidden lg:table-cell">
+                      <button onClick={() => handleSort("sect_school_info")} className="flex items-center gap-1 focus:outline-none">
+                        Sect<Arrow field="sect_school_info" />
+                      </button>
+                    </th>
+
+                    {/* Profession (hide on md -> show on lg) */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[220px] hidden lg:table-cell">
+                      <button onClick={() => handleSort("profession")} className="flex items-center gap-1 focus:outline-none">
+                        Profession<Arrow field="profession" />
+                      </button>
+                    </th>
+
+                    {/* Marital Status */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[120px]">
+                      <button onClick={() => handleSort("martial_status")} className="flex items-center gap-1 focus:outline-none">
+                        Marital Status<Arrow field="martial_status" />
+                      </button>
+                    </th>
+
+                    {/* Action */}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-[80px]">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {currentItems?.map((match) => {
+                    const user = match?.user || {};
+                    return (
+                      <tr
+                        key={user.id || Math.random()}
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => navigate(`/details/${user.id}`)}
+                      >
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{user.member_id || user.id || "-"}</td>
+
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <img
+                              src={user.profile_photo || "https://placehold.co/40"}
+                              alt={user.name || "User photo"}
+                              className="w-10 h-10 rounded-md object-cover flex-shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/details/${user.id}`);
+                              }}
+                              onError={(e) => {
+                                e.currentTarget.src = "https://placehold.co/40";
+                              }}
+                              title="View Profile"
+                            />
+                            <div className="text-sm font-medium text-gray-900 truncate">{user.name || "-"}</div>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 truncate">{user.city || "-"}</td>
+
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">{match?.date || "-"}</td>
+
+                        {/* Sect: hidden below lg */}
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{user.sect_school_info || "-"}</td>
+
+                        {/* Profession: hidden below lg */}
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell truncate">{user.profession || "-"}</td>
+
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${(user.martial_status || "").toLowerCase().includes("single")
+                              ? "bg-green-100 text-green-800"
+                              : (user.martial_status || "").toLowerCase().includes("married")
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                              }`}
+                          >
+                            {user.martial_status || "-"}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(user.id); }}
+                            title="Unblock User"
+                            className="p-1 rounded-md hover:bg-red-50"
+                            aria-label={`Unblock ${user.name}`}
+                          >
+                            <AiOutlineDelete className="w-5 h-5 text-red-600" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* Pagination */}
         <div className="pagination">

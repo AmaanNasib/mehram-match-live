@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { fetchDataObjectV2, fetchDataV2, justputDataWithoutToken, postDataReturnResponse, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken, updateDataV2 } from "../../../apiUtils";
-import TopBar from "../../sections/TopBar";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchDataV2, justputDataWithoutToken, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
+import './AgentStepOne.css'
 
 const AgentStepFour = () => {
   const navigate = useNavigate();
@@ -46,7 +43,7 @@ const AgentStepFour = () => {
     // if (!profileData?.upload_photo) {
     //   newErrors.upload_photo = "Photo upload is required";
     // }
-    
+
 
 
     setErrors(newErrors);
@@ -110,25 +107,25 @@ const AgentStepFour = () => {
     const formData = new FormData();
     formData.append('upload_photo', image);
     formData.append('agent_id', userId);
-    
+
     // Check if there's already a photo in imagedata (from profile photo table)
     console.log('Current imagedata when saving:', imagedata);
     console.log('imagedata length:', imagedata?.length);
     console.log('profileData.upload_photo:', profileData?.upload_photo);
     console.log('apiData.profile_photo:', apiData?.profile_photo);
-    
+
     const existingPhotoId = imagedata?.[imagedata.length - 1]?.id;
     const hasExistingPhoto = existingPhotoId && imagedata.length > 0;
-    
+
     // Fallback: If imagedata is empty but main profile has a photo, we should update
     const hasPhotoInMainProfile = apiData?.profile_photo || profileData?.upload_photo;
     const shouldUpdate = hasExistingPhoto || hasPhotoInMainProfile;
-    
+
     console.log('existingPhotoId:', existingPhotoId);
     console.log('hasExistingPhoto:', hasExistingPhoto);
     console.log('hasPhotoInMainProfile:', hasPhotoInMainProfile);
     console.log('shouldUpdate:', shouldUpdate);
-    
+
     let updateurl = `/api/agent/profile_photo/${existingPhotoId}/`;
     const parameter = {
       url: hasExistingPhoto ? updateurl : '/api/agent/profile_photo/',
@@ -136,7 +133,7 @@ const AgentStepFour = () => {
         console.log('Photo upload response:', responseData);
         // Convert single response to array format for imagedata
         setImagedateset([responseData]);
-        
+
         // Update agent profile with the new photo URL
         if (responseData?.upload_photo) {
           console.log('Updating agent profile with new photo URL:', responseData.upload_photo);
@@ -169,7 +166,7 @@ const AgentStepFour = () => {
 
     setError("");
     console.log("Image saved:", image);
-    
+
     // alert("Image saved successfully!");
   };
   useEffect(() => {
@@ -192,25 +189,25 @@ const AgentStepFour = () => {
       // fetchDataV2(parameter1);
       // console.log(imagedata,"pics");
 
-         const parameter = {
-              url: `/api/agent/${userId}/`,
-              setterFunction: setApiData,
-              setErrors: setErrors,
-            };
-            fetchDataV2(parameter);
+      const parameter = {
+        url: `/api/agent/${userId}/`,
+        setterFunction: setApiData,
+        setErrors: setErrors,
+      };
+      fetchDataV2(parameter);
 
-            // Also fetch the profile photo data
-            const photoParameter = {
-              url: `/api/agent/profile_photo/?agent_id=${userId}`,
-              setterFunction: setImagedateset,
-              setErrors: setErrors,
-              setLoading: setLoading,
-            };
-            console.log('Fetching profile photos for agent_id:', userId);
-            // This endpoint returns a list (array). Use list-aware fetch helper.
-            fetchDataV2(photoParameter);
-          }
-      
+      // Also fetch the profile photo data
+      const photoParameter = {
+        url: `/api/agent/profile_photo/?agent_id=${userId}`,
+        setterFunction: setImagedateset,
+        setErrors: setErrors,
+        setLoading: setLoading,
+      };
+      console.log('Fetching profile photos for agent_id:', userId);
+      // This endpoint returns a list (array). Use list-aware fetch helper.
+      fetchDataV2(photoParameter);
+    }
+
 
     // }
 
@@ -224,10 +221,10 @@ const AgentStepFour = () => {
       console.log(apiData.upload_photo, "apiData.upload_photo");
 
       setProfileData({
-        expierience_in_business: apiData.expierience_in_business ,
-        marraige_fixed_in_pass: apiData.marraige_fixed_in_pass ,
-        full_time_marraige_agent: apiData.full_time_marraige_agent ,
-        upload_photo: apiData.upload_photo 
+        expierience_in_business: apiData.expierience_in_business,
+        marraige_fixed_in_pass: apiData.marraige_fixed_in_pass,
+        full_time_marraige_agent: apiData.full_time_marraige_agent,
+        upload_photo: apiData.upload_photo
       });
     }
 
@@ -240,14 +237,14 @@ const AgentStepFour = () => {
       console.log('Latest photo from imagedata:', latestPhoto);
       if (latestPhoto?.upload_photo) {
         console.log('Loading photo from imagedata:', latestPhoto.upload_photo);
-        
+
         // Construct full URL if it's a relative path
-        const fullPhotoUrl = latestPhoto.upload_photo.startsWith('http') 
-          ? latestPhoto.upload_photo 
+        const fullPhotoUrl = latestPhoto.upload_photo.startsWith('http')
+          ? latestPhoto.upload_photo
           : `${process.env.REACT_APP_API_URL}${latestPhoto.upload_photo}`;
-        
+
         setPreview(fullPhotoUrl);
-        
+
         // Create a mock file object for the existing photo
         const mockFile = {
           name: 'existing-photo.jpg',
@@ -261,12 +258,12 @@ const AgentStepFour = () => {
 
   const naviagteNextStep = () => {
     console.log('Next Step clicked, image:', image);
-    
+
     // If there's an image to upload, save it first
     if (image) {
       console.log('Image found, calling handleSave first');
       handleSave();
-      
+
       // Wait for photo upload to complete, then proceed
       setTimeout(() => {
         console.log('Photo upload completed, proceeding to next step');
@@ -283,10 +280,10 @@ const AgentStepFour = () => {
       const parameters = {
         url: `/api/agent/${userId}/`,
         payload: {
-          expierience_in_business: profileData?.expierience_in_business ,
-          marraige_fixed_in_pass: profileData?.marraige_fixed_in_pass ,
-          full_time_marraige_agent: profileData?.full_time_marraige_agent ,
-          upload_photo: profileData?.upload_photo 
+          expierience_in_business: profileData?.expierience_in_business,
+          marraige_fixed_in_pass: profileData?.marraige_fixed_in_pass,
+          full_time_marraige_agent: profileData?.full_time_marraige_agent,
+          upload_photo: profileData?.upload_photo
         },
         navigate: navigate,
         navUrl: `/agentstepfiv/${userId}`,
@@ -330,55 +327,8 @@ const AgentStepFour = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        {/* {errors && (
-          <div
-            style={{
-              zIndex: "10000",
-              height: "17vh",
-              width: "33vw",
-              backgroundColor: "#F8BF00",
-              display: "flex",
-              flexDirection: "row",
-              padding: "2vh 3vh",
-              gap: "10px",
-              position: "absolute",
-              left: "35%",
-              borderRadius: "1vh",
-              cursor: "pointer",
-            }}
-          >
-            <div>
-              <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M8.77348 1.90259C9.14789 1.69179 9.57031 1.58105 9.99998 1.58105C10.4296 1.58105 10.8521 1.69179 11.2265 1.90259C11.6009 2.11338 11.9146 2.41712 12.1375 2.78448L12.1399 2.78844L19.1982 14.5718L19.205 14.5833C19.4233 14.9613 19.5388 15.3899 19.54 15.8264C19.5412 16.263 19.4281 16.6922 19.2119 17.0714C18.9958 17.4507 18.6841 17.7667 18.3078 17.9881C17.9316 18.2095 17.504 18.3285 17.0675 18.3333L17.0583 18.3334L2.93248 18.3333C2.49598 18.3285 2.06834 18.2095 1.69212 17.9881C1.31589 17.7667 1.00419 17.4507 0.788018 17.0714C0.571848 16.6922 0.458748 16.263 0.459971 15.8264C0.461193 15.3899 0.576695 14.9613 0.794985 14.5833L0.801754 14.5718L7.86247 2.78448C8.0853 2.41711 8.39908 2.11338 8.77348 1.90259ZM9.99998 3.24772C9.85675 3.24772 9.71595 3.28463 9.59115 3.3549C9.46691 3.42485 9.3627 3.52549 9.28849 3.64721L2.23555 15.4215C2.16457 15.5464 2.12703 15.6874 2.12663 15.8311C2.12622 15.9766 2.16392 16.1197 2.23598 16.2461C2.30804 16.3725 2.41194 16.4779 2.53735 16.5517C2.66166 16.6248 2.80281 16.6644 2.94697 16.6667H17.053C17.1971 16.6644 17.3383 16.6248 17.4626 16.5517C17.588 16.4779 17.6919 16.3725 17.764 16.2461C17.836 16.1197 17.8737 15.9766 17.8733 15.8311C17.8729 15.6875 17.8354 15.5464 17.7644 15.4216L10.7125 3.64886C10.7121 3.64831 10.7118 3.64776 10.7115 3.64721C10.6373 3.52549 10.533 3.42485 10.4088 3.3549C10.284 3.28463 10.1432 3.24772 9.99998 3.24772Z" fill="white" />
-                <path fillRule="evenodd" clipRule="evenodd" d="M10.0001 6.6665C10.4603 6.6665 10.8334 7.0396 10.8334 7.49984V10.8332C10.8334 11.2934 10.4603 11.6665 10.0001 11.6665C9.53984 11.6665 9.16675 11.2934 9.16675 10.8332V7.49984C9.16675 7.0396 9.53984 6.6665 10.0001 6.6665Z" fill="white" />
-                <path fillRule="evenodd" clipRule="evenodd" d="M9.16675 14.1668C9.16675 13.7066 9.53984 13.3335 10.0001 13.3335H10.0084C10.4687 13.3335 10.8417 13.7066 10.8417 14.1668C10.8417 14.6271 10.4687 15.0002 10.0084 15.0002H10.0001C9.53984 15.0002 9.16675 14.6271 9.16675 14.1668Z" fill="white" />
-              </svg>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                color: "white",
-                width: "100%",
-                paddingLeft: "5%",
-              }}
-            >
-              <h2 style={{ margin: 0, fontSize: "3vh", fontWeight: "500" }}>
-                Missing Information
-              </h2>
-              <p style={{ margin: 0, width: "100%", fontSize: "2.2vh" }}>
-                Please fill out all required fields to proceed to the next step
-              </p>
-            </div>
-            <div onClick={() => setErrors(!errors)}>
-              <svg width="27" height="27" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M15.5893 4.41058C15.9148 4.73602 15.9148 5.26366 15.5893 5.58909L5.58934 15.5891C5.2639 15.9145 4.73626 15.9145 4.41083 15.5891C4.08539 15.2637 4.08539 14.736 4.41083 14.4106L14.4108 4.41058C14.7363 4.08514 15.2639 4.08514 15.5893 4.41058Z" fill="white" />
-                <path fillRule="evenodd" clipRule="evenodd" d="M4.41083 4.41058C4.73626 4.08514 5.2639 4.08514 5.58934 4.41058L15.5893 14.4106C15.9148 14.736 15.9148 15.2637 15.5893 15.5891C15.2639 15.9145 14.7363 15.9145 14.4108 15.5891L4.41083 5.58909C4.08539 5.26366 4.08539 4.73602 4.41083 4.41058Z" fill="white" />
-              </svg>
-            </div>
-          </div>
-        )} */}
+      <main className="flex-1 bg-white steps-title">
+
         <h3
           style={{
             fontSize: "1.8rem",
@@ -409,6 +359,7 @@ const AgentStepFour = () => {
         ></div>
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw]">
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -605,11 +556,10 @@ const AgentStepFour = () => {
                       name="expyears"
                       required
                       value={profileData?.expierience_in_business || ""}
-                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        errors.expierience_in_business
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
+                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${errors.expierience_in_business
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                        } focus:outline-none focus:ring-2`}
                       onChange={(e) =>
                         updateField("expierience_in_business", e.target.value)
                       }
@@ -665,11 +615,10 @@ const AgentStepFour = () => {
                       name="marfixed"
                       required
                       value={profileData?.marraige_fixed_in_pass || ""}
-                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${
-                        errors.mar_fixed
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
-                      } focus:outline-none focus:ring-2`}
+                      className={`h-10 px-[12px] text-[#6D6E6F] font-semibold placeholder-[#898B92] w-full rounded-lg border-1 border-[#898B92] ${errors.mar_fixed
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : "border-[#898B92] focus:border-[#898B92] focus:ring-[#898B92]"
+                        } focus:outline-none focus:ring-2`}
                       onChange={(e) =>
                         updateField("marraige_fixed_in_pass", e.target.value)
                       }
@@ -735,56 +684,56 @@ const AgentStepFour = () => {
                         Dargah/Fatiha/Niyah field.
                       </div>
                     </div>
-                  
 
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={(e) =>
-                        updateField("full_time_marraige_agent", "yes")
-                      }
-                      type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
-                        profileData?.full_time_marraige_agent === "yes"
+
+                    <div className="flex items-center space-x-4">
+                      {/* <button
+                        onClick={(e) =>
+                          updateField("full_time_marraige_agent", "yes")
+                        }
+                        type="button"
+                        className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData?.full_time_marraige_agent === "yes"
                           ? "bg-green-500"
                           : "bg-gray-300"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                          profileData?.full_time_marraige_agent === "yes"
+                          }`}
+                      >
+                        <div
+                          className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData?.full_time_marraige_agent === "yes"
                             ? "translate-x-6"
                             : "translate-x-0"
-                        }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
+                            }`}
+                        ></div>
+                      </button>
+                      <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span> */}
 
-                    <button
-                      onClick={(e) =>
-                        updateField("full_time_marraige_agent", "no")
-                      }
-                      type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${
-                        profileData?.full_time_marraige_agent === "no"
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                          profileData?.full_time_marraige_agent === "no"
-                            ? "translate-x-6"
-                            : "translate-x-0"
-                        }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
-                  </div>
-                  {errors.full_time_marraige_agent && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.full_time_marraige_agent}
-                    </p>
-                  )}
+                      <button
+                        onClick={(e) =>
+                          updateField("full_time_marraige_agent", "yes")
+                        }
+                        type="button"
+                        aria-pressed={profileData.full_time_marraige_agent === "no"}
+                        className={`px-4 py-2 rounded-full border ${profileData.full_time_marraige_agent === "no" ? "bg-green-500 text-white border-green-500" : "bg-white text-gray-700"}`}
+                      >
+                        No
+                      </button>
+
+
+                      <button
+                        onClick={(e) =>
+                          updateField("full_time_marraige_agent", "no")
+                        }
+                        type="button"
+                        aria-pressed={profileData.full_time_marraige_agent === "yes"}
+                        className={`px-4 py-2 rounded-full border ${profileData.full_time_marraige_agent === "yes" ? "bg-green-500 text-white border-green-500" : "bg-white text-gray-700"}`}
+                      >
+                        Yes
+                      </button>
+                    </div>
+                    {errors.full_time_marraige_agent && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.full_time_marraige_agent}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

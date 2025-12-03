@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
@@ -43,11 +42,8 @@ import Totalblocked from "./components/Dashboard/Totalblocked/Totalblocked";
 import TotalBlockedAgent from "./components/Dashboard/Totalblocked/TotalBlockedAgent";
 import PremiumPlans from "./components/Dashboard/Premiums/PremiumPlans";
 import Inbox from "./components/Dashboard/Inbox/Inbox";
-import TermsCondition from "./components/Dashboard/TermsCondition/TermsCondition";
 import TermsConditions from "./components/pages/TermsConditions/TermsConditions";
 
-import UserDetail from "./components/UserDetail/UserDetail";
-import MyProfile from "./components/UserDetail/MyProfile";
 import UserDetailProfessional from "./components/UserDetail/UserDetailProfessional";
 import AgentProfile from "./components/Dashboard/AgentProfile/AgentProfile";
 import MyInterest from "./components/Dashboard/dashboardCard/MyInterest/Myinterest";
@@ -74,16 +70,18 @@ import MemberRequestSend_Received from "./components/Dashboard/AgentActions/Memb
 const AllRoutes = () => {
   const token = localStorage.getItem("token");
 
+
+
   if (token && token.split(".").length === 3) {
     try {
       const decoded = jwtDecode(token);
       console.log("decoded : ", decoded.user_id, decoded);
       const userId = decoded.user_id || decoded.id || "";
-      
+
       // Check if we're impersonating a user
       const isImpersonating = localStorage.getItem('is_agent_impersonating') === 'true';
       const impersonatingUserId = localStorage.getItem('impersonating_user_id');
-      
+
       if (isImpersonating && impersonatingUserId) {
         // Use the impersonated user's ID
         localStorage.setItem("userId", impersonatingUserId);
@@ -92,7 +90,7 @@ const AllRoutes = () => {
         // Use the actual user's ID from token
         localStorage.setItem("userId", userId);
       }
-      
+
       localStorage.setItem("user", JSON.stringify(decoded));
     } catch (err) {
       console.error("Token decoding failed:", err);
@@ -174,8 +172,7 @@ const AllRoutes = () => {
           path="/details/:userId"
           element={
             <PrivateRoute>
-              {" "}
-              <UserDetailProfessional />{" "}
+              <UserDetailProfessional />
             </PrivateRoute>
           }
         />
@@ -336,13 +333,13 @@ const AllRoutes = () => {
         <Route
           path="/guidance"
           element={
-              <Landingpage />
+            <Landingpage />
           }
         />
         <Route
           path="/blogpage"
           element={
-              <BlogPage />
+            <BlogPage />
           }
         />
         <Route
@@ -518,13 +515,13 @@ const AllRoutes = () => {
           }
         />
 
-        <Route path="/memstepone/:userId" element={<PrivateRoute><MemStepOne/></PrivateRoute>  }/>
-        <Route path="/memsteptwo/:userId" element={ <PrivateRoute><MemStepTwo/> </PrivateRoute>}/>
-        <Route path="/memstepthree/:userId" element={<PrivateRoute> <MemStepThree/></PrivateRoute> }/>
-        <Route path="/memstepfour/:userId" element={ <PrivateRoute><MemStepFour/> </PrivateRoute>}/>
-        <Route path="/memstepfive/:userId" element={<PrivateRoute> <MemStepFive/></PrivateRoute> }/>
-        <Route path="/memstepsix/:userId" element={ <PrivateRoute><MemStepSix/> </PrivateRoute>}/>
-        <Route path="/memstep-payment/:userId" element={<PrivateRoute> <MemStepPayment/> </PrivateRoute>}/>
+        <Route path="/memstepone/:userId" element={<PrivateRoute><MemStepOne /></PrivateRoute>} />
+        <Route path="/memsteptwo/:userId" element={<PrivateRoute><MemStepTwo /> </PrivateRoute>} />
+        <Route path="/memstepthree/:userId" element={<PrivateRoute> <MemStepThree /></PrivateRoute>} />
+        <Route path="/memstepfour/:userId" element={<PrivateRoute><MemStepFour /> </PrivateRoute>} />
+        <Route path="/memstepfive/:userId" element={<PrivateRoute> <MemStepFive /></PrivateRoute>} />
+        <Route path="/memstepsix/:userId" element={<PrivateRoute><MemStepSix /> </PrivateRoute>} />
+        <Route path="/memstep-payment/:userId" element={<PrivateRoute> <MemStepPayment /> </PrivateRoute>} />
         <Route
           path="/admin"
           element={

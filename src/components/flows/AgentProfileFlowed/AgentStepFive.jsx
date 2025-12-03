@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { fetchDataObjectV2, fetchDataV2, justputDataWithoutToken, postDataReturnResponse, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken, updateDataV2 } from "../../../apiUtils";
-import TopBar from "../../sections/TopBar";
-import Sidebar from "../../sections/Sidebar";
-import ProfileSection from "../../sections/ProfileSection";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchDataV2, justputDataWithoutToken, ReturnPutResponseFormdataWithoutToken, ReturnResponseFormdataWithoutToken } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
+import './AgentStepOne.css'
 
 const MemStepFive = () => {
   const navigate = useNavigate();
@@ -125,7 +122,7 @@ const MemStepFive = () => {
 
     setError("");
     console.log("Image saved:", image);
-    
+
     // Update agent profile with photo URL after successful upload
     setTimeout(() => {
       const updateParameter = {
@@ -138,7 +135,7 @@ const MemStepFive = () => {
       };
       justputDataWithoutToken(updateParameter);
     }, 1000);
-    
+
     // alert("Image saved successfully!");
   };
   useEffect(() => {
@@ -166,7 +163,7 @@ const MemStepFive = () => {
         setErrors: setErrors,
       };
       fetchDataV2(parameter);
-    
+
 
     }
 
@@ -251,8 +248,8 @@ const MemStepFive = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-       
+      <main className="flex-1 bg-white steps-title">
+
         <h3
           style={{
             fontSize: "1.8rem",
@@ -283,6 +280,7 @@ const MemStepFive = () => {
         ></div>
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw]">
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -320,7 +318,7 @@ const MemStepFive = () => {
                 step 5/6
               </p>
               <h4 className="col-span-3 m-0 p-0" style={{ fontWeight: "bold" }}>
-              Choose Plan, Pay & Use 
+                Choose Plan, Pay & Use
               </h4>
               <p
                 style={{
@@ -342,71 +340,71 @@ const MemStepFive = () => {
                 }}
               ></div>
               <div className="w-[50%] relative flex flex-col gap-[20px]">
-                  <div className="relative ">
+                <div className="relative ">
                   <label className="block text-sm font-medium text-[#000000] mb-0">
-                  Plan Options<span style={{ color: "red" }}>*</span>
+                    Plan Options<span style={{ color: "red" }}>*</span>
                   </label>
-                    {/* Information icon positioned at right corner of input */}
-    <div className="absolute left-60 top-3 transform -translate-y-1/2 group z-20">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-red-500 cursor-pointer"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      {/* Tooltip text */}
-      <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
-        This is additional information about the Belives in Dargah/Fatiha/Niyah field.
-      </div>
-    </div>
-    </div>
-                  
-
-
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={(e) => updateField("full_time_agent", "yes")}
-                      type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData.full_time_agent === "yes" ? "bg-green-500" : "bg-gray-300"
-                        }`}
+                  {/* Information icon positioned at right corner of input */}
+                  <div className="absolute left-60 top-3 transform -translate-y-1/2 group z-20">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-red-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData.full_time_agent === "yes" ? "translate-x-6" : "translate-x-0"
-                          }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
-
-                    <button
-                      onClick={(e) => updateField("full_time_agent", "no")}
-                           type="button"
-                      className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData.full_time_agent === "no" ? "bg-green-500" : "bg-gray-300"
-                        }`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData.full_time_agent === "no" ? "translate-x-6" : "translate-x-0"
-                          }`}
-                      ></div>
-                    </button>
-                    <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
-                  
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {/* Tooltip text */}
+                    <div className="absolute z-10 hidden group-hover:block w-64 p-2 text-sm bg-yellow-100 text-yellow-800 rounded shadow-lg left-1/2 transform -translate-x-1/2 mt-2 top-full">
+                      This is additional information about the Belives in Dargah/Fatiha/Niyah field.
+                    </div>
                   </div>
-                  {errors.full_time_agent && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.full_time_agent}
-                    </p>
-                  )}
                 </div>
 
-             
+
+
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={(e) => updateField("full_time_agent", "yes")}
+                    type="button"
+                    className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData.full_time_agent === "yes" ? "bg-green-500" : "bg-gray-300"
+                      }`}
+                  >
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData.full_time_agent === "yes" ? "translate-x-6" : "translate-x-0"
+                        }`}
+                    ></div>
+                  </button>
+                  <span className="ml-2 text-sm text-[#6d6e6f] font-medium">Yes</span>
+
+                  <button
+                    onClick={(e) => updateField("full_time_agent", "no")}
+                    type="button"
+                    className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${profileData.full_time_agent === "no" ? "bg-green-500" : "bg-gray-300"
+                      }`}
+                  >
+                    <div
+                      className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${profileData.full_time_agent === "no" ? "translate-x-6" : "translate-x-0"
+                        }`}
+                    ></div>
+                  </button>
+                  <span className="ml-2 text-sm text-[#6d6e6f] font-medium">No</span>
+
+                </div>
+                {errors.full_time_agent && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.full_time_agent}
+                  </p>
+                )}
+              </div>
+
+
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <button
                   onClick={() => {

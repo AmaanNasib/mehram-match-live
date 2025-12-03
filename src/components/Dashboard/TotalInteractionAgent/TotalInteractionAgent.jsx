@@ -22,17 +22,17 @@ const TotalInteractionAgent = () => {
 
   // Filter states
   const [filters, setFilters] = useState({
-      memberId: '',
-      name: '',
-      city: '',
-      profession: '',
-      sect: '',
-      maritalStatus: '',
-      gender: '',
-      status: '',
-      startDate: '',
-      endDate: ''
-    });
+    memberId: '',
+    name: '',
+    city: '',
+    profession: '',
+    sect: '',
+    maritalStatus: '',
+    gender: '',
+    status: '',
+    startDate: '',
+    endDate: ''
+  });
 
   // Fetch agent interaction data
   useEffect(() => {
@@ -62,14 +62,14 @@ const TotalInteractionAgent = () => {
     if (!photoUrl || typeof photoUrl !== 'string') {
       return "https://via.placeholder.com/60";
     }
-    
+
     if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
       if (photoUrl.includes('!') || photoUrl.includes('undefined') || photoUrl.length < 10) {
         return "https://via.placeholder.com/60";
       }
       return photoUrl;
     }
-    
+
     return `${process.env.REACT_APP_API_URL}${photoUrl}`;
   };
 
@@ -97,9 +97,9 @@ const TotalInteractionAgent = () => {
   // Fetch individual member details
   const fetchMemberDetails = async (memberId) => {
     if (memberDetails[memberId] || loadingDetails[memberId]) return;
-    
+
     setLoadingDetails(prev => ({ ...prev, [memberId]: true }));
-    
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${memberId}/`, {
         method: 'GET',
@@ -108,7 +108,7 @@ const TotalInteractionAgent = () => {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setMemberDetails(prev => ({ ...prev, [memberId]: data }));
@@ -128,11 +128,11 @@ const TotalInteractionAgent = () => {
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
-      
+
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
-      
+
       return age > 0 ? age : "N/A";
     } catch (e) {
       return "N/A";
@@ -150,49 +150,49 @@ const TotalInteractionAgent = () => {
     let filtered = [...interactionData];
 
     if (filters.memberId) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.member_id?.toString().includes(filters.memberId)
       );
     }
 
     if (filters.name) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.name?.toLowerCase().includes(filters.name.toLowerCase())
       );
     }
 
     if (filters.city) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.city?.toLowerCase().includes(filters.city.toLowerCase())
       );
     }
 
     if (filters.profession) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.profession?.toLowerCase().includes(filters.profession.toLowerCase())
       );
     }
 
     if (filters.sect) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.sect_school_info?.toLowerCase().includes(filters.sect.toLowerCase())
       );
     }
 
     if (filters.maritalStatus) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.martial_status?.toLowerCase().includes(filters.maritalStatus.toLowerCase())
       );
     }
 
     if (filters.gender) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.gender?.toLowerCase() === filters.gender.toLowerCase()
       );
     }
 
     if (filters.status) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.interaction_summary?.total_interactions?.toString().includes(filters.status)
       );
     }
@@ -236,19 +236,19 @@ const TotalInteractionAgent = () => {
     let filtered = [...interactionData];
 
     if (filters.memberId) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.member_id?.toString().includes(filters.memberId)
       );
     }
 
     if (filters.name) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.name?.toLowerCase().includes(filters.name.toLowerCase())
       );
     }
 
     if (filters.city) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.member?.city?.toLowerCase().includes(filters.city.toLowerCase())
       );
     }
@@ -294,7 +294,7 @@ const TotalInteractionAgent = () => {
     }
 
     if (filters.status) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.interaction_summary?.total_interactions?.toString().includes(filters.status)
       );
     }
@@ -368,15 +368,15 @@ const TotalInteractionAgent = () => {
         case 'last_activity':
           const aLastActivity = a.sent_interactions?.length > 0 || a.received_interactions?.length > 0
             ? Math.max(
-                ...(a.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
-                ...(a.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
-              )
+              ...(a.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+              ...(a.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+            )
             : 0;
           const bLastActivity = b.sent_interactions?.length > 0 || b.received_interactions?.length > 0
             ? Math.max(
-                ...(b.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
-                ...(b.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
-              )
+              ...(b.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+              ...(b.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+            )
             : 0;
           aValue = aLastActivity;
           bValue = bLastActivity;
@@ -450,6 +450,10 @@ const TotalInteractionAgent = () => {
     setCurrentPage(pageNumber);
   };
 
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
   // Get unique values for filter dropdowns
   const uniqueCities = [...new Set(interactionData.map(item => item.member?.city).filter(Boolean))];
   const uniqueProfessions = [...new Set(interactionData.map(item => item.member?.profession).filter(Boolean))];
@@ -467,153 +471,156 @@ const TotalInteractionAgent = () => {
 
         {/* Filters Section */}
         <div className="shortlist-agent-filter-container">
-          <button className="shortlist-agent-filter-button">
+          <button className="shortlist-agent-filter-button" onClick={toggleFilters}>
             <AiOutlineFilter className="icon" /> Filter
           </button>
-          <input
-            className="shortlist-agent-filter-dropdown"
-            type="text"
-            value={filters.memberId}
-            onChange={(e) => handleFilterChange('memberId', e.target.value)}
-            placeholder="Enter ID"
-            style={{ width: "70px" }}
-          />
-          <input
-            className="shortlist-agent-filter-dropdown"
-            type="text"
-            value={filters.name}
-            onChange={(e) => handleFilterChange('name', e.target.value)}
-            placeholder="Name"
-            style={{ width: "100px" }}
-          />
-          <input
-            className="shortlist-agent-filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            style={{ width: "100px" }}
-          />
-          <select
-            className="shortlist-agent-filter-dropdown"
-            value={filters.sect}
-            onChange={(e) => handleFilterChange('sect', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
-          <select
-            className="shortlist-agent-filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="actor">Actor</option>
-            <option value="administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="air_hostess">Air Hostess</option>
-            <option value="airline_professional">Airline Professional</option>
-            <option value="airforce">Airforce</option>
-            <option value="architect">Architect</option>
-            <option value="artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="audiologist">Audiologist</option>
-            <option value="auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="chef">Chef</option>
-            <option value="civil_servant">Civil Servant</option>
-            <option value="clerk">Clerk</option>
-            <option value="coach">Coach</option>
-            <option value="consultant">Consultant</option>
-            <option value="counselor">Counselor</option>
-            <option value="dentist">Dentist</option>
-            <option value="designer">Designer</option>
-            <option value="doctor">Doctor</option>
-            <option value="engineer">Engineer</option>
-            <option value="entrepreneur">Entrepreneur</option>
-            <option value="farmer">Farmer</option>
-            <option value="fashion_designer">Fashion Designer</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="graphic_designer">Graphic Designer</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="interior_designer">Interior Designer</option>
-            <option value="journalist">Journalist</option>
-            <option value="lawyer">Lawyer</option>
-            <option value="manager">Manager</option>
-            <option value="marketing_professional">Marketing Professional</option>
-            <option value="nurse">Nurse</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="photographer">Photographer</option>
-            <option value="pilot">Pilot</option>
-            <option value="police">Police</option>
-            <option value="professor">Professor</option>
-            <option value="psychologist">Psychologist</option>
-            <option value="researcher">Researcher</option>
-            <option value="sales_executive">Sales Executive</option>
-            <option value="scientist">Scientist</option>
-            <option value="social_worker">Social Worker</option>
-            <option value="software_consultant">Software Consultant</option>
-            <option value="sportsman">Sportsman</option>
-            <option value="teacher">Teacher</option>
-            <option value="technician">Technician</option>
-            <option value="therapist">Therapist</option>
-            <option value="veterinarian">Veterinarian</option>
-            <option value="writer">Writer</option>
-            <option value="other">Other</option>
-          </select>
-          <select
-            className="shortlist-agent-filter-dropdown"
-            value={filters.maritalStatus}
-            onChange={(e) => handleFilterChange('maritalStatus', e.target.value)}
-          >
-            <option value="">Marital Status</option>
-            <option value="Single">Single</option>
-            <option value="Married">Married</option>
-            <option value="Divorced">Divorced</option>
-            <option value="Khula">Khula</option>
-            <option value="Widowed">Widowed</option>
-          </select>
-          <select
-            className="shortlist-agent-filter-dropdown"
-            value={filters.gender}
-            onChange={(e) => handleFilterChange('gender', e.target.value)}
-          >
-            <option value="">Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
+          {isFilters && (
+            <>
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.memberId}
+                onChange={(e) => handleFilterChange('memberId', e.target.value)}
+                placeholder="Enter ID"
+                style={{ width: "70px" }}
+              />
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.name}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+                placeholder="Name"
+                style={{ width: "100px" }}
+              />
+              <input
+                className="shortlist-agent-filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                style={{ width: "100px" }}
+              />
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.sect}
+                onChange={(e) => handleFilterChange('sect', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.maritalStatus}
+                onChange={(e) => handleFilterChange('maritalStatus', e.target.value)}
+              >
+                <option value="">Marital Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Khula">Khula</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+              <select
+                className="shortlist-agent-filter-dropdown"
+                value={filters.gender}
+                onChange={(e) => handleFilterChange('gender', e.target.value)}
+              >
+                <option value="">Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </>)}
           <button
             type="button"
             className="shortlist-agent-reset-filter"
@@ -635,9 +642,9 @@ const TotalInteractionAgent = () => {
           {error && (
             <div className="error-state">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                <line x1="15" y1="9" x2="9" y2="15" strokeWidth="2"/>
-                <line x1="9" y1="9" x2="15" y2="15" strokeWidth="2"/>
+                <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                <line x1="15" y1="9" x2="9" y2="15" strokeWidth="2" />
+                <line x1="9" y1="9" x2="15" y2="15" strokeWidth="2" />
               </svg>
               <h3>Error Loading Data</h3>
               <p>Failed to load interaction data. Please try again.</p>
@@ -647,7 +654,7 @@ const TotalInteractionAgent = () => {
           {!loading && !error && filteredData.length === 0 && (
             <div className="empty-state">
               <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2" />
               </svg>
               <h3>No Interactions Found</h3>
               <p>No interactions match your current filters</p>
@@ -739,55 +746,55 @@ const TotalInteractionAgent = () => {
                     const memberId = item.member?.id;
                     const details = memberDetails[memberId];
                     const isLoadingDetail = loadingDetails[memberId];
-                    
+
                     // Fetch member details if not already loaded
                     if (memberId && !details && !isLoadingDetail) {
                       fetchMemberDetails(memberId);
                     }
-                    
+
                     // Get last activity date from interactions
                     const lastActivity = item.sent_interactions?.length > 0 || item.received_interactions?.length > 0
                       ? Math.max(
-                          ...(item.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
-                          ...(item.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
-                        )
+                        ...(item.sent_interactions?.map(i => new Date(i.last_message_time).getTime()) || []),
+                        ...(item.received_interactions?.map(i => new Date(i.last_message_time).getTime()) || [])
+                      )
                       : null;
-                    
+
                     return (
                       <tr key={item.member?.id || index} className="table-row">
-                      <td>
-                        <span className="tia-member-id-badge">
-                          {item.member?.member_id || "N/A"}
-                        </span>
-                      </td>
-                      <td>
-                        <div 
-                          className="tia-member-photo-cell"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => handleMemberProfileClick(item.member?.id)}
-                        >
-                          <div className="tia-member-avatar">
-                            <img
-                              src={getProfileImageUrl(details?.profile_photo || item.member?.profile_photo)}
-                              alt={item.member?.name || "Member"}
-                              className="tia-avatar-img"
-                              style={{ cursor: 'pointer' }}
-                              onError={(e) => {
-                                e.target.src = "https://via.placeholder.com/50";
-                              }}
-                            />
+                        <td>
+                          <span className="tia-member-id-badge">
+                            {item.member?.member_id || "N/A"}
+                          </span>
+                        </td>
+                        <td>
+                          <div
+                            className="tia-member-photo-cell"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleMemberProfileClick(item.member?.id)}
+                          >
+                            <div className="tia-member-avatar">
+                              <img
+                                src={getProfileImageUrl(details?.profile_photo || item.member?.profile_photo)}
+                                alt={item.member?.name || "Member"}
+                                className="tia-avatar-img"
+                                style={{ cursor: 'pointer' }}
+                                onError={(e) => {
+                                  e.target.src = "https://via.placeholder.com/50";
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span 
-                          className="tia-simple-member-name"
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => handleMemberProfileClick(item.member?.id)}
-                        >
-                          {item.member?.name || "N/A"}
-                        </span>
-                      </td>
+                        </td>
+                        <td>
+                          <span
+                            className="tia-simple-member-name"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleMemberProfileClick(item.member?.id)}
+                          >
+                            {item.member?.name || "N/A"}
+                          </span>
+                        </td>
                         <td>
                           {isLoadingDetail ? (
                             <span className="tia-loading-text">Loading...</span>
@@ -845,14 +852,14 @@ const TotalInteractionAgent = () => {
                               }}
                               title="View User Profile"
                             >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                              <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     );
                   })}
                 </tbody>
@@ -861,9 +868,9 @@ const TotalInteractionAgent = () => {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="pagination">
-                  <button 
-                    className="pagination-btn" 
-                    onClick={() => handlePageChange(currentPage - 1)} 
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
                     &laquo; Previous
@@ -879,9 +886,9 @@ const TotalInteractionAgent = () => {
                     </button>
                   ))}
 
-                  <button 
-                    className="pagination-btn" 
-                    onClick={() => handlePageChange(currentPage + 1)} 
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                   >
                     Next &raquo;
@@ -898,7 +905,7 @@ const TotalInteractionAgent = () => {
             <div className="stats-card">
               <div className="stats-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2"/>
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2" />
                 </svg>
               </div>
               <div className="stats-content">
@@ -922,7 +929,7 @@ const TotalInteractionAgent = () => {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="user-modal-body">
                 <div className="user-profile-section">
                   <div className="user-avatar-container">
@@ -932,7 +939,7 @@ const TotalInteractionAgent = () => {
                       className="user-modal-avatar"
                     />
                   </div>
-                  
+
                   <div className="user-basic-info">
                     <h2 className="user-name">
                       {selectedUser?.name || 'N/A'}
@@ -947,32 +954,32 @@ const TotalInteractionAgent = () => {
                     <span className="detail-label">Age:</span>
                     <span className="detail-value">{selectedUser?.age || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Gender:</span>
                     <span className="detail-value">{selectedUser?.gender || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">City:</span>
                     <span className="detail-value">{selectedUser?.city || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Profession:</span>
                     <span className="detail-value">{selectedUser?.profession || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Sect/School:</span>
                     <span className="detail-value">{selectedUser?.sect_school_info || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">Marital Status:</span>
                     <span className="detail-value">{selectedUser?.martial_status || 'N/A'}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="detail-label">User ID:</span>
                     <span className="detail-value">{selectedUser?.id || 'N/A'}</span>

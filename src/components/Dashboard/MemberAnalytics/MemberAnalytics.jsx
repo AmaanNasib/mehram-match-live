@@ -13,7 +13,7 @@ const MemberAnalytics = () => {
   const [useError, setError] = useState(false);
   const [useLoading, setLoading] = useState(false);
   const [detailedLoading, setDetailedLoading] = useState(false);
-  
+
   // Filter and sort states
   const [filteredItems, setFilteredItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'asc' });
@@ -62,11 +62,11 @@ const MemberAnalytics = () => {
       setFilteredItems([]);
       return;
     }
-    
+
     setFilteredItems(
       matchDetails?.filter((match) => {
         return (
-          (updatedFilters.id ? 
+          (updatedFilters.id ?
             // Word-by-word search for id/member_id (case-insensitive)
             updatedFilters.id.split(' ').every(word => {
               const w = String(word).toLowerCase();
@@ -133,14 +133,14 @@ const MemberAnalytics = () => {
 
   useEffect(() => {
     if (userId) {
-      
-       const parameter = {
-         url: `/api/agent/user/matches/`,
+
+      const parameter = {
+        url: `/api/agent/user/matches/`,
         setterFunction: (data) => {
           // console.log('API Response:', data); // Debug log
           // console.log('API Response type:', typeof data);
           // console.log('API Response keys:', Object.keys(data || {}));
-          
+
           // Check for API errors
           if (data && data.error) {
             console.error('API Error:', data.error);
@@ -148,7 +148,7 @@ const MemberAnalytics = () => {
             setMatchDetails([]);
             return;
           }
-          
+
           // Handle API response structure for /api/agent/user/matches/
           let members = [];
           if (data && data.members && Array.isArray(data.members)) {
@@ -156,10 +156,10 @@ const MemberAnalytics = () => {
           } else if (Array.isArray(data)) {
             members = data;
           }
-          
+
           // console.log('Final members array:', members);
           // console.log('First member data:', members[0]);
-          
+
           // Debug total_matches field
           // if (members.length > 0) {
           //   members.forEach((member, index) => {
@@ -167,7 +167,7 @@ const MemberAnalytics = () => {
           //     console.log(`Member ${index + 1} - all fields:`, Object.keys(member));
           //   });
           // }
-          
+
           if (members.length > 0) {
             // Optimized: Single API call to get all detailed matches at once
             // console.log('Fetching detailed matches for all members in single API call...');
@@ -181,22 +181,22 @@ const MemberAnalytics = () => {
                     'Content-Type': 'application/json'
                   }
                 });
-                
+
                 if (response.ok) {
                   const detailedData = await response.json();
                   // console.log('All detailed matches data:', detailedData);
-                  
+
                   // Process all members with the single API response
                   const membersWithCounts = members.map(member => {
                     const actualUserId = member.user?.id;
                     let actualMatchesCount = member.total_matches || 0; // Use basic count as fallback
-                    
+
                     if (actualUserId && detailedData.detailed_matches && Array.isArray(detailedData.detailed_matches)) {
                       // Find the detailed matches for this specific user
-                      const userDetailedMatches = detailedData.detailed_matches.find(dm => 
+                      const userDetailedMatches = detailedData.detailed_matches.find(dm =>
                         (dm.user?.id || dm.user_id) == actualUserId
                       );
-                      
+
                       if (userDetailedMatches) {
                         if (userDetailedMatches.matches && Array.isArray(userDetailedMatches.matches)) {
                           actualMatchesCount = userDetailedMatches.matches.length;
@@ -205,68 +205,68 @@ const MemberAnalytics = () => {
                         }
                       }
                     }
-                    
+
                     // console.log(`Member ${member.user?.name} - Final matches count: ${actualMatchesCount}`);
-                    
+
                     return {
                       ...member,
                       total_matches: actualMatchesCount
                     };
                   });
-                  
+
                   // Transform data with actual counts
                   const transformedData = membersWithCounts.map(member => {
-                // console.log('Member data with actual counts:', member);
-              return {
-                id: member.user?.member_id,
-                member_id: member.user?.member_id || member.user?.id,
-                name: member.user?.first_name && member.user?.last_name 
-                  ? `${member.user.first_name} ${member.user.last_name}`.trim()
-                  : member.user?.name || member.name || 'No Name',
-                profile_photo: (() => {
-                  const photoUrl = member.user?.profile_photo || 
-                                  member.user?.profile_image ||
-                                  member.user?.avatar ||
-                                  member.user?.photo ||
-                                  member.user?.image;
-                  
-                  const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
-                  return fullUrl || '/images/muslim-man.png';
-                })(),
-                city: member.user?.city || '-',
-                age: member.user?.age || '-',
-                sect_school_info: member.user?.sect_school_info || '-',
-                profession: member.user?.profession || '-',
-                martial_status: member.user?.martial_status || 'Not mentioned',
-                match_percentage: member.total_matches || 0,
-                  total_matches: member.total_matches || 0, // Use actual count from detailed API
-                total_interest: member.total_interest || 0,
-                total_request: member.total_request || 0,
-                total_interaction: member.total_interaction || 0,
-                total_shortlisted: member.total_shortlisted || 0,
-                total_blocked: member.total_blocked || 0
-              };
-            });
-              
+                    // console.log('Member data with actual counts:', member);
+                    return {
+                      id: member.user?.member_id,
+                      member_id: member.user?.member_id || member.user?.id,
+                      name: member.user?.first_name && member.user?.last_name
+                        ? `${member.user.first_name} ${member.user.last_name}`.trim()
+                        : member.user?.name || member.name || 'No Name',
+                      profile_photo: (() => {
+                        const photoUrl = member.user?.profile_photo ||
+                          member.user?.profile_image ||
+                          member.user?.avatar ||
+                          member.user?.photo ||
+                          member.user?.image;
+
+                        const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
+                        return fullUrl || '/images/muslim-man.png';
+                      })(),
+                      city: member.user?.city || '-',
+                      age: member.user?.age || '-',
+                      sect_school_info: member.user?.sect_school_info || '-',
+                      profession: member.user?.profession || '-',
+                      martial_status: member.user?.martial_status || 'Not mentioned',
+                      match_percentage: member.total_matches || 0,
+                      total_matches: member.total_matches || 0, // Use actual count from detailed API
+                      total_interest: member.total_interest || 0,
+                      total_request: member.total_request || 0,
+                      total_interaction: member.total_interaction || 0,
+                      total_shortlisted: member.total_shortlisted || 0,
+                      total_blocked: member.total_blocked || 0
+                    };
+                  });
+
                   // console.log('Transformed data with actual counts:', transformedData);
-            setMatchDetails(transformedData);
+                  setMatchDetails(transformedData);
                   setDetailedLoading(false);
-          } else {
+                } else {
                   console.error('Failed to fetch detailed matches');
                   // Fallback to basic data if detailed API fails
                   const fallbackData = members.map(member => ({
                     id: member.user?.member_id,
                     member_id: member.user?.member_id || member.user?.id,
-                    name: member.user?.first_name && member.user?.last_name 
+                    name: member.user?.first_name && member.user?.last_name
                       ? `${member.user.first_name} ${member.user.last_name}`.trim()
                       : member.user?.name || member.name || 'No Name',
                     profile_photo: (() => {
-                      const photoUrl = member.user?.profile_photo || 
-                                      member.user?.profile_image ||
-                                      member.user?.avatar ||
-                                      member.user?.photo ||
-                                      member.user?.image;
-                      
+                      const photoUrl = member.user?.profile_photo ||
+                        member.user?.profile_image ||
+                        member.user?.avatar ||
+                        member.user?.photo ||
+                        member.user?.image;
+
                       const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
                       return fullUrl || '/images/muslim-man.png';
                     })(),
@@ -292,16 +292,16 @@ const MemberAnalytics = () => {
                 const fallbackData = members.map(member => ({
                   id: member.user?.member_id,
                   member_id: member.user?.member_id || member.user?.id,
-                  name: member.user?.first_name && member.user?.last_name 
+                  name: member.user?.first_name && member.user?.last_name
                     ? `${member.user.first_name} ${member.user.last_name}`.trim()
                     : member.user?.name || member.name || 'No Name',
                   profile_photo: (() => {
-                    const photoUrl = member.user?.profile_photo || 
-                                    member.user?.profile_image ||
-                                    member.user?.avatar ||
-                                    member.user?.photo ||
-                                    member.user?.image;
-                    
+                    const photoUrl = member.user?.profile_photo ||
+                      member.user?.profile_image ||
+                      member.user?.avatar ||
+                      member.user?.photo ||
+                      member.user?.image;
+
                     const fullUrl = photoUrl ? `${process.env.REACT_APP_API_URL}${photoUrl}` : null;
                     return fullUrl || '/images/muslim-man.png';
                   })(),
@@ -322,7 +322,7 @@ const MemberAnalytics = () => {
                 setDetailedLoading(false);
               }
             };
-            
+
             fetchActualCounts();
           } else {
             // console.log('No members data found'); // Debug log
@@ -350,10 +350,26 @@ const MemberAnalytics = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const [isFilters, setIsFilters] = useState(false);
+
+  const toggleFilters = () => setIsFilters(!isFilters);
+
+  const Arrow = ({ field }) => {
+    if (sortConfig?.key !== field) return null;
+    return <span className="ml-1">{sortConfig.direction === "asc" ? "↑" : "↓"}</span>;
+  };
+
+  const imgFallback = (e) => {
+    const fallback = "https://placehold.co/40";
+    if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback;
+  };
+
+
   // Get current items
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = Array.isArray(filteredItems) ? filteredItems.slice(indexOfFirstItem, indexOfLastItem) : [];
+
 
   // Total pages
   const totalPages = Math.ceil((Array.isArray(filteredItems) ? filteredItems.length : 0) / itemsPerPage);
@@ -363,6 +379,9 @@ const MemberAnalytics = () => {
     setCurrentPage(pageNumber);
   };
 
+
+
+
   return (
     <DashboardLayout>
       <div className="total-interest-container">
@@ -370,155 +389,158 @@ const MemberAnalytics = () => {
 
         {/* Filters Section */}
         <div className="filter-container">
-          <button className="filter-button">
+          <button className="filter-button" onClick={toggleFilters}>
             <AiOutlineFilter className="icon" /> Filter By
           </button>
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.id}
-            onChange={(e) => handleFilterChange('id', e.target.value)}
-            placeholder="Member ID"
-            list="distinct-ids"
-            style={{ width: '120px' }}
-          />
+          {isFilters && (
+            <>
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.id}
+                onChange={(e) => handleFilterChange('id', e.target.value)}
+                placeholder="Member ID"
+                list="distinct-ids"
+                style={{ width: '120px' }}
+              />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.name}
-            onChange={(e) => handleFilterChange('name', e.target.value)}
-            placeholder="Name"
-            style={{ width: '120px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.name}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+                placeholder="Name"
+                style={{ width: '120px' }}
+              />
 
-          <input
-            className="filter-dropdown"
-            type="text"
-            value={filters.city}
-            onChange={(e) => handleFilterChange('city', e.target.value)}
-            placeholder="Location"
-            list="distinct-ids"
-            style={{ width: '120px' }}
-          />
+              <input
+                className="filter-dropdown"
+                type="text"
+                value={filters.city}
+                onChange={(e) => handleFilterChange('city', e.target.value)}
+                placeholder="Location"
+                list="distinct-ids"
+                style={{ width: '120px' }}
+              />
 
-          <select
-            className="filter-dropdown"
-            value={filters.sectSchoolInfo}
-            onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
-          >
-            <option value="">Sect</option>
-            <option value="Ahle Qur'an">Ahle Qur'an</option>
-            <option value="Ahamadi">Ahamadi</option>
-            <option value="Barelvi">Barelvi</option>
-            <option value="Bohra">Bohra</option>
-            <option value="Deobandi">Deobandi</option>
-            <option value="Hanabali">Hanabali</option>
-            <option value="Hanafi">Hanafi</option>
-            <option value="Ibadi">Ibadi</option>
-            <option value="Ismaili">Ismaili</option>
-            <option value="Jamat e Islami">Jamat e Islami</option>
-            <option value="Maliki">Maliki</option>
-            <option value="Pathan">Pathan</option>
-            <option value="Salafi">Salafi</option>
-            <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
-            <option value="Sayyid">Sayyid</option>
-            <option value="Shafi">Shafi</option>
-            <option value="Shia">Shia</option>
-            <option value="Sunni">Sunni</option>
-            <option value="Sufism">Sufism</option>
-            <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
-            <option value="Zahiri">Zahiri</option>
-            <option value="Muslim">Muslim</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.sectSchoolInfo}
+                onChange={(e) => handleFilterChange('sectSchoolInfo', e.target.value)}
+              >
+                <option value="">Sect</option>
+                <option value="Ahle Qur'an">Ahle Qur'an</option>
+                <option value="Ahamadi">Ahamadi</option>
+                <option value="Barelvi">Barelvi</option>
+                <option value="Bohra">Bohra</option>
+                <option value="Deobandi">Deobandi</option>
+                <option value="Hanabali">Hanabali</option>
+                <option value="Hanafi">Hanafi</option>
+                <option value="Ibadi">Ibadi</option>
+                <option value="Ismaili">Ismaili</option>
+                <option value="Jamat e Islami">Jamat e Islami</option>
+                <option value="Maliki">Maliki</option>
+                <option value="Pathan">Pathan</option>
+                <option value="Salafi">Salafi</option>
+                <option value="Salafi/Ahle Hadees">Salafi/Ahle Hadees</option>
+                <option value="Sayyid">Sayyid</option>
+                <option value="Shafi">Shafi</option>
+                <option value="Shia">Shia</option>
+                <option value="Sunni">Sunni</option>
+                <option value="Sufism">Sufism</option>
+                <option value="Tableeghi Jama'at">Tableeghi Jama'at</option>
+                <option value="Zahiri">Zahiri</option>
+                <option value="Muslim">Muslim</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.profession}
-            onChange={(e) => handleFilterChange('profession', e.target.value)}
-          >
-            <option value="">Profession</option>
-            <option value="accountant">Accountant</option>
-            <option value="Acting Professional">Acting Professional</option>
-            <option value="actor">Actor</option>
-            <option value="administrator">Administrator</option>
-            <option value="Advertising Professional">Advertising Professional</option>
-            <option value="air_hostess">Air Hostess</option>
-            <option value="airline_professional">Airline Professional</option>
-            <option value="airforce">Airforce</option>
-            <option value="architect">Architect</option>
-            <option value="artist">Artist</option>
-            <option value="Assistant Professor">Assistant Professor</option>
-            <option value="audiologist">Audiologist</option>
-            <option value="auditor">Auditor</option>
-            <option value="Bank Officer">Bank Officer</option>
-            <option value="Bank Staff">Bank Staff</option>
-            <option value="beautician">Beautician</option>
-            <option value="Biologist / Botanist">Biologist / Botanist</option>
-            <option value="Business Person">Business Person</option>
-            <option value="captain">Captain</option>
-            <option value="CEO / CTO / President">CEO / CTO / President</option>
-            <option value="chef">Chef</option>
-            <option value="civil_servant">Civil Servant</option>
-            <option value="clerk">Clerk</option>
-            <option value="coach">Coach</option>
-            <option value="consultant">Consultant</option>
-            <option value="counselor">Counselor</option>
-            <option value="dentist">Dentist</option>
-            <option value="designer">Designer</option>
-            <option value="doctor">Doctor</option>
-            <option value="engineer">Engineer</option>
-            <option value="entrepreneur">Entrepreneur</option>
-            <option value="farmer">Farmer</option>
-            <option value="fashion_designer">Fashion Designer</option>
-            <option value="freelancer">Freelancer</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="graphic_designer">Graphic Designer</option>
-            <option value="homemaker">Homemaker</option>
-            <option value="interior_designer">Interior Designer</option>
-            <option value="journalist">Journalist</option>
-            <option value="lawyer">Lawyer</option>
-            <option value="manager">Manager</option>
-            <option value="marketing_professional">Marketing Professional</option>
-            <option value="nurse">Nurse</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="photographer">Photographer</option>
-            <option value="pilot">Pilot</option>
-            <option value="police">Police</option>
-            <option value="professor">Professor</option>
-            <option value="psychologist">Psychologist</option>
-            <option value="researcher">Researcher</option>
-            <option value="sales_executive">Sales Executive</option>
-            <option value="scientist">Scientist</option>
-            <option value="social_worker">Social Worker</option>
-            <option value="software_consultant">Software Consultant</option>
-            <option value="sportsman">Sportsman</option>
-            <option value="teacher">Teacher</option>
-            <option value="technician">Technician</option>
-            <option value="therapist">Therapist</option>
-            <option value="veterinarian">Veterinarian</option>
-            <option value="writer">Writer</option>
-            <option value="other">Other</option>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.profession}
+                onChange={(e) => handleFilterChange('profession', e.target.value)}
+              >
+                <option value="">Profession</option>
+                <option value="accountant">Accountant</option>
+                <option value="Acting Professional">Acting Professional</option>
+                <option value="actor">Actor</option>
+                <option value="administrator">Administrator</option>
+                <option value="Advertising Professional">Advertising Professional</option>
+                <option value="air_hostess">Air Hostess</option>
+                <option value="airline_professional">Airline Professional</option>
+                <option value="airforce">Airforce</option>
+                <option value="architect">Architect</option>
+                <option value="artist">Artist</option>
+                <option value="Assistant Professor">Assistant Professor</option>
+                <option value="audiologist">Audiologist</option>
+                <option value="auditor">Auditor</option>
+                <option value="Bank Officer">Bank Officer</option>
+                <option value="Bank Staff">Bank Staff</option>
+                <option value="beautician">Beautician</option>
+                <option value="Biologist / Botanist">Biologist / Botanist</option>
+                <option value="Business Person">Business Person</option>
+                <option value="captain">Captain</option>
+                <option value="CEO / CTO / President">CEO / CTO / President</option>
+                <option value="chef">Chef</option>
+                <option value="civil_servant">Civil Servant</option>
+                <option value="clerk">Clerk</option>
+                <option value="coach">Coach</option>
+                <option value="consultant">Consultant</option>
+                <option value="counselor">Counselor</option>
+                <option value="dentist">Dentist</option>
+                <option value="designer">Designer</option>
+                <option value="doctor">Doctor</option>
+                <option value="engineer">Engineer</option>
+                <option value="entrepreneur">Entrepreneur</option>
+                <option value="farmer">Farmer</option>
+                <option value="fashion_designer">Fashion Designer</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="government_employee">Government Employee</option>
+                <option value="graphic_designer">Graphic Designer</option>
+                <option value="homemaker">Homemaker</option>
+                <option value="interior_designer">Interior Designer</option>
+                <option value="journalist">Journalist</option>
+                <option value="lawyer">Lawyer</option>
+                <option value="manager">Manager</option>
+                <option value="marketing_professional">Marketing Professional</option>
+                <option value="nurse">Nurse</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="photographer">Photographer</option>
+                <option value="pilot">Pilot</option>
+                <option value="police">Police</option>
+                <option value="professor">Professor</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="researcher">Researcher</option>
+                <option value="sales_executive">Sales Executive</option>
+                <option value="scientist">Scientist</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="software_consultant">Software Consultant</option>
+                <option value="sportsman">Sportsman</option>
+                <option value="teacher">Teacher</option>
+                <option value="technician">Technician</option>
+                <option value="therapist">Therapist</option>
+                <option value="veterinarian">Veterinarian</option>
+                <option value="writer">Writer</option>
+                <option value="other">Other</option>
+              </select>
 
-          <select
-            className="filter-dropdown"
-            value={filters.martialStatus}
-            onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
-          >
-            <option value="">Marital Status</option>
-              <>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Khula">Khula</option>
-                <option value="Widowed">Widowed</option>
-              </>
-          </select>
+              <select
+                className="filter-dropdown"
+                value={filters.martialStatus}
+                onChange={(e) => handleFilterChange('martialStatus', e.target.value)}
+              >
+                <option value="">Marital Status</option>
+                <>
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Khula">Khula</option>
+                  <option value="Widowed">Widowed</option>
+                </>
+              </select>
 
+            </>)}
           <button type="button" className="reset-filter" onClick={onClearFilterClick}>
             <AiOutlineRedo className="icon" /> Reset Filter
           </button>
@@ -533,155 +555,206 @@ const MemberAnalytics = () => {
         )}
 
         {/* Table Section */}
-        <table className="interest-table">
-          <thead>
-            <tr>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('id')}
-                style={{ cursor: 'pointer' }}
+        <div className="w-full">
+          {/* Mobile Cards (below md) */}
+          <div className="space-y-3 md:hidden">
+            {currentItems?.map((match) => (
+              <div
+                key={match?.id}
+                className="bg-white shadow-xs rounded-lg p-3 flex gap-3 cursor-pointer hover:shadow-sm"
+                onClick={() => navigate(`/details/${match?.id}`)}
               >
-                Member ID
-                {sortConfig.key === 'id' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th>Photo</th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('name')}
-                style={{ cursor: 'pointer' }}
-              >
-                Name
-                {sortConfig.key === 'name' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('city')}
-                style={{ cursor: 'pointer' }}
-              >
-                Location
-                {sortConfig.key === 'city' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('age')}
-                style={{ cursor: 'pointer' }}
-              >
-                Age
-                {sortConfig.key === 'age' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('sect_school_info')}
-                style={{ cursor: 'pointer' }}
-              >
-                Sect
-                {sortConfig.key === 'sect_school_info' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('profession')}
-                style={{ cursor: 'pointer' }}
-              >
-                Profession
-                {sortConfig.key === 'profession' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('martial_status')}
-                style={{ cursor: 'pointer' }}
-              >
-                Marital Status
-                {sortConfig.key === 'martial_status' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-              <th 
-                className="sortable-header" 
-                onClick={() => handleSort('total_matches')}
-                style={{ cursor: 'pointer' }}
-              >
-                Total Matches
-                {sortConfig.key === 'total_matches' && (
-                  <span className="sort-indicator">
-                    {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
-                  </span>
-                )}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((match) => (
-              <tr key={match?.id} onClick={() => navigate(`/details/${match?.id}`)} style={{ cursor: "pointer" }}>
-                <td>{match?.member_id || match?.id}</td>
-                <td>
-                  <img 
-                    src={match?.profile_photo || '/images/muslim-man.png'} 
-                    alt={match?.name || 'User'} 
-                    className="member-avatar"
-                    onError={(e) => {
-                      console.log('Image error for:', match?.name, 'trying:', match?.profile_photo);
-                      if (e.target.src !== '/images/muslim-man.png') {
-                        e.target.src = '/images/muslim-man.png';
-                      }
-                    }}
-                    onLoad={() => {
-                      console.log('Image loaded successfully for:', match?.name, 'from:', match?.profile_photo);
-                    }}
-                  />
-                </td>
-                <td>{match?.name || "No Name"}</td>
-                <td>{match?.city || "-"}</td>
-                <td>{match?.age || "-"}</td>
-                <td>{match?.sect_school_info || "-"}</td>
-                <td>{match?.profession || "-"}</td>
-                <td>
-                  <span className={`marital-badge ${match?.martial_status ? match?.martial_status?.toLowerCase()?.replace(" ", "-") : "not-mentioned"}`}>
-                    {match?.martial_status || "Not mentioned"}
-                  </span>
-                </td>
-                <td>
-                  <div className="matches-count">
-                    <span 
-                      className="matches-number clickable-matches"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click
-                        navigate(`/member-matches/${match?.member_id || match?.id}`);
-                      }}
-                    >
-                      {match?.total_matches || 0}
-                    </span>
+                {/* Photo */}
+                <img
+                  src={match?.profile_photo || "/images/muslim-man.png"}
+                  alt={match?.name || "User"}
+                  className="w-12 h-12 rounded-md object-cover flex-shrink-0"
+                  onError={(e) => {
+                    if (e.currentTarget.src !== "/images/muslim-man.png") {
+                      e.currentTarget.src = "/images/muslim-man.png";
+                    }
+                  }}
+                />
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 text-sm truncate">
+                    {match?.name || "No Name"}
                   </div>
-                </td>
-              </tr>
+
+                  <div className="text-xs text-gray-500">
+                    ID: <span className="text-gray-700">{match?.member_id || match?.id}</span>
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-2 gap-y-1 text-sm text-gray-600">
+                    <div className="truncate">
+                      <div className="text-[10px] text-gray-400">Location</div>
+                      <div>{match?.city || "-"}</div>
+                    </div>
+
+                    <div className="truncate">
+                      <div className="text-[10px] text-gray-400">Age</div>
+                      <div>{match?.age || "-"}</div>
+                    </div>
+
+                    <div className="truncate">
+                      <div className="text-[10px] text-gray-400">Sect</div>
+                      <div>{match?.sect_school_info || "-"}</div>
+                    </div>
+
+                    <div>
+                      <div className="text-[10px] text-gray-400">Marital</div>
+                      <span
+                        className={`inline-block px-2 py-0.5 mt-1 text-[10px] rounded-full font-medium ${(match?.martial_status || "").toLowerCase().includes("single")
+                          ? "bg-green-100 text-green-800"
+                          : (match?.martial_status || "").toLowerCase().includes("married")
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-800"
+                          }`}
+                      >
+                        {match?.martial_status || "Not mentioned"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-[10px] text-gray-400">Matches</div>
+                      <span
+                        className="text-blue-600 font-semibold underline cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/member-matches/${match?.member_id || match?.id}`);
+                        }}
+                      >
+                        {match?.total_matches || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block w-full">
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-[900px] w-full table-fixed bg-white divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {[
+                      ["id", "Member ID", "w-[130px]"],
+                      ["photo", "Photo", "w-[80px]"],
+                      ["name", "Name", "w-[160px]"],
+                      ["city", "Location", "w-[140px]"],
+                      ["age", "Age", "w-[80px]"],
+                      ["sect_school_info", "Sect", "w-[160px]"],
+                      ["profession", "Profession", "w-[180px]"],
+                      ["martial_status", "Marital Status", "w-[150px]"],
+                      ["total_matches", "Total Matches", "w-[140px]"],
+                    ].map(([key, label, width]) => (
+                      <th
+                        key={key}
+                        className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600 ${width}`}
+                      >
+                        {key !== "photo" ? (
+                          <button
+                            onClick={() => handleSort(key)}
+                            className="flex items-center gap-1 focus:outline-none"
+                          >
+                            {label}
+                            {sortConfig.key === key &&
+                              (sortConfig.direction === "asc" ? " ↑" : " ↓")}
+                          </button>
+                        ) : (
+                          label
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100 text-sm">
+                  {currentItems?.map((match) => (
+                    <tr
+                      key={match?.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/details/${match?.id}`)}
+                    >
+                      {/* Member ID */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {match?.member_id || match?.id}
+                      </td>
+
+                      {/* Photo */}
+                      <td className="px-4 py-3">
+                        <img
+                          src={match?.profile_photo || "/images/muslim-man.png"}
+                          alt="user"
+                          className="w-10 h-10 rounded-md object-cover"
+                          onError={(e) => {
+                            if (e.currentTarget.src !== "/images/muslim-man.png") {
+                              e.currentTarget.src = "/images/muslim-man.png";
+                            }
+                          }}
+                        />
+                      </td>
+
+                      {/* Name */}
+                      <td className="px-4 py-3 whitespace-nowrap truncate">
+                        {match?.name || "No Name"}
+                      </td>
+
+                      {/* Location */}
+                      <td className="px-4 py-3 whitespace-nowrap truncate">
+                        {match?.city || "-"}
+                      </td>
+
+                      {/* Age */}
+                      <td className="px-4 py-3 whitespace-nowrap">{match?.age || "-"}</td>
+
+                      {/* Sect */}
+                      <td className="px-4 py-3 whitespace-nowrap truncate">
+                        {match?.sect_school_info || "-"}
+                      </td>
+
+                      {/* Profession */}
+                      <td className="px-4 py-3 whitespace-nowrap truncate">
+                        {match?.profession || "-"}
+                      </td>
+
+                      {/* Marital */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-0.5 text-xs rounded-full font-medium ${(match?.martial_status || "").toLowerCase().includes("single")
+                            ? "bg-green-100 text-green-800"
+                            : (match?.martial_status || "").toLowerCase().includes("married")
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                            }`}
+                        >
+                          {match?.martial_status || "Not mentioned"}
+                        </span>
+                      </td>
+
+                      {/* Total Matches */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span
+                          className="text-blue-600 font-semibold underline cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/member-matches/${match?.member_id || match?.id}`);
+                          }}
+                        >
+                          {match?.total_matches || 0}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
 
         {/* Pagination */}
         <div className="pagination">

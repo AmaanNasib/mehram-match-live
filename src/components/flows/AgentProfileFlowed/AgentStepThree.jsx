@@ -1,23 +1,16 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { fetchDataV2, justputDataWithoutToken, updateDataV2 } from "../../../apiUtils";
-import { useParams } from "react-router-dom";
-import Sidebar from "../../sections/Sidebar";
-import TopBar from "../../sections/TopBar";
-import ProfileSection from "../../sections/ProfileSection";
+import { fetchDataV2, justputDataWithoutToken } from "../../../apiUtils";
 import StepTrackerAgent from "../../StepTracker/StepTrackerAgent";
-import findUser from "../../../images/findUser.svg";
-import { fetchDataObjectV2 } from "../../../apiUtils";
+
+import './AgentStepOne.css'
 
 const MemStepThree = () => {
   const navigate = useNavigate();
   const [userId] = useState(localStorage.getItem('userId'));
   const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState([]);
-  const [flag, setflag] = useState(false);
 
   const [profileData, setProfileData] = useState({
     education_level: "",
@@ -139,8 +132,8 @@ const MemStepThree = () => {
 
   return (
     <div className="flex h-screen">
-      <main className="flex-1 bg-white">
-        
+      <main className="flex-1 bg-white steps-title">
+
         <h3
           style={{
             fontSize: "1.8rem",
@@ -173,6 +166,7 @@ const MemStepThree = () => {
 
         <div className="form_container_user_creation h-auto bg-white pb-[12px] w-[100vw] ">
           <div
+            className="step-tracker"
             style={{
               width: "33.8%",
               display: "flex",
@@ -233,9 +227,9 @@ const MemStepThree = () => {
 
               {/* Father's Name and Occupation */}
               <div style={{ display: "flex", gap: "2rem" }}>
-              <div className="w-[50%] relative flex flex-col gap-[10px]">
+                <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label htmlFor="edulevel" className="block text-sm font-medium text-[#000000] mb-0">
-                  Education Level  <span style={{ color: "red" }}>*</span>
+                    Education Level  <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
 
@@ -288,7 +282,7 @@ const MemStepThree = () => {
                 </div>
                 <div className="w-[50%] relative flex flex-col gap-[10px]">
                   <label htmlFor="profession" className="block text-sm font-medium text-[#000000] mb-0">
-                  Profession  <span style={{ color: "red" }}>*</span>
+                    Profession  <span style={{ color: "red" }}>*</span>
                   </label>
                   <div className="relative">
 
