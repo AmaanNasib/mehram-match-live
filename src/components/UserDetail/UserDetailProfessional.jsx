@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import MemberSendInterest from '../Dashboard/AgentActions/MemberSendInterest';
-import { useParams, useNavigate } from 'react-router-dom';
-import { fetchDataObjectV2, postDataWithFetchV2, fetchDataWithTokenV2, ReturnResponseFormdataWithoutToken } from '../../apiUtils';
-import { deletePhoto as apiDeletePhoto } from '../../services/mmApi';
-import Header from '../Dashboard/header/Header';
-import './UserDetailProfessional.css';
-import Footer from '../sections/Footer';
+import React, { useState, useEffect } from "react";
+import MemberSendInterest from "../Dashboard/AgentActions/MemberSendInterest";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  fetchDataObjectV2,
+  postDataWithFetchV2,
+  fetchDataWithTokenV2,
+  ReturnResponseFormdataWithoutToken,
+} from "../../apiUtils";
+import { deletePhoto as apiDeletePhoto } from "../../services/mmApi";
+import Header from "../Dashboard/header/Header";
+import "./UserDetailProfessional.css";
+import Footer from "../sections/Footer";
 
 const UserDetailProfessional = () => {
   const { userId } = useParams();
@@ -15,7 +20,7 @@ const UserDetailProfessional = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(null);
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState("basic");
 
   // Action states
   const [interestStatus, setInterestStatus] = useState(false);
@@ -58,7 +63,8 @@ const UserDetailProfessional = () => {
   // Agent MemberSendInterest modal
   const [showMemberSendInterest, setShowMemberSendInterest] = useState(false);
 
-  const isOwnProfile = currentUserId && userId && currentUserId.toString() === userId.toString();
+  const isOwnProfile =
+    currentUserId && userId && currentUserId.toString() === userId.toString();
   const isAgent = role === "agent";
 
   useEffect(() => {
@@ -95,14 +101,17 @@ const UserDetailProfessional = () => {
                 url: `/api/agent/shortlist/?agent_id=${currentUserId}`,
                 setterFunction: (data) => {
                   // Find if this user is in agent's shortlist
-                  const shortlistItem = (data || []).find(item =>
-                    item.action_on && item.action_on.id === Number(userId) && item.shortlisted === true
+                  const shortlistItem = (data || []).find(
+                    (item) =>
+                      item.action_on &&
+                      item.action_on.id === Number(userId) &&
+                      item.shortlisted === true
                   );
                   setShortlistStatus(shortlistItem ? true : false);
                 },
                 setErrors: (error) => {
                   setShortlistStatus(false);
-                }
+                },
               });
             } catch (error) {
               setShortlistStatus(false);
@@ -116,14 +125,16 @@ const UserDetailProfessional = () => {
                 let hasBlock = false;
 
                 if (Array.isArray(data)) {
-                  data.forEach(item => {
+                  data.forEach((item) => {
                     const isCurrentUserAction =
-                      (item.action_by && item.action_by.id === Number(currentUserId)) ||
-                      (item.action_by_id === Number(currentUserId));
+                      (item.action_by &&
+                        item.action_by.id === Number(currentUserId)) ||
+                      item.action_by_id === Number(currentUserId);
 
                     const isTargetUser =
-                      (item.action_on && item.action_on.id === Number(userId)) ||
-                      (item.action_on_id === Number(userId));
+                      (item.action_on &&
+                        item.action_on.id === Number(userId)) ||
+                      item.action_on_id === Number(userId);
 
                     if (isCurrentUserAction && isTargetUser) {
                       if (item.interest === true || item.interest === "true") {
@@ -134,17 +145,19 @@ const UserDetailProfessional = () => {
                       }
                     }
                   });
-                } else if (data && typeof data === 'object') {
+                } else if (data && typeof data === "object") {
                   const isCurrentUserAction =
-                    (data.action_by && data.action_by.id === Number(currentUserId)) ||
-                    (data.action_by_id === Number(currentUserId));
+                    (data.action_by &&
+                      data.action_by.id === Number(currentUserId)) ||
+                    data.action_by_id === Number(currentUserId);
 
                   const isTargetUser =
                     (data.action_on && data.action_on.id === Number(userId)) ||
-                    (data.action_on_id === Number(userId));
+                    data.action_on_id === Number(userId);
 
                   if (isCurrentUserAction && isTargetUser) {
-                    hasInterest = data.interest === true || data.interest === "true";
+                    hasInterest =
+                      data.interest === true || data.interest === "true";
                     hasBlock = data.blocked === true || data.blocked === "true";
                   }
                 }
@@ -155,7 +168,7 @@ const UserDetailProfessional = () => {
               setErrors: (error) => {
                 setInterestStatus(false);
                 setBlockStatus(false);
-              }
+              },
             });
           } else {
             // Regular user - check all from regular API
@@ -167,20 +180,25 @@ const UserDetailProfessional = () => {
                 let hasBlock = false;
 
                 if (Array.isArray(data)) {
-                  data.forEach(item => {
+                  data.forEach((item) => {
                     const isCurrentUserAction =
-                      (item.action_by && item.action_by.id === Number(currentUserId)) ||
-                      (item.action_by_id === Number(currentUserId));
+                      (item.action_by &&
+                        item.action_by.id === Number(currentUserId)) ||
+                      item.action_by_id === Number(currentUserId);
 
                     const isTargetUser =
-                      (item.action_on && item.action_on.id === Number(userId)) ||
-                      (item.action_on_id === Number(userId));
+                      (item.action_on &&
+                        item.action_on.id === Number(userId)) ||
+                      item.action_on_id === Number(userId);
 
                     if (isCurrentUserAction && isTargetUser) {
                       if (item.interest === true || item.interest === "true") {
                         hasInterest = true;
                       }
-                      if (item.shortlisted === true || item.shortlisted === "true") {
+                      if (
+                        item.shortlisted === true ||
+                        item.shortlisted === "true"
+                      ) {
                         hasShortlist = true;
                       }
                       if (item.blocked === true || item.blocked === "true") {
@@ -188,18 +206,21 @@ const UserDetailProfessional = () => {
                       }
                     }
                   });
-                } else if (data && typeof data === 'object') {
+                } else if (data && typeof data === "object") {
                   const isCurrentUserAction =
-                    (data.action_by && data.action_by.id === Number(currentUserId)) ||
-                    (data.action_by_id === Number(currentUserId));
+                    (data.action_by &&
+                      data.action_by.id === Number(currentUserId)) ||
+                    data.action_by_id === Number(currentUserId);
 
                   const isTargetUser =
                     (data.action_on && data.action_on.id === Number(userId)) ||
-                    (data.action_on_id === Number(userId));
+                    data.action_on_id === Number(userId);
 
                   if (isCurrentUserAction && isTargetUser) {
-                    hasInterest = data.interest === true || data.interest === "true";
-                    hasShortlist = data.shortlisted === true || data.shortlisted === "true";
+                    hasInterest =
+                      data.interest === true || data.interest === "true";
+                    hasShortlist =
+                      data.shortlisted === true || data.shortlisted === "true";
                     hasBlock = data.blocked === true || data.blocked === "true";
                   }
                 }
@@ -212,7 +233,7 @@ const UserDetailProfessional = () => {
                 setInterestStatus(false);
                 setShortlistStatus(false);
                 setBlockStatus(false);
-              }
+              },
             });
           }
         } catch (error) {
@@ -236,7 +257,7 @@ const UserDetailProfessional = () => {
       const endpoints = [
         `${baseUrl}/api/user/photo-request/?user_id=${targetUserId}`,
         `${baseUrl}/api/recieved/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`,
-        `${baseUrl}/api/user/photo-request/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`
+        `${baseUrl}/api/user/photo-request/?action_by_id=${currentUserId}&action_on_id=${targetUserId}`,
       ];
 
       let response;
@@ -246,19 +267,25 @@ const UserDetailProfessional = () => {
       for (const endpoint of endpoints) {
         try {
           response = await fetch(endpoint, {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
-            }
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${
+                localStorage.getItem("authToken") ||
+                localStorage.getItem("token")
+              }`,
+            },
           });
 
           if (response.ok) {
             const responseText = await response.text();
 
             // Check if response is HTML (error page)
-            if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+            if (
+              responseText.trim().startsWith("<!DOCTYPE") ||
+              responseText.trim().startsWith("<html")
+            ) {
               continue;
             }
 
@@ -283,21 +310,34 @@ const UserDetailProfessional = () => {
 
       if (data && data.length > 0) {
         // Check if current user has sent a request to this profile
-        const userRequest = data.find(request => {
-          return (request.action_by && request.action_by.id === Number(currentUserId)) ||
-            (request.action_by_id === Number(currentUserId));
+        const userRequest = data.find((request) => {
+          return (
+            (request.action_by &&
+              request.action_by.id === Number(currentUserId)) ||
+            request.action_by_id === Number(currentUserId)
+          );
         });
 
         if (userRequest) {
-          if (userRequest.status === 'Accepted' || userRequest.status === 'accepted') {
+          if (
+            userRequest.status === "Accepted" ||
+            userRequest.status === "accepted"
+          ) {
             setCanViewPhotos(true);
-            setPhotoRequestStatus('accepted');
-          } else if (userRequest.status === 'Requested' || userRequest.status === 'requested' || userRequest.status === 'pending') {
+            setPhotoRequestStatus("accepted");
+          } else if (
+            userRequest.status === "Requested" ||
+            userRequest.status === "requested" ||
+            userRequest.status === "pending"
+          ) {
             setCanViewPhotos(false);
-            setPhotoRequestStatus('pending');
-          } else if (userRequest.status === 'Rejected' || userRequest.status === 'rejected') {
+            setPhotoRequestStatus("pending");
+          } else if (
+            userRequest.status === "Rejected" ||
+            userRequest.status === "rejected"
+          ) {
             setCanViewPhotos(false);
-            setPhotoRequestStatus('rejected');
+            setPhotoRequestStatus("rejected");
           } else {
             setCanViewPhotos(false);
             setPhotoRequestStatus(null);
@@ -311,7 +351,7 @@ const UserDetailProfessional = () => {
         setPhotoRequestStatus(null);
       }
     } catch (error) {
-      console.error('Error checking photo request status:', error);
+      console.error("Error checking photo request status:", error);
       setCanViewPhotos(false);
       setPhotoRequestStatus(null);
     } finally {
@@ -325,16 +365,18 @@ const UserDetailProfessional = () => {
 
     try {
       setPhotoPrivacyLoading(true);
-      const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
+      const userId =
+        localStorage.getItem("impersonating_user_id") ||
+        localStorage.getItem("userId");
 
       // Fetch agent's members
       const membersResponse = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/user_agent/?agent_id=${userId}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -352,9 +394,9 @@ const UserDetailProfessional = () => {
             `${process.env.REACT_APP_API_URL}/api/agent/member/photo-requests/?member_id=${member.id}`,
             {
               headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'application/json'
-              }
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+              },
             }
           );
 
@@ -363,21 +405,30 @@ const UserDetailProfessional = () => {
             const sentRequests = photoRequestData.sent_requests || [];
 
             // Check if any sent request to target user is accepted
-            const acceptedRequest = sentRequests.find(request => {
+            const acceptedRequest = sentRequests.find((request) => {
               // Check multiple possible fields for target user ID
-              const targetId = request.target_user_id ||
+              const targetId =
+                request.target_user_id ||
                 (request.target_user && request.target_user.id) ||
-                (request.action_on_id) ||
+                request.action_on_id ||
                 (request.action_on && request.action_on.id) ||
                 (request.user && request.user.id) ||
-                (request.recipient_id) ||
+                request.recipient_id ||
                 (request.recipient && request.recipient.id);
 
-              const isTargetMatch = targetId && parseInt(targetId) === parseInt(targetUserId);
+              const isTargetMatch =
+                targetId && parseInt(targetId) === parseInt(targetUserId);
 
               // Check status in multiple possible fields
-              const status = request.status || request.request_status || request.photo_request_status;
-              const isAccepted = status === 'Accepted' || status === 'accepted' || status === 'Accepted' || status === 'approved';
+              const status =
+                request.status ||
+                request.request_status ||
+                request.photo_request_status;
+              const isAccepted =
+                status === "Accepted" ||
+                status === "accepted" ||
+                status === "Accepted" ||
+                status === "approved";
 
               return isTargetMatch && isAccepted;
             });
@@ -386,17 +437,22 @@ const UserDetailProfessional = () => {
               // Check if receiver has blocked the sender (member)
               // Backend logic: if receiver blocked sender, photos should not be visible
               // Check multiple possible fields for block status
-              const isBlocked = acceptedRequest.is_blocked ||
+              const isBlocked =
+                acceptedRequest.is_blocked ||
                 acceptedRequest.blocked ||
                 acceptedRequest.receiver_blocked_sender ||
                 acceptedRequest.user_blocked_member ||
-                (acceptedRequest.user && acceptedRequest.user.blocked === true) ||
-                (acceptedRequest.target_user && acceptedRequest.target_user.blocked === true);
+                (acceptedRequest.user &&
+                  acceptedRequest.user.blocked === true) ||
+                (acceptedRequest.target_user &&
+                  acceptedRequest.target_user.blocked === true);
 
               // Also check if receiver blocked member by checking block status
               // If blocked, don't show photos even if request was accepted
               if (isBlocked) {
-                console.log(`Photo request accepted but receiver blocked sender (member ${member.id})`);
+                console.log(
+                  `Photo request accepted but receiver blocked sender (member ${member.id})`
+                );
                 setAcceptedMemberInfo(null);
                 setCanViewPhotos(false);
                 setPhotoRequestStatus(null);
@@ -407,28 +463,40 @@ const UserDetailProfessional = () => {
               // Check via API if target user blocked the member
               try {
                 const blockCheckResponse = await fetch(
-                  `${process.env.REACT_APP_API_URL}/api/recieved/?action_by_id=${parseInt(targetUserId)}&action_on_id=${member.id}`,
+                  `${
+                    process.env.REACT_APP_API_URL
+                  }/api/recieved/?action_by_id=${parseInt(
+                    targetUserId
+                  )}&action_on_id=${member.id}`,
                   {
                     headers: {
-                      'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                      'Content-Type': 'application/json'
-                    }
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                      "Content-Type": "application/json",
+                    },
                   }
                 );
 
                 if (blockCheckResponse.ok) {
                   const blockData = await blockCheckResponse.json();
                   const blockRecord = Array.isArray(blockData)
-                    ? blockData.find(item =>
-                      (item.action_by_id === parseInt(targetUserId) ||
-                        (item.action_by && item.action_by.id === parseInt(targetUserId))) &&
-                      (item.action_on_id === member.id ||
-                        (item.action_on && item.action_on.id === member.id))
-                    )
+                    ? blockData.find(
+                        (item) =>
+                          (item.action_by_id === parseInt(targetUserId) ||
+                            (item.action_by &&
+                              item.action_by.id === parseInt(targetUserId))) &&
+                          (item.action_on_id === member.id ||
+                            (item.action_on && item.action_on.id === member.id))
+                      )
                     : blockData;
 
-                  if (blockRecord && (blockRecord.blocked === true || blockRecord.blocked === "true")) {
-                    console.log(`Receiver (${targetUserId}) blocked member (${member.id})`);
+                  if (
+                    blockRecord &&
+                    (blockRecord.blocked === true ||
+                      blockRecord.blocked === "true")
+                  ) {
+                    console.log(
+                      `Receiver (${targetUserId}) blocked member (${member.id})`
+                    );
                     setAcceptedMemberInfo(null);
                     setCanViewPhotos(false);
                     setPhotoRequestStatus(null);
@@ -436,24 +504,31 @@ const UserDetailProfessional = () => {
                   }
                 }
               } catch (blockCheckError) {
-                console.error('Error checking block status:', blockCheckError);
+                console.error("Error checking block status:", blockCheckError);
                 // Continue even if block check fails
               }
 
-              const memberName = member.name || member.first_name || member.first_name || 'Member';
+              const memberName =
+                member.name ||
+                member.first_name ||
+                member.first_name ||
+                "Member";
 
               setAcceptedMemberInfo({
                 memberId: member.id,
                 memberName: memberName,
-                requestDate: acceptedRequest.date || acceptedRequest.created_at
+                requestDate: acceptedRequest.date || acceptedRequest.created_at,
               });
               setCanViewPhotos(true);
-              setPhotoRequestStatus('accepted');
+              setPhotoRequestStatus("accepted");
               return true;
             }
           }
         } catch (error) {
-          console.error(`Error checking photo request for member ${member.id}:`, error);
+          console.error(
+            `Error checking photo request for member ${member.id}:`,
+            error
+          );
           continue;
         }
       }
@@ -466,7 +541,7 @@ const UserDetailProfessional = () => {
 
       return false;
     } catch (error) {
-      console.error('Error checking agent member photo requests:', error);
+      console.error("Error checking agent member photo requests:", error);
       // Don't clear acceptedMemberInfo on error if it was already set
       return false;
     } finally {
@@ -476,26 +551,30 @@ const UserDetailProfessional = () => {
 
   // Check photo privacy for female users
   useEffect(() => {
-    const currentUserId = localStorage.getItem('userId');
-    const currentUserGender = localStorage.getItem('gender');
+    const currentUserId = localStorage.getItem("userId");
+    const currentUserGender = localStorage.getItem("gender");
 
-    if (userData && userData.gender === 'female' &&
-      (currentUserGender === 'male' || isAgent) &&
-      currentUserId && userData.id && !isOwnProfile) {
-
+    if (
+      userData &&
+      userData.gender === "female" &&
+      (currentUserGender === "male" || isAgent) &&
+      currentUserId &&
+      userData.id &&
+      !isOwnProfile
+    ) {
       const privacyOption = userData.photo_upload_privacy_option;
 
       let canView = true; // Default to visible
       if (privacyOption) {
         switch (privacyOption) {
-          case 'All Member':
+          case "All Member":
             canView = true;
             break;
-          case 'Only Matches':
+          case "Only Matches":
             canView = false; // For now, assume no match
             break;
-          case 'Only to users whom I approve':
-          case 'Yes':
+          case "Only to users whom I approve":
+          case "Yes":
             // For agents, check if any member's photo request was accepted
             if (isAgent) {
               checkAgentMemberPhotoRequests(userData.id);
@@ -520,16 +599,21 @@ const UserDetailProfessional = () => {
 
   // Periodic check for photo request status updates
   useEffect(() => {
-    const currentUserId = localStorage.getItem('userId');
-    const currentUserGender = localStorage.getItem('gender');
+    const currentUserId = localStorage.getItem("userId");
+    const currentUserGender = localStorage.getItem("gender");
 
     // Only set up periodic checking for male/agent users viewing female profiles with "Only to users whom I approve"
-    if (userData && userData.gender === 'female' &&
-      (currentUserGender === 'male' || isAgent) &&
-      (userData.photo_upload_privacy_option === 'Only to users whom I approve' ||
-        userData.photo_upload_privacy_option === 'Yes') &&
-      currentUserId && userData.id && !isOwnProfile) {
-
+    if (
+      userData &&
+      userData.gender === "female" &&
+      (currentUserGender === "male" || isAgent) &&
+      (userData.photo_upload_privacy_option ===
+        "Only to users whom I approve" ||
+        userData.photo_upload_privacy_option === "Yes") &&
+      currentUserId &&
+      userData.id &&
+      !isOwnProfile
+    ) {
       // Check immediately
       if (isAgent) {
         checkAgentMemberPhotoRequests(userData.id);
@@ -551,7 +635,13 @@ const UserDetailProfessional = () => {
         clearInterval(interval);
       };
     }
-  }, [userData?.id, userData?.gender, userData?.photo_upload_privacy_option, isOwnProfile, isAgent]);
+  }, [
+    userData?.id,
+    userData?.gender,
+    userData?.photo_upload_privacy_option,
+    isOwnProfile,
+    isAgent,
+  ]);
 
   // Profile Image
   const getProfileImage = () => {
@@ -560,24 +650,24 @@ const UserDetailProfessional = () => {
     }
     return userData?.gender === "male"
       ? `data:image/svg+xml;utf8,${encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6">
             <circle cx="12" cy="8" r="5" fill="#bfdbfe"/>
             <path d="M12 14c-4.42 0-8 2.69-8 6v1h16v-1c0-3.31-3.58-6-8-6z" fill="#bfdbfe"/>
           </svg>`
-      )}`
+        )}`
       : `data:image/svg+xml;utf8,${encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ec4899">
             <circle cx="12" cy="8" r="5" fill="#fbcfe8"/>
             <path d="M12 14c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z" fill="#fbcfe8"/>
           </svg>`
-      )}`;
+        )}`;
   };
 
   // Action Handlers
   const handleInterest = () => {
     if (interestStatus) {
-      if (window.confirm('Are you sure you want to withdraw your interest?')) {
-        sendAction('interest', false);
+      if (window.confirm("Are you sure you want to withdraw your interest?")) {
+        sendAction("interest", false);
       }
     } else {
       // If agent, open MemberSendInterest modal (instead of custom sidebar)
@@ -586,7 +676,7 @@ const UserDetailProfessional = () => {
         return;
       } else {
         // Regular user - send directly
-        sendAction('interest', true);
+        sendAction("interest", true);
       }
     }
   };
@@ -602,17 +692,19 @@ const UserDetailProfessional = () => {
         url: `/api/agent/shortlist/`,
         payload: {
           action_on_id: parseInt(userId),
-          shortlisted: newShortlistStatus
+          shortlisted: newShortlistStatus,
         },
         setErrors: setErrors,
         tofetch: {
-          items: [{
-            fetchurl: `/api/user/${userId}/`,
-            dataset: setUserData,
-            setErrors: setErrors
-          }],
-          setErrors: setErrors
-        }
+          items: [
+            {
+              fetchurl: `/api/user/${userId}/`,
+              dataset: setUserData,
+              setErrors: setErrors,
+            },
+          ],
+          setErrors: setErrors,
+        },
       };
 
       postDataWithFetchV2(parameter);
@@ -623,17 +715,19 @@ const UserDetailProfessional = () => {
         payload: {
           action_by_id: currentUserId,
           action_on_id: userId,
-          shortlisted: newShortlistStatus
+          shortlisted: newShortlistStatus,
         },
         setErrors: setErrors,
         tofetch: {
-          items: [{
-            fetchurl: `/api/user/${userId}/`,
-            dataset: setUserData,
-            setErrors: setErrors
-          }],
-          setErrors: setErrors
-        }
+          items: [
+            {
+              fetchurl: `/api/user/${userId}/`,
+              dataset: setUserData,
+              setErrors: setErrors,
+            },
+          ],
+          setErrors: setErrors,
+        },
       };
 
       postDataWithFetchV2(parameter);
@@ -643,9 +737,15 @@ const UserDetailProfessional = () => {
     setShortlistStatus(newShortlistStatus);
 
     if (newShortlistStatus) {
-      alert(isAgent ? 'Added to your shortlist successfully!' : 'Added to shortlist successfully!');
+      alert(
+        isAgent
+          ? "Added to your shortlist successfully!"
+          : "Added to shortlist successfully!"
+      );
     } else {
-      alert(isAgent ? 'Removed from your shortlist!' : 'Removed from shortlist!');
+      alert(
+        isAgent ? "Removed from your shortlist!" : "Removed from shortlist!"
+      );
     }
   };
 
@@ -653,20 +753,24 @@ const UserDetailProfessional = () => {
     const isCurrentlyBlocked = blockStatus;
 
     const parameter = {
-      url: isCurrentlyBlocked ? `/api/recieved/unblock/` : `/api/recieved/block/`,
+      url: isCurrentlyBlocked
+        ? `/api/recieved/unblock/`
+        : `/api/recieved/block/`,
       payload: {
         action_by_id: currentUserId,
-        action_on_id: userId
+        action_on_id: userId,
       },
       setErrors: setErrors,
       tofetch: {
-        items: [{
-          fetchurl: `/api/user/${userId}/`,
-          dataset: setUserData,
-          setErrors: setErrors
-        }],
-        setErrors: setErrors
-      }
+        items: [
+          {
+            fetchurl: `/api/user/${userId}/`,
+            dataset: setUserData,
+            setErrors: setErrors,
+          },
+        ],
+        setErrors: setErrors,
+      },
     };
 
     postDataWithFetchV2(parameter);
@@ -679,7 +783,7 @@ const UserDetailProfessional = () => {
     const payload = {
       action_by_id: currentUserId,
       action_on_id: userId,
-      [actionType]: value
+      [actionType]: value,
     };
 
     const parameter = {
@@ -687,29 +791,31 @@ const UserDetailProfessional = () => {
       payload,
       setErrors: setErrors,
       tofetch: {
-        items: [{
-          fetchurl: `/api/user/${userId}/`,
-          dataset: setUserData,
-          setErrors: setErrors
-        }],
-        setErrors: setErrors
-      }
+        items: [
+          {
+            fetchurl: `/api/user/${userId}/`,
+            dataset: setUserData,
+            setErrors: setErrors,
+          },
+        ],
+        setErrors: setErrors,
+      },
     };
 
     postDataWithFetchV2(parameter);
 
     // Update local state
-    if (actionType === 'interest') setInterestStatus(value);
+    if (actionType === "interest") setInterestStatus(value);
   };
 
   // Helper function to get full photo URL
   const getPhotoUrl = (photoUrl) => {
-    if (!photoUrl) return '';
-    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+    if (!photoUrl) return "";
+    if (photoUrl.startsWith("http://") || photoUrl.startsWith("https://")) {
       return photoUrl;
     }
-    if (photoUrl.startsWith('/')) {
-      return `${process.env.REACT_APP_API_URL || ''}${photoUrl}`;
+    if (photoUrl.startsWith("/")) {
+      return `${process.env.REACT_APP_API_URL || ""}${photoUrl}`;
     }
     return photoUrl;
   };
@@ -731,21 +837,24 @@ const UserDetailProfessional = () => {
   const handleFileSelect = async (event) => {
     const files = Array.from(event.target.files);
 
-    const validFiles = files.filter(file => {
-      const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
+    const validFiles = files.filter((file) => {
+      const isValidType =
+        file.type.startsWith("image/") || file.type.startsWith("video/");
       const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
       return isValidType && isValidSize;
     });
 
     if (validFiles.length !== files.length) {
-      alert('Kuch files invalid hain. Sirf images aur videos allow hain aur maximum size 10MB hai.');
+      alert(
+        "Kuch files invalid hain. Sirf images aur videos allow hain aur maximum size 10MB hai."
+      );
     }
     setSelectedFiles(validFiles);
   };
 
   const handleUpload = () => {
     if (selectedFiles.length === 0) {
-      alert('Pehle koi file select kariye');
+      alert("Pehle koi file select kariye");
       return;
     }
 
@@ -754,11 +863,11 @@ const UserDetailProfessional = () => {
     // Upload first file
     const firstFile = selectedFiles[0];
     const formData = new FormData();
-    formData.append('upload_photo', firstFile);
-    formData.append('user_id', userId);
+    formData.append("upload_photo", firstFile);
+    formData.append("user_id", userId);
 
     const parameter = {
-      url: '/api/user/add_photo/',
+      url: "/api/user/add_photo/",
       setUserId: () => {
         // Success callback
         if (selectedFiles.length > 1) {
@@ -766,7 +875,7 @@ const UserDetailProfessional = () => {
           uploadRemainingFiles(1);
         } else {
           // All files uploaded
-          alert('Photos successfully upload ho gayi!');
+          alert("Photos successfully upload ho gayi!");
           setSelectedFiles([]);
           setShowUploadModal(false);
           setUploading(false);
@@ -775,7 +884,7 @@ const UserDetailProfessional = () => {
       },
       formData: formData,
       setErrors: (error) => {
-        alert('Upload mein koi problem aayi. Please try again.');
+        alert("Upload mein koi problem aayi. Please try again.");
         setUploading(false);
       },
       setLoading: setLoading,
@@ -787,7 +896,7 @@ const UserDetailProfessional = () => {
   const uploadRemainingFiles = (index) => {
     if (index >= selectedFiles.length) {
       // All files uploaded
-      alert('Photos successfully upload ho gayi!');
+      alert("Photos successfully upload ho gayi!");
       setSelectedFiles([]);
       setShowUploadModal(false);
       setUploading(false);
@@ -797,17 +906,17 @@ const UserDetailProfessional = () => {
 
     const file = selectedFiles[index];
     const formData = new FormData();
-    formData.append('upload_photo', file);
-    formData.append('user_id', userId);
+    formData.append("upload_photo", file);
+    formData.append("user_id", userId);
 
     const parameter = {
-      url: '/api/user/add_photo/',
+      url: "/api/user/add_photo/",
       setUserId: () => {
         uploadRemainingFiles(index + 1);
       },
       formData: formData,
       setErrors: (error) => {
-        alert('Upload mein koi problem aayi. Please try again.');
+        alert("Upload mein koi problem aayi. Please try again.");
         setUploading(false);
       },
       setLoading: setLoading,
@@ -832,9 +941,9 @@ const UserDetailProfessional = () => {
       await apiDeletePhoto(photoToDelete.id);
       refreshGallery();
       setDeletingPhoto(null);
-      alert('Photo successfully delete ho gayi!');
+      alert("Photo successfully delete ho gayi!");
     } catch (error) {
-      alert('Delete mein koi problem aayi. Please try again.');
+      alert("Delete mein koi problem aayi. Please try again.");
       setDeletingPhoto(null);
     }
 
@@ -854,25 +963,25 @@ const UserDetailProfessional = () => {
       setLoadingMembers(true);
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/agent/male-members/`,
+        `${process.env.REACT_APP_API_URL}/api/agent/male-members/?target_user_id=${userId}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch members');
+        throw new Error("Failed to fetch members");
       }
 
       const data = await response.json();
       // Set male members directly from API response
       setAgentMembers(data.male_members || []);
     } catch (error) {
-      console.error('Error fetching agent members:', error);
-      alert('Failed to load members');
+      console.error("Error fetching agent members:", error);
+      alert("Failed to load members");
     } finally {
       setLoadingMembers(false);
     }
@@ -884,21 +993,23 @@ const UserDetailProfessional = () => {
 
     try {
       setLoadingInterestMembers(true);
-      const userId = localStorage.getItem('impersonating_user_id') || localStorage.getItem('userId');
+      const userId =
+        localStorage.getItem("impersonating_user_id") ||
+        localStorage.getItem("userId");
 
       // Fetch all agent members
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/user_agent/?agent_id=${userId}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch members');
+        throw new Error("Failed to fetch members");
       }
 
       const data = await response.json();
@@ -910,15 +1021,15 @@ const UserDetailProfessional = () => {
       const targetGender = userData.gender?.toLowerCase();
 
       let compatibleMembers = [];
-      if (targetGender === 'female') {
+      if (targetGender === "female") {
         // Target is female, show male members
-        compatibleMembers = allMembers.filter(member =>
-          member.gender && member.gender.toLowerCase() === 'male'
+        compatibleMembers = allMembers.filter(
+          (member) => member.gender && member.gender.toLowerCase() === "male"
         );
-      } else if (targetGender === 'male') {
+      } else if (targetGender === "male") {
         // Target is male, show female members
-        compatibleMembers = allMembers.filter(member =>
-          member.gender && member.gender.toLowerCase() === 'female'
+        compatibleMembers = allMembers.filter(
+          (member) => member.gender && member.gender.toLowerCase() === "female"
         );
       } else {
         // If gender not clear, show all members
@@ -927,8 +1038,8 @@ const UserDetailProfessional = () => {
 
       setAgentInterestMembers(compatibleMembers);
     } catch (error) {
-      console.error('Error fetching agent interest members:', error);
-      alert('Failed to load members');
+      console.error("Error fetching agent interest members:", error);
+      alert("Failed to load members");
     } finally {
       setLoadingInterestMembers(false);
     }
@@ -937,13 +1048,13 @@ const UserDetailProfessional = () => {
   // Handle photo request
   const handlePhotoRequest = () => {
     if (!userData || !userData.id) {
-      alert('User data not available');
+      alert("User data not available");
       return;
     }
 
-    const currentUserId = localStorage.getItem('userId');
+    const currentUserId = localStorage.getItem("userId");
     if (!currentUserId) {
-      alert('Please login to request photos');
+      alert("Please login to request photos");
       return;
     }
 
@@ -955,8 +1066,8 @@ const UserDetailProfessional = () => {
     }
 
     // Check if already requested (pending)
-    if (photoRequestStatus === 'pending') {
-      alert('Photo request already sent - waiting for approval');
+    if (photoRequestStatus === "pending") {
+      alert("Photo request already sent - waiting for approval");
       return;
     }
 
@@ -966,21 +1077,21 @@ const UserDetailProfessional = () => {
       url: `/api/user/photo-request/`,
       payload: {
         action_on_id: Number(userData.id),
-        status: 'Requested'
+        status: "Requested",
       },
       setErrors: (error) => {
-        console.error('Photo request error:', error);
+        console.error("Photo request error:", error);
         if (error && error.already_sent === true) {
-          alert('Photo request already sent!');
-          setPhotoRequestStatus('pending');
+          alert("Photo request already sent!");
+          setPhotoRequestStatus("pending");
         } else {
-          alert('Failed to send photo request. Please try again.');
+          alert("Failed to send photo request. Please try again.");
         }
       },
       setSuccessMessage: (message) => {
-        console.log('Photo request success:', message);
-        alert('Photo request sent successfully!');
-        setPhotoRequestStatus('pending');
+        console.log("Photo request success:", message);
+        alert("Photo request sent successfully!");
+        setPhotoRequestStatus("pending");
 
         // After successful request, check status again to update UI
         setTimeout(() => {
@@ -997,7 +1108,7 @@ const UserDetailProfessional = () => {
   // Send interest on behalf of member (for agents)
   const handleSendInterestOnBehalf = async (member) => {
     if (!userData || !userData.id || !member) {
-      alert('Invalid data');
+      alert("Invalid data");
       return;
     }
 
@@ -1006,7 +1117,13 @@ const UserDetailProfessional = () => {
     const targetGender = userData.gender?.toLowerCase();
 
     if (memberGender === targetGender) {
-      alert(`Gender compatibility error: ${memberGender === 'male' ? 'Male' : 'Female'} members can only send interest to ${memberGender === 'male' ? 'Female' : 'Male'} profiles.`);
+      alert(
+        `Gender compatibility error: ${
+          memberGender === "male" ? "Male" : "Female"
+        } members can only send interest to ${
+          memberGender === "male" ? "Female" : "Male"
+        } profiles.`
+      );
       return;
     }
 
@@ -1016,23 +1133,25 @@ const UserDetailProfessional = () => {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/member/send-interest/`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            member_id: member.id,  // Agent ka member ID
-            target_user_id: parseInt(userData.id)  // Target user ID
-          })
+            member_id: member.id, // Agent ka member ID
+            target_user_id: parseInt(userData.id), // Target user ID
+          }),
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        const memberName = member.name || member.first_name || 'member';
-        const targetUserName = userData.name || userData.first_name || 'user';
-        alert(`Interest sent successfully from ${memberName} to ${targetUserName}!`);
+        const memberName = member.name || member.first_name || "member";
+        const targetUserName = userData.name || userData.first_name || "user";
+        alert(
+          `Interest sent successfully from ${memberName} to ${targetUserName}!`
+        );
         setShowInterestSidebar(false);
         // Refresh interest status
         setTimeout(() => {
@@ -1051,19 +1170,21 @@ const UserDetailProfessional = () => {
       } else {
         const errorData = await response.json();
 
-        if (errorData.error && errorData.error.includes('Gender')) {
+        if (errorData.error && errorData.error.includes("Gender")) {
           alert(`Gender compatibility error: ${errorData.error}`);
-        } else if (errorData.error && errorData.error.includes('already')) {
-          alert('Interest already sent by this member!');
-        } else if (errorData.error && errorData.error.includes('blocked')) {
-          alert('Cannot send interest: User is blocked!');
+        } else if (errorData.error && errorData.error.includes("already")) {
+          alert("Interest already sent by this member!");
+        } else if (errorData.error && errorData.error.includes("blocked")) {
+          alert("Cannot send interest: User is blocked!");
         } else {
-          alert(errorData.error || errorData.message || 'Failed to send interest');
+          alert(
+            errorData.error || errorData.message || "Failed to send interest"
+          );
         }
       }
     } catch (error) {
-      console.error('Error sending interest:', error);
-      alert('Failed to send interest. Please try again.');
+      console.error("Error sending interest:", error);
+      alert("Failed to send interest. Please try again.");
     } finally {
       setSendingInterest(null);
     }
@@ -1072,7 +1193,7 @@ const UserDetailProfessional = () => {
   // Send photo request on behalf of member (for agents)
   const handleSendPhotoRequestOnBehalf = async (member) => {
     if (!userData || !userData.id || !member) {
-      alert('Invalid data');
+      alert("Invalid data");
       return;
     }
 
@@ -1082,23 +1203,25 @@ const UserDetailProfessional = () => {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/agent/photo-request/send/`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            action_by_id: member.id,  // Agent ka male member ID
-            action_on_id: parseInt(userData.id)  // Target user ID
-          })
+            action_by_id: member.id, // Agent ka male member ID
+            action_on_id: parseInt(userData.id), // Target user ID
+          }),
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        const memberName = member.name || member.first_name || 'member';
-        const targetUserName = userData.name || userData.first_name || 'user';
-        alert(`Photo request sent successfully from ${memberName} to ${targetUserName}!`);
+        const memberName = member.name || member.first_name || "member";
+        const targetUserName = userData.name || userData.first_name || "user";
+        alert(
+          `Photo request sent successfully from ${memberName} to ${targetUserName}!`
+        );
         setShowPhotoRequestSidebar(false);
         // Refresh gallery to check if photos are now visible
         setTimeout(() => {
@@ -1109,17 +1232,21 @@ const UserDetailProfessional = () => {
       } else {
         const errorData = await response.json();
 
-        if (errorData.error && errorData.error.includes('Gender')) {
+        if (errorData.error && errorData.error.includes("Gender")) {
           alert(`Gender compatibility error: ${errorData.error}`);
-        } else if (errorData.error && errorData.error.includes('already')) {
-          alert('Photo request already sent by this member!');
+        } else if (errorData.error && errorData.error.includes("already")) {
+          alert("Photo request already sent by this member!");
         } else {
-          alert(errorData.error || errorData.message || 'Failed to send photo request');
+          alert(
+            errorData.error ||
+              errorData.message ||
+              "Failed to send photo request"
+          );
         }
       }
     } catch (error) {
-      console.error('Error sending photo request:', error);
-      alert('Failed to send photo request. Please try again.');
+      console.error("Error sending photo request:", error);
+      alert("Failed to send photo request. Please try again.");
     } finally {
       setSendingRequest(null);
     }
@@ -1127,7 +1254,9 @@ const UserDetailProfessional = () => {
 
   // Gallery handlers
   const handlePhotoClick = (photoUrl) => {
-    const allUrls = (galleryPhotos || []).map(p => getPhotoUrl(p?.upload_photo)).filter(Boolean);
+    const allUrls = (galleryPhotos || [])
+      .map((p) => getPhotoUrl(p?.upload_photo))
+      .filter(Boolean);
     const currentIndex = allUrls.indexOf(getPhotoUrl(photoUrl));
     setViewingImages(allUrls);
     setCurrentImageIndex(currentIndex >= 0 ? currentIndex : 0);
@@ -1143,7 +1272,9 @@ const UserDetailProfessional = () => {
   };
 
   const handlePrevPhoto = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + viewingImages.length) % viewingImages.length);
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + viewingImages.length) % viewingImages.length
+    );
   };
 
   // Keyboard navigation for lightbox
@@ -1151,17 +1282,17 @@ const UserDetailProfessional = () => {
     const handleKeyboard = (e) => {
       if (viewingImages.length === 0) return;
 
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         handleCloseLightbox();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === "ArrowLeft") {
         handlePrevPhoto();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         handleNextPhoto();
       }
     };
 
-    window.addEventListener('keydown', handleKeyboard);
-    return () => window.removeEventListener('keydown', handleKeyboard);
+    window.addEventListener("keydown", handleKeyboard);
+    return () => window.removeEventListener("keydown", handleKeyboard);
   }, [viewingImages, currentImageIndex]);
 
   if (loading) {
@@ -1212,10 +1343,17 @@ const UserDetailProfessional = () => {
               </div>
 
               <div className="profile-location">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                 </svg>
-                <span>{userData.city}, {userData.state}</span>
+                <span>
+                  {userData.city}, {userData.state}
+                </span>
               </div>
 
               <div className="profile-meta desktop-profile-meta">
@@ -1232,7 +1370,7 @@ const UserDetailProfessional = () => {
                 </span>
               </div>
 
-              <ul className='mobile-profile-meta text-left pl-0'>
+              <ul className="mobile-profile-meta text-left pl-0">
                 <li>
                   <strong>{userData.age}</strong> years
                 </li>
@@ -1243,38 +1381,65 @@ const UserDetailProfessional = () => {
                   <strong>{userData.Education}</strong>
                 </li>
               </ul>
-
             </div>
 
             {/* Action Buttons for Other Profiles */}
             {!isOwnProfile && (
               <div className="profile-actions">
                 <button
-                  className={`action-btn ${interestStatus ? 'active' : ''}`}
+                  className={`action-btn ${interestStatus ? "active" : ""}`}
                   onClick={handleInterest}
-                  title={interestStatus ? 'Withdraw Interest' : 'Send Interest'}
+                  title={interestStatus ? "Withdraw Interest" : "Send Interest"}
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill={interestStatus ? "currentColor" : "none"} stroke="currentColor">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" strokeWidth="2" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill={interestStatus ? "currentColor" : "none"}
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </button>
 
                 <button
-                  className={`action-btn ${shortlistStatus ? 'active' : ''}`}
+                  className={`action-btn ${shortlistStatus ? "active" : ""}`}
                   onClick={handleShortlist}
-                  title={shortlistStatus ? 'Remove from Shortlist' : 'Add to Shortlist'}
+                  title={
+                    shortlistStatus
+                      ? "Remove from Shortlist"
+                      : "Add to Shortlist"
+                  }
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill={shortlistStatus ? "currentColor" : "none"} stroke="currentColor">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" strokeWidth="2" />
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill={shortlistStatus ? "currentColor" : "none"}
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                      strokeWidth="2"
+                    />
                   </svg>
                 </button>
 
                 <button
-                  className={`action-btn ${blockStatus ? 'blocked' : ''}`}
+                  className={`action-btn ${blockStatus ? "blocked" : ""}`}
                   onClick={handleBlock}
-                  title={blockStatus ? 'Unblock User' : 'Block User'}
+                  title={blockStatus ? "Unblock User" : "Block User"}
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
                     <circle cx="12" cy="12" r="10" strokeWidth="2" />
                     <path d="M4.93 4.93l14.14 14.14" strokeWidth="2" />
                   </svg>
@@ -1290,7 +1455,14 @@ const UserDetailProfessional = () => {
                   onClick={() => navigate(`/memstepone/${userId}`)}
                   title="Edit Profile"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
@@ -1304,32 +1476,32 @@ const UserDetailProfessional = () => {
         {/* Tabs Navigation */}
         <div className="profile-tabs">
           <button
-            className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
-            onClick={() => setActiveTab('basic')}
+            className={`tab-btn ${activeTab === "basic" ? "active" : ""}`}
+            onClick={() => setActiveTab("basic")}
           >
             Basic Info
           </button>
           <button
-            className={`tab-btn ${activeTab === 'religious' ? 'active' : ''}`}
-            onClick={() => setActiveTab('religious')}
+            className={`tab-btn ${activeTab === "religious" ? "active" : ""}`}
+            onClick={() => setActiveTab("religious")}
           >
             Religious Info
           </button>
           <button
-            className={`tab-btn ${activeTab === 'family' ? 'active' : ''}`}
-            onClick={() => setActiveTab('family')}
+            className={`tab-btn ${activeTab === "family" ? "active" : ""}`}
+            onClick={() => setActiveTab("family")}
           >
             Family Background
           </button>
           <button
-            className={`tab-btn ${activeTab === 'preferences' ? 'active' : ''}`}
-            onClick={() => setActiveTab('preferences')}
+            className={`tab-btn ${activeTab === "preferences" ? "active" : ""}`}
+            onClick={() => setActiveTab("preferences")}
           >
             Partner Preferences
           </button>
           <button
-            className={`tab-btn ${activeTab === 'gallery' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gallery')}
+            className={`tab-btn ${activeTab === "gallery" ? "active" : ""}`}
+            onClick={() => setActiveTab("gallery")}
           >
             Gallery
           </button>
@@ -1337,9 +1509,8 @@ const UserDetailProfessional = () => {
 
         {/* Tab Content */}
         <div className="profile-content">
-
           {/* Basic Information */}
-          {activeTab === 'basic' && (
+          {activeTab === "basic" && (
             <div className="tab-content">
               <div className="info-grid">
                 {/* Row 1: Personal Details + Location */}
@@ -1348,11 +1519,17 @@ const UserDetailProfessional = () => {
                   <InfoRow label="Gender" value={userData.gender} />
                   <InfoRow label="Age" value={userData.age} />
                   <InfoRow label="Date of Birth" value={userData.dob} />
-                  <InfoRow label="Marital Status" value={userData.martial_status} />
+                  <InfoRow
+                    label="Marital Status"
+                    value={userData.martial_status}
+                  />
                   <InfoRow label="Height" value={userData.height} />
                   <InfoRow label="Weight" value={userData.weight} />
                   <InfoRow label="Skin Tone" value={userData.skin_tone} />
-                  <InfoRow label="Disability" value={userData.disability || 'None'} />
+                  <InfoRow
+                    label="Disability"
+                    value={userData.disability || "None"}
+                  />
                 </InfoCard>
 
                 <InfoCard title="Location">
@@ -1361,14 +1538,20 @@ const UserDetailProfessional = () => {
                   <InfoRow label="Current Country" value={userData.country} />
                   <InfoRow label="Native City" value={userData.native_city} />
                   <InfoRow label="Native State" value={userData.native_state} />
-                  <InfoRow label="Native Country" value={userData.native_country} />
+                  <InfoRow
+                    label="Native Country"
+                    value={userData.native_country}
+                  />
                 </InfoCard>
 
                 {/* Row 2: Professional Details + About */}
                 <InfoCard title="Professional Details">
                   <InfoRow label="Education" value={userData.Education} />
                   <InfoRow label="Profession" value={userData.profession} />
-                  <InfoRow label="Job Description" value={userData.describe_job_business} />
+                  <InfoRow
+                    label="Job Description"
+                    value={userData.describe_job_business}
+                  />
                   <InfoRow label="Annual Income" value={userData.income} />
                 </InfoCard>
 
@@ -1386,60 +1569,115 @@ const UserDetailProfessional = () => {
           )}
 
           {/* Religious Information */}
-          {activeTab === 'religious' && (
+          {activeTab === "religious" && (
             <div className="tab-content">
               <div className="info-grid">
                 <InfoCard title="Religious Beliefs">
-                  <InfoRow label="Sect/School of Thought" value={userData.sect_school_info} />
-                  <InfoRow label="Belief in Dargah/Fatiha/Niyah" value={userData.believe_in_dargah_fatiha_niyah} />
-                  <InfoRow label="Islamic Practice Level" value={userData.islamic_practicing_level} />
-                  <InfoRow label="Namaz Performance" value={userData.perform_namaz} />
-                  <InfoRow label="Quran Recitation" value={userData.recite_quran} />
-                  {userData.gender === 'female' && (
-                    <InfoRow label="Hijab/Niqab Preference" value={userData.hijab_niqab_prefer} />
+                  <InfoRow
+                    label="Sect/School of Thought"
+                    value={userData.sect_school_info}
+                  />
+                  <InfoRow
+                    label="Belief in Dargah/Fatiha/Niyah"
+                    value={userData.believe_in_dargah_fatiha_niyah}
+                  />
+                  <InfoRow
+                    label="Islamic Practice Level"
+                    value={userData.islamic_practicing_level}
+                  />
+                  <InfoRow
+                    label="Namaz Performance"
+                    value={userData.perform_namaz}
+                  />
+                  <InfoRow
+                    label="Quran Recitation"
+                    value={userData.recite_quran}
+                  />
+                  {userData.gender === "female" && (
+                    <InfoRow
+                      label="Hijab/Niqab Preference"
+                      value={userData.hijab_niqab_prefer}
+                    />
                   )}
                 </InfoCard>
 
                 <InfoCard title="Marriage Plans">
-                  <InfoRow label="Marriage Timeline" value={userData.marriage_plan} />
-                  <InfoRow label="Cultural Background" value={userData.cultural_background} />
+                  <InfoRow
+                    label="Marriage Timeline"
+                    value={userData.marriage_plan}
+                  />
+                  <InfoRow
+                    label="Cultural Background"
+                    value={userData.cultural_background}
+                  />
                 </InfoCard>
               </div>
             </div>
           )}
 
           {/* Family Background */}
-          {activeTab === 'family' && (
+          {activeTab === "family" && (
             <div className="tab-content">
               <div className="info-grid">
                 <InfoCard title="Parents">
                   <InfoRow label="Father's Name" value={userData.father_name} />
-                  <InfoRow label="Father's Occupation" value={userData.father_occupation} />
+                  <InfoRow
+                    label="Father's Occupation"
+                    value={userData.father_occupation}
+                  />
                   <InfoRow label="Mother's Name" value={userData.mother_name} />
-                  <InfoRow label="Mother's Occupation" value={userData.mother_occupation} />
+                  <InfoRow
+                    label="Mother's Occupation"
+                    value={userData.mother_occupation}
+                  />
                 </InfoCard>
 
                 <InfoCard title="Family Details">
                   <InfoRow label="Family Type" value={userData.family_type} />
-                  <InfoRow label="Family Practice Level" value={userData.family_practicing_level} />
-                  <InfoRow label="Number of Siblings" value={userData.number_of_siblings} />
-                  <InfoRow label="Number of Brothers" value={userData.number_of_brothers} />
-                  <InfoRow label="Number of Sisters" value={userData.number_of_sisters} />
+                  <InfoRow
+                    label="Family Practice Level"
+                    value={userData.family_practicing_level}
+                  />
+                  <InfoRow
+                    label="Number of Siblings"
+                    value={userData.number_of_siblings}
+                  />
+                  <InfoRow
+                    label="Number of Brothers"
+                    value={userData.number_of_brothers}
+                  />
+                  <InfoRow
+                    label="Number of Sisters"
+                    value={userData.number_of_sisters}
+                  />
                 </InfoCard>
 
-                {userData.gender === 'female' && (
+                {userData.gender === "female" && (
                   <InfoCard title="Wali Information">
                     <InfoRow label="Wali Name" value={userData.wali_name} />
-                    <InfoRow label="Wali Contact" value={userData.wali_contact_number} />
-                    <InfoRow label="Wali Relation" value={userData.wali_blood_relation} />
+                    <InfoRow
+                      label="Wali Contact"
+                      value={userData.wali_contact_number}
+                    />
+                    <InfoRow
+                      label="Wali Relation"
+                      value={userData.wali_blood_relation}
+                    />
                   </InfoCard>
                 )}
 
-                {(userData.martial_status === 'divorced' || userData.martial_status === 'widowed') && (
+                {(userData.martial_status === "divorced" ||
+                  userData.martial_status === "widowed") && (
                   <InfoCard title="Children">
-                    <InfoRow label="Number of Children" value={userData.number_of_children} />
+                    <InfoRow
+                      label="Number of Children"
+                      value={userData.number_of_children}
+                    />
                     <InfoRow label="Sons" value={userData.number_of_son} />
-                    <InfoRow label="Daughters" value={userData.number_of_daughter} />
+                    <InfoRow
+                      label="Daughters"
+                      value={userData.number_of_daughter}
+                    />
                   </InfoCard>
                 )}
               </div>
@@ -1447,78 +1685,142 @@ const UserDetailProfessional = () => {
           )}
 
           {/* Partner Preferences */}
-          {activeTab === 'preferences' && (
+          {activeTab === "preferences" && (
             <div className="tab-content">
               <div className="info-grid">
                 <InfoCard title="Religious Preferences">
-                  <InfoRow label="Preferred Sect" value={userData.preferred_sect} />
-                  <InfoRow label="Desired Practice Level" value={userData.desired_practicing_level} />
-                  <InfoRow label="Preferred Spiritual Beliefs" value={userData.preferred_dargah_fatiha_niyah} />
+                  <InfoRow
+                    label="Preferred Sect"
+                    value={userData.preferred_sect}
+                  />
+                  <InfoRow
+                    label="Desired Practice Level"
+                    value={userData.desired_practicing_level}
+                  />
+                  <InfoRow
+                    label="Preferred Spiritual Beliefs"
+                    value={userData.preferred_dargah_fatiha_niyah}
+                  />
                 </InfoCard>
 
                 <InfoCard title="Location & Family">
-                  <InfoRow label="Preferred City/State" value={userData.preferred_city_state || userData.preferred_city} />
-                  <InfoRow label="Preferred Family Type" value={userData.preferred_family_type} />
-                  <InfoRow label="Preferred Family Background" value={userData.preferred_family_background} />
-                  <InfoRow label="Preferred Surname" value={userData.preferred_surname} />
+                  <InfoRow
+                    label="Preferred City/State"
+                    value={
+                      userData.preferred_city_state || userData.preferred_city
+                    }
+                  />
+                  <InfoRow
+                    label="Preferred Family Type"
+                    value={userData.preferred_family_type}
+                  />
+                  <InfoRow
+                    label="Preferred Family Background"
+                    value={userData.preferred_family_background}
+                  />
+                  <InfoRow
+                    label="Preferred Surname"
+                    value={userData.preferred_surname}
+                  />
                 </InfoCard>
 
                 <InfoCard title="Educational & Professional">
-                  <InfoRow label="Preferred Education" value={userData.preferred_education} />
-                  <InfoRow label="Preferred Profession" value={userData.preferred_occupation_profession} />
+                  <InfoRow
+                    label="Preferred Education"
+                    value={userData.preferred_education}
+                  />
+                  <InfoRow
+                    label="Preferred Profession"
+                    value={userData.preferred_occupation_profession}
+                  />
                 </InfoCard>
               </div>
             </div>
           )}
 
           {/* Gallery */}
-          {activeTab === 'gallery' && (
+          {activeTab === "gallery" && (
             <div className="tab-content">
               <div className="gallery-section">
                 <h2 className="gallery-title">📸 Photo Gallery</h2>
 
                 {/* Photo Privacy Check - Show request button for private photos */}
-                {!isOwnProfile && userData?.gender === 'female' &&
-                  (localStorage.getItem('gender') === 'male' || isAgent) &&
-                  (userData?.photo_upload_privacy_option === 'Only to users whom I approve' ||
-                    userData?.photo_upload_privacy_option === 'Yes' ||
-                    userData?.photo_upload_privacy_option === 'Only Matches') &&
+                {!isOwnProfile &&
+                  userData?.gender === "female" &&
+                  (localStorage.getItem("gender") === "male" || isAgent) &&
+                  (userData?.photo_upload_privacy_option ===
+                    "Only to users whom I approve" ||
+                    userData?.photo_upload_privacy_option === "Yes" ||
+                    userData?.photo_upload_privacy_option === "Only Matches") &&
                   !canViewPhotos && (
                     <div className="photo-request-section">
                       <div className="photo-request-icon">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <svg
+                          width="64"
+                          height="64"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <rect
+                            x="3"
+                            y="3"
+                            width="18"
+                            height="18"
+                            rx="2"
+                            ry="2"
+                          />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <polyline points="21 15 16 10 5 21" />
                         </svg>
                       </div>
                       <h3 className="photo-request-title">Private Photos</h3>
                       <p className="photo-request-description">
-                        This user's photos are private. Request access to view their gallery.
+                        This user's photos are private. Request access to view
+                        their gallery.
                       </p>
                       {isAgent && (
                         <p className="photo-request-agent-note">
-                          💡 You can send photo request on behalf of your members from the sidebar.
+                          💡 You can send photo request on behalf of your
+                          members from the sidebar.
                         </p>
                       )}
                       <button
                         className="photo-request-btn"
                         onClick={handlePhotoRequest}
-                        disabled={photoPrivacyLoading || photoRequestStatus === 'pending'}
+                        disabled={
+                          photoPrivacyLoading ||
+                          photoRequestStatus === "pending"
+                        }
                       >
                         {photoPrivacyLoading ? (
-                          'Checking...'
-                        ) : photoRequestStatus === 'pending' ? (
+                          "Checking..."
+                        ) : photoRequestStatus === "pending" ? (
                           <>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <circle cx="12" cy="12" r="10" />
                               <polyline points="12 6 12 12 16 14" />
                             </svg>
                             Request Sent
                           </>
-                        ) : photoRequestStatus === 'rejected' ? (
+                        ) : photoRequestStatus === "rejected" ? (
                           <>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                               <polyline points="17 8 12 3 7 8" />
                               <line x1="12" y1="3" x2="12" y2="15" />
@@ -1527,7 +1829,14 @@ const UserDetailProfessional = () => {
                           </>
                         ) : (
                           <>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                               <polyline points="17 8 12 3 7 8" />
                               <line x1="12" y1="3" x2="12" y2="15" />
@@ -1536,11 +1845,15 @@ const UserDetailProfessional = () => {
                           </>
                         )}
                       </button>
-                      {photoRequestStatus === 'pending' && (
-                        <p className="photo-request-status">Waiting for approval...</p>
+                      {photoRequestStatus === "pending" && (
+                        <p className="photo-request-status">
+                          Waiting for approval...
+                        </p>
                       )}
-                      {photoRequestStatus === 'rejected' && (
-                        <p className="photo-request-status rejected">Your request was rejected. You can request again.</p>
+                      {photoRequestStatus === "rejected" && (
+                        <p className="photo-request-status rejected">
+                          Your request was rejected. You can request again.
+                        </p>
                       )}
                     </div>
                   )}
@@ -1549,35 +1862,55 @@ const UserDetailProfessional = () => {
                 {(canViewPhotos || isOwnProfile) && (
                   <>
                     {/* Show accepted member info for agents */}
-                    {isAgent && acceptedMemberInfo && canViewPhotos && !isOwnProfile && userData?.gender === 'female' && (
-                      <div className="photo-access-info">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                        </svg>
-                        <span>
-                          Photos visible because <strong>{acceptedMemberInfo.memberName}</strong>'s photo request was accepted.
-                        </span>
-                      </div>
-                    )}
+                    {isAgent &&
+                      acceptedMemberInfo &&
+                      canViewPhotos &&
+                      !isOwnProfile &&
+                      userData?.gender === "female" && (
+                        <div className="photo-access-info">
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                          <span>
+                            Photos visible because{" "}
+                            <strong>{acceptedMemberInfo.memberName}</strong>'s
+                            photo request was accepted.
+                          </span>
+                        </div>
+                      )}
                     {galleryPhotos && galleryPhotos.length > 0 ? (
                       <div className="photo-gallery-container">
                         {galleryPhotos.map((photo, index) => {
                           const fileUrl = getPhotoUrl(photo?.upload_photo);
-                          const isVideo = fileUrl && (
-                            fileUrl.toLowerCase().includes('.mp4') ||
-                            fileUrl.toLowerCase().includes('.mov') ||
-                            fileUrl.toLowerCase().includes('.avi') ||
-                            fileUrl.toLowerCase().includes('.webm') ||
-                            fileUrl.toLowerCase().includes('.mkv')
-                          );
+                          const isVideo =
+                            fileUrl &&
+                            (fileUrl.toLowerCase().includes(".mp4") ||
+                              fileUrl.toLowerCase().includes(".mov") ||
+                              fileUrl.toLowerCase().includes(".avi") ||
+                              fileUrl.toLowerCase().includes(".webm") ||
+                              fileUrl.toLowerCase().includes(".mkv"));
 
                           return (
                             <div
                               key={photo.id || index}
-                              className={`gallery-item ${isVideo ? 'video-container' : ''}`}
-                              onClick={() => handlePhotoClick(photo?.upload_photo)}
-                              style={{ cursor: 'pointer', position: 'relative' }}
+                              className={`gallery-item ${
+                                isVideo ? "video-container" : ""
+                              }`}
+                              onClick={() =>
+                                handlePhotoClick(photo?.upload_photo)
+                              }
+                              style={{
+                                cursor: "pointer",
+                                position: "relative",
+                              }}
                             >
                               {isVideo ? (
                                 <video
@@ -1589,7 +1922,11 @@ const UserDetailProfessional = () => {
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               ) : (
-                                <img src={fileUrl} alt={`Gallery photo ${index + 1}`} className="gallery-media" />
+                                <img
+                                  src={fileUrl}
+                                  alt={`Gallery photo ${index + 1}`}
+                                  className="gallery-media"
+                                />
                               )}
 
                               {/* Delete Button - Only for own profile */}
@@ -1603,7 +1940,7 @@ const UserDetailProfessional = () => {
                                   disabled={deletingPhoto === photo.id}
                                   title="Delete this photo"
                                 >
-                                  {deletingPhoto === photo.id ? '⏳' : '🗑️'}
+                                  {deletingPhoto === photo.id ? "⏳" : "🗑️"}
                                 </button>
                               )}
                             </div>
@@ -1612,7 +1949,10 @@ const UserDetailProfessional = () => {
 
                         {/* Add Photo Button - Only for own profile */}
                         {isOwnProfile && (
-                          <div className="gallery-item add-photo" onClick={() => setShowUploadModal(true)}>
+                          <div
+                            className="gallery-item add-photo"
+                            onClick={() => setShowUploadModal(true)}
+                          >
                             <div className="add-photo-content">
                               <span>+</span>
                               <p>Add Media</p>
@@ -1625,7 +1965,10 @@ const UserDetailProfessional = () => {
                         <p>No photos in gallery yet.</p>
                         {/* Add Photo Button - Only for own profile */}
                         {isOwnProfile && (
-                          <button className="add-photo-btn-primary" onClick={() => setShowUploadModal(true)}>
+                          <button
+                            className="add-photo-btn-primary"
+                            onClick={() => setShowUploadModal(true)}
+                          >
                             <span>+</span>
                             <span>Add Your First Photo</span>
                           </button>
@@ -1640,20 +1983,34 @@ const UserDetailProfessional = () => {
         </div>
       </div>
 
-
       {/* Image Gallery Lightbox Modal */}
       {viewingImages.length > 0 && (
         <div className="lightbox-modal" onClick={handleCloseLightbox}>
           <button className="lightbox-close" onClick={handleCloseLightbox}>
             ×
           </button>
-          <button className="lightbox-prev" onClick={(e) => { e.stopPropagation(); handlePrevPhoto(); }}>
+          <button
+            className="lightbox-prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrevPhoto();
+            }}
+          >
             ‹
           </button>
-          <button className="lightbox-next" onClick={(e) => { e.stopPropagation(); handleNextPhoto(); }}>
+          <button
+            className="lightbox-next"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNextPhoto();
+            }}
+          >
             ›
           </button>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="lightbox-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={viewingImages[currentImageIndex]}
               alt={`Gallery photo ${currentImageIndex + 1}`}
@@ -1668,10 +2025,13 @@ const UserDetailProfessional = () => {
 
       {/* Upload Modal - Only for own profile */}
       {isOwnProfile && showUploadModal && (
-        <div className="upload-modal-overlay" onClick={() => {
-          setShowUploadModal(false);
-          setSelectedFiles([]);
-        }}>
+        <div
+          className="upload-modal-overlay"
+          onClick={() => {
+            setShowUploadModal(false);
+            setSelectedFiles([]);
+          }}
+        >
           <div className="upload-modal" onClick={(e) => e.stopPropagation()}>
             <div className="upload-modal-header">
               <h2>📸 Photo/Video Upload</h2>
@@ -1694,16 +2054,25 @@ const UserDetailProfessional = () => {
                   multiple
                   accept="image/*,video/*"
                   onChange={handleFileSelect}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
                 <label htmlFor="file-upload" className="file-upload-label">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                   <p>Select Photos/Videos</p>
-                  <span className="file-hint">Images and videos up to 10MB</span>
+                  <span className="file-hint">
+                    Images and videos up to 10MB
+                  </span>
                 </label>
               </div>
 
@@ -1712,7 +2081,9 @@ const UserDetailProfessional = () => {
                   <h4>Selected Files ({selectedFiles.length}):</h4>
                   <ul>
                     {selectedFiles.map((file, index) => (
-                      <li key={index}>{file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
+                      <li key={index}>
+                        {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -1724,7 +2095,7 @@ const UserDetailProfessional = () => {
                   onClick={handleUpload}
                   disabled={selectedFiles.length === 0 || uploading}
                 >
-                  {uploading ? 'Uploading...' : 'Upload'}
+                  {uploading ? "Uploading..." : "Upload"}
                 </button>
                 <button
                   className="cancel-upload-btn"
@@ -1765,7 +2136,7 @@ const UserDetailProfessional = () => {
                 onClick={confirmDelete}
                 disabled={deletingPhoto !== null}
               >
-                {deletingPhoto !== null ? 'Deleting...' : 'Delete'}
+                {deletingPhoto !== null ? "Deleting..." : "Delete"}
               </button>
               <button
                 className="cancel-delete-btn"
@@ -1809,29 +2180,37 @@ const UserDetailProfessional = () => {
               ) : (
                 <div className="sidebar-members-list">
                   {agentMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="sidebar-member-item"
-                    >
+                    <div key={member.id} className="sidebar-member-item">
                       <div className="member-card-header">
                         <div className="member-avatar">
                           {member.profile_photo ? (
                             <img
                               src={`${process.env.REACT_APP_API_URL}${member.profile_photo}`}
-                              alt={member.name || member.first_name || 'Member'}
+                              alt={member.name || member.first_name || "Member"}
                             />
                           ) : (
                             <div className="member-avatar-placeholder">
-                              {(member.name || member.first_name || 'M')[0].toUpperCase()}
+                              {(member.name ||
+                                member.first_name ||
+                                "M")[0].toUpperCase()}
                             </div>
                           )}
                         </div>
                         <div className="member-info">
-                          <h4>{member.name || member.first_name || 'Member'}</h4>
+                          <h4>
+                            {member.name || member.first_name || "Member"}
+                          </h4>
                           <div className="member-details">
                             {member.age && (
                               <span className="member-detail-item">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
                                   <circle cx="12" cy="12" r="10" />
                                   <polyline points="12 6 12 12 16 14" />
                                 </svg>
@@ -1840,7 +2219,14 @@ const UserDetailProfessional = () => {
                             )}
                             {(member.city || member.location) && (
                               <span className="member-detail-item">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg
+                                  width="14"
+                                  height="14"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
                                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                   <circle cx="12" cy="10" r="3" />
                                 </svg>
@@ -1851,7 +2237,14 @@ const UserDetailProfessional = () => {
                           </div>
                           {member.profession && (
                             <p className="member-profession">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                                 <circle cx="12" cy="10" r="3" />
                               </svg>
@@ -1861,24 +2254,30 @@ const UserDetailProfessional = () => {
                         </div>
                       </div>
                       <button
-                        className="send-request-btn"
-                        onClick={() => handleSendPhotoRequestOnBehalf(member)}
-                        disabled={sendingRequest === member.id}
+                        className={`send-request-btn ${
+                          member.photo_request_status?.status !== null
+                            ? "disabled-btn"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          if (member.photo_request_status?.status === null) {
+                            handleSendPhotoRequestOnBehalf(member);
+                          }
+                        }}
+                        disabled={
+                          sendingRequest === member.id ||
+                          member.photo_request_status?.status !== null
+                        }
                       >
                         {sendingRequest === member.id ? (
                           <>
                             <span className="spinner"></span>
                             Sending...
                           </>
+                        ) : member.photo_request_status?.status !== null ? (
+                          member.photo_request_status?.status_display // Like Requested, Accepted
                         ) : (
-                          <>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                              <polyline points="17 8 12 3 7 8" />
-                              <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            Send Photo Request
-                          </>
+                          "Send Photo Request"
                         )}
                       </button>
                     </div>
@@ -1896,7 +2295,7 @@ const UserDetailProfessional = () => {
           isOpen={showMemberSendInterest}
           onClose={() => setShowMemberSendInterest(false)}
           targetUserId={userId}
-          targetUserName={userData?.name || userData?.first_name || 'N/A'}
+          targetUserName={userData?.name || userData?.first_name || "N/A"}
           targetUserPhoto={userData?.profile_photo}
           targetUserGender={userData?.gender}
           targetUserData={userData}
@@ -1912,18 +2311,15 @@ const UserDetailProfessional = () => {
 const InfoCard = ({ title, children }) => (
   <div className="info-card">
     <h3 className="card-title">{title}</h3>
-    <div className="card-content">
-      {children}
-    </div>
+    <div className="card-content">{children}</div>
   </div>
 );
 
 const InfoRow = ({ label, value }) => (
   <div className="info-row">
     <span className="info-label">{label}:</span>
-    <span className="info-value">{value || 'Not specified'}</span>
+    <span className="info-value">{value || "Not specified"}</span>
   </div>
 );
 
 export default UserDetailProfessional;
-
