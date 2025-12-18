@@ -211,9 +211,243 @@ const HeroSection = ({
 };
 
 // Registration Form Component
+// const RegistrationForm = ({
+//   formData,
+//   errors,
+//   handleInputChange,
+//   showPassword,
+//   setShowPassword,
+//   selectedCountryCode,
+//   handleCountryCodeChange,
+//   countryCodes,
+//   posstData,
+//   lastSegment,
+//   showTooltip,
+//   handleTooltipClick,
+//   handleGoogleSuccess,
+//   handleGoogleError,
+//   apiErrors,
+// }) => (
+//   <form className="space-y-4 px-1 sm:px-0">
+//     {/* On Behalf Field */}
+//     {/* {lastSegment !== "agent" && (
+//       <FormField
+//         label="Profile Creating For"
+//         required
+//         tooltip="Select who this profile is for. Brother/Son will auto-set gender as Male, Daughter/Sister as Female. For Self/Friend, you'll need to select gender manually."
+//         showTooltip={showTooltip}
+//         handleTooltipClick={handleTooltipClick}
+//         fieldName="on_behalf"
+//       >
+//         <select
+//           id="on_behalf"
+//           className="w-full h-11 px-4 text-[#898B92] font-semibold rounded-lg border border-[#898B92] focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
+//           onChange={handleInputChange}
+//           value={formData.on_behalf}
+//         >
+//           <option value="Self">Self</option>
+//           <option value="Brother">Brother</option>
+//           <option value="Sister">Sister</option>
+//           <option value="Daughter">Daughter</option>
+//           <option value="Son">Son</option>
+//           <option value="Friend">Friend</option>
+//         </select>
+//       </FormField>
+//     )} */}
+
+//     {/* First Name & Last Name */}
+//     {/* First Name and Last Name fields removed */}
+
+//     {/* Gender and Date of Birth fields removed */}
+
+//     {/* Email */}
+//     <FormField
+//       label="Email"
+//       required
+//       error={errors.email}
+//       tooltip="Enter a valid email address. This will be used for account verification and communication."
+//       showTooltip={showTooltip}
+//       handleTooltipClick={handleTooltipClick}
+//       fieldName="email"
+//     >
+//       <input
+//         id="email"
+//         type="email"
+//         className={`w-full h-11 px-3 sm:px-4 text-[#6D6E6F] font-semibold rounded-lg border ${
+//           errors.email ? "border-red-500" : "border-[#898B92]"
+//         } focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
+//         placeholder="Enter your email"
+//         onChange={handleInputChange}
+//         value={formData.email}
+//       />
+//     </FormField>
+//     {apiErrors?.email && (
+//       <p className="text-red-500 text-sm">{apiErrors.email}</p>
+//     )}
+
+//     {apiErrors?.message && (
+//       <p className="text-red-500 text-sm">{apiErrors.message}</p>
+//     )}
+
+//     {/* Phone */}
+//     <FormField
+//       label="Phone"
+//       required
+//       error={errors.mobile_no}
+//       tooltip="Enter your 10-digit phone number. This will be used for OTP verification."
+//       showTooltip={showTooltip}
+//       handleTooltipClick={handleTooltipClick}
+//       fieldName="mobile_no"
+//     >
+//       <div className="flex gap-1 sm:gap-2">
+//         <div className="flex items-center h-11 px-1 sm:px-2 border border-[#898B92] rounded-lg min-w-0 flex-shrink-0">
+//           <ReactCountryFlag
+//             countryCode={
+//               countryCodes.find(
+//                 (country) => country.code === selectedCountryCode
+//               )?.iso
+//             }
+//             svg
+//             style={{ width: "20px", height: "14px", marginRight: "4px" }}
+//           />
+//           <select
+//             value={selectedCountryCode}
+//             onChange={handleCountryCodeChange}
+//             className="bg-transparent focus:outline-none text-xs sm:text-sm min-w-0"
+//           >
+//             {countryCodes.map((country) => (
+//               <option key={country.code} value={country.code}>
+//                 {country.code}
+//               </option>
+//             ))}
+//           </select>
+//         </div>
+//         <input
+//           id="mobile_no"
+//           type="text"
+//           inputMode="numeric"
+//           className={`flex-1 h-11 px-2 sm:px-3 text-[#6D6E6F] font-semibold rounded-lg border ${
+//             errors.mobile_no ? "border-red-500" : "border-[#898B92]"
+//           } focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] min-w-0`}
+//           placeholder="Phone number"
+//           onChange={handleInputChange}
+//           value={formData.mobile_no}
+//         />
+//       </div>
+//     </FormField>
+
+//     {/* Password & Confirm Password */}
+//     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+//       <PasswordField
+//         id="password"
+//         label="Password"
+//         value={formData.password}
+//         error={errors.password}
+//         showPassword={showPassword}
+//         setShowPassword={setShowPassword}
+//         handleInputChange={handleInputChange}
+//         showTooltip={showTooltip}
+//         handleTooltipClick={handleTooltipClick}
+//       />
+//       <PasswordField
+//         id="conform_password"
+//         label="Confirm Password"
+//         value={formData.conform_password}
+//         error={errors.conform_password}
+//         showPassword={showPassword}
+//         setShowPassword={setShowPassword}
+//         handleInputChange={handleInputChange}
+//         showTooltip={showTooltip}
+//         handleTooltipClick={handleTooltipClick}
+//       />
+//     </div>
+
+//     {/* Terms & Conditions */}
+//     <div className="flex items-start gap-3 pt-2">
+//       <input
+//         id="terms_condition"
+//         type="checkbox"
+//         className="w-5 h-5 mt-0.5 text-[#CB3B8B] focus:ring-[#CB3B8B] rounded border-[#898B92]"
+//         onChange={handleInputChange}
+//         checked={formData.terms_condition}
+//       />
+//       <label
+//         htmlFor="terms_condition"
+//         className="text-xs sm:text-sm text-[#6D6E6F]"
+//       >
+//         By signing up you agree to our{" "}
+//         <a
+//           href="/terms-conditions"
+//           className="text-[#FF28A0] font-medium hover:underline cursor-pointer"
+//         >
+//           terms and conditions.
+//         </a>
+//       </label>
+//     </div>
+//     {errors.terms_condition && (
+//       <p className="text-red-500 text-sm">{errors.terms_condition}</p>
+//     )}
+
+//     {/* Submit Button */}
+//     <button
+//       onClick={posstData}
+//       type="button"
+//       className="w-full py-3 rounded-lg text-white font-semibold transition-all duration-300 hover:shadow-lg"
+//       style={{
+//         background:
+//           "linear-gradient(45deg, rgb(210, 53, 53), rgb(225, 43, 104))",
+//       }}
+//     >
+//       Create Account
+//     </button>
+
+//     {/* Divider */}
+//     <div className="flex items-center gap-4 py-2">
+//       <div className="flex-1 border-t border-gray-300" />
+//       <span className="text-xs sm:text-sm text-[#6D6E6F] font-medium">
+//         Or Join With
+//       </span>
+//       <div className="flex-1 border-t border-gray-300" />
+//     </div>
+
+//     {/* Google Sign In */}
+//     {formData.on_behalf && formData.terms_condition ? (
+//       <GoogleOAuthProvider
+//         clientId={
+//           process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id"
+//         }
+//       >
+//         <GoogleLogin
+//           onSuccess={handleGoogleSuccess}
+//           onError={handleGoogleError}
+//           useOneTap={false}
+//           theme="outline"
+//           size="large"
+//           text="signup_with"
+//           shape="rectangular"
+//           width="100%"
+//           className="w-full"
+//         />
+//       </GoogleOAuthProvider>
+//     ) : (
+//       <div className="w-full h-11 px-4 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center opacity-50 cursor-not-allowed">
+//         <span className="text-gray-500 font-medium">Sign up with Google</span>
+//       </div>
+//     )}
+
+//     {/* Helper text for Google sign in */}
+//     {(!formData.on_behalf || !formData.terms_condition) && (
+//       <p className="text-xs text-gray-500 text-center mt-2">
+//         Please select "Profile Creating For" and accept terms & conditions to
+//         enable Google sign up
+//       </p>
+//     )}
+//   </form>
+// );
+
 const RegistrationForm = ({
-  formData,
-  errors,
+  formData = {},              // ✅ FIX: default object
+  errors = {},                // ✅ FIX
   handleInputChange,
   showPassword,
   setShowPassword,
@@ -226,45 +460,14 @@ const RegistrationForm = ({
   handleTooltipClick,
   handleGoogleSuccess,
   handleGoogleError,
-  apiErrors,
+  apiErrors = {},              // ✅ FIX
 }) => (
   <form className="space-y-4 px-1 sm:px-0">
-    {/* On Behalf Field */}
-    {/* {lastSegment !== "agent" && (
-      <FormField
-        label="Profile Creating For"
-        required
-        tooltip="Select who this profile is for. Brother/Son will auto-set gender as Male, Daughter/Sister as Female. For Self/Friend, you'll need to select gender manually."
-        showTooltip={showTooltip}
-        handleTooltipClick={handleTooltipClick}
-        fieldName="on_behalf"
-      >
-        <select
-          id="on_behalf"
-          className="w-full h-11 px-4 text-[#898B92] font-semibold rounded-lg border border-[#898B92] focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]"
-          onChange={handleInputChange}
-          value={formData.on_behalf}
-        >
-          <option value="Self">Self</option>
-          <option value="Brother">Brother</option>
-          <option value="Sister">Sister</option>
-          <option value="Daughter">Daughter</option>
-          <option value="Son">Son</option>
-          <option value="Friend">Friend</option>
-        </select>
-      </FormField>
-    )} */}
-
-    {/* First Name & Last Name */}
-    {/* First Name and Last Name fields removed */}
-
-    {/* Gender and Date of Birth fields removed */}
-
     {/* Email */}
     <FormField
       label="Email"
       required
-      error={errors.email}
+      error={errors?.email}     // ✅ FIX
       tooltip="Enter a valid email address. This will be used for account verification and communication."
       showTooltip={showTooltip}
       handleTooltipClick={handleTooltipClick}
@@ -274,17 +477,17 @@ const RegistrationForm = ({
         id="email"
         type="email"
         className={`w-full h-11 px-3 sm:px-4 text-[#6D6E6F] font-semibold rounded-lg border ${
-          errors.email ? "border-red-500" : "border-[#898B92]"
+          errors?.email ? "border-red-500" : "border-[#898B92]"
         } focus:outline-none focus:ring-2 focus:ring-[#CB3B8B]`}
         placeholder="Enter your email"
         onChange={handleInputChange}
-        value={formData.email}
+        value={formData?.email ?? ""}   // ✅ FIX
       />
     </FormField>
+
     {apiErrors?.email && (
       <p className="text-red-500 text-sm">{apiErrors.email}</p>
     )}
-
     {apiErrors?.message && (
       <p className="text-red-500 text-sm">{apiErrors.message}</p>
     )}
@@ -293,7 +496,7 @@ const RegistrationForm = ({
     <FormField
       label="Phone"
       required
-      error={errors.mobile_no}
+      error={errors?.mobile_no}   // ✅ FIX
       tooltip="Enter your 10-digit phone number. This will be used for OTP verification."
       showTooltip={showTooltip}
       handleTooltipClick={handleTooltipClick}
@@ -303,7 +506,7 @@ const RegistrationForm = ({
         <div className="flex items-center h-11 px-1 sm:px-2 border border-[#898B92] rounded-lg min-w-0 flex-shrink-0">
           <ReactCountryFlag
             countryCode={
-              countryCodes.find(
+              countryCodes?.find(
                 (country) => country.code === selectedCountryCode
               )?.iso
             }
@@ -315,7 +518,7 @@ const RegistrationForm = ({
             onChange={handleCountryCodeChange}
             className="bg-transparent focus:outline-none text-xs sm:text-sm min-w-0"
           >
-            {countryCodes.map((country) => (
+            {countryCodes?.map((country) => (
               <option key={country.code} value={country.code}>
                 {country.code}
               </option>
@@ -327,22 +530,22 @@ const RegistrationForm = ({
           type="text"
           inputMode="numeric"
           className={`flex-1 h-11 px-2 sm:px-3 text-[#6D6E6F] font-semibold rounded-lg border ${
-            errors.mobile_no ? "border-red-500" : "border-[#898B92]"
+            errors?.mobile_no ? "border-red-500" : "border-[#898B92]"
           } focus:outline-none focus:ring-2 focus:ring-[#CB3B8B] min-w-0`}
           placeholder="Phone number"
           onChange={handleInputChange}
-          value={formData.mobile_no}
+          value={formData?.mobile_no ?? ""}   // ✅ FIX
         />
       </div>
     </FormField>
 
-    {/* Password & Confirm Password */}
+    {/* Passwords */}
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <PasswordField
         id="password"
         label="Password"
-        value={formData.password}
-        error={errors.password}
+        value={formData?.password ?? ""}          // ✅ FIX
+        error={errors?.password}
         showPassword={showPassword}
         setShowPassword={setShowPassword}
         handleInputChange={handleInputChange}
@@ -352,8 +555,8 @@ const RegistrationForm = ({
       <PasswordField
         id="conform_password"
         label="Confirm Password"
-        value={formData.conform_password}
-        error={errors.conform_password}
+        value={formData?.conform_password ?? ""}  // ✅ FIX
+        error={errors?.conform_password}
         showPassword={showPassword}
         setShowPassword={setShowPassword}
         handleInputChange={handleInputChange}
@@ -362,19 +565,16 @@ const RegistrationForm = ({
       />
     </div>
 
-    {/* Terms & Conditions */}
+    {/* Terms */}
     <div className="flex items-start gap-3 pt-2">
       <input
         id="terms_condition"
         type="checkbox"
         className="w-5 h-5 mt-0.5 text-[#CB3B8B] focus:ring-[#CB3B8B] rounded border-[#898B92]"
         onChange={handleInputChange}
-        checked={formData.terms_condition}
+        checked={!!formData?.terms_condition}   // ✅ FIX
       />
-      <label
-        htmlFor="terms_condition"
-        className="text-xs sm:text-sm text-[#6D6E6F]"
-      >
+      <label className="text-xs sm:text-sm text-[#6D6E6F]">
         By signing up you agree to our{" "}
         <a
           href="/terms-conditions"
@@ -384,11 +584,12 @@ const RegistrationForm = ({
         </a>
       </label>
     </div>
-    {errors.terms_condition && (
+
+    {errors?.terms_condition && (
       <p className="text-red-500 text-sm">{errors.terms_condition}</p>
     )}
 
-    {/* Submit Button */}
+    {/* Submit */}
     <button
       onClick={posstData}
       type="button"
@@ -401,17 +602,8 @@ const RegistrationForm = ({
       Create Account
     </button>
 
-    {/* Divider */}
-    <div className="flex items-center gap-4 py-2">
-      <div className="flex-1 border-t border-gray-300" />
-      <span className="text-xs sm:text-sm text-[#6D6E6F] font-medium">
-        Or Join With
-      </span>
-      <div className="flex-1 border-t border-gray-300" />
-    </div>
-
-    {/* Google Sign In */}
-    {formData.on_behalf && formData.terms_condition ? (
+    {/* Google */}
+    {formData?.on_behalf && formData?.terms_condition ? (   // ✅ FIX
       <GoogleOAuthProvider
         clientId={
           process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id"
@@ -421,12 +613,6 @@ const RegistrationForm = ({
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleError}
           useOneTap={false}
-          theme="outline"
-          size="large"
-          text="signup_with"
-          shape="rectangular"
-          width="100%"
-          className="w-full"
         />
       </GoogleOAuthProvider>
     ) : (
@@ -434,16 +620,9 @@ const RegistrationForm = ({
         <span className="text-gray-500 font-medium">Sign up with Google</span>
       </div>
     )}
-
-    {/* Helper text for Google sign in */}
-    {(!formData.on_behalf || !formData.terms_condition) && (
-      <p className="text-xs text-gray-500 text-center mt-2">
-        Please select "Profile Creating For" and accept terms & conditions to
-        enable Google sign up
-      </p>
-    )}
   </form>
 );
+
 
 // OTP Form Component
 const OTPForm = ({

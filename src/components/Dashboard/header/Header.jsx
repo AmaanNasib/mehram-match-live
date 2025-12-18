@@ -488,8 +488,8 @@ const Header = ({ subNavActive, apiData: propApiData, members }) => {
                             ? agentPhotoUrl 
                             : `${process.env.REACT_APP_API_URL}${agentPhotoUrl}`;
                           
-                          if (fullUrl.startsWith('http://api.mehrammatch.com')) {
-                            fullUrl = fullUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
+                          if (fullUrl.startsWith('https://mehrammatchbackend-production-2b1e.up.railway.app')) {
+                            fullUrl = fullUrl.replace('https://mehrammatchbackend-production-2b1e.up.railway.app', 'https://mehrammatchbackend-production-2b1e.up.railway.app');
                           }
                           
                           return fullUrl;

@@ -310,8 +310,8 @@ const AgentProfile = () => {
       let photoUrl = agentProfilePhoto.upload_photo;
       
       // Fix HTTP to HTTPS for production URLs
-      if (photoUrl.startsWith('http://api.mehrammatch.com')) {
-        photoUrl = photoUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
+      if (photoUrl.startsWith('https://mehrammatchbackend-production-2b1e.up.railway.app')) {
+        photoUrl = photoUrl.replace('https://mehrammatchbackend-production-2b1e.up.railway.app', 'https://mehrammatchbackend-production-2b1e.up.railway.app');
       }
       
       return photoUrl.startsWith('http') 
@@ -324,8 +324,8 @@ const AgentProfile = () => {
       let photoUrl = agentData.profile_photo;
       
       // Fix HTTP to HTTPS for production URLs
-      if (photoUrl.startsWith('http://api.mehrammatch.com')) {
-        photoUrl = photoUrl.replace('http://apii.mehrammatch.com', 'https://apii.mehrammatch.com');
+      if (photoUrl.startsWith('https://mehrammatchbackend-production-2b1e.up.railway.app')) {
+        photoUrl = photoUrl.replace('https://mehrammatchbackend-production-2b1e.up.railway.app', 'https://mehrammatchbackend-production-2b1e.up.railway.app');
       }
       
       return photoUrl.startsWith('http') 

@@ -86,7 +86,7 @@ const LandingPage = () => {
     }
 
     setFormData((prevState) => ({
-      ...prevState,
+      ...(prevState ?? {}), // ✅ CRITICAL FIX
       [id]: newValue,
     }));
 
@@ -99,17 +99,17 @@ const LandingPage = () => {
       }
 
       setFormData((prevState) => ({
-        ...prevState,
+        ...(prevState ?? {}), // ✅ CRITICAL FIX
         [id]: newValue,
         gender: autoGender,
       }));
     }
 
-    if (apiErrors.email || apiErrors.message) {
+    if (apiErrors?.email || apiErrors?.message) {
       setApiErrors({});
     }
 
-    if (errors[id]) {
+    if (errors?.[id]) {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
         delete newErrors[id];
@@ -283,10 +283,10 @@ const LandingPage = () => {
         // contact_number: googleData.contact_number || "",
         // onbehalf: googleData.onbehalf,
         // gender: googleData.gender,
-        auth_provider: 'google',
+        auth_provider: "google",
         google_id: googleData.google_id,
         // terms_condition: googleData.terms_condition,
-        // is_google_signup: true, 
+        // is_google_signup: true,
       },
       setErrors: setApiErrors,
       navigate: navigate,
@@ -326,7 +326,7 @@ const LandingPage = () => {
           gender: formData.gender,
           confirm_password: formData.conform_password,
           terms_condition: formData.terms_condition,
-          auth_provider: 'email',
+          auth_provider: "email",
         },
         setErrors: setApiErrors,
         navigate: navigate,

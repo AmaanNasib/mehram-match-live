@@ -101,7 +101,14 @@
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
+@media screen and (max-width: 600px) {
+  .tba-table-container {
+    overflow: scroll;
+  }
+  .tba-page-title{
+    font-size: 25px;
+  }
+}
 .tba-data-table {
   width: 100%;
   border-collapse: collapse;

@@ -1773,7 +1773,7 @@ const fetchDataV2 = (parameter) => {
   axios
     .get(`${process.env.REACT_APP_API_URL}${parameter?.url}`, {
       headers: {
-        // Authorization: `Bearer ${getToken()}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     })
     .then((response) => {
